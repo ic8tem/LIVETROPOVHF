@@ -1,0 +1,74 @@
+LIVETROPOVHF (IC8TEM) - COME COMPILARE E AVVIARE SU WINDOWS 64 BIT
+=========================================================================
+
+Questa cartella contiene il codice sorgente, non l'eseguibile: lo crei tu con
+un doppio clic, perché nella chat in cui è stato scritto non era possibile compilare.
+
+1) PREPARA GLI STRUMENTI (una volta sola)
+   - Doppio clic su prepara-sdk-win64.bat
+   - Controlla se c'e' il .NET 10 SDK; se manca lo scarica e lo installa nella
+     cartella dotnet-sdk qui accanto (niente amministratore, niente registro).
+     Poi controlla la sorgente nuget.org e scarica in anticipo le librerie.
+   - Se va male, il dettaglio e' in prepara-sdk.log: mandalo in chat.
+   - In alternativa puoi installare l'SDK a mano da
+     https://dotnet.microsoft.com/download/dotnet/10.0 (colonna SDK, Windows x64).
+   - Serve solo per compilare: il programma finito NON richiede .NET installato.
+
+2) ESTRAI LO ZIP
+   - Estrai tutta la cartella in un posto dove puoi scrivere,
+     per esempio C:\Radio\LIVETROPOVHF (non in C:\Programmi).
+
+3) COMPILA
+   - Doppio clic su build-win64.bat
+   - La prima volta scarica da Internet le librerie (Avalonia, MQTTnet, SQLite):
+     ci vogliono alcuni minuti. Alla fine si apre la cartella pubblicato\win-x64.
+   - Se compare "ERRORE di compilazione", mandami in chat il file compilazione.log.
+
+4) AVVIA
+   - Doppio clic su pubblicato\win-x64\LIVETROPOVHF.exe
+   - Windows SmartScreen può avvisare che il programma non è firmato:
+     "Ulteriori informazioni" -> "Esegui comunque".
+   - Il Firewall di Windows può chiedere il permesso di rete (serve per UDP 2237):
+     consenti almeno le reti private.
+
+   Nella cartella pubblicato\win-x64 devono restare insieme:
+     LIVETROPOVHF.exe        il programma
+     CALL3.TXT           database nominativi -> locatore (copiato dallo script)
+     Tarature\           tarature delle mappe Hepburn / F5LEN
+   e il programma crea da solo, sempre lì accanto (mai in AppData):
+     LIVETROPOVHF.ini        impostazioni
+     LIVETROPOVHF.db         archivio SQLite di spot, ascolti e decodifiche
+     Dati\               coste e confini Natural Earth (scaricati al primo avvio), cache
+
+5) PRIMO AVVIO
+   - In alto a sinistra scrivi Call e Locatore (4 o 6 caratteri).
+   - Al primo avvio scarica coste e confini (Natural Earth): servono qualche secondo
+     e la connessione a Internet. Senza, la mappa mostra solo la griglia locator.
+   - WSJT-X / JTDX / MSHV: in Impostazioni -> Reporting imposta il server UDP
+     127.0.0.1 porta 2237. Il programma inoltra tutto su 127.0.0.1:2238: se usi
+     GridTracker o JTAlert, spostali sulla porta 2238.
+   - Se l'avvio fallisce, accanto al programma compare errore-avvio.txt: mandamelo.
+
+COSA C'È IN QUESTA VERSIONE
+   - Linguette: Mappa e spot, Raccolta dati, Funzionamento del programma,
+     Costruzione della mappa, UDP e NTP. Tema e lingua senza riavvio.
+   - Mappa Mercatore / azimutale equidistante centrata sul locatore, zoom con la
+     rotella, trascinamento, doppio clic = vista intera, tasti + e -.
+   - Layer con caselle: mappa di base, griglia locator, indice tropo, isobare,
+     in ascolto, decodificati da me, spot. Clic su un punto = valori di tutti i layer.
+   - Spot da DX cluster, RBN, cluster PSKReporter con filtro negativo; airscatter
+     (<AS>, <ACS>, "airscatter") giallo tratteggiato.
+   - Chi ascolta: PSKReporter MQTT (mqtt.pskreporter.info:1883) su 144, 222, 432.
+   - Decodifiche UDP da WSJT-X/JTDX/MSHV: linee rosse dal QTH, inoltro su 2238,
+     debug del testo ricevuto.
+   - NTP: 10 server ogni 3 minuti, NTP:OK verde / NTP:FAILED rosso accanto all'orologio.
+   - Isobare dal modello GFS (via Open-Meteo), ogni 4 hPa, con centri H e L.
+   - Archivio SQLite di tutto ciò che arriva.
+
+COSA MANCA ANCORA
+   - Indice tropo Hepburn/F5LEN: il meccanismo di lettura c'è, ma ogni mappa va
+     tarata (indirizzi delle immagini, punti di controllo, colori della legenda) e
+     va chiesto il permesso agli autori. Vedi Tarature\LEGGIMI.txt.
+   - Traduzioni: italiano e inglese; le altre 26 lingue mostrano l'inglese.
+   - Questo pacchetto contiene solo la compilazione per Windows 64 bit.
+

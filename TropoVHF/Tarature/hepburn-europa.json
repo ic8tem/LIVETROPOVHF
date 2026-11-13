@@ -1,0 +1,24 @@
+{
+  "nome": "Hepburn",
+  "fonte": "hepburn",
+  "attivo": true,
+  "nota": "Legenda letta dalle mappe Europe, Ern No Atlantic, South America e Nrn So America dell'8/11/2026: sfondo (20,20,20) = 0 e dieci colori in ordine (viola, blu, verde acqua, lime, giallo, ocra, arancio, rosso, rosa, rosa chiaro) per i valori 1…10 della scala ufficiale dell'indice; il lilla compare oltre il 10. Da confermare con la legenda della pagina.",
+  "tolleranza": 24,
+  "scala_a": 1,
+  "scala_b": 0,
+  "passi": [],
+  "punti_controllo": [],
+  "legenda": [
+    { "colore": "#8200DC", "valore": 1 },
+    { "colore": "#3377FF", "valore": 2 },
+    { "colore": "#02D0A1", "valore": 3 },
+    { "colore": "#A0E632", "valore": 4 },
+    { "colore": "#E6DC32", "valore": 5 },
+    { "colore": "#E6AF2D", "valore": 6 },
+    { "colore": "#F08228", "valore": 7 },
+    { "colore": "#FA3C3C", "valore": 8 },
+    { "colore": "#FF80C0", "valore": 9 },
+    { "colore": "#FFB4DC", "valore": 10 },
+    { "colore": "#CC86CC", "valore": 11 }
+  ]
+}

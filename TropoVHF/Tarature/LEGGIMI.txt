@@ -1,0 +1,16 @@
+TARATURE DELLE MAPPE TROPO (Hepburn, F5LEN)
+===========================================
+
+Il programma legge le mappe dell'indice tropo solo se il file di taratura
+corrispondente ha "attivo": true. Ogni file descrive un tipo di mappa:
+
+  passi            elenco { "ore": ore di previsione, "url": indirizzo dell'immagine }
+  punti_controllo  almeno 6 punti { "x", "y" (pixel dell'immagine), "lat", "lon" }
+                   (con 3-5 punti si usa una relazione lineare, meno precisa)
+  legenda          colori della scala { "colore": "#RRGGBB", "valore": numero }
+  tolleranza       differenza massima di colore accettata (somma |R|+|G|+|B|)
+  scala_a, scala_b il valore finale è scala_a * valore + scala_b
+                   (per F5LEN serve a portare le unità N sulla scala 0-10)
+
+Dopo una modifica: linguetta Raccolta dati, sezione 5, "Aggiorna ora".
+Prima di attivare una fonte va chiesto il permesso al suo autore.

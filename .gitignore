@@ -1,0 +1,10 @@
+bin/
+obj/
+pubblicato/
+dotnet-sdk/
+*.log
+LIVETROPOVHF.ini
+LIVETROPOVHF.db
+TropoVHF.ini
+TropoVHF.db
+Dati/

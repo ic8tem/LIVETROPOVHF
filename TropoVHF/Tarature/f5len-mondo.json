@@ -1,0 +1,21 @@
+{
+  "nome": "F5LEN",
+  "fonte": "f5len",
+  "attivo": true,
+  "nota": "Legenda a classi di F5LEN. I valori sulla scala di Hepburn vengono dai colori in comune: Weak ha lo stesso colore di Hepburn 1, Strong di Hepburn 5, Vy Strong di Hepburn 7, Duct di Hepburn 8; Minor sta sotto Weak, Good (verde) tra 3 e 4. scala_a è il moltiplicatore che rende F5LEN confrontabile con Hepburn (valore finale = scala_a × valore della classe + scala_b). Disturb (sub-rifrazione) vale 0.",
+  "tolleranza": 24,
+  "scala_a": 1,
+  "scala_b": 0,
+  "passi": [],
+  "punti_controllo": [],
+  "legenda": [
+    { "colore": "#AAAAAA", "valore": 0 },
+    { "colore": "#FFFFFF", "valore": 0 },
+    { "colore": "#A000C8", "valore": 0.5 },
+    { "colore": "#8200DC", "valore": 1 },
+    { "colore": "#00DC00", "valore": 3.5 },
+    { "colore": "#E6DC32", "valore": 5 },
+    { "colore": "#F08228", "valore": 7 },
+    { "colore": "#FA3C3C", "valore": 8 }
+  ]
+}

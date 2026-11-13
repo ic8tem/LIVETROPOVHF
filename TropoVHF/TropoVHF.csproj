@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- Windows: API del sistema per l'OCR integrato (lettura degli assi delle mappe). Le altre piattaforme restano net10.0. -->
+    <TargetFramework Condition="'$(RuntimeIdentifier)' != '' And $(RuntimeIdentifier.StartsWith('win'))">net10.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion Condition="'$(RuntimeIdentifier)' != '' And $(RuntimeIdentifier.StartsWith('win'))">10.0.17763.0</SupportedOSPlatformVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AssemblyName>LIVETROPOVHF</AssemblyName>
+    <RootNamespace>TropoVHF</RootNamespace>
+    <Version>0.4.0</Version>
+    <Product>LIVETROPOVHF</Product>
+    <Description>Previsione e osservazione in tempo reale della propagazione troposferica VHF/UHF</Description>
+    <Authors>IC8TEM</Authors>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <SatelliteResourceLanguages>it;en</SatelliteResourceLanguages>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <NoWarn>$(NoWarn);NU1603;CS0618</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.*" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.*" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.*" />
+    <PackageReference Include="MQTTnet" Version="4.3.*" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Docs\*.md" />
+    <EmbeddedResource Include="Lang\*.json" LogicalName="TropoVHF.Lang.%(Filename).json" />
+    <None Include="Tarature\*.json;Tarature\*.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+  </ItemGroup>
+
+</Project>
