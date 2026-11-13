@@ -99,6 +99,8 @@
  "u.forwarded": "vidarebefordrade",
  "u.1_dx_cluster_of": "1. Valfritt DX-kluster",
  "u.on_on0dxk_the_vhf": "På ON0DXK är VHF-banden filtrerade: aktivera dem med set/filter dxbm/pass 6 (sedan 4, 2…). Tom inloggning = anropssignalen överst.",
+ "u.2_second_dx_cluster": "2. Andra källan: 9A0DXC",
+ "u.gb7rau_is_a_vhfuhffriendly": "9A0DXC (Zagreb), 9a0dxc.hamradio.hr:8000. Tom inloggning = anropssignalen överst. Adressen kan ändras.",
  "u.pskreporter_cluster_dm4x": "PSKReporter-kluster (dm4x)",
  "u.cluster_that_forwards_pskreporter": "Kluster som vidarebefordrar PSKReporters digitala spottar i DX-klusterformat.",
  "u.rbn_port_7000_cw": "RBN: port 7000 = CW och RTTY, port 7001 = FT8. Logga in bara med anropssignalen.",
@@ -239,5 +241,14 @@
  "c.mmm_last": "Senaste uppdatering: {0}",
  "s.k.cluster": "CALL3 uppdaterad från klustret",
  "s.d.cluster": "I automatiska spotar från DM4X och RBN är den första lokatorn (t.ex. KN09tp<>KN09) den som den spottande stationen anger för sig själv. Har den 6 tecken och databasen säger annat rättar programmet den i Dati/CALL3-CLUSTER.TXT. Manuella poster vinner alltid. Endast information.",
- "c.cluster": "Rättelser från klustret: {0} ({1})"
+ "c.cluster": "Rättelser från klustret: {0} ({1})",
+ "c.g7": "Sök saknade lokatorer hos G7VRD (sista källan)",
+ "c.g7_help": "Bara för anropssignaler utan 6-teckens lokator i någon annan källa; bara 6-teckens lokatorer som inte är rutans mitt (LL/MM) godtas. Data insamlad automatiskt av api.g7vrd.co.uk, en hobbytjänst: högst 40 förfrågningar per minut, varje anropssignal en gång per dag. Resultat i Dati/CALL3-G7VRD.TXT.",
+ "u.3_second_dx_cluster": "3. Andra källan: S50CLX",
+ "u.s50clx_help": "S50CLX (Slovenien), s50clx.infrax.si:41112, DX Spider. Tom inloggning = anropssignalen överst. Adressen kan ändras.",
+ "close.q": "Vill du stänga LIVETROPOVHF?",
+ "close.title": "Stänger programmet",
+ "close.thanks": "Tack för att du har använt mig: jag hoppas att jag har varit till nytta.",
+ "yes": "Ja",
+ "no": "Nej"
 }

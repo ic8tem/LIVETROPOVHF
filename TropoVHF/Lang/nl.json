@@ -99,6 +99,8 @@
  "u.forwarded": "doorgestuurd",
  "u.1_dx_cluster_of": "1. DX-cluster naar keuze",
  "u.on_on0dxk_the_vhf": "Op ON0DXK zijn de VHF-banden gefilterd: activeer ze met set/filter dxbm/pass 6 (dan 4, 2…). Lege login = de roepnaam bovenaan.",
+ "u.2_second_dx_cluster": "2. Tweede bron: 9A0DXC",
+ "u.gb7rau_is_a_vhfuhffriendly": "9A0DXC (Zagreb), 9a0dxc.hamradio.hr:8000. Lege login = de roepnaam bovenaan. Adres te wijzigen.",
  "u.pskreporter_cluster_dm4x": "PSKReporter-cluster (dm4x)",
  "u.cluster_that_forwards_pskreporter": "Cluster die digitale spots van PSKReporter doorgeeft in DX-clusterformaat.",
  "u.rbn_port_7000_cw": "RBN: poort 7000 = CW en RTTY, poort 7001 = FT8. Inloggen met alleen de roepnaam.",
@@ -239,5 +241,14 @@
  "c.mmm_last": "Laatst bijgewerkt: {0}",
  "s.k.cluster": "CALL3 bijgewerkt via cluster",
  "s.d.cluster": "In automatische spots van DM4X en RBN is de eerste locator (bv. KN09tp<>KN09) die welke het spottende station over zichzelf opgeeft. Heeft hij 6 tekens en zegt de database iets anders, dan corrigeert het programma die in Dati/CALL3-CLUSTER.TXT. Handmatige regels gaan altijd voor. Alleen ter informatie.",
- "c.cluster": "Correcties via cluster: {0} ({1})"
+ "c.cluster": "Correcties via cluster: {0} ({1})",
+ "c.g7": "Ontbrekende locators opzoeken bij G7VRD (laatste bron)",
+ "c.g7_help": "Alleen voor roepnamen zonder locator van 6 tekens in alle andere bronnen; alleen locators van 6 tekens die niet het midden van het vak zijn (LL/MM) worden aanvaard. Gegevens automatisch verzameld door api.g7vrd.co.uk, een hobbydienst: hoogstens 40 opvragingen per minuut, elke roepnaam eenmaal per dag. Resultaten in Dati/CALL3-G7VRD.TXT.",
+ "u.3_second_dx_cluster": "3. Tweede bron: S50CLX",
+ "u.s50clx_help": "S50CLX (Slovenië), s50clx.infrax.si:41112, DX Spider. Lege login = de roepnaam bovenaan. Adres te wijzigen.",
+ "close.q": "Wil je LIVETROPOVHF afsluiten?",
+ "close.title": "Programma afsluiten",
+ "close.thanks": "Bedankt dat je mij hebt gebruikt: ik hoop dat ik je van nut ben geweest.",
+ "yes": "Ja",
+ "no": "Nee"
 }

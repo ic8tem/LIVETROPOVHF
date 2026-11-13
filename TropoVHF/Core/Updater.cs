@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using System.Formats.Tar;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -6,47 +6,63 @@ using System.Text.Json;
 namespace TropoVHF.Core;
 
 /// <summary>
-/// Aggiornamento automatico da GitHub, senza interazione: ogni 30 minuti legge l'ultima release di
-/// github.com/ic8tem/LIVETROPOVHF. Se il numero di versione (tag vX.Y.Z) è più alto di quello in esecuzione e c'è
-/// l'allegato per Windows 64 bit (LIVETROPOVHF-win-x64.zip con dentro LIVETROPOVHF.exe, oppure direttamente
-/// LIVETROPOVHF-win-x64.exe), lo scarica in Dati\aggiornamento, controlla che sia un eseguibile Windows e lo installa:
-/// l'eseguibile in uso viene rinominato in LIVETROPOVHF.old.exe (Windows lo permette anche mentre gira) e il nuovo
-/// prende il suo posto; le tarature del pacchetto vengono copiate accanto. La nuova versione parte dal prossimo avvio;
-/// il vecchio file si cancella da solo. Impostazioni, archivio e dati non vengono toccati. Solo Windows.
+/// Aggiornamento automatico dalle Release di GitHub, senza interazione (come YA-MS): un minuto dopo l'avvio e poi ogni
+/// 30 minuti si legge l'ultima Release di github.com/ic8tem/LIVETROPOVHF. Se la versione è più nuova si scarica il
+/// pacchetto portatile adatto al sistema (zip per Windows, tar.gz per Linux, Raspberry Pi e Alpine) e i file del
+/// programma si sostituiscono sul posto: quelli in uso si rinominano in *.old-aggiornamento e si cancellano al
+/// riavvio successivo. Non si toccano mai le impostazioni (LIVETROPOVHF.ini), l'archivio (.db), la cartella Dati e un
+/// CALL3.TXT già presente. La nuova versione è attiva dal prossimo avvio. Sul Mac (app firmata) si segnala soltanto.
 /// </summary>
 public static class Updater
 {
     public const string Repo = "ic8tem/LIVETROPOVHF";
+    const string OldSuffix = ".old-aggiornamento";
     public static bool Enabled = true;
     public static string Status { get; private set; } = "";
-    public static string Pending { get; private set; } = "";      // versione installata, attiva al prossimo avvio
+    public static string Pending { get; private set; } = "";
     public static event Action Changed;
     static readonly TimeSpan Every = TimeSpan.FromMinutes(30);
 
     static Version Current => typeof(Updater).Assembly.GetName().Version ?? new Version(0, 0, 0);
-    static string ExePath => Environment.ProcessPath ?? "";
+    static string Dir => Settings.AppDir;
     static void Set(string s) { Status = s; Changed?.Invoke(); }
 
-    /// <summary>All'avvio: cancella l'eseguibile vecchio lasciato dall'aggiornamento precedente.</summary>
+    /// <summary>Suffisso del pacchetto portatile per questo sistema (stessi nomi della Release).</summary>
+    public static string AssetSuffix()
+    {
+        var a = RuntimeInformation.ProcessArchitecture;
+        if (OperatingSystem.IsWindows())
+            return a == Architecture.X86 ? "-windows-x86-portatile.zip" : a == Architecture.Arm64 ? "-windows-arm64-portatile.zip" : "-windows-x64-portatile.zip";
+        if (OperatingSystem.IsMacOS())
+            return a == Architecture.Arm64 ? "-mac-apple-silicon-app.zip" : "-mac-intel-app.zip";
+        if (RuntimeInformation.RuntimeIdentifier.Contains("musl"))
+            return a == Architecture.Arm64 ? "-alpine-arm64.tar.gz" : "-alpine-x64.tar.gz";
+        if (a == Architecture.Arm64) return "-raspberry-pi-64bit.tar.gz";
+        if (a == Architecture.Arm) return "-raspberry-pi-32bit.tar.gz";
+        return "-linux-x64.tar.gz";
+    }
+
+    /// <summary>All'avvio: cancella i file lasciati dall'aggiornamento precedente.</summary>
     public static void CleanUp()
     {
         try
         {
-            var dir = Path.GetDirectoryName(ExePath) ?? "";
-            var old = Path.Combine(dir, Path.GetFileNameWithoutExtension(ExePath) + ".old.exe");
-            if (File.Exists(old)) File.Delete(old);
+            foreach (var f in Directory.EnumerateFiles(Dir, "*" + OldSuffix, SearchOption.AllDirectories))
+            {
+                if (f.Contains(Path.DirectorySeparatorChar + "Dati" + Path.DirectorySeparatorChar)) continue;
+                try { File.Delete(f); } catch { }
+            }
         }
         catch { }
     }
 
     public static async Task RunAsync(CancellationToken ct = default)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
         CleanUp();
         using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
-        http.DefaultRequestHeaders.UserAgent.ParseAdd("LIVETROPOVHF-updater/" + Current.ToString(3));
+        http.DefaultRequestHeaders.UserAgent.ParseAdd($"LIVETROPOVHF/{Current.ToString(3)} (+https://github.com/{Repo})");
         http.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
-        try { await Task.Delay(TimeSpan.FromMinutes(1), ct); } catch { return; }   // non subito all'avvio
+        try { await Task.Delay(TimeSpan.FromMinutes(1), ct); } catch { return; }
         while (!ct.IsCancellationRequested)
         {
             if (Enabled && Pending == "") { try { await CheckOnce(http, ct); } catch (Exception ex) { Set("Aggiornamento: " + ex.Message); } }
@@ -61,52 +77,65 @@ public static class Updater
         if (!resp.IsSuccessStatusCode) { Set($"Aggiornamenti: GitHub HTTP {(int)resp.StatusCode}"); return; }
         using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync(ct));
         var root = doc.RootElement;
-        if (root.TryGetProperty("draft", out var dr) && dr.GetBoolean()) return;
         var tag = root.GetProperty("tag_name").GetString() ?? "";
-        if (!Version.TryParse(tag.TrimStart('v', 'V').Split('-')[0], out var latest)) { Set("Aggiornamenti: tag non riconosciuto " + tag); return; }
+        var vs = tag.TrimStart('v', 'V'); var cut = vs.IndexOfAny(new[] { '-', '+', ' ' }); if (cut > 0) vs = vs[..cut];
+        if (!Version.TryParse(vs, out var latest)) { Set("Aggiornamenti: tag non riconosciuto " + tag); return; }
         if (latest <= Current) { Set($"Aggiornato: {Current.ToString(3)} è l'ultima versione ({DateTime.Now:HH:mm})"); return; }
+        if (OperatingSystem.IsMacOS()) { Set($"Nuova versione {latest.ToString(3)} su GitHub: scaricala dalla pagina delle Release"); return; }
 
+        var suffix = AssetSuffix();
         string url = null, name = null;
         foreach (var a in root.GetProperty("assets").EnumerateArray())
         {
             var n = a.GetProperty("name").GetString() ?? "";
-            if (n.Contains("win-x64", StringComparison.OrdinalIgnoreCase) && (n.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) || n.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)))
+            if (n.StartsWith("LIVETROPOVHF-", StringComparison.OrdinalIgnoreCase) && n.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
             { url = a.GetProperty("browser_download_url").GetString(); name = n; break; }
         }
-        if (url == null) { Set($"Aggiornamenti: {tag} su GitHub senza allegato win-x64"); return; }
+        if (url == null) { Set($"Aggiornamenti: {tag} senza il pacchetto *{suffix}"); return; }
 
         Set($"Scarico {tag}…");
-        var dir = Path.GetDirectoryName(ExePath) ?? Settings.AppDir;
         var work = Path.Combine(Settings.DataDir, "aggiornamento");
         if (Directory.Exists(work)) Directory.Delete(work, true);
-        Directory.CreateDirectory(work);
+        var ex = Path.Combine(work, "estratto");
+        Directory.CreateDirectory(ex);
         var file = Path.Combine(work, name);
         await File.WriteAllBytesAsync(file, await http.GetByteArrayAsync(url, ct), ct);
-
-        string newExe = file;
-        string tarature = null;
-        if (name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+        if (name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)) ZipFile.ExtractToDirectory(file, ex, true);
+        else
         {
-            var ex = Path.Combine(work, "estratto");
-            ZipFile.ExtractToDirectory(file, ex, true);
-            newExe = Directory.GetFiles(ex, "LIVETROPOVHF.exe", SearchOption.AllDirectories).FirstOrDefault();
-            if (newExe == null) { Set($"Aggiornamenti: nel pacchetto {tag} manca LIVETROPOVHF.exe"); return; }
-            tarature = Directory.GetDirectories(ex, "Tarature", SearchOption.AllDirectories).FirstOrDefault();
+            await using var fs = File.OpenRead(file);
+            await using var gz = new GZipStream(fs, CompressionMode.Decompress);
+            await TarFile.ExtractToDirectoryAsync(gz, ex, true, ct);
         }
-        // controllo minimo: eseguibile Windows (MZ) di dimensione credibile
-        var head = new byte[2];
-        using (var fs = File.OpenRead(newExe)) { if (fs.Length < 1_000_000 || fs.Read(head, 0, 2) != 2 || head[0] != 'M' || head[1] != 'Z') { Set("Aggiornamenti: file scaricato non valido"); return; } }
+        // il tar.gz contiene la cartella LIVETROPOVHF/, lo zip i file direttamente
+        var src = ex;
+        var dirs = Directory.GetDirectories(ex); var files = Directory.GetFiles(ex);
+        if (files.Length == 0 && dirs.Length == 1) src = dirs[0];
+        var exe = OperatingSystem.IsWindows() ? "LIVETROPOVHF.exe" : "LIVETROPOVHF";
+        if (!File.Exists(Path.Combine(src, exe))) { Set($"Aggiornamenti: nel pacchetto {tag} manca {exe}"); return; }
 
-        var cur = ExePath;
-        var old = Path.Combine(dir, Path.GetFileNameWithoutExtension(cur) + ".old.exe");
-        if (File.Exists(old)) File.Delete(old);
-        File.Move(cur, old);                       // l'eseguibile in uso si può rinominare
-        try { File.Copy(newExe, cur, true); }
-        catch { File.Move(old, cur); throw; }      // se la copia fallisce si rimette tutto com'era
-        if (tarature != null)
-            foreach (var f in Directory.GetFiles(tarature))
-                File.Copy(f, Path.Combine(dir, "Tarature", Path.GetFileName(f)), true);
+        int n2 = 0;
+        foreach (var f in Directory.EnumerateFiles(src, "*", SearchOption.AllDirectories))
+        {
+            var rel = Path.GetRelativePath(src, f);
+            var low = rel.ToLowerInvariant();
+            if (low.EndsWith(".ini") || low.EndsWith(".db") || low.StartsWith("dati" + Path.DirectorySeparatorChar)) continue;
+            var dest = Path.Combine(Dir, rel);
+            if (low == "call3.txt" && File.Exists(dest)) continue;      // il CALL3.TXT dell'utente resta
+            Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+            try { File.Copy(f, dest, true); }
+            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
+            {
+                // file in uso (l'eseguibile, le librerie caricate): si rinomina e si copia il nuovo al suo posto
+                File.Move(dest, dest + OldSuffix, true);
+                File.Copy(f, dest, true);
+            }
+            n2++;
+        }
+        if (!OperatingSystem.IsWindows())
+            try { File.SetUnixFileMode(Path.Combine(Dir, exe), (UnixFileMode)Convert.ToInt32("755", 8)); } catch { }
+        try { Directory.Delete(work, true); } catch { }
         Pending = latest.ToString(3);
-        Set($"Versione {Pending} installata: sarà attiva al prossimo avvio");
+        Set($"Versione {Pending} installata ({n2} file): sarà attiva al prossimo avvio");
     }
 }

@@ -99,6 +99,8 @@
  "u.forwarded": "aangestuur",
  "u.1_dx_cluster_of": "1. DX-cluster na keuse",
  "u.on_on0dxk_the_vhf": "Op ON0DXK is die VHF-bande gefiltreer: aktiveer dit met set/filter dxbm/pass 6 (dan 4, 2…). Leë aanmelding = die roepnaam bo.",
+ "u.2_second_dx_cluster": "2. Tweede bron: 9A0DXC",
+ "u.gb7rau_is_a_vhfuhffriendly": "9A0DXC (Zagreb), 9a0dxc.hamradio.hr:8000. Leë aanmelding = die roepsein bo. Adres kan verander word.",
  "u.pskreporter_cluster_dm4x": "PSKReporter-cluster (dm4x)",
  "u.cluster_that_forwards_pskreporter": "Cluster wat PSKReporter se digitale spots in DX-cluster-formaat aanstuur.",
  "u.rbn_port_7000_cw": "RBN: poort 7000 = CW en RTTY, poort 7001 = FT8. Meld aan met net die roepnaam.",
@@ -241,5 +243,12 @@
  "s.d.cluster": "In outomatiese spots van DM4X en RBN is die eerste lokator (bv. KN09tp<>KN09) dié wat die spottende stasie oor homself verklaar. As dit 6 karakters het en die databasis sê iets anders, korrigeer die program dit in Dati/CALL3-CLUSTER.TXT. Handinskrywings wen altyd. Slegs inligting.",
  "c.cluster": "Korreksies vanaf die kluster: {0} ({1})",
  "c.g7": "Soek ontbrekende lokators op G7VRD (laaste bron)",
- "c.g7_help": "Slegs vir roepseine sonder 'n 6-karakter-lokator in enige ander bron; slegs 6-karakter-lokators wat nie die middel van die vierkant is nie (LL/MM) word aanvaar. Data outomaties versamel deur api.g7vrd.co.uk, 'n stokperdjiediens: hoogstens 40 navrae per minuut, elke roepsein een keer per dag. Resultate in Dati/CALL3-G7VRD.TXT."
+ "c.g7_help": "Slegs vir roepseine sonder 'n 6-karakter-lokator in enige ander bron; slegs 6-karakter-lokators wat nie die middel van die vierkant is nie (LL/MM) word aanvaar. Data outomaties versamel deur api.g7vrd.co.uk, 'n stokperdjiediens: hoogstens 40 navrae per minuut, elke roepsein een keer per dag. Resultate in Dati/CALL3-G7VRD.TXT.",
+ "u.3_second_dx_cluster": "3. Tweede bron: S50CLX",
+ "u.s50clx_help": "S50CLX (Slowenië), s50clx.infrax.si:41112, DX Spider. Leë aanmelding = die roepsein bo. Adres kan verander word.",
+ "close.q": "Wil jy LIVETROPOVHF sluit?",
+ "close.title": "Sluit die program",
+ "close.thanks": "Dankie dat jy my gebruik het: ek hoop ek was vir jou nuttig.",
+ "yes": "Ja",
+ "no": "Nee"
 }

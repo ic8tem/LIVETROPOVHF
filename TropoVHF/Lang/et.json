@@ -99,6 +99,8 @@
  "u.forwarded": "edastatud",
  "u.1_dx_cluster_of": "1. Vabalt valitud DX-klaster",
  "u.on_on0dxk_the_vhf": "ON0DXK-l on VHF-ribad filtreeritud: luba need käsuga set/filter dxbm/pass 6 (siis 4, 2…). Tühi sisselogimine = ülal olev kutsung.",
+ "u.2_second_dx_cluster": "2. Teine allikas: 9A0DXC",
+ "u.gb7rau_is_a_vhfuhffriendly": "9A0DXC (Zagreb), 9a0dxc.hamradio.hr:8000. Tühi kasutaja = üleval olev kutsung. Aadressi saab muuta.",
  "u.pskreporter_cluster_dm4x": "PSKReporteri klaster (dm4x)",
  "u.cluster_that_forwards_pskreporter": "Klaster, mis edastab PSKReporteri digitaalseid spotte DX-klastri vormingus.",
  "u.rbn_port_7000_cw": "RBN: port 7000 = CW ja RTTY, port 7001 = FT8. Sisselogimine ainult kutsungiga.",
@@ -241,5 +243,12 @@
  "s.d.cluster": "DM4X-i ja RBN-i automaatsetes spottides on esimene lokaator (nt KN09tp<>KN09) see, mille spottiv jaam enda kohta teatab. Kui sellel on 6 märki ja andmebaas ütleb muud, parandab programm selle failis Dati/CALL3-CLUSTER.TXT. Käsitsi kirjed kehtivad alati. Ainult teadmiseks.",
  "c.cluster": "Parandused klastrist: {0} ({1})",
  "c.g7": "Otsi puuduvaid lokaatoreid G7VRD-st (viimane allikas)",
- "c.g7_help": "Ainult kutsungitele, millel pole üheski teises allikas 6-märgilist lokaatorit; vastu võetakse ainult 6-märgilised lokaatorid, mis ei ole ruudu keskpunkt (LL/MM). Andmed kogub automaatselt api.g7vrd.co.uk, harrastusteenus: kuni 40 päringut minutis, iga kutsung kord päevas. Tulemused failis Dati/CALL3-G7VRD.TXT."
+ "c.g7_help": "Ainult kutsungitele, millel pole üheski teises allikas 6-märgilist lokaatorit; vastu võetakse ainult 6-märgilised lokaatorid, mis ei ole ruudu keskpunkt (LL/MM). Andmed kogub automaatselt api.g7vrd.co.uk, harrastusteenus: kuni 40 päringut minutis, iga kutsung kord päevas. Tulemused failis Dati/CALL3-G7VRD.TXT.",
+ "u.3_second_dx_cluster": "3. Teine allikas: S50CLX",
+ "u.s50clx_help": "S50CLX (Sloveenia), s50clx.infrax.si:41112, DX Spider. Tühi kasutaja = üleval olev kutsung. Aadressi saab muuta.",
+ "close.q": "Kas soovid LIVETROPOVHF-i sulgeda?",
+ "close.title": "Programmi sulgemine",
+ "close.thanks": "Aitäh, et mind kasutasid: loodan, et olin sulle kasulik.",
+ "yes": "Jah",
+ "no": "Ei"
 }

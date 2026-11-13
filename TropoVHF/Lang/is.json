@@ -99,6 +99,8 @@
  "u.forwarded": "áframsent",
  "u.1_dx_cluster_of": "1. DX-klasi að eigin vali",
  "u.on_on0dxk_the_vhf": "Á ON0DXK eru VHF-böndin síuð: virkjaðu þau með set/filter dxbm/pass 6 (síðan 4, 2…). Tóm innskráning = kallmerkið efst.",
+ "u.2_second_dx_cluster": "2. Önnur uppspretta: 9A0DXC",
+ "u.gb7rau_is_a_vhfuhffriendly": "9A0DXC (Zagreb), 9a0dxc.hamradio.hr:8000. Tóm innskráning = kallmerkið efst. Hægt að breyta vistfangi.",
  "u.pskreporter_cluster_dm4x": "PSKReporter-klasi (dm4x)",
  "u.cluster_that_forwards_pskreporter": "Klasi sem sendir stafrænar tilkynningar PSKReporter áfram á DX-klasasniði.",
  "u.rbn_port_7000_cw": "RBN: gátt 7000 = CW og RTTY, gátt 7001 = FT8. Innskráning aðeins með kallmerkinu.",
@@ -239,5 +241,14 @@
  "c.mmm_last": "Síðasta uppfærsla: {0}",
  "s.k.cluster": "CALL3 uppfært úr klasanum",
  "s.d.cluster": "Í sjálfvirkum tilkynningum frá DM4X og RBN er fyrsti reiturinn (t.d. KN09tp<>KN09) sá sem tilkynnandi stöðin gefur upp um sjálfa sig. Ef hann hefur 6 stafi og gagnagrunnurinn segir annað, leiðréttir forritið hann í Dati/CALL3-CLUSTER.TXT. Handvirkar færslur ganga alltaf framar. Aðeins til upplýsingar.",
- "c.cluster": "Leiðréttingar úr klasanum: {0} ({1})"
+ "c.cluster": "Leiðréttingar úr klasanum: {0} ({1})",
+ "c.g7": "Leita að vantandi reitum hjá G7VRD (síðasta uppspretta)",
+ "c.g7_help": "Aðeins fyrir kallmerki án 6 stafa reits í nokkurri annarri uppsprettu; aðeins 6 stafa reitir sem eru ekki miðja reitsins (LL/MM) eru samþykktir. Gögnum safnað sjálfkrafa af api.g7vrd.co.uk, áhugamannaþjónusta: í mesta lagi 40 fyrirspurnir á mínútu, hvert kallmerki einu sinni á dag. Niðurstöður í Dati/CALL3-G7VRD.TXT.",
+ "u.3_second_dx_cluster": "3. Önnur uppspretta: S50CLX",
+ "u.s50clx_help": "S50CLX (Slóvenía), s50clx.infrax.si:41112, DX Spider. Tóm innskráning = kallmerkið efst. Hægt að breyta vistfangi.",
+ "close.q": "Viltu loka LIVETROPOVHF?",
+ "close.title": "Forritinu lokað",
+ "close.thanks": "Takk fyrir að nota mig: ég vona að ég hafi komið þér að gagni.",
+ "yes": "Já",
+ "no": "Nei"
 }

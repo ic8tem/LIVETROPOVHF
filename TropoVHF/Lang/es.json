@@ -99,6 +99,8 @@
  "u.forwarded": "reenviados",
  "u.1_dx_cluster_of": "1. DX cluster a elegir",
  "u.on_on0dxk_the_vhf": "En ON0DXK las bandas VHF están filtradas: actívalas con set/filter dxbm/pass 6 (luego 4, 2…). Login vacío = el indicativo de arriba.",
+ "u.2_second_dx_cluster": "2. Segunda fuente: 9A0DXC",
+ "u.gb7rau_is_a_vhfuhffriendly": "9A0DXC (Zagreb), 9a0dxc.hamradio.hr:8000. Usuario vacío = el indicativo de arriba. Dirección modificable.",
  "u.pskreporter_cluster_dm4x": "Cluster PSKReporter (dm4x)",
  "u.cluster_that_forwards_pskreporter": "Cluster que reenvía en formato DX cluster los spots digitales de PSKReporter.",
  "u.rbn_port_7000_cw": "RBN: puerto 7000 = CW y RTTY, puerto 7001 = FT8. Login solo con el indicativo.",
@@ -239,5 +241,14 @@
  "c.mmm_last": "Última actualización: {0}",
  "s.k.cluster": "CALL3 actualizado desde el cluster",
  "s.d.cluster": "En los spots automáticos de DM4X y RBN el primer locator (p. ej. KN09tp<>KN09) es el que declara de sí misma la estación que hace el spot. Si tiene 6 caracteres y la base dice otra cosa, el programa la corrige en Dati/CALL3-CLUSTER.TXT. Las entradas manuales siempre mandan. Solo informativo.",
- "c.cluster": "Correcciones del cluster: {0} ({1})"
+ "c.cluster": "Correcciones del cluster: {0} ({1})",
+ "c.g7": "Buscar los locators que faltan en G7VRD (última fuente)",
+ "c.g7_help": "Solo para indicativos sin locator de 6 caracteres en ninguna otra fuente; solo se aceptan locators de 6 caracteres que no sean el centro de la cuadrícula (LL/MM). Datos recogidos automáticamente por api.g7vrd.co.uk, servicio aficionado: como máximo 40 consultas por minuto, cada indicativo una vez al día. Resultados en Dati/CALL3-G7VRD.TXT.",
+ "u.3_second_dx_cluster": "3. Segunda fuente: S50CLX",
+ "u.s50clx_help": "S50CLX (Eslovenia), s50clx.infrax.si:41112, DX Spider. Usuario vacío = el indicativo de arriba. Dirección modificable.",
+ "close.q": "¿Quieres cerrar LIVETROPOVHF?",
+ "close.title": "Cierre del programa",
+ "close.thanks": "Gracias por usarme: espero haberte sido útil.",
+ "yes": "Sí",
+ "no": "No"
 }

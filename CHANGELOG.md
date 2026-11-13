@@ -1,10 +1,19 @@
-# LIVETROPOVHF – storia delle versioni beta
+# LIVETROPOVHF – storia delle versioni
 
-Tutte le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come eseguibili.
+Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come eseguibili. Dalla 1.0.0 il programma si scarica già pronto dalle Release di GitHub e si aggiorna da solo.
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
-## 0.4.0 — 13/11/2026
+## 1.0.0 — 13/11/2026
+Prima versione pubblica.
+- Installatori e pacchetti creati su GitHub come per YA-MS: Windows (x64, x86, ARM64; installatore e zip portatile), Linux (.deb, .rpm, Arch, Slackware, AppImage, tar.gz), Raspberry Pi (64 e 32 bit), Alpine, Mac (Apple Silicon e Intel).
+- Aggiornamento automatico e silenzioso dalle Release (ogni 30 minuti; nuova versione attiva al riavvio).
+- Immagine di partenza con il numero di versione; icona del programma.
+- Finestra di chiusura con conferma e ringraziamento (come YAEC).
+- Interfaccia completa in 36 lingue.
+- Dati accanto all'app anche sul Mac.
+
+## 0.4.0 — 13/11/2026 (beta)
 - Nuovo nome: **LIVETROPOVHF** (eseguibile LIVETROPOVHF.exe). Le impostazioni di TropoVHF.ini e l'archivio TropoVHF.db vengono ripresi da soli al primo avvio.
 - Interfaccia in 36 lingue, come YA-MS.
 - CALL3.TXT aggiornabile da MMMonVHF (pulsante e controllo automatico ogni 7 giorni, con copia di sicurezza CALL3.bak).

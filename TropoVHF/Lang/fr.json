@@ -99,6 +99,8 @@
  "u.forwarded": "renvoyés",
  "u.1_dx_cluster_of": "1. DX cluster au choix",
  "u.on_on0dxk_the_vhf": "Sur ON0DXK les bandes VHF sont filtrées : active-les avec set/filter dxbm/pass 6 (puis 4, 2…). Login vide = l'indicatif en haut.",
+ "u.2_second_dx_cluster": "2. Deuxième source : 9A0DXC",
+ "u.gb7rau_is_a_vhfuhffriendly": "9A0DXC (Zagreb), 9a0dxc.hamradio.hr:8000. Identifiant vide = l'indicatif en haut. Adresse modifiable.",
  "u.pskreporter_cluster_dm4x": "Cluster PSKReporter (dm4x)",
  "u.cluster_that_forwards_pskreporter": "Cluster qui retransmet au format DX cluster les spots numériques de PSKReporter.",
  "u.rbn_port_7000_cw": "RBN : port 7000 = CW et RTTY, port 7001 = FT8. Login avec le seul indicatif.",
@@ -239,5 +241,14 @@
  "c.mmm_last": "Dernière mise à jour : {0}",
  "s.k.cluster": "CALL3 mis à jour par le cluster",
  "s.d.cluster": "Dans les spots automatiques de DM4X et du RBN, le premier locator (ex. KN09tp<>KN09) est celui que la station qui spotte déclare pour elle-même. S'il a 6 caractères et que la base dit autre chose, le programme la corrige dans Dati/CALL3-CLUSTER.TXT. Les entrées manuelles l'emportent toujours. Simple information.",
- "c.cluster": "Corrections du cluster : {0} ({1})"
+ "c.cluster": "Corrections du cluster : {0} ({1})",
+ "c.g7": "Chercher les locators manquants sur G7VRD (dernière source)",
+ "c.g7_help": "Seulement pour les indicatifs sans locator à 6 caractères dans aucune autre source ; seuls les locators à 6 caractères qui ne sont pas le centre du carré (LL/MM) sont acceptés. Données collectées automatiquement par api.g7vrd.co.uk, service amateur : 40 requêtes par minute au plus, chaque indicatif une fois par jour. Résultats dans Dati/CALL3-G7VRD.TXT.",
+ "u.3_second_dx_cluster": "3. Deuxième source : S50CLX",
+ "u.s50clx_help": "S50CLX (Slovénie), s50clx.infrax.si:41112, DX Spider. Identifiant vide = l'indicatif en haut. Adresse modifiable.",
+ "close.q": "Voulez-vous fermer LIVETROPOVHF ?",
+ "close.title": "Fermeture du programme",
+ "close.thanks": "Merci de m'avoir utilisé : j'espère t'avoir été utile.",
+ "yes": "Oui",
+ "no": "Non"
 }

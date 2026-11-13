@@ -99,6 +99,8 @@
  "u.forwarded": "yönlendirildi",
  "u.1_dx_cluster_of": "1. Seçilen DX cluster",
  "u.on_on0dxk_the_vhf": "ON0DXK'da VHF bantları filtrelidir: set/filter dxbm/pass 6 ile açın (sonra 4, 2…). Boş giriş = üstteki çağrı işareti.",
+ "u.2_second_dx_cluster": "2. İkinci kaynak: 9A0DXC",
+ "u.gb7rau_is_a_vhfuhffriendly": "9A0DXC (Zagreb), 9a0dxc.hamradio.hr:8000. Boş kullanıcı = yukarıdaki çağrı işareti. Adres değiştirilebilir.",
  "u.pskreporter_cluster_dm4x": "PSKReporter cluster (dm4x)",
  "u.cluster_that_forwards_pskreporter": "PSKReporter'ın dijital spotlarını DX cluster biçiminde ileten cluster.",
  "u.rbn_port_7000_cw": "RBN: port 7000 = CW ve RTTY, port 7001 = FT8. Yalnızca çağrı işaretiyle giriş.",
@@ -241,5 +243,12 @@
  "s.d.cluster": "DM4X ve RBN otomatik spotlarında ilk lokatör (ör. KN09tp<>KN09), spotu veren istasyonun kendisi için bildirdiğidir. 6 karakterliyse ve veritabanı başka bir şey diyorsa program onu Dati/CALL3-CLUSTER.TXT içinde düzeltir. Elle girilen kayıtlar her zaman önceliklidir. Yalnızca bilgi.",
  "c.cluster": "Kümeden düzeltmeler: {0} ({1})",
  "c.g7": "Eksik lokatörleri G7VRD'de ara (son kaynak)",
- "c.g7_help": "Yalnızca başka hiçbir kaynakta 6 karakterli lokatörü olmayan çağrı işaretleri için; yalnızca kare merkezi olmayan (LL/MM) 6 karakterli lokatörler kabul edilir. Veriler api.g7vrd.co.uk tarafından otomatik toplanır, hobi hizmetidir: dakikada en fazla 40 sorgu, her çağrı işareti günde bir kez. Sonuçlar Dati/CALL3-G7VRD.TXT dosyasında."
+ "c.g7_help": "Yalnızca başka hiçbir kaynakta 6 karakterli lokatörü olmayan çağrı işaretleri için; yalnızca kare merkezi olmayan (LL/MM) 6 karakterli lokatörler kabul edilir. Veriler api.g7vrd.co.uk tarafından otomatik toplanır, hobi hizmetidir: dakikada en fazla 40 sorgu, her çağrı işareti günde bir kez. Sonuçlar Dati/CALL3-G7VRD.TXT dosyasında.",
+ "u.3_second_dx_cluster": "3. İkinci kaynak: S50CLX",
+ "u.s50clx_help": "S50CLX (Slovenya), s50clx.infrax.si:41112, DX Spider. Boş kullanıcı = yukarıdaki çağrı işareti. Adres değiştirilebilir.",
+ "close.q": "LIVETROPOVHF'i kapatmak istiyor musun?",
+ "close.title": "Programı kapatma",
+ "close.thanks": "Beni kullandığın için teşekkürler: umarım işine yaramışımdır.",
+ "yes": "Evet",
+ "no": "Hayır"
 }

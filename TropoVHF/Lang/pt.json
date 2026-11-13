@@ -99,6 +99,8 @@
  "u.forwarded": "reenviados",
  "u.1_dx_cluster_of": "1. DX cluster à escolha",
  "u.on_on0dxk_the_vhf": "No ON0DXK as bandas VHF estão filtradas: ativa-as com set/filter dxbm/pass 6 (depois 4, 2…). Login vazio = o indicativo em cima.",
+ "u.2_second_dx_cluster": "2. Segunda fonte: 9A0DXC",
+ "u.gb7rau_is_a_vhfuhffriendly": "9A0DXC (Zagreb), 9a0dxc.hamradio.hr:8000. Utilizador vazio = o indicativo em cima. Endereço alterável.",
  "u.pskreporter_cluster_dm4x": "Cluster PSKReporter (dm4x)",
  "u.cluster_that_forwards_pskreporter": "Cluster que reenvia em formato DX cluster os spots digitais do PSKReporter.",
  "u.rbn_port_7000_cw": "RBN: porta 7000 = CW e RTTY, porta 7001 = FT8. Login só com o indicativo.",
@@ -239,5 +241,14 @@
  "c.mmm_last": "Última atualização: {0}",
  "s.k.cluster": "CALL3 atualizado pelo cluster",
  "s.d.cluster": "Nos spots automáticos do DM4X e do RBN o primeiro locator (ex. KN09tp<>KN09) é o que a estação que faz o spot declara de si. Se tiver 6 caracteres e a base disser outra coisa, o programa corrige-a em Dati/CALL3-CLUSTER.TXT. As entradas manuais prevalecem sempre. Apenas informativo.",
- "c.cluster": "Correções do cluster: {0} ({1})"
+ "c.cluster": "Correções do cluster: {0} ({1})",
+ "c.g7": "Procurar os locators em falta no G7VRD (última fonte)",
+ "c.g7_help": "Só para indicativos sem locator de 6 caracteres em nenhuma outra fonte; só se aceitam locators de 6 caracteres que não sejam o centro do quadrado (LL/MM). Dados recolhidos automaticamente por api.g7vrd.co.uk, serviço amador: no máximo 40 pedidos por minuto, cada indicativo uma vez por dia. Resultados em Dati/CALL3-G7VRD.TXT.",
+ "u.3_second_dx_cluster": "3. Segunda fonte: S50CLX",
+ "u.s50clx_help": "S50CLX (Eslovénia), s50clx.infrax.si:41112, DX Spider. Utilizador vazio = o indicativo em cima. Endereço alterável.",
+ "close.q": "Quer fechar o LIVETROPOVHF?",
+ "close.title": "Fecho do programa",
+ "close.thanks": "Obrigado por me teres usado: espero ter-te sido útil.",
+ "yes": "Sim",
+ "no": "Não"
 }

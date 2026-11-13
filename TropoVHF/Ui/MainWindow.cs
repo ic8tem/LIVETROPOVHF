@@ -63,7 +63,24 @@ public sealed class MainWindow : Window
         _timer.Tick += (_, _) => Tick();
         _timer.Start();
 
-        Closing += (_, _) => { SaveGeometry(); _timer.Stop(); _st.Shutdown(); };
+        Icon = Splash.AppIcon();
+        // chiusura: si chiede conferma con il ringraziamento (come in YAEC), poi si salva tutto
+        Closing += async (_, e) =>
+        {
+            if (!_closeConfirmed)
+            {
+                e.Cancel = true;
+                if (_closeAsking) return;
+                _closeAsking = true;
+                bool yes = await AskClose();
+                _closeAsking = false;
+                if (!yes) return;
+                _closeConfirmed = true;
+                Close();
+                return;
+            }
+            SaveGeometry(); _timer.Stop(); _st.Shutdown();
+        };
         // la finestra normale (non massimizzata) si ricorda a ogni spostamento o ridimensionamento
         PositionChanged += (_, _) => TrackNormal();
         Resized += (_, _) => TrackNormal();
@@ -71,6 +88,46 @@ public sealed class MainWindow : Window
     }
 
     /// <summary>Finestra iniziale: nominativo (obbligatorio per i cluster) e locatore. Il nominativo diventa il nome utente dei cluster.</summary>
+    bool _closeConfirmed, _closeAsking;
+
+    /// <summary>
+    /// Finestra di chiusura nello stile di YAEC: icona, domanda, ringraziamento in corsivo, barra grigia con Sì e No.
+    /// </summary>
+    async Task<bool> AskClose()
+    {
+        var dlg = new Window
+        {
+            Title = Lang.T("close.title"), Width = 480, SizeToContent = SizeToContent.Height, CanResize = false,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = B(_th.Panel), ShowInTaskbar = false,
+            Icon = Splash.AppIcon(),
+            FlowDirection = Lang.IsRtl(Lang.Current) ? FlowDirection.RightToLeft : FlowDirection.LeftToRight
+        };
+        bool result = false;
+        var img = Splash.LoadBitmap("livetropovhf-256.png");
+        var top = new DockPanel { Margin = new Thickness(20, 20, 20, 16) };
+        if (img != null)
+        {
+            var pic = new Border { Width = 64, Height = 64, CornerRadius = new CornerRadius(10), ClipToBounds = true, Margin = new Thickness(0, 0, 16, 0), VerticalAlignment = VerticalAlignment.Top, Child = new Image { Source = img, Stretch = Stretch.UniformToFill } };
+            DockPanel.SetDock(pic, Dock.Left);
+            top.Children.Add(pic);
+        }
+        var q = new TextBlock { Text = Lang.T("close.q"), FontSize = 17, FontWeight = FontWeight.Bold, Foreground = B(_th.Text), TextWrapping = TextWrapping.Wrap };
+        var thanks = new TextBlock { Text = Lang.T("close.thanks"), FontSize = 14, FontStyle = FontStyle.Italic, Foreground = B(_th.Sub), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 0) };
+        top.Children.Add(new StackPanel { Children = { q, thanks }, VerticalAlignment = VerticalAlignment.Center });
+        var yes = PrimaryButton(Lang.T("yes"), () => { result = true; dlg.Close(); });
+        var no = OutlineButton(Lang.T("no"), () => dlg.Close());
+        yes.MinWidth = 90; no.MinWidth = 90;
+        var bar = new Border
+        {
+            Background = B(_th.Chip), BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 1, 0, 0), Padding = new Thickness(16, 10),
+            Child = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, HorizontalAlignment = HorizontalAlignment.Right, Children = { yes, no } }
+        };
+        dlg.Content = new StackPanel { Children = { top, bar } };
+        dlg.KeyDown += (_, e) => { if (e.Key == Avalonia.Input.Key.Escape) dlg.Close(); if (e.Key == Avalonia.Input.Key.Enter) { result = true; dlg.Close(); } };
+        await dlg.ShowDialog(this);
+        return result;
+    }
+
     async Task AskCall()
     {
         var dlg = new Window

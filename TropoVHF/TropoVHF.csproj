@@ -10,8 +10,9 @@
     <Nullable>disable</Nullable>
     <AssemblyName>LIVETROPOVHF</AssemblyName>
     <RootNamespace>TropoVHF</RootNamespace>
-    <Version>0.4.0</Version>
+    <Version>1.0.0</Version>
     <Product>LIVETROPOVHF</Product>
+    <ApplicationIcon>Assets\livetropovhf.ico</ApplicationIcon>
     <Description>Previsione e osservazione in tempo reale della propagazione troposferica VHF/UHF</Description>
     <Authors>IC8TEM</Authors>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
@@ -30,6 +31,9 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Docs\*.md" />
+    <EmbeddedResource Include="Assets\splash.jpg;Assets\livetropovhf.ico;Assets\livetropovhf-256.png" />
+    <!-- database nominativi accanto al programma (anche nei pacchetti e negli installatori) -->
+    <None Include="..\CALL3.TXT" Link="CALL3.TXT" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" Condition="Exists('..\CALL3.TXT')" />
     <EmbeddedResource Include="Lang\*.json" LogicalName="TropoVHF.Lang.%(Filename).json" />
     <None Include="Tarature\*.json;Tarature\*.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
   </ItemGroup>

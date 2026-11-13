@@ -17,6 +17,10 @@ public sealed class Settings
             if (!string.IsNullOrEmpty(p))
             {
                 var d = Path.GetDirectoryName(p);
+                // Mac: il programma sta dentro LIVETROPOVHF.app/Contents/MacOS; i dati nascono accanto all'app,
+                // per non scrivere dentro il pacchetto firmato
+                var mac = d?.IndexOf(".app/Contents/MacOS", StringComparison.Ordinal) ?? -1;
+                if (mac > 0) { var app = d[..(mac + 4)]; return Path.GetDirectoryName(app) ?? d; }
                 if (!string.IsNullOrEmpty(d)) return d;
             }
             return AppContext.BaseDirectory;

@@ -99,6 +99,8 @@
  "u.forwarded": "persiųsta",
  "u.1_dx_cluster_of": "1. Pasirinktas DX klasteris",
  "u.on_on0dxk_the_vhf": "ON0DXK VHF diapazonai filtruojami: įjunk juos komanda set/filter dxbm/pass 6 (paskui 4, 2…). Tuščias prisijungimas = šaukinys viršuje.",
+ "u.2_second_dx_cluster": "2. Antrasis šaltinis: 9A0DXC",
+ "u.gb7rau_is_a_vhfuhffriendly": "9A0DXC (Zagrebas), 9a0dxc.hamradio.hr:8000. Tuščias vartotojas = šaukinys viršuje. Adresą galima keisti.",
  "u.pskreporter_cluster_dm4x": "PSKReporter klasteris (dm4x)",
  "u.cluster_that_forwards_pskreporter": "Klasteris, persiunčiantis PSKReporter skaitmeninius spotus DX klasterio formatu.",
  "u.rbn_port_7000_cw": "RBN: prievadas 7000 = CW ir RTTY, prievadas 7001 = FT8. Prisijungti tik su šaukiniu.",
@@ -241,5 +243,12 @@
  "s.d.cluster": "DM4X ir RBN automatiniuose spotuose pirmasis lokatorius (pvz., KN09tp<>KN09) yra tas, kurį spotinanti stotis nurodo apie save. Jei jis turi 6 simbolius, o duomenų bazė rodo ką kita, programa jį pataiso faile Dati/CALL3-CLUSTER.TXT. Rankiniai įrašai visada svarbiausi. Tik informacija.",
  "c.cluster": "Pataisymai iš klasterio: {0} ({1})",
  "c.g7": "Ieškoti trūkstamų lokatorių G7VRD (paskutinis šaltinis)",
- "c.g7_help": "Tik šaukiniams, kurie jokiame kitame šaltinyje neturi 6 simbolių lokatoriaus; priimami tik 6 simbolių lokatoriai, kurie nėra kvadrato centras (LL/MM). Duomenis automatiškai renka api.g7vrd.co.uk, mėgėjiška paslauga: ne daugiau kaip 40 užklausų per minutę, kiekvienas šaukinys kartą per dieną. Rezultatai faile Dati/CALL3-G7VRD.TXT."
+ "c.g7_help": "Tik šaukiniams, kurie jokiame kitame šaltinyje neturi 6 simbolių lokatoriaus; priimami tik 6 simbolių lokatoriai, kurie nėra kvadrato centras (LL/MM). Duomenis automatiškai renka api.g7vrd.co.uk, mėgėjiška paslauga: ne daugiau kaip 40 užklausų per minutę, kiekvienas šaukinys kartą per dieną. Rezultatai faile Dati/CALL3-G7VRD.TXT.",
+ "u.3_second_dx_cluster": "3. Antrasis šaltinis: S50CLX",
+ "u.s50clx_help": "S50CLX (Slovėnija), s50clx.infrax.si:41112, DX Spider. Tuščias vartotojas = šaukinys viršuje. Adresą galima keisti.",
+ "close.q": "Ar uždaryti LIVETROPOVHF?",
+ "close.title": "Programos uždarymas",
+ "close.thanks": "Ačiū, kad mane naudojote: tikiuosi, buvau naudinga.",
+ "yes": "Taip",
+ "no": "Ne"
 }

@@ -99,6 +99,8 @@
  "u.forwarded": "weitergeleitet",
  "u.1_dx_cluster_of": "1. DX-Cluster nach Wahl",
  "u.on_on0dxk_the_vhf": "Bei ON0DXK sind die VHF-Bänder gefiltert: freischalten mit set/filter dxbm/pass 6 (dann 4, 2…). Leeres Login = das Rufzeichen oben.",
+ "u.2_second_dx_cluster": "2. Zweite Quelle: 9A0DXC",
+ "u.gb7rau_is_a_vhfuhffriendly": "9A0DXC (Zagreb), 9a0dxc.hamradio.hr:8000. Leeres Login = das Rufzeichen oben. Adresse änderbar.",
  "u.pskreporter_cluster_dm4x": "PSKReporter-Cluster (dm4x)",
  "u.cluster_that_forwards_pskreporter": "Cluster, der digitale Spots von PSKReporter im DX-Cluster-Format weitergibt.",
  "u.rbn_port_7000_cw": "RBN: Port 7000 = CW und RTTY, Port 7001 = FT8. Login nur mit dem Rufzeichen.",
@@ -239,5 +241,14 @@
  "c.mmm_last": "Letzte Aktualisierung: {0}",
  "s.k.cluster": "CALL3 vom Cluster aktualisiert",
  "s.d.cluster": "In automatischen Spots von DM4X und RBN ist der erste Locator (z. B. KN09tp<>KN09) der, den die spottende Station für sich selbst angibt. Hat er 6 Stellen und sagt die Datenbank etwas anderes, korrigiert das Programm sie in Dati/CALL3-CLUSTER.TXT. Manuelle Einträge haben immer Vorrang. Nur zur Information.",
- "c.cluster": "Korrekturen vom Cluster: {0} ({1})"
+ "c.cluster": "Korrekturen vom Cluster: {0} ({1})",
+ "c.g7": "Fehlende Locatoren bei G7VRD suchen (letzte Quelle)",
+ "c.g7_help": "Nur für Rufzeichen ohne 6-stelligen Locator in allen anderen Quellen; angenommen werden nur 6-stellige Locatoren, die nicht die Feldmitte (LL/MM) sind. Daten automatisch gesammelt von api.g7vrd.co.uk, ein Hobbydienst: höchstens 40 Abfragen pro Minute, jedes Rufzeichen einmal am Tag. Ergebnisse in Dati/CALL3-G7VRD.TXT.",
+ "u.3_second_dx_cluster": "3. Zweite Quelle: S50CLX",
+ "u.s50clx_help": "S50CLX (Slowenien), s50clx.infrax.si:41112, DX Spider. Leeres Login = das Rufzeichen oben. Adresse änderbar.",
+ "close.q": "Möchtest du LIVETROPOVHF beenden?",
+ "close.title": "Programm beenden",
+ "close.thanks": "Danke, dass du mich benutzt hast: ich hoffe, ich war dir nützlich.",
+ "yes": "Ja",
+ "no": "Nein"
 }

@@ -269,9 +269,13 @@ Il programma è portabile: non scrive mai nella cartella AppData né nel registr
 
 Archivio degli spot (SQLite [14]). Ogni spot accettato e ogni rapporto di ascolto di PSKReporter viene salvato in LIVETROPOVHF.db, un database SQLite in un solo file. In memoria restano solo gli ultimi 60 minuti per l'elenco e la mappa; l'archivio conserva tutto e serve per lo storico e le statistiche (anche le decodifiche UDP), per esempio le aperture per banda e per giorno, le distanze massime, i quadrati raggiunti, e il confronto a posteriori tra l'indice previsto e gli spot reali. Le righe scartate dal filtro si contano ma non si archiviano.
 
-## 12 bis. Aggiornamenti automatici
+## 12 bis. Installazione e aggiornamenti automatici
 
-Ogni 30 minuti il programma controlla da solo, senza chiedere nulla, l'ultima release pubblicata su github.com/ic8tem/LIVETROPOVHF. Se la versione è più recente di quella in uso e la release ha l'allegato per Windows 64 bit (LIVETROPOVHF-win-x64.zip con dentro LIVETROPOVHF.exe e la cartella Tarature, oppure LIVETROPOVHF-win-x64.exe), lo scarica in Dati\aggiornamento, controlla che sia un eseguibile Windows e lo installa al posto di quello in uso: l'eseguibile in uso viene rinominato LIVETROPOVHF.old.exe e cancellato al riavvio successivo. La nuova versione diventa attiva al prossimo avvio; impostazioni, archivio, CALL3.TXT e tutti i file in Dati restano come sono. Lo stato del controllo e la versione in uso sono scritti in fondo alla barra di stato. Il primo controllo avviene un minuto dopo l'avvio; per spegnere gli aggiornamenti si scrive updates=0 in LIVETROPOVHF.ini. Funziona solo su Windows.
+Dalla versione 1.0 il programma si scarica già pronto dalla pagina Release di github.com/ic8tem/LIVETROPOVHF, negli stessi pacchetti di YA-MS: installatore per Windows (64 bit, 32 bit e ARM, installa in C:\LIVETROPOVHF senza diritti di amministratore) e zip portatile; .deb, .rpm, Arch, Slackware, AppImage e tar.gz per Linux; pacchetti per Raspberry Pi (64 e 32 bit) e Alpine; .dmg e app.zip per il Mac (Apple Silicon e Intel). Con i pacchetti Linux il programma si copia al primo avvio in ~/LIVETROPOVHF, così impostazioni e dati restano accanto al programma; sul Mac i dati nascono accanto a LIVETROPOVHF.app.
+
+Ogni 30 minuti (il primo controllo un minuto dopo l'avvio) il programma legge da solo, senza chiedere nulla, l'ultima Release. Se la versione è più nuova scarica il pacchetto portatile adatto al sistema e sostituisce i file del programma sul posto: quelli in uso vengono rinominati *.old-aggiornamento e cancellati al riavvio successivo. Impostazioni, archivio, cartella Dati e CALL3.TXT non vengono toccati. La nuova versione è attiva dal prossimo avvio. Lo stato del controllo e la versione in uso sono scritti in fondo alla barra di stato; per spegnere gli aggiornamenti si scrive updates=0 in LIVETROPOVHF.ini. Sul Mac l'app è firmata e non si modifica da sola: il programma segnala soltanto che c'è una versione nuova.
+
+All'avvio compare l'immagine di LIVETROPOVHF con il numero di versione; alla chiusura il programma chiede conferma e ringrazia per l'uso.
 
 ## 13. Piattaforme
 
