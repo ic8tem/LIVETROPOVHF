@@ -19,7 +19,8 @@ LIVETROPOVHF puts on one map the tropo forecast and what is really happening on 
 
 ## Download / Scarica
 Get the latest version from **[Releases](../../releases/latest)**:
-- **Windows**: `LIVETROPOVHF-…-windows-x64-setup.exe` (installs in `C:\LIVETROPOVHF`, no admin rights) or the portable zip; x86 and ARM64 builds too.
+- **Windows 10/11**: `LIVETROPOVHF-…-windows-x64-setup.exe` (installs in `C:\LIVETROPOVHF`, no admin rights) or the portable zip; x86 and ARM64 builds too.
+- **Windows 7 SP1 / 8.1**: `LIVETROPOVHF-…-windows7-x64-setup.exe` (or x86, or the portable zip), built on .NET 6.
 - **Linux**: `.deb`, `.rpm`, Arch `.pkg.tar.zst`, Slackware `.txz`, `AppImage`, `tar.gz`; **Raspberry Pi** 64/32 bit; **Alpine**.
 - **Mac**: `.dmg` for Apple Silicon or Intel.
 

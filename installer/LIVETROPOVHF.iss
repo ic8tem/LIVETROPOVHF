@@ -6,6 +6,9 @@
 #ifndef Arch
   #define Arch "x64"
 #endif
+#ifndef Flavor
+  #define Flavor "windows"
+#endif
 #ifndef SourceDir
   #define SourceDir "..\publish\win-x64"
 #endif
@@ -30,7 +33,10 @@ ArchitecturesAllowed=arm64
 ArchitecturesInstallIn64BitMode=arm64
 #endif
 OutputDir=..\dist
-OutputBaseFilename=LIVETROPOVHF-{#AppVersion}-windows-{#Arch}-setup
+OutputBaseFilename=LIVETROPOVHF-{#AppVersion}-{#Flavor}-{#Arch}-setup
+#if Flavor == "windows7"
+MinVersion=6.1sp1
+#endif
 SetupIconFile=..\TropoVHF\Assets\livetropovhf.ico
 UninstallDisplayIcon={app}\LIVETROPOVHF.exe
 Compression=lzma2
@@ -43,6 +49,10 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
+
+[InstallDelete]
+; librerie della versione precedente (anche se era per un altro Windows): si rimettono da capo; dati e impostazioni restano
+Type: files; Name: "{app}\*.dll"
 
 [Files]
 ; programma e tarature: aggiornati a ogni installazione

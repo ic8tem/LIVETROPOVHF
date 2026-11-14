@@ -59,6 +59,49 @@ jobs:
           name: windows-${{ matrix.arch }}
           path: dist/*
 
+  # Windows 7 e 8 (SP1): stessa applicazione compilata su .NET 6, l'ultimo che gira su Windows 7.
+  # Si compila anche a ogni push su main, come prova.
+  windows7:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - rid: win-x64
+            arch: x64
+          - rid: win-x86
+            arch: x86
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            6.0.x
+            10.0.x
+      - name: Versione
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then V="${GITHUB_REF#refs/tags/v}"; else V="$(tr -d ' \r\n' < VERSION)"; fi
+          echo "VER=$V" >> $GITHUB_ENV
+      - name: Compila (.NET 6)
+        run: dotnet publish TropoVHF/TropoVHF.csproj -c Release -r ${{ matrix.rid }} --self-contained true -p:Win7=true -p:Version=${{ env.VER }} -p:DebugType=none -o publish/w7-${{ matrix.rid }}
+      - name: Installatore (Inno Setup)
+        if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/release' || github.event_name == 'workflow_dispatch'
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup --no-progress -y; }
+          & $iscc "/DAppVersion=${{ env.VER }}" "/DArch=${{ matrix.arch }}" "/DFlavor=windows7" "/DSourceDir=..\publish\w7-${{ matrix.rid }}" installer\LIVETROPOVHF.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Zip portatile
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Compress-Archive -Path publish\w7-${{ matrix.rid }}\* -DestinationPath dist\LIVETROPOVHF-${{ env.VER }}-windows7-${{ matrix.arch }}-portatile.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows7-${{ matrix.arch }}
+          path: dist/*
+
   linux:
     runs-on: ubuntu-latest
     steps:
@@ -222,7 +265,7 @@ jobs:
 
   release:
     if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/release'
-    needs: [ windows, linux, raspberry, alpine, macos ]
+    needs: [ windows, windows7, linux, raspberry, alpine, macos ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -242,7 +285,8 @@ jobs:
             A cura di Costantino IC8TEM. Novità: vedi CHANGELOG.md.
             Il programma si aggiorna da solo da GitHub (controllo ogni 30 minuti, nuova versione attiva al riavvio).
 
-            - Windows: LIVETROPOVHF-...-windows-x64-setup.exe (installa in C:\LIVETROPOVHF) oppure lo zip portatile; per Windows a 32 bit i file -windows-x86-, per Windows su ARM i file -windows-arm64-.
+            - Windows 10 e 11: LIVETROPOVHF-...-windows-x64-setup.exe (installa in C:\LIVETROPOVHF) oppure lo zip portatile; per Windows a 32 bit i file -windows-x86-, per Windows su ARM i file -windows-arm64-.
+            - Windows 7 SP1 e 8.1: i file -windows7-x64- o -windows7-x86- (setup o zip portatile), compilati su .NET 6; senza la lettura OCR delle mappe.
             - Linux (Debian, Ubuntu, Mint): livetropovhf_..._amd64.deb, con: sudo apt install ./livetropovhf_..._amd64.deb (al primo avvio il programma si copia in ~/LIVETROPOVHF). Oppure LIVETROPOVHF-...-linux-x64.tar.gz, portatile o installabile con ./installa.sh.
             - Fedora, openSUSE: livetropovhf-....x86_64.rpm (o .aarch64.rpm, .armv7hl.rpm).
             - Arch, Manjaro, EndeavourOS: livetropovhf-...-x86_64.pkg.tar.zst (o -aarch64), con sudo pacman -U.

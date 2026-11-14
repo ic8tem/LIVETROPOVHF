@@ -4,6 +4,9 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
+## 1.0.1 — 14/11/2026
+- Windows 7 SP1 e 8.1: la 1.0.0 non partiva («Impossibile trovare il punto di ingresso GetSystemTimePreciseAsFileTime in KERNEL32.dll», funzione che esiste solo da Windows 8). Nuovi pacchetti -windows7-x64 e -windows7-x86 (setup e zip portatile) compilati su .NET 6, l'ultimo che gira su Windows 7; si aggiornano da soli con i pacchetti windows7. Su questi sistemi manca soltanto la lettura OCR degli assi delle mappe (serve Windows 10).
+
 ## 1.0.0 — 13/11/2026
 Prima versione pubblica.
 - Installatori e pacchetti creati su GitHub come per YA-MS: Windows (x64, x86, ARM64; installatore e zip portatile), Linux (.deb, .rpm, Arch, Slackware, AppImage, tar.gz), Raspberry Pi (64 e 32 bit), Alpine, Mac (Apple Silicon e Intel).

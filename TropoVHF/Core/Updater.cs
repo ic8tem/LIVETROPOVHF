@@ -1,4 +1,6 @@
+#if NET7_0_OR_GREATER
 using System.Formats.Tar;
+#endif
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -31,6 +33,9 @@ public static class Updater
     public static string AssetSuffix()
     {
         var a = RuntimeInformation.ProcessArchitecture;
+#if WIN7
+        return a == Architecture.X86 ? "-windows7-x86-portatile.zip" : "-windows7-x64-portatile.zip";
+#endif
         if (OperatingSystem.IsWindows())
             return a == Architecture.X86 ? "-windows-x86-portatile.zip" : a == Architecture.Arm64 ? "-windows-arm64-portatile.zip" : "-windows-x64-portatile.zip";
         if (OperatingSystem.IsMacOS())
@@ -103,9 +108,13 @@ public static class Updater
         if (name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)) ZipFile.ExtractToDirectory(file, ex, true);
         else
         {
+#if NET7_0_OR_GREATER
             await using var fs = File.OpenRead(file);
             await using var gz = new GZipStream(fs, CompressionMode.Decompress);
             await TarFile.ExtractToDirectoryAsync(gz, ex, true, ct);
+#else
+            Set("Aggiornamenti: pacchetto tar.gz non gestito da questa versione"); return;
+#endif
         }
         // il tar.gz contiene la cartella LIVETROPOVHF/, lo zip i file direttamente
         var src = ex;
@@ -132,8 +141,10 @@ public static class Updater
             }
             n2++;
         }
+#if NET7_0_OR_GREATER
         if (!OperatingSystem.IsWindows())
             try { File.SetUnixFileMode(Path.Combine(Dir, exe), (UnixFileMode)Convert.ToInt32("755", 8)); } catch { }
+#endif
         try { Directory.Delete(work, true); } catch { }
         Pending = latest.ToString(3);
         Set($"Versione {Pending} installata ({n2} file): sarà attiva al prossimo avvio");
