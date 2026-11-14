@@ -7,7 +7,8 @@ Previsione e osservazione in tempo reale della propagazione troposferica da 144 
 - [[Guida rapida|Guida-rapida]] – compilare, primo avvio, fonti da accendere.
 - [[Criteri di scarto|Criteri-di-scarto]] – che cosa il programma scarta e perché.
 - [[Colori e simboli|Colori-e-simboli]] – come leggere la mappa.
-- [[Storia delle versioni|Storia-delle-versioni]] – le beta.
+- [[Windows 7 e 8.1|Windows-7-e-8.1]] – pacchetti a parte e che cosa fare se il programma non parte.
+- [[Storia delle versioni|Storia-delle-versioni]] – tutte le versioni.
 
 ## In breve
 - Mappe tropo Hepburn e F5LEN fuse su tutto il mondo, con isobare, isoterme e inversione termica.

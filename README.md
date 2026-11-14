@@ -26,6 +26,13 @@ Get the latest version from **[Releases](../../releases/latest)**:
 
 To build from source on Windows: double-click `build-win64.bat` (it installs the .NET 10 SDK locally if missing).
 
+## Windows 7 SP1 / 8.1
+The standard Windows build uses .NET 10, which calls `GetSystemTimePreciseAsFileTime` (KERNEL32.dll) at start-up: that function exists only from Windows 8, so on Windows 7 version 1.0.0 stopped with *"Impossibile trovare il punto di ingresso GetSystemTimePreciseAsFileTime…"*.
+- From 1.0.1 there are separate **`-windows7-x64`** and **`-windows7-x86`** packages (setup or portable zip), built on .NET 6, the last .NET that runs on Windows 7.
+- If you installed 1.0.0 on Windows 7, download the `windows7` setup manually and install it over the old one (1.0.0 cannot start, so it cannot update itself). Settings and data are kept. From then on, automatic updates use the `windows7` packages.
+- Only the OCR reading of map axes is missing (it needs Windows 10); Hepburn and F5LEN regions have factory extents, so in practice nothing changes.
+- If it still does not start, install **KB2533623** or the Windows 7 SP1 **Convenience Rollup**. Details: [Wiki – Windows 7 e 8.1](../../wiki/Windows-7-e-8.1).
+
 ## Automatic updates
 Every 30 minutes the program checks the latest Release and, if newer, downloads the portable package for its platform and replaces its own files silently; the new version starts at the next launch. Settings, archive, `Dati\` and `CALL3.TXT` are never touched.
 
