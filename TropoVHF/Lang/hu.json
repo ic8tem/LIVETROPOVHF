@@ -242,5 +242,17 @@
  "close.title": "A program bezárása",
  "close.thanks": "Köszönöm, hogy használtál: remélem, hasznos voltam.",
  "yes": "Igen",
- "no": "Nem"
+ "no": "Nem",
+ "theme.azzurro": "Pasztell világoskék",
+ "theme.acquamarina": "Pasztell akvamarin",
+ "theme.pverde": "Pasztell zöld",
+ "theme.lilla": "Pasztell lila",
+ "theme.marrone": "Pasztell barna",
+ "theme.scia": "Meteornyom",
+ "theme.blu": "Kék",
+ "theme.viola": "Ibolya",
+ "theme.verde": "Zöld",
+ "theme.ip-chiaro": "Világos (IP-TRX-CTRL)",
+ "theme.ip-notte": "Éjszaka (IP-TRX-CTRL)",
+ "theme.ip-nero": "Fekete (IP-TRX-CTRL)"
 }

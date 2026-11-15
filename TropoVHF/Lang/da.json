@@ -250,5 +250,17 @@
  "close.title": "Programmet lukkes",
  "close.thanks": "Tak, fordi du brugte mig: jeg håber, jeg har været til nytte.",
  "yes": "Ja",
- "no": "Nej"
+ "no": "Nej",
+ "theme.azzurro": "Pastel lyseblå",
+ "theme.acquamarina": "Pastel akvamarin",
+ "theme.pverde": "Pastel grøn",
+ "theme.lilla": "Pastel lilla",
+ "theme.marrone": "Pastel brun",
+ "theme.scia": "Meteorspor",
+ "theme.blu": "Blå",
+ "theme.viola": "Violet",
+ "theme.verde": "Grøn",
+ "theme.ip-chiaro": "Lys (IP-TRX-CTRL)",
+ "theme.ip-notte": "Nat (IP-TRX-CTRL)",
+ "theme.ip-nero": "Sort (IP-TRX-CTRL)"
 }

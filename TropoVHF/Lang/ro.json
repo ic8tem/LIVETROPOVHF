@@ -242,5 +242,17 @@
  "close.title": "Închiderea programului",
  "close.thanks": "Mulțumesc că m-ai folosit: sper că ți-am fost util.",
  "yes": "Da",
- "no": "Nu"
+ "no": "Nu",
+ "theme.azzurro": "Bleu pastel",
+ "theme.acquamarina": "Acvamarin pastel",
+ "theme.pverde": "Verde pastel",
+ "theme.lilla": "Liliachiu pastel",
+ "theme.marrone": "Maro pastel",
+ "theme.scia": "Urmă de meteor",
+ "theme.blu": "Albastru",
+ "theme.viola": "Violet",
+ "theme.verde": "Verde",
+ "theme.ip-chiaro": "Luminos (IP-TRX-CTRL)",
+ "theme.ip-notte": "Noapte (IP-TRX-CTRL)",
+ "theme.ip-nero": "Negru (IP-TRX-CTRL)"
 }

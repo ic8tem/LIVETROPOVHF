@@ -250,5 +250,17 @@
  "close.title": "סגירת התוכנה",
  "close.thanks": "תודה שהשתמשת בי: אני מקווה שהייתי לך לעזר.",
  "yes": "כן",
- "no": "לא"
+ "no": "לא",
+ "theme.azzurro": "תכלת פסטל",
+ "theme.acquamarina": "אקווה־מרין פסטל",
+ "theme.pverde": "ירוק פסטל",
+ "theme.lilla": "לילך פסטל",
+ "theme.marrone": "חום פסטל",
+ "theme.scia": "שובל מטאור",
+ "theme.blu": "כחול",
+ "theme.viola": "סגול",
+ "theme.verde": "ירוק",
+ "theme.ip-chiaro": "בהיר (IP-TRX-CTRL)",
+ "theme.ip-notte": "לילה (IP-TRX-CTRL)",
+ "theme.ip-nero": "שחור (IP-TRX-CTRL)"
 }

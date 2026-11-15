@@ -250,5 +250,17 @@
  "close.title": "प्रोग्राम बंद करना",
  "close.thanks": "मुझे उपयोग करने के लिए धन्यवाद: आशा है मैं आपके काम आया।",
  "yes": "हाँ",
- "no": "नहीं"
+ "no": "नहीं",
+ "theme.azzurro": "पेस्टल हल्का नीला",
+ "theme.acquamarina": "पेस्टल एक्वामरीन",
+ "theme.pverde": "पेस्टल हरा",
+ "theme.lilla": "पेस्टल बैंगनी",
+ "theme.marrone": "पेस्टल भूरा",
+ "theme.scia": "उल्का पथ",
+ "theme.blu": "नीला",
+ "theme.viola": "जामुनी",
+ "theme.verde": "हरा",
+ "theme.ip-chiaro": "हल्का (IP-TRX-CTRL)",
+ "theme.ip-notte": "रात (IP-TRX-CTRL)",
+ "theme.ip-nero": "काला (IP-TRX-CTRL)"
 }

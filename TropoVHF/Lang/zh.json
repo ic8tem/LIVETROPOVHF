@@ -250,5 +250,17 @@
  "close.title": "关闭程序",
  "close.thanks": "感谢使用我：希望我对你有所帮助。",
  "yes": "是",
- "no": "否"
+ "no": "否",
+ "theme.azzurro": "粉彩浅蓝",
+ "theme.acquamarina": "粉彩海蓝",
+ "theme.pverde": "粉彩绿",
+ "theme.lilla": "粉彩淡紫",
+ "theme.marrone": "粉彩棕",
+ "theme.scia": "流星余迹",
+ "theme.blu": "蓝",
+ "theme.viola": "紫",
+ "theme.verde": "绿",
+ "theme.ip-chiaro": "浅色 (IP-TRX-CTRL)",
+ "theme.ip-notte": "夜间 (IP-TRX-CTRL)",
+ "theme.ip-nero": "黑色 (IP-TRX-CTRL)"
 }

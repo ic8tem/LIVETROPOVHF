@@ -250,5 +250,17 @@
  "close.title": "Programmas aizvēršana",
  "close.thanks": "Paldies, ka mani lietojāt: ceru, ka biju noderīga.",
  "yes": "Jā",
- "no": "Nē"
+ "no": "Nē",
+ "theme.azzurro": "Pasteļu gaiši zils",
+ "theme.acquamarina": "Pasteļu akvamarīns",
+ "theme.pverde": "Pasteļu zaļš",
+ "theme.lilla": "Pasteļu ceriņkrāsa",
+ "theme.marrone": "Pasteļu brūns",
+ "theme.scia": "Meteora sliede",
+ "theme.blu": "Zils",
+ "theme.viola": "Violets",
+ "theme.verde": "Zaļš",
+ "theme.ip-chiaro": "Gaišs (IP-TRX-CTRL)",
+ "theme.ip-notte": "Nakts (IP-TRX-CTRL)",
+ "theme.ip-nero": "Melns (IP-TRX-CTRL)"
 }

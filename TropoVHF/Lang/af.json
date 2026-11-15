@@ -250,5 +250,17 @@
  "close.title": "Sluit die program",
  "close.thanks": "Dankie dat jy my gebruik het: ek hoop ek was vir jou nuttig.",
  "yes": "Ja",
- "no": "Nee"
+ "no": "Nee",
+ "theme.azzurro": "Pastel ligblou",
+ "theme.acquamarina": "Pastel akwamaryn",
+ "theme.pverde": "Pastel groen",
+ "theme.lilla": "Pastel lila",
+ "theme.marrone": "Pastel bruin",
+ "theme.scia": "Meteoorspoor",
+ "theme.blu": "Blou",
+ "theme.viola": "Violet",
+ "theme.verde": "Groen",
+ "theme.ip-chiaro": "Lig (IP-TRX-CTRL)",
+ "theme.ip-notte": "Nag (IP-TRX-CTRL)",
+ "theme.ip-nero": "Swart (IP-TRX-CTRL)"
 }

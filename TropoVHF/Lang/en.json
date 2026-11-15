@@ -250,5 +250,17 @@
  "close.title": "Closing the program",
  "close.thanks": "Thank you for using me: I hope I have been useful to you.",
  "yes": "Yes",
- "no": "No"
+ "no": "No",
+ "theme.azzurro": "Pastel light blue",
+ "theme.acquamarina": "Pastel aquamarine",
+ "theme.pverde": "Pastel green",
+ "theme.lilla": "Pastel lilac",
+ "theme.marrone": "Pastel brown",
+ "theme.scia": "Meteor trail",
+ "theme.blu": "Blue",
+ "theme.viola": "Violet",
+ "theme.verde": "Green",
+ "theme.ip-chiaro": "Light (IP-TRX-CTRL)",
+ "theme.ip-notte": "Night (IP-TRX-CTRL)",
+ "theme.ip-nero": "Black (IP-TRX-CTRL)"
 }

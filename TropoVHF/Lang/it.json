@@ -250,5 +250,17 @@
  "close.title": "Chiusura del programma",
  "close.thanks": "Grazie per avermi usato: spero di esserti stato utile.",
  "yes": "Sì",
- "no": "No"
+ "no": "No",
+ "theme.azzurro": "Azzurro pastello",
+ "theme.acquamarina": "Acquamarina pastello",
+ "theme.pverde": "Verde pastello",
+ "theme.lilla": "Lilla pastello",
+ "theme.marrone": "Marrone pastello",
+ "theme.scia": "Scia meteorica",
+ "theme.blu": "Blu",
+ "theme.viola": "Viola",
+ "theme.verde": "Verde",
+ "theme.ip-chiaro": "Chiaro (IP-TRX-CTRL)",
+ "theme.ip-notte": "Notte (IP-TRX-CTRL)",
+ "theme.ip-nero": "Nero (IP-TRX-CTRL)"
 }

@@ -250,5 +250,17 @@
  "close.title": "Lukking av programmet",
  "close.thanks": "Takk for at du brukte meg: jeg håper jeg har vært til nytte.",
  "yes": "Ja",
- "no": "Nei"
+ "no": "Nei",
+ "theme.azzurro": "Pastell lyseblå",
+ "theme.acquamarina": "Pastell akvamarin",
+ "theme.pverde": "Pastell grønn",
+ "theme.lilla": "Pastell lilla",
+ "theme.marrone": "Pastell brun",
+ "theme.scia": "Meteorspor",
+ "theme.blu": "Blå",
+ "theme.viola": "Fiolett",
+ "theme.verde": "Grønn",
+ "theme.ip-chiaro": "Lys (IP-TRX-CTRL)",
+ "theme.ip-notte": "Natt (IP-TRX-CTRL)",
+ "theme.ip-nero": "Svart (IP-TRX-CTRL)"
 }

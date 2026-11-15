@@ -250,5 +250,17 @@
  "close.title": "Stänger programmet",
  "close.thanks": "Tack för att du har använt mig: jag hoppas att jag har varit till nytta.",
  "yes": "Ja",
- "no": "Nej"
+ "no": "Nej",
+ "theme.azzurro": "Pastell ljusblå",
+ "theme.acquamarina": "Pastell akvamarin",
+ "theme.pverde": "Pastell grön",
+ "theme.lilla": "Pastell lila",
+ "theme.marrone": "Pastell brun",
+ "theme.scia": "Meteorspår",
+ "theme.blu": "Blå",
+ "theme.viola": "Violett",
+ "theme.verde": "Grön",
+ "theme.ip-chiaro": "Ljust (IP-TRX-CTRL)",
+ "theme.ip-notte": "Natt (IP-TRX-CTRL)",
+ "theme.ip-nero": "Svart (IP-TRX-CTRL)"
 }

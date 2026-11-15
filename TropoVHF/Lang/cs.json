@@ -242,5 +242,17 @@
  "close.title": "Ukončení programu",
  "close.thanks": "Děkuji, že jsi mě používal: doufám, že jsem ti byl užitečný.",
  "yes": "Ano",
- "no": "Ne"
+ "no": "Ne",
+ "theme.azzurro": "Pastelová světle modrá",
+ "theme.acquamarina": "Pastelová akvamarínová",
+ "theme.pverde": "Pastelová zelená",
+ "theme.lilla": "Pastelová šeříková",
+ "theme.marrone": "Pastelová hnědá",
+ "theme.scia": "Stopa meteoru",
+ "theme.blu": "Modrá",
+ "theme.viola": "Fialová",
+ "theme.verde": "Zelená",
+ "theme.ip-chiaro": "Světlý (IP-TRX-CTRL)",
+ "theme.ip-notte": "Noc (IP-TRX-CTRL)",
+ "theme.ip-nero": "Černý (IP-TRX-CTRL)"
 }

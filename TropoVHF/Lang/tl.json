@@ -250,5 +250,17 @@
  "close.title": "Pagsasara ng programa",
  "close.thanks": "Salamat sa paggamit mo sa akin: sana ay nakatulong ako sa iyo.",
  "yes": "Oo",
- "no": "Hindi"
+ "no": "Hindi",
+ "theme.azzurro": "Pastel na mapusyaw na asul",
+ "theme.acquamarina": "Pastel na aquamarine",
+ "theme.pverde": "Pastel na berde",
+ "theme.lilla": "Pastel na lila",
+ "theme.marrone": "Pastel na kayumanggi",
+ "theme.scia": "Bakas ng bulalakaw",
+ "theme.blu": "Asul",
+ "theme.viola": "Biyoleta",
+ "theme.verde": "Berde",
+ "theme.ip-chiaro": "Maliwanag (IP-TRX-CTRL)",
+ "theme.ip-notte": "Gabi (IP-TRX-CTRL)",
+ "theme.ip-nero": "Itim (IP-TRX-CTRL)"
 }

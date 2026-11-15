@@ -242,5 +242,17 @@
  "close.title": "ปิดโปรแกรม",
  "close.thanks": "ขอบคุณที่ใช้งาน หวังว่าจะเป็นประโยชน์กับคุณ",
  "yes": "ใช่",
- "no": "ไม่"
+ "no": "ไม่",
+ "theme.azzurro": "ฟ้าอ่อนพาสเทล",
+ "theme.acquamarina": "อะความารีนพาสเทล",
+ "theme.pverde": "เขียวพาสเทล",
+ "theme.lilla": "ม่วงไลแลคพาสเทล",
+ "theme.marrone": "น้ำตาลพาสเทล",
+ "theme.scia": "รอยดาวตก",
+ "theme.blu": "น้ำเงิน",
+ "theme.viola": "ม่วง",
+ "theme.verde": "เขียว",
+ "theme.ip-chiaro": "สว่าง (IP-TRX-CTRL)",
+ "theme.ip-notte": "กลางคืน (IP-TRX-CTRL)",
+ "theme.ip-nero": "ดำ (IP-TRX-CTRL)"
 }

@@ -250,5 +250,17 @@
  "close.title": "Menutup program",
  "close.thanks": "Terima kasih telah memakai saya: semoga saya bermanfaat bagimu.",
  "yes": "Ya",
- "no": "Tidak"
+ "no": "Tidak",
+ "theme.azzurro": "Biru muda pastel",
+ "theme.acquamarina": "Akuamarin pastel",
+ "theme.pverde": "Hijau pastel",
+ "theme.lilla": "Ungu muda pastel",
+ "theme.marrone": "Cokelat pastel",
+ "theme.scia": "Jejak meteor",
+ "theme.blu": "Biru",
+ "theme.viola": "Ungu",
+ "theme.verde": "Hijau",
+ "theme.ip-chiaro": "Terang (IP-TRX-CTRL)",
+ "theme.ip-notte": "Malam (IP-TRX-CTRL)",
+ "theme.ip-nero": "Hitam (IP-TRX-CTRL)"
 }

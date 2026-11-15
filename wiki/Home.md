@@ -15,4 +15,4 @@ Previsione e osservazione in tempo reale della propagazione troposferica da 144 
 - Spot da DX cluster, RBN, DM4X, PSKReporter e dalle proprie decodifiche WSJT-X/JTDX/MSHV.
 - Solo 144 MHz e oltre: esclusi meteor scatter, EME, QO-100 e ascoltatori non genuini.
 - Locatori sempre a 6 caratteri (CALL3.TXT, voci a mano, correzioni dal cluster).
-- Portabile: tutto accanto all'eseguibile. 36 lingue.
+- Portabile: tutto accanto all'eseguibile. 37 lingue, 18 temi.

@@ -242,5 +242,17 @@
  "close.title": "Κλείσιμο του προγράμματος",
  "close.thanks": "Ευχαριστώ που με χρησιμοποιήσατε: ελπίζω να σας φάνηκα χρήσιμος.",
  "yes": "Ναι",
- "no": "Όχι"
+ "no": "Όχι",
+ "theme.azzurro": "Παστέλ γαλάζιο",
+ "theme.acquamarina": "Παστέλ ακουαμαρίνα",
+ "theme.pverde": "Παστέλ πράσινο",
+ "theme.lilla": "Παστέλ λιλά",
+ "theme.marrone": "Παστέλ καφέ",
+ "theme.scia": "Ίχνος μετεωρίτη",
+ "theme.blu": "Μπλε",
+ "theme.viola": "Βιολετί",
+ "theme.verde": "Πράσινο",
+ "theme.ip-chiaro": "Φωτεινό (IP-TRX-CTRL)",
+ "theme.ip-notte": "Νύχτα (IP-TRX-CTRL)",
+ "theme.ip-nero": "Μαύρο (IP-TRX-CTRL)"
 }

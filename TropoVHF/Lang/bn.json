@@ -250,5 +250,17 @@
  "close.title": "প্রোগ্রাম বন্ধ করা",
  "close.thanks": "আমাকে ব্যবহার করার জন্য ধন্যবাদ: আশা করি আপনার কাজে লেগেছি।",
  "yes": "হ্যাঁ",
- "no": "না"
+ "no": "না",
+ "theme.azzurro": "প্যাস্টেল হালকা নীল",
+ "theme.acquamarina": "প্যাস্টেল অ্যাকোয়ামেরিন",
+ "theme.pverde": "প্যাস্টেল সবুজ",
+ "theme.lilla": "প্যাস্টেল লাইলাক",
+ "theme.marrone": "প্যাস্টেল বাদামি",
+ "theme.scia": "উল্কার রেখা",
+ "theme.blu": "নীল",
+ "theme.viola": "বেগুনি",
+ "theme.verde": "সবুজ",
+ "theme.ip-chiaro": "হালকা (IP-TRX-CTRL)",
+ "theme.ip-notte": "রাত (IP-TRX-CTRL)",
+ "theme.ip-nero": "কালো (IP-TRX-CTRL)"
 }

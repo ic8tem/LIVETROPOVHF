@@ -2,7 +2,7 @@ using Avalonia.Media;
 
 namespace TropoVHF.Ui;
 
-/// <summary>Palette dei sei temi (stessi colori del bozzetto e della prova in Go).</summary>
+/// <summary>Palette dei 18 temi (i sei originali del bozzetto e della prova in Go, piu' quelli armonizzati con E-LAYER ANALYZER).</summary>
 public sealed class Palette
 {
     public string Key = "";
@@ -13,7 +13,47 @@ public sealed class Palette
 
     public IBrush B(Color c) => new SolidColorBrush(c);
 
-    public static readonly string[] Keys = { "chiaro", "nero", "notte", "arancio", "indaco", "rosa" };
+    // Armonizzazione (IC8TEM 15/11/2026): i 18 schemi di E-LAYER ANALYZER. Arancio, indaco e rosa restano quelli di LIVETROPOVHF (fanno
+    // da pastello arancione, indaco e rosa); gli altri pastelli usano le tinte di YAEC, gli scuri i colori di IP-TRX-CTRL e di YA-MS.
+    public static readonly string[] Keys = { "chiaro", "notte", "nero", "azzurro", "arancio", "acquamarina", "pverde", "rosa", "lilla", "indaco", "marrone",
+        "scia", "ip-chiaro", "ip-notte", "ip-nero", "blu", "viola", "verde" };
+
+    static Color Tinta(Color t, double k) => Color.FromRgb((byte)(255 + (t.R - 255) * k), (byte)(255 + (t.G - 255) * k), (byte)(255 + (t.B - 255) * k));
+    static Color Scura(Color t, double k) => Color.FromRgb((byte)(t.R * (1 - k)), (byte)(t.G * (1 - k)), (byte)(t.B * (1 - k)));
+    static Color Fra(Color a, Color b, double k) => Color.FromRgb((byte)(a.R + (b.R - a.R) * k), (byte)(a.G + (b.G - a.G) * k), (byte)(a.B + (b.B - a.B) * k));
+
+    // pastello chiaro con la tinta di YAEC, sullo stampo del tema "arancio"
+    static Palette Pastello(string key, Color t) => new Palette
+    {
+        Key = key, Page = Tinta(t, 0.09), Bar = Tinta(t, 0.20), Panel = Tinta(t, 0.04), Chip = Tinta(t, 0.15), Line = Tinta(t, 0.32), Line2 = Tinta(t, 0.22),
+        Ctl = Tinta(t, 0.55), CtlBg = C("#FFFFFF"), Text = Scura(t, 0.78), Text2 = Scura(t, 0.72), Muted = Scura(t, 0.45), Sub = Scura(t, 0.62),
+        Accent = Scura(t, 0.25), AccentFg = C("#FFFFFF"), Band = Scura(t, 0.30), BandFg = Tinta(t, 0.08), Clock = Scura(t, 0.25), SelRow = Tinta(t, 0.24),
+        AsText = C("#8F6A00"), MapSea = Tinta(t, 0.13), MapLand = Tinta(t, 0.03), MapCoast = Scura(t, 0.50), MapBorder = Tinta(t, 0.38), MapGrid = Tinta(t, 0.48),
+        MapGridLabel = Tinta(t, 0.32), Halo = Tinta(t, 0.13), Ink = Scura(t, 0.78), Iso = Scura(t, 0.48), Ok = C("#1F7A45"), Bad = C("#C62828")
+    };
+
+    // scuro sullo stampo del tema "notte": fondo, riquadro, incavo, bordo, testo, testo spento, accento, testo sull'accento, ok, errore, giallo
+    static Palette Scuro(string key, string bg, string pan, string ins, string bor, string txt, string mut, string acc, string accTxt, string ok, string bad, string yel)
+    {
+        Color b = C(bg), p = C(pan), i = C(ins), l = C(bor), t = C(txt), m = C(mut), a = C(acc);
+        return new Palette
+        {
+            Key = key, Dark = true, Page = b, Bar = i, Panel = p, Chip = Fra(p, l, 0.35), Line = l, Line2 = Fra(p, l, 0.6), Ctl = Fra(l, t, 0.25), CtlBg = b,
+            Text = t, Text2 = Fra(t, m, 0.25), Muted = m, Sub = Fra(t, m, 0.5), Accent = a, AccentFg = C(accTxt), Band = Fra(p, a, 0.25), BandFg = t,
+            Clock = C(yel), SelRow = Fra(p, a, 0.18), AsText = C(yel), MapSea = Fra(b, C("#000000"), 0.2), MapLand = p, MapCoast = Fra(m, a, 0.3), MapBorder = l,
+            MapGrid = Fra(l, a, 0.3), MapGridLabel = Fra(l, a, 0.5), Halo = Fra(b, C("#000000"), 0.2), Ink = t, Iso = m, Ok = C(ok), Bad = C(bad)
+        };
+    }
+
+    // chiaro di IP-TRX-CTRL sullo stampo del tema "chiaro"
+    static Palette ChiaroIp() => new Palette
+    {
+        Key = "ip-chiaro", Page = C("#F5F7FA"), Bar = C("#F0F2F5"), Panel = C("#FFFFFF"), Chip = C("#F0F2F5"), Line = C("#D5DAE1"), Line2 = C("#E3E7ED"), Ctl = C("#B9C0CA"),
+        CtlBg = C("#FFFFFF"), Text = C("#1B1F24"), Text2 = C("#2B3138"), Muted = C("#555D68"), Sub = C("#3E4650"), Accent = C("#1F6FEB"), AccentFg = C("#FFFFFF"),
+        Band = C("#141A22"), BandFg = C("#F5B942"), Clock = C("#B07A12"), SelRow = C("#E6EFFC"), AsText = C("#8F6A00"), MapSea = C("#E4EBF3"), MapLand = C("#FFFFFF"),
+        MapCoast = C("#1F3A66"), MapBorder = C("#C3CBD5"), MapGrid = C("#9CC3EA"), MapGridLabel = C("#C6DDF4"), Halo = C("#E4EBF3"), Ink = C("#1B1F24"),
+        Iso = C("#3E5368"), Ok = C("#1E7A3C"), Bad = C("#D92D20")
+    };
 
     public static Palette Get(string key)
     {
@@ -29,6 +69,18 @@ public sealed class Palette
                 return new Palette { Key = key, Page = C("#F1F0FB"), Bar = C("#E6E4F8"), Panel = C("#FBFAFF"), Chip = C("#ECEAFB"), Line = C("#D7D3F2"), Line2 = C("#E4E1F7"), Ctl = C("#B6AEE6"), CtlBg = C("#FFFFFF"), Text = C("#221E3D"), Text2 = C("#2F2A52"), Muted = C("#5E5884"), Sub = C("#433D6B"), Accent = C("#5B4FC9"), AccentFg = C("#FFFFFF"), Band = C("#4C41B3"), BandFg = C("#F0EEFF"), Clock = C("#5B4FC9"), SelRow = C("#E2DEFA"), AsText = C("#8A6A00"), MapSea = C("#E9E7F8"), MapLand = C("#FBFAFF"), MapCoast = C("#4D467A"), MapBorder = C("#CFCAEA"), MapGrid = C("#BDB5EC"), MapGridLabel = C("#D3CDF3"), Halo = C("#E9E7F8"), Ink = C("#221E3D"), Iso = C("#4D467A"), Ok = C("#1F7A45"), Bad = C("#C62828") };
             case "rosa":
                 return new Palette { Key = key, Page = C("#FDF1F5"), Bar = C("#FADFE8"), Panel = C("#FFF9FB"), Chip = C("#FBE8EF"), Line = C("#F0D2DD"), Line2 = C("#F6E0E8"), Ctl = C("#DDA9BC"), CtlBg = C("#FFFFFF"), Text = C("#3B1E29"), Text2 = C("#4E2837"), Muted = C("#805566"), Sub = C("#5E3A48"), Accent = C("#B23A64"), AccentFg = C("#FFFFFF"), Band = C("#9E3157"), BandFg = C("#FFEFF5"), Clock = C("#B23A64"), SelRow = C("#F9DCE6"), AsText = C("#8F6A00"), MapSea = C("#F8E9EE"), MapLand = C("#FFFBFC"), MapCoast = C("#7A4A5C"), MapBorder = C("#E6C9D4"), MapGrid = C("#E6B3C5"), MapGridLabel = C("#EFCCD8"), Halo = C("#F8E9EE"), Ink = C("#3B1E29"), Iso = C("#7A4A5C"), Ok = C("#1F7A45"), Bad = C("#C62828") };
+            case "azzurro": return Pastello(key, Color.FromRgb(70, 150, 230));
+            case "acquamarina": return Pastello(key, Color.FromRgb(40, 180, 170));
+            case "pverde": return Pastello(key, Color.FromRgb(80, 170, 90));
+            case "lilla": return Pastello(key, Color.FromRgb(160, 120, 210));
+            case "marrone": return Pastello(key, Color.FromRgb(150, 105, 70));
+            case "scia": return Scuro(key, "#161230", "#1C1740", "#0E0B22", "#3A3270", "#EEEBFA", "#B3ADD6", "#38BDF8", "#0E0B22", "#86EFAC", "#F87171", "#FDE047");
+            case "ip-chiaro": return ChiaroIp();
+            case "ip-notte": return Scuro(key, "#0F1A2B", "#15233A", "#0B1526", "#2A3D5C", "#E6ECF5", "#A9B6C9", "#5AA2FF", "#0B1526", "#8EE0A6", "#FF4D4F", "#F5B942");
+            case "ip-nero": return Scuro(key, "#0B0B0B", "#151515", "#050505", "#303030", "#F2F2F2", "#A6A6A6", "#FF9F1C", "#000000", "#7CE29A", "#FF3B30", "#FFB000");
+            case "blu": return Scuro(key, "#12417B", "#16498A", "#0C3162", "#2F64A8", "#FFFFFF", "#C9D8EC", "#FFD24A", "#0C3162", "#9BF0B5", "#FF5A52", "#FFD24A");
+            case "viola": return Scuro(key, "#2A1A41", "#33204F", "#22143A", "#573A85", "#F4EEFB", "#CDBFDF", "#E2C6FF", "#2A1A41", "#B9F2A0", "#FF5C7A", "#FFD98A");
+            case "verde": return Scuro(key, "#12301F", "#173B27", "#0B2215", "#2E6C49", "#E6F6EC", "#BAD4C5", "#A6E35F", "#0B2215", "#A6E35F", "#FF5A4E", "#E8F5A0");
             default:
                 return new Palette { Key = "chiaro", Page = C("#F4F6F9"), Bar = C("#EEF0F4"), Panel = C("#FFFFFF"), Chip = C("#F0F3F7"), Line = C("#D9DFE6"), Line2 = C("#E6EAEF"), Ctl = C("#B9C2CD"), CtlBg = C("#FFFFFF"), Text = C("#1B2430"), Text2 = C("#2B3540"), Muted = C("#5F6B78"), Sub = C("#3E4A57"), Accent = C("#1E78E0"), AccentFg = C("#FFFFFF"), Band = C("#1F5FB8"), BandFg = C("#EAF2FF"), Clock = C("#B07A12"), SelRow = C("#E8F1FC"), AsText = C("#8F6A00"), MapSea = C("#E2ECF8"), MapLand = C("#FFFFFF"), MapCoast = C("#1F3A66"), MapBorder = C("#C3CBD5"), MapGrid = C("#9CC3EA"), MapGridLabel = C("#C6DDF4"), Halo = C("#E2ECF8"), Ink = C("#1B2430"), Iso = C("#3E5368"), Ok = C("#1F7A45"), Bad = C("#C62828") };
         }

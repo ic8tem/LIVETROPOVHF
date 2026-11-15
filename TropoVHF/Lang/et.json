@@ -250,5 +250,17 @@
  "close.title": "Programmi sulgemine",
  "close.thanks": "Aitäh, et mind kasutasid: loodan, et olin sulle kasulik.",
  "yes": "Jah",
- "no": "Ei"
+ "no": "Ei",
+ "theme.azzurro": "Pastelne helesinine",
+ "theme.acquamarina": "Pastelne akvamariin",
+ "theme.pverde": "Pastelne roheline",
+ "theme.lilla": "Pastelne lilla",
+ "theme.marrone": "Pastelne pruun",
+ "theme.scia": "Meteoorijälg",
+ "theme.blu": "Sinine",
+ "theme.viola": "Violetne",
+ "theme.verde": "Roheline",
+ "theme.ip-chiaro": "Hele (IP-TRX-CTRL)",
+ "theme.ip-notte": "Öö (IP-TRX-CTRL)",
+ "theme.ip-nero": "Must (IP-TRX-CTRL)"
 }

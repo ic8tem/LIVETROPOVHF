@@ -14,7 +14,7 @@ Che cosa fa il programma, da dove prende i dati e come li trasforma in quello ch
 - Orologio: controllo NTP su 10 server ogni 3 minuti [10][11].
 - Segnalazioni sospette: EME in Q65/JT65 riconosciuto con la posizione della Luna, locatori troncati, skimmer, quarantena e ascoltatori, con regole imparate da sole [20].
 - Criteri di scarto e significato dei colori riassunti in due tabelle (sezioni 11 ter e 11 quater).
-- Temi, 36 lingue [17], esportazione dei documenti in Word con formule modificabili [16], programma portabile e multipiattaforma [12][13][14][15].
+- 18 temi, 37 lingue [17], esportazione dei documenti in Word con formule modificabili [16], programma portabile e multipiattaforma [12][13][14][15].
 
 ## 1. Scopo
 
@@ -183,7 +183,7 @@ Per ogni risposta calcola lo scarto e il ritardo di andata e ritorno, scarta i v
 
 ## 11. Temi e lingue
 
-Temi: Chiaro, Nero, Notte, Arancio pastello, Indaco pastello, Rosa pastello. Nei temi Nero e Notte anche la mappa di base diventa scura. Lingue: le 28 del wiki di YA-MS [17] (English, Italiano, Deutsch, Nederlands, Français, Español, Português, Dansk, Norsk, Svenska, Íslenska, Eesti, Lietuvių, Latviešu, Русский, Українська, Türkçe, Afrikaans, العربية, עברית, اردو, हिन्दी, বাংলা, Bahasa Indonesia, Tagalog, 日本語, 한국어, 中文). Con arabo, ebraico e urdu tutta la finestra si specchia da destra a sinistra; la mappa resta com'è [12]. Le traduzioni riguardano l'interfaccia; i due documenti tecnici e i messaggi della barra di stato restano in italiano. I nomi dei giorni vengono dalle impostazioni internazionali di .NET per la lingua scelta.
+Temi: i 18 comuni ai programmi di IC8TEM (armonizzazione del 15/11/2026, gli schemi di E-LAYER ANALYZER): Chiaro, Notte, Nero, otto pastelli (azzurro, arancio, acquamarina, verde, rosa, lilla, indaco, marrone; arancio, indaco e rosa sono quelli originali di LIVETROPOVHF, gli altri hanno le tinte di YAEC), Scia meteorica (di YA-MS), Chiaro, Notte e Nero di IP-TRX-CTRL, Blu, Viola, Verde. Nei temi scuri anche la mappa di base diventa scura. Lingue: le 37 comuni ai programmi di IC8TEM [17] (le 36 di YA-MS piu' lo slovacco, come YAEC). Con arabo, ebraico e urdu tutta la finestra si specchia da destra a sinistra; la mappa resta com'è [12]. Le traduzioni riguardano l'interfaccia; i due documenti tecnici e i messaggi della barra di stato restano in italiano. I nomi dei giorni vengono dalle impostazioni internazionali di .NET per la lingua scelta.
 
 Tema e lingua si cambiano dai due menu in alto a destra, accanto all'orologio, e si applicano subito, senza riavviare il programma e senza interrompere la raccolta dei dati. La scelta viene salvata in LIVETROPOVHF.ini.
 

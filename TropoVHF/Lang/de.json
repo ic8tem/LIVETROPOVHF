@@ -250,5 +250,17 @@
  "close.title": "Programm beenden",
  "close.thanks": "Danke, dass du mich benutzt hast: ich hoffe, ich war dir nützlich.",
  "yes": "Ja",
- "no": "Nein"
+ "no": "Nein",
+ "theme.azzurro": "Pastell hellblau",
+ "theme.acquamarina": "Pastell aquamarin",
+ "theme.pverde": "Pastell grün",
+ "theme.lilla": "Pastell flieder",
+ "theme.marrone": "Pastell braun",
+ "theme.scia": "Meteorspur",
+ "theme.blu": "Blau",
+ "theme.viola": "Violett",
+ "theme.verde": "Grün",
+ "theme.ip-chiaro": "Hell (IP-TRX-CTRL)",
+ "theme.ip-notte": "Nacht (IP-TRX-CTRL)",
+ "theme.ip-nero": "Schwarz (IP-TRX-CTRL)"
 }

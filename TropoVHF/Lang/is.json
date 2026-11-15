@@ -250,5 +250,17 @@
  "close.title": "Forritinu lokað",
  "close.thanks": "Takk fyrir að nota mig: ég vona að ég hafi komið þér að gagni.",
  "yes": "Já",
- "no": "Nei"
+ "no": "Nei",
+ "theme.azzurro": "Ljósblár pastel",
+ "theme.acquamarina": "Sægrænn pastel",
+ "theme.pverde": "Grænn pastel",
+ "theme.lilla": "Lillablár pastel",
+ "theme.marrone": "Brúnn pastel",
+ "theme.scia": "Loftsteinaslóð",
+ "theme.blu": "Blár",
+ "theme.viola": "Fjólublár",
+ "theme.verde": "Grænn",
+ "theme.ip-chiaro": "Ljóst (IP-TRX-CTRL)",
+ "theme.ip-notte": "Nótt (IP-TRX-CTRL)",
+ "theme.ip-nero": "Svart (IP-TRX-CTRL)"
 }

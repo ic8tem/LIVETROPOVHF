@@ -250,5 +250,17 @@
  "close.title": "پروگرام بند کرنا",
  "close.thanks": "مجھے استعمال کرنے کا شکریہ: امید ہے میں آپ کے کام آیا۔",
  "yes": "ہاں",
- "no": "نہیں"
+ "no": "نہیں",
+ "theme.azzurro": "پیسٹل ہلکا نیلا",
+ "theme.acquamarina": "پیسٹل ایکوامیرین",
+ "theme.pverde": "پیسٹل سبز",
+ "theme.lilla": "پیسٹل بنفشی",
+ "theme.marrone": "پیسٹل بھورا",
+ "theme.scia": "شہابی لکیر",
+ "theme.blu": "نیلا",
+ "theme.viola": "جامنی",
+ "theme.verde": "سبز",
+ "theme.ip-chiaro": "ہلکا (IP-TRX-CTRL)",
+ "theme.ip-notte": "رات (IP-TRX-CTRL)",
+ "theme.ip-nero": "سیاہ (IP-TRX-CTRL)"
 }

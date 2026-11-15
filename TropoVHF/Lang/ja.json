@@ -250,5 +250,17 @@
  "close.title": "プログラムの終了",
  "close.thanks": "使ってくれてありがとう：お役に立てたなら幸いです。",
  "yes": "はい",
- "no": "いいえ"
+ "no": "いいえ",
+ "theme.azzurro": "パステルライトブルー",
+ "theme.acquamarina": "パステルアクアマリン",
+ "theme.pverde": "パステルグリーン",
+ "theme.lilla": "パステルライラック",
+ "theme.marrone": "パステルブラウン",
+ "theme.scia": "流星痕",
+ "theme.blu": "ブルー",
+ "theme.viola": "バイオレット",
+ "theme.verde": "グリーン",
+ "theme.ip-chiaro": "ライト (IP-TRX-CTRL)",
+ "theme.ip-notte": "ナイト (IP-TRX-CTRL)",
+ "theme.ip-nero": "ブラック (IP-TRX-CTRL)"
 }

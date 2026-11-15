@@ -242,5 +242,17 @@
  "close.title": "Zamykanie programu",
  "close.thanks": "Dziękuję za korzystanie ze mnie: mam nadzieję, że się przydałem.",
  "yes": "Tak",
- "no": "Nie"
+ "no": "Nie",
+ "theme.azzurro": "Pastelowy błękit",
+ "theme.acquamarina": "Pastelowy akwamaryn",
+ "theme.pverde": "Pastelowa zieleń",
+ "theme.lilla": "Pastelowy liliowy",
+ "theme.marrone": "Pastelowy brąz",
+ "theme.scia": "Ślad meteoru",
+ "theme.blu": "Niebieski",
+ "theme.viola": "Fioletowy",
+ "theme.verde": "Zielony",
+ "theme.ip-chiaro": "Jasny (IP-TRX-CTRL)",
+ "theme.ip-notte": "Noc (IP-TRX-CTRL)",
+ "theme.ip-nero": "Czarny (IP-TRX-CTRL)"
 }

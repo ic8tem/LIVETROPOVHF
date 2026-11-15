@@ -250,5 +250,17 @@
  "close.title": "Programı kapatma",
  "close.thanks": "Beni kullandığın için teşekkürler: umarım işine yaramışımdır.",
  "yes": "Evet",
- "no": "Hayır"
+ "no": "Hayır",
+ "theme.azzurro": "Pastel açık mavi",
+ "theme.acquamarina": "Pastel akuamarin",
+ "theme.pverde": "Pastel yeşil",
+ "theme.lilla": "Pastel leylak",
+ "theme.marrone": "Pastel kahverengi",
+ "theme.scia": "Meteor izi",
+ "theme.blu": "Mavi",
+ "theme.viola": "Mor",
+ "theme.verde": "Yeşil",
+ "theme.ip-chiaro": "Açık (IP-TRX-CTRL)",
+ "theme.ip-notte": "Gece (IP-TRX-CTRL)",
+ "theme.ip-nero": "Siyah (IP-TRX-CTRL)"
 }

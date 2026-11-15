@@ -250,5 +250,17 @@
  "close.title": "Programma afsluiten",
  "close.thanks": "Bedankt dat je mij hebt gebruikt: ik hoop dat ik je van nut ben geweest.",
  "yes": "Ja",
- "no": "Nee"
+ "no": "Nee",
+ "theme.azzurro": "Pastel lichtblauw",
+ "theme.acquamarina": "Pastel aquamarijn",
+ "theme.pverde": "Pastel groen",
+ "theme.lilla": "Pastel lila",
+ "theme.marrone": "Pastel bruin",
+ "theme.scia": "Meteorspoor",
+ "theme.blu": "Blauw",
+ "theme.viola": "Violet",
+ "theme.verde": "Groen",
+ "theme.ip-chiaro": "Licht (IP-TRX-CTRL)",
+ "theme.ip-notte": "Nacht (IP-TRX-CTRL)",
+ "theme.ip-nero": "Zwart (IP-TRX-CTRL)"
 }

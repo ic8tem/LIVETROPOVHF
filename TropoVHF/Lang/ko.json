@@ -250,5 +250,17 @@
  "close.title": "프로그램 종료",
  "close.thanks": "사용해 주셔서 감사합니다: 도움이 되었기를 바랍니다.",
  "yes": "예",
- "no": "아니요"
+ "no": "아니요",
+ "theme.azzurro": "파스텔 하늘색",
+ "theme.acquamarina": "파스텔 아쿠아마린",
+ "theme.pverde": "파스텔 초록",
+ "theme.lilla": "파스텔 라일락",
+ "theme.marrone": "파스텔 갈색",
+ "theme.scia": "유성 흔적",
+ "theme.blu": "파랑",
+ "theme.viola": "보라",
+ "theme.verde": "초록",
+ "theme.ip-chiaro": "밝게 (IP-TRX-CTRL)",
+ "theme.ip-notte": "밤 (IP-TRX-CTRL)",
+ "theme.ip-nero": "검정 (IP-TRX-CTRL)"
 }

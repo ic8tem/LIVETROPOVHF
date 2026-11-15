@@ -250,5 +250,17 @@
  "close.title": "Закриття програми",
  "close.thanks": "Дякую, що користувалися мною: сподіваюся, я був вам корисний.",
  "yes": "Так",
- "no": "Ні"
+ "no": "Ні",
+ "theme.azzurro": "Пастельна блакитна",
+ "theme.acquamarina": "Пастельна аквамаринова",
+ "theme.pverde": "Пастельна зелена",
+ "theme.lilla": "Пастельна бузкова",
+ "theme.marrone": "Пастельна коричнева",
+ "theme.scia": "Метеорний слід",
+ "theme.blu": "Синя",
+ "theme.viola": "Фіолетова",
+ "theme.verde": "Зелена",
+ "theme.ip-chiaro": "Світла (IP-TRX-CTRL)",
+ "theme.ip-notte": "Ніч (IP-TRX-CTRL)",
+ "theme.ip-nero": "Чорна (IP-TRX-CTRL)"
 }

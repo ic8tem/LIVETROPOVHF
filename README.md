@@ -15,7 +15,7 @@ LIVETROPOVHF puts on one map the tropo forecast and what is really happening on 
 - **Clean data** – only 144 MHz and up (GRAVES 143.050 kept); meteor scatter, EME, QO-100 and fake listeners filtered out; paths over 1000 km held until confirmed.
 - **Locators** – always 6 characters: CALL3.TXT, manual entries, layered files, automatic corrections from DM4X/RBN, MMMonVHF updates and G7VRD as last source.
 - **Tabs** – Map, Hepburn, F5LEN, GRAVES, Suspicious reports (self-learning), Data collection, three technical manuals with sources.
-- **Portable** – everything next to the program (LIVETROPOVHF.ini, LIVETROPOVHF.db, Dati\\): no registry, no AppData. Interface in 36 languages.
+- **Portable** – everything next to the program (LIVETROPOVHF.ini, LIVETROPOVHF.db, Dati\\): no registry, no AppData. Interface in 37 languages, 18 colour themes.
 
 ## Download / Scarica
 Get the latest version from **[Releases](../../releases/latest)**:

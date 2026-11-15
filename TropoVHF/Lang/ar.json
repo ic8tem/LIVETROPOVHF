@@ -250,5 +250,17 @@
  "close.title": "إغلاق البرنامج",
  "close.thanks": "شكرًا لاستخدامك إياي: أرجو أن أكون قد أفدتك.",
  "yes": "نعم",
- "no": "لا"
+ "no": "لا",
+ "theme.azzurro": "أزرق فاتح باستيل",
+ "theme.acquamarina": "زبرجدي باستيل",
+ "theme.pverde": "أخضر باستيل",
+ "theme.lilla": "ليلكي باستيل",
+ "theme.marrone": "بني باستيل",
+ "theme.scia": "أثر نيزكي",
+ "theme.blu": "أزرق",
+ "theme.viola": "بنفسجي",
+ "theme.verde": "أخضر",
+ "theme.ip-chiaro": "فاتح (IP-TRX-CTRL)",
+ "theme.ip-notte": "ليل (IP-TRX-CTRL)",
+ "theme.ip-nero": "أسود (IP-TRX-CTRL)"
 }
