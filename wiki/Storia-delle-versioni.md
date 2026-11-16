@@ -4,6 +4,12 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
+## 1.0.2 — 16/11/2026
+- Windows 7 SP1 e 8.1: versione riscritta apposta, nativa per **Microsoft .NET Framework 4.8** con finestra WinForms (cartella Win7 dei sorgenti). Anche i pacchetti .NET 6 della 1.0.1 non partivano su alcuni Windows 7. Il motore (cluster, PSKReporter, UDP, CALL3, previsione tropo, criteri di scarto, sospetti, aggiornamenti) e il disegno della mappa e di GRAVES sono gli stessi della versione normale; cambiano solo la finestra e il disegno, fatto con GDI+. Stesse linguette e stesse 36 lingue.
+- Serve .NET Framework 4.8 (su Windows 10 e 11 c'è già; su Windows 7 SP1 e 8.1 si installa da Microsoft): l'installatore controlla e, se manca, apre la pagina di download.
+- Nella versione per Windows 7 manca solo il banco di taratura manuale delle mappe Hepburn/F5LEN (resta l'anteprima con le regioni); l'OCR degli assi già non c'era.
+- I pacchetti -windows7-x64 e -windows7-x86 (setup e zip portatile) sono ora questa versione; si aggiornano da soli con i pacchetti windows7.
+
 ## 1.0.1 — 14/11/2026
 - Windows 7 SP1 e 8.1: la 1.0.0 non partiva («Impossibile trovare il punto di ingresso GetSystemTimePreciseAsFileTime in KERNEL32.dll», funzione che esiste solo da Windows 8). Nuovi pacchetti -windows7-x64 e -windows7-x86 (setup e zip portatile) compilati su .NET 6, l'ultimo che gira su Windows 7; si aggiornano da soli con i pacchetti windows7. Su questi sistemi manca soltanto la lettura OCR degli assi delle mappe (serve Windows 10).
 

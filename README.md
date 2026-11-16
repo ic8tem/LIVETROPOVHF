@@ -20,18 +20,18 @@ LIVETROPOVHF puts on one map the tropo forecast and what is really happening on 
 ## Download / Scarica
 Get the latest version from **[Releases](../../releases/latest)**:
 - **Windows 10/11**: `LIVETROPOVHF-…-windows-x64-setup.exe` (installs in `C:\LIVETROPOVHF`, no admin rights) or the portable zip; x86 and ARM64 builds too.
-- **Windows 7 SP1 / 8.1**: `LIVETROPOVHF-…-windows7-x64-setup.exe` (or x86, or the portable zip), built on .NET 6.
+- **Windows 7 SP1 / 8.1**: `LIVETROPOVHF-…-windows7-x64-setup.exe` (or x86, or the portable zip): a native .NET Framework 4.8 build.
 - **Linux**: `.deb`, `.rpm`, Arch `.pkg.tar.zst`, Slackware `.txz`, `AppImage`, `tar.gz`; **Raspberry Pi** 64/32 bit; **Alpine**.
 - **Mac**: `.dmg` for Apple Silicon or Intel.
 
 To build from source on Windows: double-click `build-win64.bat` (it installs the .NET 10 SDK locally if missing).
 
 ## Windows 7 SP1 / 8.1
-The standard Windows build uses .NET 10, which calls `GetSystemTimePreciseAsFileTime` (KERNEL32.dll) at start-up: that function exists only from Windows 8, so on Windows 7 version 1.0.0 stopped with *"Impossibile trovare il punto di ingresso GetSystemTimePreciseAsFileTime…"*.
-- From 1.0.1 there are separate **`-windows7-x64`** and **`-windows7-x86`** packages (setup or portable zip), built on .NET 6, the last .NET that runs on Windows 7.
-- If you installed 1.0.0 on Windows 7, download the `windows7` setup manually and install it over the old one (1.0.0 cannot start, so it cannot update itself). Settings and data are kept. From then on, automatic updates use the `windows7` packages.
-- Only the OCR reading of map axes is missing (it needs Windows 10); Hepburn and F5LEN regions have factory extents, so in practice nothing changes.
-- If it still does not start, install **KB2533623** or the Windows 7 SP1 **Convenience Rollup**. Details: [Wiki – Windows 7 e 8.1](../../wiki/Windows-7-e-8.1).
+The standard Windows build uses .NET 10, which does not start on Windows 7 (*"Impossibile trovare il punto di ingresso GetSystemTimePreciseAsFileTime…"*); the .NET 6 packages of 1.0.1 did not start on every Windows 7 either.
+- From **1.0.2** the **`-windows7-x64`** and **`-windows7-x86`** packages (setup or portable zip) are a separate program written for **.NET Framework 4.8** with a WinForms window (folder `Win7` in the sources). Engine, map and GRAVES view are the same code as the standard build; the window and the drawing (GDI+) are rewritten. Same tabs, same 36 languages.
+- It needs **Microsoft .NET Framework 4.8** (included in Windows 10/11, free download for Windows 7 SP1 and 8.1): the setup checks and opens the Microsoft download page if it is missing.
+- Missing on Windows 7: OCR reading of map axes and the manual calibration bench (Hepburn and F5LEN regions have factory extents, so in practice nothing changes).
+- If you installed 1.0.0 or 1.0.1 on Windows 7, download the `windows7` setup manually and install it over the old one. Settings and data are kept; from then on updates are automatic. Details: [Wiki – Windows 7 e 8.1](../../wiki/Windows-7-e-8.1).
 
 ## Automatic updates
 Every 30 minutes the program checks the latest Release and, if newer, downloads the portable package for its platform and replaces its own files silently; the new version starts at the next launch. Settings, archive, `Dati\` and `CALL3.TXT` are never touched.

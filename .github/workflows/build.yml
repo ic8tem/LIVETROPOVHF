@@ -104,6 +104,8 @@ jobs:
         run: |
           Get-ChildItem publish\w7-${{ matrix.rid }} | Format-Table Name, Length
           if (-not (Test-Path publish\w7-${{ matrix.rid }}\LIVETROPOVHF.exe)) { throw "manca LIVETROPOVHF.exe" }
+          $names = (Get-ChildItem -Recurse -File publish\w7-${{ matrix.rid }} | ForEach-Object { $_.FullName.Substring((Resolve-Path publish\w7-${{ matrix.rid }}).Path.Length + 1) + " " + $_.Length }) -join ", "
+          Write-Output "::notice title=File windows7 ${{ matrix.arch }}::$names"
       - name: Installatore (Inno Setup)
         if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/release' || github.event_name == 'workflow_dispatch'
         shell: pwsh
