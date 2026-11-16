@@ -115,6 +115,7 @@ jobs:
           $d = "$env:RUNNER_TEMP\prova"
           Copy-Item -Recurse publish\w7-${{ matrix.rid }} $d
           Set-Content "$d\LIVETROPOVHF.ini" "call=IC8TEM`r`nloc=JN70CN`r`nupdates=0`r`nwin_max=1"
+          $env:LIVETROPOVHF_TOUR = "8"
           $p = Start-Process "$d\LIVETROPOVHF.exe" -PassThru
           Add-Type -AssemblyName System.Windows.Forms, System.Drawing
           New-Item -ItemType Directory -Force shots | Out-Null
@@ -125,8 +126,10 @@ jobs:
             $g.CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
             $bmp.Save("shots\$name.png"); $g.Dispose(); $bmp.Dispose()
           }
-          Start-Sleep 2; Shot "1-avvio"
-          Start-Sleep 40; Shot "2-mappa"
+          Start-Sleep 2; Shot "00-avvio"
+          Start-Sleep 5
+          # le linguette cambiano ogni 8 secondi: mappa, hepburn, f5len, graves, sospetti, dx, psk, udp, nominativi, manuale, mappa
+          foreach ($i in 1..11) { Start-Sleep 8; Shot ("{0:00}-giro" -f $i) }
           $alive = -not $p.HasExited
           if (Test-Path "$d\errore-avvio.txt") { Copy-Item "$d\errore-avvio.txt" shots\ }
           Set-Content shots\stato.txt "in esecuzione: $alive"

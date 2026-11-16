@@ -67,9 +67,8 @@ public sealed partial class MainForm
         _infoBody.SizeChanged += (_, _) => PlaceInfo();
 
         // ------------------------------------------------ barra dei layer (sopra la mappa)
-        var layers = Stack(new Padding(10, 6, 10, 6));
-        layers.BackColor = C(_th.Panel);
-        var r1 = Row();
+        // una sola fascia che va a capo: l'altezza si ricalcola a ogni cambio di larghezza
+        var r1 = Flow(C(_th.Panel));
         r1.Controls.Add(Lbl(Lang.T("layers"), 8.5f, _th.Muted, true));
         void Layer(string key, bool v, AM.Color sw, Action<bool> set)
         {
@@ -100,9 +99,8 @@ public sealed partial class MainForm
         });
         r1.Controls.Add(ring);
         Layer("x.rings", _st.ShowRings, Palette.LongLilac, x => _st.ShowRings = x);
-        Add(layers, r1);
-
-        var r2 = Row();
+        var r2 = r1;
+        r2.SetFlowBreak(r2.Controls[r2.Controls.Count - 1], true);
         var srcButtons = new List<(string key, RadioButton b)>();
         foreach (var (key, label) in new[] { ("media", "src.avg"), ("hepburn", "src.hep"), ("f5len", "src.f5") })
         {
@@ -127,9 +125,7 @@ public sealed partial class MainForm
         r2.Controls.Add(op);
         r2.Controls.Add(Lbl(Lang.T("proj"), 9f, _th.Muted));
         r2.Controls.Add(Combo(new[] { Lang.T("proj.merc"), Lang.T("proj.azi") }, _st.Proj == "azi" ? 1 : 0, 200, i => { _st.Proj = i == 1 ? "azi" : "merc"; _map.InvalidateVisual(); }));
-        Add(layers, r2);
-        var layersHolder = new Panel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, BackColor = C(_th.Panel) };
-        layersHolder.Controls.Add(layers);
+        var layersHolder = r1;
 
         // ------------------------------------------------ barra temporale e legenda (sotto la mappa)
         var bottom = Stack(new Padding(10, 6, 10, 6));
@@ -169,8 +165,12 @@ public sealed partial class MainForm
         legRow.Controls.Add(_obsNote);
         Add(bottom, legRow);
         Add(bottom, WrapLbl(Lang.T("legend.help"), 8.5f, _th.Muted));
-        var bottomHolder = new Panel { Dock = DockStyle.Bottom, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, BackColor = C(_th.Panel) };
+        var bottomHolder = new Panel { Dock = DockStyle.Bottom, BackColor = C(_th.Panel), Height = 150 };
+        bottom.Dock = DockStyle.Fill; bottom.AutoSize = false;
         bottomHolder.Controls.Add(bottom);
+        void FitBottom() { int h = bottom.GetPreferredSize(new Size(bottomHolder.Width, 0)).Height; if (h > 40 && Math.Abs(bottomHolder.Height - h) > 2) bottomHolder.Height = h; }
+        bottomHolder.SizeChanged += (_, _) => FitBottom();
+        bottomHolder.HandleCreated += (_, _) => FitBottom();
 
         split.Panel1.Controls.Add(_mapHost);
         split.Panel1.Controls.Add(layersHolder);
@@ -235,10 +235,11 @@ public sealed partial class MainForm
     {
         var dock = new Panel { Dock = DockStyle.Fill, BackColor = C(_th.Panel) };
 
-        var head = new Panel { Dock = DockStyle.Top, Height = 56, BackColor = C(_th.Panel) };
-        var title = Lbl(Lang.T("spots.title"), 11f, _th.Text, true); title.Location = new Point(10, 20);
+        var head = Flow(C(_th.Panel));
+        var title = Lbl(Lang.T("spots.title"), 11f, _th.Text, true); title.Margin = new Padding(3, 8, 12, 4);
         head.Controls.Add(title);
-        var sel = Row(); sel.WrapContents = false; sel.Dock = DockStyle.Right; sel.Padding = new Padding(0, 4, 6, 0);
+        head.SetFlowBreak(title, true);
+        var sel = Row(); sel.WrapContents = false; sel.Padding = new Padding(0, 0, 6, 0);
         var bandCol = Stack(new Padding(0)); bandCol.Dock = DockStyle.None; bandCol.AutoSize = true;
         Add(bandCol, Lbl(Lang.T("band"), 8f, _th.Muted));
         Add(bandCol, Combo(Bands.All.Select(Bands.Label), Array.IndexOf(Bands.All, _st.Band), 100, i =>
@@ -253,7 +254,7 @@ public sealed partial class MainForm
         Add(winCol, Lbl(Lang.T("last"), 8f, _th.Muted));
         Add(winCol, Combo(wins.Select(w => w + " min"), Array.IndexOf(wins, _st.WindowMin), 80, i => { _st.WindowMin = wins[i]; RefreshAll(); }));
         sel.Controls.Add(winCol);
-        var refresh = Btn("⟳", RefreshAll, false); refresh.Margin = new Padding(3, 20, 3, 0);
+        var refresh = Btn("⟳", RefreshAll, false); refresh.Margin = new Padding(3, 18, 3, 0);
         new ToolTip().SetToolTip(refresh, Lang.T("refresh"));
         sel.Controls.Add(refresh);
         head.Controls.Add(sel);

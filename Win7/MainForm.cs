@@ -57,6 +57,21 @@ public sealed partial class MainForm : Form
         _timer.Tick += (_, _) => Tick();
         _timer.Start();
 
+        // prova automatica (CI): LIVETROPOVHF_TOUR=secondi fa girare da solo le linguette per le fotografie
+        if (int.TryParse(Environment.GetEnvironmentVariable("LIVETROPOVHF_TOUR") ?? "", out var tour) && tour > 0)
+        {
+            var steps = new (string tab, string sub)[] { ("map", null), ("hepburn", null), ("f5len", null), ("graves", null), ("sus", null), ("collect", "dx"), ("collect", "psk"), ("collect", "udp"), ("collect", "calls"), ("doc1", null), ("map", null) };
+            int k = 0;
+            var tt = new System.Windows.Forms.Timer { Interval = tour * 1000 };
+            tt.Tick += (_, _) =>
+            {
+                if (k >= steps.Length) { tt.Stop(); return; }
+                var (tab, sub) = steps[k++];
+                if (sub != null) ShowSubTab(sub);
+                ShowTab(tab);
+            };
+            tt.Start();
+        }
         Move += (_, _) => TrackNormal();
         Resize += (_, _) => TrackNormal();
     }
@@ -280,6 +295,24 @@ public sealed partial class MainForm : Form
         return n;
     }
 
+    /// <summary>Fascia che va a capo, ancorata in alto, alta quanto serve alla larghezza attuale.</summary>
+    static FlowLayoutPanel Flow(Color back)
+    {
+        var f = new FlowLayoutPanel { Dock = DockStyle.Top, WrapContents = true, FlowDirection = FlowDirection.LeftToRight, BackColor = back, Padding = new Padding(8, 4, 8, 4), Height = 60 };
+        bool busy = false;
+        void Fit()
+        {
+            if (busy || f.Width < 50) return;
+            busy = true;
+            try { int h = f.GetPreferredSize(new Size(f.Width, 0)).Height; if (h > 10 && Math.Abs(f.Height - h) > 1) f.Height = h; }
+            finally { busy = false; }
+        }
+        f.SizeChanged += (_, _) => Fit();
+        f.ControlAdded += (_, _) => Fit();
+        f.Layout += (_, _) => Fit();
+        return f;
+    }
+
     static FlowLayoutPanel Row() => new() { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, FlowDirection = FlowDirection.LeftToRight, Margin = new Padding(0, 2, 0, 2), BackColor = Color.Transparent };
 
     /// <summary>Colonna verticale che si allarga con il contenitore (una riga per controllo).</summary>
@@ -386,8 +419,8 @@ public sealed partial class MainForm : Form
         bar.Controls.Add(left);
 
         var right = Row(); right.Dock = DockStyle.Right; right.WrapContents = false; right.Padding = new Padding(0, 6, 8, 0);
-        _clock = Lbl("", 20f, _th.Clock, true, true); _clock.Margin = new Padding(3, 2, 6, 0);
-        _ntp = Lbl("NTP", 20f, _th.Muted, true, true); _ntp.Margin = new Padding(3, 2, 12, 0);
+        _clock = Lbl("", 15f, _th.Clock, true, true); _clock.Margin = new Padding(3, 6, 6, 0);
+        _ntp = Lbl("NTP", 15f, _th.Muted, true, true); _ntp.Margin = new Padding(3, 6, 12, 0);
         right.Controls.Add(_clock); right.Controls.Add(_ntp);
         var themeBox = Combo(Palette.Keys.Select(k => Lang.T("theme." + k)), Array.IndexOf(Palette.Keys, _st.ThemeKey), 150, i =>
         {
@@ -419,7 +452,7 @@ public sealed partial class MainForm : Form
         var row = Row(); row.Dock = DockStyle.Fill; row.WrapContents = false; row.Padding = new Padding(8, 6, 0, 0);
         foreach (var (key, label) in new[] { ("map", "tab.map"), ("hepburn", "tab.hep"), ("f5len", "tab.f5"), ("graves", "tab.graves"), ("sus", "tab.sus"), ("collect", "tab.collect"), ("doc1", "tab.doc1"), ("doc2", "tab.doc2"), ("doc3", "tab.doc3") })
         {
-            var b = new Button { Text = Lang.T(label), AutoSize = true, FlatStyle = FlatStyle.Flat, Height = 36, Padding = new Padding(10, 0, 10, 0), Margin = new Padding(0, 0, 3, 0), Font = F(10f), Cursor = Cursors.Hand };
+            var b = new Button { Text = Lang.T(label), AutoSize = true, FlatStyle = FlatStyle.Flat, Height = 36, Padding = new Padding(6, 0, 6, 0), Margin = new Padding(0, 0, 2, 0), Font = F(9.5f), Cursor = Cursors.Hand };
             b.FlatAppearance.BorderSize = 0;
             var k = key;
             b.Click += (_, _) => ShowTab(k);
@@ -440,7 +473,7 @@ public sealed partial class MainForm : Form
             kv.Value.BackColor = on ? C(_th.Page) : C(_th.Band);
             kv.Value.ForeColor = on ? C(_th.Text) : C(_th.BandFg);
             kv.Value.FlatAppearance.MouseOverBackColor = on ? C(_th.Page) : ControlPaint.Light(C(_th.Band), 0.15f);
-            kv.Value.Font = F(10f, on);
+            kv.Value.Font = F(9.5f, on);
         }
         if (key == "hepburn" || key == "f5len") FillTropoTab(key);
         RefreshLogs(true);
