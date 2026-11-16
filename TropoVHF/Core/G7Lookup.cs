@@ -62,7 +62,7 @@ public static class G7Lookup
             var lines = new List<string> { "// LIVETROPOVHF: locatori a 6 caratteri da api.g7vrd.co.uk (dati raccolti in automatico, ultima fonte). CALL,LOCATORE,data" };
             lines.AddRange(_found.OrderBy(kv => kv.Key).Select(kv => $"{kv.Key},{kv.Value.loc},{kv.Value.when:yyyy-MM-dd}"));
             File.WriteAllLines(PathFile + ".tmp", lines);
-            File.Move(PathFile + ".tmp", PathFile, true);
+            Compat.MoveOver(PathFile + ".tmp", PathFile);
         }
         catch { }
     }
@@ -81,7 +81,7 @@ public static class G7Lookup
                 var url = Api + string.Join(",", batch.Select(Uri.EscapeDataString));
                 using var resp = await http.GetAsync(url, ct);
                 if (!resp.IsSuccessStatusCode) { LastStatus = $"G7VRD: HTTP {(int)resp.StatusCode}"; continue; }
-                using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync(ct));
+                using var doc = JsonDocument.Parse(await Compat.ReadString(resp.Content, ct));
                 int n = 0;
                 if (doc.RootElement.ValueKind == JsonValueKind.Object)
                     foreach (var prop in doc.RootElement.EnumerateObject())

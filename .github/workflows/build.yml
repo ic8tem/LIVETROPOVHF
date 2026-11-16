@@ -59,7 +59,7 @@ jobs:
           name: windows-${{ matrix.arch }}
           path: dist/*
 
-  # Windows 7 e 8 (SP1): stessa applicazione compilata su .NET 6, l'ultimo che gira su Windows 7.
+  # Windows 7 SP1 e 8.1: programma nativo per .NET Framework 4.8 (WinForms) nella cartella Win7, con lo stesso motore.
   # Si compila anche a ogni push su main, come prova.
   windows7:
     runs-on: windows-latest
@@ -74,16 +74,35 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            6.0.x
-            10.0.x
+          dotnet-version: '10.0.x'
       - name: Versione
         shell: bash
         run: |
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then V="${GITHUB_REF#refs/tags/v}"; else V="$(tr -d ' \r\n' < VERSION)"; fi
           echo "VER=$V" >> $GITHUB_ENV
-      - name: Compila (.NET 6)
-        run: dotnet publish TropoVHF/TropoVHF.csproj -c Release -r ${{ matrix.rid }} --self-contained true -p:Win7=true -p:Version=${{ env.VER }} -p:DebugType=none -o publish/w7-${{ matrix.rid }}
+      # Windows 7 SP1 e 8.1: programma nativo .NET Framework 4.8 + WinForms (cartella Win7), stesso motore della versione normale
+      - name: Compila (.NET Framework 4.8)
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet publish Win7/LIVETROPOVHF7.csproj -c Release -r ${{ matrix.rid }} -p:Version=${{ env.VER }} -p:DebugType=none -o publish/w7-${{ matrix.rid }} -clp:NoSummary 2>&1 | tee build-w7.log
+      - name: Errori di compilazione (ramo ci-log)
+        if: failure() && matrix.arch == 'x64'
+        shell: bash
+        run: |
+          grep -E ": error |error NU|error MSB" build-w7.log | sort -u > errori.txt || true
+          cp build-w7.log tutto.txt
+          git config user.name "IC8TEM"; git config user.email "ic8tem@users.noreply.github.com"
+          git checkout --orphan ci-log
+          git rm -rf --cached . > /dev/null
+          git add -f errori.txt tutto.txt
+          git commit -m "errori di compilazione Windows 7 ($GITHUB_SHA)"
+          git push -f origin ci-log
+      - name: Controllo dei file
+        shell: pwsh
+        run: |
+          Get-ChildItem publish\w7-${{ matrix.rid }} | Format-Table Name, Length
+          if (-not (Test-Path publish\w7-${{ matrix.rid }}\LIVETROPOVHF.exe)) { throw "manca LIVETROPOVHF.exe" }
       - name: Installatore (Inno Setup)
         if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/release' || github.event_name == 'workflow_dispatch'
         shell: pwsh

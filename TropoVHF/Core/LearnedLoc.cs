@@ -57,7 +57,7 @@ public static class LearnedLoc
             var lines = new List<string> { "// TropoVHF: locatori a 6 caratteri imparati dal vivo (PSKReporter, cluster, UDP)" };
             lines.AddRange(_map.OrderBy(kv => kv.Key).Select(kv => $"{kv.Key},{kv.Value.grid},{kv.Value.when:yyyy-MM-dd}"));
             File.WriteAllLines(PathFile + ".tmp", lines);
-            File.Move(PathFile + ".tmp", PathFile, true);
+            Compat.MoveOver(PathFile + ".tmp", PathFile);
         }
         catch { }
     }

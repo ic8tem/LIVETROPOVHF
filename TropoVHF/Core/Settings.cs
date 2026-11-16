@@ -13,7 +13,7 @@ public sealed class Settings
     {
         get
         {
-            var p = Environment.ProcessPath;
+            var p = Compat.ProcessPath;
             if (!string.IsNullOrEmpty(p))
             {
                 var d = Path.GetDirectoryName(p);

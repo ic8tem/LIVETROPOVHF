@@ -35,16 +35,17 @@ public static class Updater
         var a = RuntimeInformation.ProcessArchitecture;
 #if WIN7
         return a == Architecture.X86 ? "-windows7-x86-portatile.zip" : "-windows7-x64-portatile.zip";
-#endif
-        if (OperatingSystem.IsWindows())
+#else
+        if (Compat.IsWindows)
             return a == Architecture.X86 ? "-windows-x86-portatile.zip" : a == Architecture.Arm64 ? "-windows-arm64-portatile.zip" : "-windows-x64-portatile.zip";
-        if (OperatingSystem.IsMacOS())
+        if (Compat.IsMac)
             return a == Architecture.Arm64 ? "-mac-apple-silicon-app.zip" : "-mac-intel-app.zip";
         if (RuntimeInformation.RuntimeIdentifier.Contains("musl"))
             return a == Architecture.Arm64 ? "-alpine-arm64.tar.gz" : "-alpine-x64.tar.gz";
         if (a == Architecture.Arm64) return "-raspberry-pi-64bit.tar.gz";
         if (a == Architecture.Arm) return "-raspberry-pi-32bit.tar.gz";
         return "-linux-x64.tar.gz";
+#endif
     }
 
     /// <summary>All'avvio: cancella i file lasciati dall'aggiornamento precedente.</summary>
@@ -80,13 +81,13 @@ public static class Updater
         using var resp = await http.GetAsync($"https://api.github.com/repos/{Repo}/releases/latest", ct);
         if ((int)resp.StatusCode == 404) { Set($"Aggiornamenti: nessuna release su GitHub ({DateTime.Now:HH:mm})"); return; }
         if (!resp.IsSuccessStatusCode) { Set($"Aggiornamenti: GitHub HTTP {(int)resp.StatusCode}"); return; }
-        using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync(ct));
+        using var doc = JsonDocument.Parse(await Compat.ReadString(resp.Content, ct));
         var root = doc.RootElement;
         var tag = root.GetProperty("tag_name").GetString() ?? "";
         var vs = tag.TrimStart('v', 'V'); var cut = vs.IndexOfAny(new[] { '-', '+', ' ' }); if (cut > 0) vs = vs[..cut];
         if (!Version.TryParse(vs, out var latest)) { Set("Aggiornamenti: tag non riconosciuto " + tag); return; }
         if (latest <= Current) { Set($"Aggiornato: {Current.ToString(3)} è l'ultima versione ({DateTime.Now:HH:mm})"); return; }
-        if (OperatingSystem.IsMacOS()) { Set($"Nuova versione {latest.ToString(3)} su GitHub: scaricala dalla pagina delle Release"); return; }
+        if (Compat.IsMac) { Set($"Nuova versione {latest.ToString(3)} su GitHub: scaricala dalla pagina delle Release"); return; }
 
         var suffix = AssetSuffix();
         string url = null, name = null;
@@ -104,8 +105,8 @@ public static class Updater
         var ex = Path.Combine(work, "estratto");
         Directory.CreateDirectory(ex);
         var file = Path.Combine(work, name);
-        await File.WriteAllBytesAsync(file, await http.GetByteArrayAsync(url, ct), ct);
-        if (name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)) ZipFile.ExtractToDirectory(file, ex, true);
+        await Compat.WriteBytes(file, await Compat.GetBytes(http, url, ct), ct);
+        if (name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)) ZipFile.ExtractToDirectory(file, ex);
         else
         {
 #if NET7_0_OR_GREATER
@@ -120,13 +121,13 @@ public static class Updater
         var src = ex;
         var dirs = Directory.GetDirectories(ex); var files = Directory.GetFiles(ex);
         if (files.Length == 0 && dirs.Length == 1) src = dirs[0];
-        var exe = OperatingSystem.IsWindows() ? "LIVETROPOVHF.exe" : "LIVETROPOVHF";
+        var exe = Compat.IsWindows ? "LIVETROPOVHF.exe" : "LIVETROPOVHF";
         if (!File.Exists(Path.Combine(src, exe))) { Set($"Aggiornamenti: nel pacchetto {tag} manca {exe}"); return; }
 
         int n2 = 0;
         foreach (var f in Directory.EnumerateFiles(src, "*", SearchOption.AllDirectories))
         {
-            var rel = Path.GetRelativePath(src, f);
+            var rel = Compat.RelativePath(src, f);
             var low = rel.ToLowerInvariant();
             if (low.EndsWith(".ini") || low.EndsWith(".db") || low.StartsWith("dati" + Path.DirectorySeparatorChar)) continue;
             var dest = Path.Combine(Dir, rel);
@@ -136,13 +137,13 @@ public static class Updater
             catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
             {
                 // file in uso (l'eseguibile, le librerie caricate): si rinomina e si copia il nuovo al suo posto
-                File.Move(dest, dest + OldSuffix, true);
+                Compat.MoveOver(dest, dest + OldSuffix);
                 File.Copy(f, dest, true);
             }
             n2++;
         }
 #if NET7_0_OR_GREATER
-        if (!OperatingSystem.IsWindows())
+        if (!Compat.IsWindows)
             try { File.SetUnixFileMode(Path.Combine(Dir, exe), (UnixFileMode)Convert.ToInt32("755", 8)); } catch { }
 #endif
         try { Directory.Delete(work, true); } catch { }

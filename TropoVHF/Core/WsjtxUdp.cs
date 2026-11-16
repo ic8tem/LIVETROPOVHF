@@ -93,7 +93,7 @@ public sealed class WsjtxUdp
         while (!ct.IsCancellationRequested)
         {
             UdpReceiveResult res;
-            try { res = await _rx.ReceiveAsync(ct); }
+            try { res = await Compat.Receive(_rx, ct); }
             catch { break; }
             Interlocked.Increment(ref Packets);
             var data = res.Buffer;

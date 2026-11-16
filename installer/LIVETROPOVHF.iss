@@ -66,3 +66,27 @@ Name: "{userdesktop}\LIVETROPOVHF"; Filename: "{app}\LIVETROPOVHF.exe"; Tasks: d
 
 [Run]
 Filename: "{app}\LIVETROPOVHF.exe"; Description: "{cm:LaunchProgram,LIVETROPOVHF}"; Flags: nowait postinstall skipifsilent
+
+#if Flavor == "windows7"
+[Code]
+// La versione per Windows 7 e 8.1 e' scritta per Microsoft .NET Framework 4.8: se manca lo si dice e si apre la pagina
+// di Microsoft da cui scaricarlo (Windows 7 SP1 e 8.1 lo accettano; su Windows 10 e 11 c'e' gia').
+function HasNet48: Boolean;
+var r: Cardinal;
+begin
+  Result := RegQueryDWordValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full', 'Release', r) and (r >= 528040);
+end;
+
+function InitializeSetup: Boolean;
+var ErrorCode: Integer;
+begin
+  Result := True;
+  if not HasNet48 then
+  begin
+    if MsgBox('LIVETROPOVHF per Windows 7 richiede Microsoft .NET Framework 4.8, che su questo computer non risulta installato.' + #13#10 + 'LIVETROPOVHF for Windows 7 needs Microsoft .NET Framework 4.8, which is not installed on this computer.' + #13#10#13#10 +
+              'Aprire la pagina di download di Microsoft? Dopo l''installazione riavviare questo programma.' + #13#10 + 'Open the Microsoft download page? Run this setup again afterwards.', mbConfirmation, MB_YESNO) = IDYES then
+      ShellExec('open', 'https://dotnet.microsoft.com/download/dotnet-framework/net48', '', '', SW_SHOW, ewNoWait, ErrorCode);
+    Result := False;
+  end;
+end;
+#endif

@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    LIVETROPOVHF per Windows 7 SP1 e 8.1: .NET Framework 4.8 (già presente o installabile su Windows 7) e WinForms.
+    Il motore (cartella TropoVHF/Core), il disegno della mappa (MapView, GravesView, Palette) e le lingue sono gli stessi
+    file della versione normale: qui si collegano, e uno strato di compatibilità (Shim) rifà sopra GDI+ le poche API di
+    Avalonia che il disegno usa. La finestra è scritta da capo in WinForms (MainForm*.cs).
+  -->
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AssemblyName>LIVETROPOVHF</AssemblyName>
+    <RootNamespace>TropoVHF</RootNamespace>
+    <Version>1.0.2</Version>
+    <Product>LIVETROPOVHF</Product>
+    <Authors>IC8TEM</Authors>
+    <Description>Previsione e osservazione in tempo reale della propagazione troposferica VHF/UHF (Windows 7)</Description>
+    <ApplicationIcon>..\TropoVHF\Assets\livetropovhf.ico</ApplicationIcon>
+    <DefineConstants>$(DefineConstants);WIN7;NET48</DefineConstants>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <SatelliteResourceLanguages>it;en</SatelliteResourceLanguages>
+    <Prefer32Bit>false</Prefer32Bit>
+    <NoWarn>$(NoWarn);NU1603;NU1701;CS0618;CS0162;CS1998;CS8632;CS0649;CS0414;CS0169</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MQTTnet" Version="4.3.*" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.*" />
+    <PackageReference Include="System.Text.Json" Version="9.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- motore comune -->
+    <Compile Include="..\TropoVHF\Core\*.cs" Link="Core\%(Filename)%(Extension)" />
+    <!-- disegno e lingue comuni -->
+    <Compile Include="..\TropoVHF\Ui\Lang.cs;..\TropoVHF\Ui\MapView.cs;..\TropoVHF\Ui\GravesView.cs;..\TropoVHF\Ui\Palette.cs" Link="Ui\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\TropoVHF\Docs\*.md" Link="Docs\%(Filename)%(Extension)" LogicalName="TropoVHF.Docs.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\TropoVHF\Assets\splash.jpg;..\TropoVHF\Assets\livetropovhf.ico;..\TropoVHF\Assets\livetropovhf-256.png" Link="Assets\%(Filename)%(Extension)" LogicalName="TropoVHF.Assets.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\TropoVHF\Lang\*.json" Link="Lang\%(Filename)%(Extension)" LogicalName="TropoVHF.Lang.%(Filename).json" />
+    <None Include="..\CALL3.TXT" Link="CALL3.TXT" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Condition="Exists('..\CALL3.TXT')" />
+    <None Include="..\TropoVHF\Tarature\*.json;..\TropoVHF\Tarature\*.txt" Link="Tarature\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

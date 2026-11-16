@@ -163,7 +163,7 @@ public sealed class SuspectStore
                     .Select(r => $"{r.Kind},{r.Call},{r.Verdict},{(r.User ? 1 : 0)},{r.Pos},{r.Neg},{r.When:yyyy-MM-dd}"));
             }
             File.WriteAllLines(PathFile + ".tmp", lines);
-            File.Move(PathFile + ".tmp", PathFile, true);
+            Compat.MoveOver(PathFile + ".tmp", PathFile);
         }
         catch { }
     }

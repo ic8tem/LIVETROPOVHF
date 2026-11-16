@@ -1,7 +1,9 @@
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+#if !NETFRAMEWORK
 using Avalonia.Media.Imaging;
+#endif
 
 namespace TropoVHF.Core;
 
@@ -305,12 +307,26 @@ public sealed class TropoIndex
     public static (int w, int h, int stride, byte[] px, bool rgba) ReadPixels(byte[] png)
     {
         using var ms = new MemoryStream(png);
+#if NETFRAMEWORK
+        // Windows 7 (.NET Framework): GDI+, sempre BGRA
+        using var bmp = new System.Drawing.Bitmap(ms);
+        var rect = new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height);
+        var bd = bmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        try
+        {
+            var buf = new byte[bd.Stride * bmp.Height];
+            Marshal.Copy(bd.Scan0, buf, 0, buf.Length);
+            return (bmp.Width, bmp.Height, bd.Stride, buf, false);
+        }
+        finally { bmp.UnlockBits(bd); }
+#else
         using var wb = WriteableBitmap.Decode(ms);
         int w = wb.PixelSize.Width, h = wb.PixelSize.Height;
         using var fb = wb.Lock();
         var px = new byte[fb.RowBytes * h];
         Marshal.Copy(fb.Address, px, 0, px.Length);
         return (w, h, fb.RowBytes, px, fb.Format.ToString().StartsWith("Rgba", StringComparison.OrdinalIgnoreCase));
+#endif
     }
 
     public static (byte r, byte g, byte b) PixelAt((int w, int h, int stride, byte[] px, bool rgba) img, int x, int y)

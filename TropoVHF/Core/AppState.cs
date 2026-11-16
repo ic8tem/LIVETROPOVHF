@@ -555,7 +555,7 @@ public sealed class AppState
             using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
             http.DefaultRequestHeaders.UserAgent.ParseAdd("LIVETROPOVHF/" + (typeof(AppState).Assembly.GetName().Version?.ToString(3) ?? "0"));
             var bytes = await http.GetByteArrayAsync(Call3Url);
-            var text = System.Text.Encoding.Latin1.GetString(bytes);
+            var text = Compat.Latin1.GetString(bytes);
             int ok = 0;
             foreach (var line in text.Split('\n'))
             {
@@ -574,7 +574,7 @@ public sealed class AppState
                 if (File.Exists(bak)) File.SetAttributes(bak, FileAttributes.Normal);
                 File.Copy(dest, bak, true);
             }
-            File.Move(tmp, dest, true);
+            Compat.MoveOver(tmp, dest);
             CallDb.Load(new[] { dest });
             CallDb.LoadLayers();
             Call3Last = DateTime.UtcNow;

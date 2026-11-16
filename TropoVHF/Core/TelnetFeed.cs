@@ -84,7 +84,7 @@ public sealed class TelnetFeed
             {
                 using var tcs = CancellationTokenSource.CreateLinkedTokenSource(ct);
                 tcs.CancelAfter(TimeSpan.FromSeconds(12));
-                await client.ConnectAsync(Host, Port, tcs.Token);
+                await Compat.Connect(client, Host, Port, tcs.Token);
             }
             catch (Exception ex)
             {
@@ -133,7 +133,7 @@ public sealed class TelnetFeed
                 {
                     int n = await stream.ReadAsync(buf, 0, buf.Length, ct);
                     if (n <= 0) break;
-                    var chunk = Encoding.Latin1.GetString(StripTelnet(buf, n));
+                    var chunk = Compat.Latin1.GetString(StripTelnet(buf, n));
                     pending.Append(chunk);
                     while (true)
                     {

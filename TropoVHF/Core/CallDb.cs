@@ -213,7 +213,7 @@ public sealed class CallDb
                 lines.AddRange(_cluster.OrderBy(kv => kv.Key).Select(kv => $"{kv.Key},{kv.Value.loc},{kv.Value.when:yyyy-MM-dd}"));
             }
             File.WriteAllLines(ClusterPath + ".tmp", lines);
-            File.Move(ClusterPath + ".tmp", ClusterPath, true);
+            Compat.MoveOver(ClusterPath + ".tmp", ClusterPath);
         }
         catch { }
     }
@@ -244,7 +244,7 @@ public sealed class CallDb
             var lines = new List<string> { "// TropoVHF: nominativi inseriti a mano. Valgono più di CALL3.TXT e dei locatori ricevuti. Formato CALL,LOCATORE", $"// seed {SeedVersion}" };
             lines.AddRange(m.OrderBy(kv => kv.Key).Select(kv => $"{kv.Key},{kv.Value}"));
             File.WriteAllLines(ManualPath + ".tmp", lines);
-            File.Move(ManualPath + ".tmp", ManualPath, true);
+            Compat.MoveOver(ManualPath + ".tmp", ManualPath);
         }
         catch { }
     }
