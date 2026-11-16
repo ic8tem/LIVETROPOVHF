@@ -83,7 +83,7 @@ public sealed partial class MainForm
         }
         Add(list, WrapLbl(_st.Tropo.Status, 9f, _th.Sub));
         Add(list, WrapLbl(Lang.T("u.calibration_bench") + " → LIVETROPOVHF (Windows 10/11, Linux, Mac)", 8.5f, _th.Muted));
-        var left = Scroll(list, C(_th.Panel));
+        var left = ScrollBox(list, C(_th.Panel));
         left.Dock = DockStyle.Left; left.Width = 400;
 
         // ------------------------------------------- destra: anteprima con la barra delle ore
@@ -136,7 +136,7 @@ public sealed partial class MainForm
         var bigC = Big(out var subC, Lang.T("g.card_listen"), AM.Color.Parse("#1F9D55"));
         var bigD = Big(out var subD, Lang.T("g.card_spots"), AM.Color.Parse("#EB6834"));
         Add(list, WrapLbl("[1] Rob Hardenberg PE1ITR, \"The 143.050 MHz Graves Radar, a VHF Beacon\" (DUBUS 4/2007) e \"Graves Radar Update April 2021\" – pe1itr.com/graves\n[2] Bolidozor wiki, \"Graves\"\n[3] YA-MS, IC8TEM – linguetta Radar GRAVES (github.com/ic8tem/YA-MS)", 8.5f, _th.Muted));
-        var left = Scroll(list, C(_th.Panel));
+        var left = ScrollBox(list, C(_th.Panel));
         left.Dock = DockStyle.Left; left.Width = 420;
 
         var view = new GravesView(_st);
@@ -206,7 +206,7 @@ public sealed partial class MainForm
         Add(left, Lbl(Lang.T("s.rules"), 10f, _th.Text, true));
         var rules = Stack(new Padding(0));
         Add(left, rules);
-        var leftScroll = Scroll(left, C(_th.Panel));
+        var leftScroll = ScrollBox(left, C(_th.Panel));
         leftScroll.Dock = DockStyle.Left; leftScroll.Width = 440;
 
         var right = Stack(new Padding(12, 10, 12, 10));
@@ -214,7 +214,7 @@ public sealed partial class MainForm
         Add(right, head);
         var list = Stack(new Padding(0));
         Add(right, list);
-        var rightScroll = Scroll(right, C(_th.Page));
+        var rightScroll = ScrollBox(right, C(_th.Page));
 
         root.Controls.Add(rightScroll);
         root.Controls.Add(new Panel { Dock = DockStyle.Left, Width = 1, BackColor = C(_th.Line) });

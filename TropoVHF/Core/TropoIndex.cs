@@ -240,7 +240,7 @@ public sealed class TropoIndex
                     {
                         var (bytes, produced) = await Download(http, im.Url);
                         var cache = Path.Combine(Settings.DataDir, $"tropo_{reg.Key}_{im.Hours:000}.png");
-                        try { await File.WriteAllBytesAsync(cache, bytes); } catch { }
+                        try { await Compat.WriteBytes(cache, bytes, CancellationToken.None); } catch { }
                         var img = ReadPixels(bytes);
                         var frame = TropoSources.FindFrame(img);
                         if (!axesDone && frame is { } fr)

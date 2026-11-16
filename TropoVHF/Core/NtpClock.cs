@@ -62,7 +62,7 @@ public sealed class NtpChecker
         var tasks = Servers.Select(h => QueryAsync(h)).ToArray();
         NtpServerResult[] res;
         try { res = await Task.WhenAll(tasks); }
-        catch { res = tasks.Where(t => t.IsCompletedSuccessfully).Select(t => t.Result).ToArray(); }
+        catch { res = tasks.Where(t => t.Status == TaskStatus.RanToCompletion).Select(t => t.Result).ToArray(); }
 
         var ok = res.Where(r => r.Ok).ToList();
         bool aligned = false;

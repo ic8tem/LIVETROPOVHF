@@ -566,7 +566,7 @@ public sealed class AppState
             if (ok < 100_000) { St($"File scaricato non valido ({ok} righe utili): CALL3.TXT non cambiato."); return false; }
             var dest = CallDb.PathUsed != "" ? CallDb.PathUsed : Path.Combine(Settings.AppDir, "CALL3.TXT");
             var tmp = dest + ".nuovo";
-            await File.WriteAllBytesAsync(tmp, bytes);
+            await Compat.WriteBytes(tmp, bytes, CancellationToken.None);
             if (File.Exists(dest))
             {
                 File.SetAttributes(dest, FileAttributes.Normal);   // il CALL3.TXT dello zip è in sola lettura

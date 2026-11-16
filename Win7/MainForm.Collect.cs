@@ -34,7 +34,7 @@ public sealed partial class MainForm
         {
             var st = Stack(new Padding(6, 10, 6, 10));
             foreach (var p in parts) Add(st, p);
-            return Scroll(st, C(_th.Page));
+            return ScrollBox(st, C(_th.Page));
         }
         _subContent["dx"] = Page(
             FeedSection(f["dxc"], Lang.T("u.1_dx_cluster_of"), Lang.T("u.on_on0dxk_the_vhf"), 0),

@@ -34,7 +34,7 @@ public sealed class MapData
                 Status = "Scarico " + f + "…";
                 Changed?.Invoke();
                 var bytes = await http.GetByteArrayAsync(BaseUrl + f);
-                await File.WriteAllBytesAsync(p, bytes);
+                await Compat.WriteBytes(p, bytes, CancellationToken.None);
             }
             Land = ReadLines(Path.Combine(dir, Files[0]), true);
             Coast = ReadLines(Path.Combine(dir, Files[1]), false);
@@ -60,7 +60,7 @@ public sealed class MapData
                 Status = "Scarico il dettaglio " + f + "…";
                 Changed?.Invoke();
                 var bytes = await http.GetByteArrayAsync(BaseUrl + f);
-                await File.WriteAllBytesAsync(p, bytes);
+                await Compat.WriteBytes(p, bytes, CancellationToken.None);
             }
             var land = ReadLines(Path.Combine(dir, Files10[0]), true);
             var coast = ReadLines(Path.Combine(dir, Files10[1]), false);

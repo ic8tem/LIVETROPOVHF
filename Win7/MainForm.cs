@@ -298,7 +298,7 @@ public sealed partial class MainForm : Form
         t.Controls.Add(c, 0, t.RowCount++);
     }
 
-    static Panel Scroll(Control inner, Color back)
+    static Panel ScrollBox(Control inner, Color back)
     {
         var p = new Panel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = back };
         p.Controls.Add(inner);
