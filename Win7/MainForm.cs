@@ -11,6 +11,15 @@ namespace TropoVHF.Win7;
 /// Finestra principale della versione per Windows 7, in WinForms: stesse linguette, stesse funzioni e stessi testi
 /// (36 lingue) della versione normale. La mappa e il cielo di GRAVES sono gli stessi controlli, disegnati con GDI+.
 /// </summary>
+static class WinFormsExt
+{
+    /// <summary>BeginInvoke che non solleva eccezioni se la maniglia non c'è ancora o il controllo è chiuso.</summary>
+    public static void BeginInvokeSafe(this Control c, Action a)
+    {
+        try { if (c.IsHandleCreated && !c.IsDisposed) c.BeginInvoke(a); else a(); } catch { }
+    }
+}
+
 public sealed partial class MainForm : Form
 {
     readonly AppState _st;
@@ -325,16 +334,40 @@ public sealed partial class MainForm : Form
 
     static void Add(TableLayoutPanel t, Control c)
     {
-        if (c is FlowLayoutPanel || c is TableLayoutPanel || c is Panel) c.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
+        if (c is FlowLayoutPanel || c is TableLayoutPanel || c is Panel || (c is TextBox tb && tb.Multiline)) c.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
         else c.Anchor = AnchorStyles.Left | AnchorStyles.Top;
         t.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         t.Controls.Add(c, 0, t.RowCount++);
     }
 
+    /// <summary>
+    /// Pagina che scorre in verticale. La larghezza del contenuto tiene sempre conto della barra di scorrimento, così
+    /// il testo che va a capo non cambia altezza quando la barra compare o sparisce (niente impaginazioni a ripetizione).
+    /// </summary>
     static Panel ScrollBox(Control inner, Color back)
     {
         var p = new Panel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = back };
+        inner.Dock = DockStyle.None;
+        if (inner is TableLayoutPanel t) { t.AutoSize = false; }
+        inner.Location = new Point(0, 0);
         p.Controls.Add(inner);
+        bool busy = false;
+        void Fit()
+        {
+            if (busy || p.Width < 50) return;
+            busy = true;
+            try
+            {
+                int w = Math.Max(200, p.Width - SystemInformation.VerticalScrollBarWidth - 2);
+                if (inner.Width != w) inner.Width = w;
+                int h = inner.GetPreferredSize(new Size(w, 0)).Height;
+                if (h > 0 && Math.Abs(inner.Height - h) > 1) inner.Height = h;
+            }
+            finally { busy = false; }
+        }
+        p.SizeChanged += (_, _) => Fit();
+        inner.Layout += (_, _) => { if (!busy) p.BeginInvokeSafe(Fit); };
+        p.VisibleChanged += (_, _) => { if (p.Visible) Fit(); };
         return p;
     }
 

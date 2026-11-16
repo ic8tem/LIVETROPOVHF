@@ -329,66 +329,70 @@ public sealed partial class MainForm
         return root;
     }
 
+    /// <summary>
+    /// Il manuale in RTF, costruito tutto in una volta (molto più veloce che scrivere a pezzi nel RichTextBox): titoli,
+    /// elenchi, tabelle in carattere fisso, formule centrate, **grassetto**, *corsivo* e `codice`.
+    /// </summary>
     static void RenderMarkdown(RichTextBox rtb, string md)
     {
-        rtb.SuspendLayout();
-        rtb.Clear();
-        var body = new Font("Segoe UI", 10.5f);
-        var bold = new Font("Segoe UI", 10.5f, FontStyle.Bold);
-        var italic = new Font("Segoe UI", 10.5f, FontStyle.Italic);
-        var h1 = new Font("Segoe UI", 18f, FontStyle.Bold);
-        var h2 = new Font("Segoe UI", 14f, FontStyle.Bold);
-        var h3 = new Font("Segoe UI", 12f, FontStyle.Bold);
-        var mono = new Font(MonoFamily, 10f);
-        var ink = Color.FromArgb(0x1B, 0x24, 0x30);
-        var accent = Color.FromArgb(0x1F, 0x5F, 0xB8);
-        var codeCol = Color.FromArgb(0x3E, 0x4A, 0x57);
+        var sb = new System.Text.StringBuilder();
+        sb.Append(@"{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fswiss Segoe UI;}{\f1\fmodern Consolas;}{\f2\froman Cambria Math;}}");
+        sb.Append(@"{\colortbl;\red27\green36\blue48;\red31\green95\blue184;\red62\green74\blue87;\red170\green178\blue189;}");
+        sb.Append(@"\viewkind4\uc1\f0\fs21\cf1 ");
 
-        void Put(string s, Font f, Color c, HorizontalAlignment al = HorizontalAlignment.Left, int indent = 0)
+        string Esc(string t)
         {
-            rtb.SelectionStart = rtb.TextLength;
-            rtb.SelectionLength = 0;
-            rtb.SelectionFont = f; rtb.SelectionColor = c; rtb.SelectionAlignment = al; rtb.SelectionIndent = indent;
-            rtb.AppendText(s);
+            var e = new System.Text.StringBuilder();
+            foreach (var ch in t)
+            {
+                if (ch == '\\' || ch == '{' || ch == '}') e.Append('\\').Append(ch);
+                else if (ch == '\t') e.Append(@"\tab ");
+                else if (ch < 128) e.Append(ch);
+                else e.Append(@"\u").Append((int)(short)ch).Append('?');
+            }
+            return e.ToString();
         }
 
-        // testo con **grassetto**, *corsivo*, `codice` e [collegamenti](url)
-        void Inline(string s, int indent = 0)
+        string Inline(string t)
         {
-            s = Regex.Replace(s, @"\[([^\]]+)\]\(([^)]+)\)", "$1 ($2)");
-            var re = new Regex(@"(\*\*[^*]+\*\*|`[^`]+`|\*[^*\s][^*]*\*)");
+            t = Regex.Replace(t, @"\[([^\]]+)\]\(([^)]+)\)", "$1 ($2)");
+            var o = new System.Text.StringBuilder();
             int i = 0;
-            foreach (Match m in re.Matches(s))
+            foreach (Match m in Regex.Matches(t, @"(\*\*[^*]+\*\*|`[^`]+`|\*[^*\s][^*]*\*)"))
             {
-                if (m.Index > i) Put(s.Substring(i, m.Index - i), body, ink, HorizontalAlignment.Left, indent);
-                var t = m.Value;
-                if (t.StartsWith("**")) Put(t.Substring(2, t.Length - 4), bold, ink, HorizontalAlignment.Left, indent);
-                else if (t.StartsWith("`")) Put(t.Substring(1, t.Length - 2), mono, codeCol, HorizontalAlignment.Left, indent);
-                else Put(t.Substring(1, t.Length - 2), italic, ink, HorizontalAlignment.Left, indent);
+                if (m.Index > i) o.Append(Esc(t.Substring(i, m.Index - i)));
+                var v = m.Value;
+                if (v.StartsWith("**")) o.Append(@"{\b ").Append(Esc(v.Substring(2, v.Length - 4))).Append('}');
+                else if (v.StartsWith("`")) o.Append(@"{\f1\fs19\cf3 ").Append(Esc(v.Substring(1, v.Length - 2))).Append('}');
+                else o.Append(@"{\i ").Append(Esc(v.Substring(1, v.Length - 2))).Append('}');
                 i = m.Index + m.Length;
             }
-            if (i < s.Length) Put(s.Substring(i), body, ink, HorizontalAlignment.Left, indent);
-            Put("\n", body, ink, HorizontalAlignment.Left, indent);
+            if (i < t.Length) o.Append(Esc(t.Substring(i)));
+            return o.ToString();
         }
 
+        void Para(string body, int left = 0, string extra = "", int after = 120) =>
+            sb.Append(@"\pard\sa").Append(after).Append(@"\li").Append(left).Append(extra).Append(' ').Append(body).Append(@"\par").Append('\n');
+
         bool code = false, math = false;
-        var tableRows = new List<string[]>();
+        var table = new List<string[]>();
         void FlushTable()
         {
-            if (tableRows.Count == 0) return;
-            int cols = tableRows.Max(r => r.Length);
+            if (table.Count == 0) return;
+            int cols = table.Max(r => r.Length);
             var w = new int[cols];
-            foreach (var r in tableRows) for (int k = 0; k < r.Length; k++) w[k] = Math.Max(w[k], Math.Min(48, r[k].Length));
+            foreach (var r in table) for (int k = 0; k < r.Length; k++) w[k] = Math.Max(w[k], Math.Min(46, r[k].Length));
             bool first = true;
-            foreach (var r in tableRows)
+            foreach (var r in table)
             {
-                var line = string.Join("  │ ", Enumerable.Range(0, cols).Select(k => (k < r.Length ? r[k] : "").PadRight(w[k])));
-                Put(line + "\n", first ? new Font(MonoFamily, 9.5f, FontStyle.Bold) : new Font(MonoFamily, 9.5f), first ? accent : ink, HorizontalAlignment.Left, 10);
-                if (first) Put(string.Join("──┼─", w.Select(x => new string('─', x))) + "\n", new Font(MonoFamily, 9.5f), Color.Silver, HorizontalAlignment.Left, 10);
+                var line = string.Join("  \u2502 ", Enumerable.Range(0, cols).Select(k => (k < r.Length ? r[k] : "").PadRight(w[k])));
+                var esc = Esc(line);
+                Para((first ? @"{\f1\fs18\b\cf2 " : @"{\f1\fs18 ") + esc + "}", 200, "", 0);
+                if (first) Para(@"{\f1\fs18\cf4 " + Esc(string.Join("\u2500\u253C\u2500", w.Select(x => new string('\u2500', x)))) + "}", 200, "", 0);
                 first = false;
             }
-            Put("\n", body, ink);
-            tableRows.Clear();
+            Para("", 0, "", 120);
+            table.Clear();
         }
 
         foreach (var raw in md.Replace("\r", "").Split('\n'))
@@ -398,39 +402,38 @@ public sealed partial class MainForm
             {
                 FlushTable();
                 if (!code) math = l.Trim() == "```math";
-                else Put("\n", body, ink);
                 code = !code;
                 continue;
             }
             if (code)
             {
-                if (math) Put(l.Trim() + "\n", new Font("Cambria Math", 12f, FontStyle.Italic), ink, HorizontalAlignment.Center);
-                else Put(l + "\n", mono, codeCol, HorizontalAlignment.Left, 20);
+                if (math) Para(@"{\f2\fs26\i " + Esc(l.Trim()) + "}", 0, @"\qc", 60);
+                else Para(@"{\f1\fs19\cf3 " + Esc(l) + "}", 360, "", 0);
                 continue;
             }
             if (l.StartsWith("|"))
             {
                 var cells = l.Trim().Trim('|').Split('|').Select(c => Regex.Replace(c.Trim(), @"\*\*|`", "")).ToArray();
-                if (cells.All(c => Regex.IsMatch(c, @"^:?-{2,}:?$"))) continue;
-                tableRows.Add(cells);
+                if (!cells.All(c => Regex.IsMatch(c, @"^:?-{2,}:?$"))) table.Add(cells);
                 continue;
             }
             FlushTable();
-            if (l.StartsWith("### ")) { Put(l.Substring(4) + "\n", h3, accent); continue; }
-            if (l.StartsWith("## ")) { Put("\n" + l.Substring(3) + "\n", h2, accent); continue; }
-            if (l.StartsWith("# ")) { Put(l.Substring(2) + "\n\n", h1, ink); continue; }
-            if (l.StartsWith("> ")) { Inline(l.Substring(2), 20); continue; }
+            if (l.StartsWith("### ")) { Para(@"{\fs25\b\cf2 " + Inline(l.Substring(4)) + "}", 0, @"\sb120", 80); continue; }
+            if (l.StartsWith("## ")) { Para(@"{\fs30\b\cf2 " + Inline(l.Substring(3)) + "}", 0, @"\sb280", 100); continue; }
+            if (l.StartsWith("# ")) { Para(@"{\fs40\b " + Inline(l.Substring(2)) + "}", 0, "", 200); continue; }
+            if (l.StartsWith("> ")) { Para(@"{\i\cf3 " + Inline(l.Substring(2)) + "}", 360); continue; }
             var bm = Regex.Match(l, @"^(\s*)[-*] (.*)$");
-            if (bm.Success) { Put("•  ", body, accent, HorizontalAlignment.Left, 14 + bm.Groups[1].Length * 6); Inline(bm.Groups[2].Value, 14 + bm.Groups[1].Length * 6); continue; }
+            if (bm.Success) { int ind = 360 + bm.Groups[1].Length * 120; Para(@"{\cf2 \u8226?}\tab " + Inline(bm.Groups[2].Value), ind, @"\fi-240\tx" + ind, 60); continue; }
             var nm = Regex.Match(l, @"^(\d+)\. (.*)$");
-            if (nm.Success) { Put(nm.Groups[1].Value + ".  ", bold, accent, HorizontalAlignment.Left, 14); Inline(nm.Groups[2].Value, 14); continue; }
-            if (l.Trim() == "---") { Put(new string('─', 60) + "\n", body, Color.Silver); continue; }
-            if (l.Trim() == "") { Put("\n", body, ink); continue; }
-            Inline(l);
+            if (nm.Success) { Para(@"{\b\cf2 " + nm.Groups[1].Value + @".}\tab " + Inline(nm.Groups[2].Value), 420, @"\fi-300\tx420", 60); continue; }
+            if (l.Trim() == "---") { Para(@"{\cf4 " + new string('_', 70) + "}", 0, @"\qc"); continue; }
+            if (l.Trim() == "") continue;
+            Para(Inline(l));
         }
         FlushTable();
+        sb.Append('}');
+        rtb.Rtf = sb.ToString();
         rtb.SelectionStart = 0;
         rtb.ScrollToCaret();
-        rtb.ResumeLayout();
     }
 }
