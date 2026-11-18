@@ -16,3 +16,6 @@ Previsione e osservazione in tempo reale della propagazione troposferica da 144 
 - Solo 144 MHz e oltre: esclusi meteor scatter, EME, QO-100 e ascoltatori non genuini.
 - Locatori sempre a 6 caratteri (CALL3.TXT, voci a mano, correzioni dal cluster).
 - Portabile: tutto accanto all'eseguibile. 36 lingue.
+
+## Ringraziamenti
+Grazie a **I5MZY Massimo Zannoni** per le prove su Windows 7 e Windows 8.

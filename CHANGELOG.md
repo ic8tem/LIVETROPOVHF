@@ -7,6 +7,7 @@ Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 ## 1.0.3 — 18/11/2026
 - Windows 7 e 8.1: al primo avvio, senza nominativo, l'immagine di partenza restava sopra la finestra che chiede il Call e il programma sembrava bloccato (segnalato da un tester su Windows 8). Ora l'immagine si chiude sempre dopo 2,5 secondi (o subito con un clic), non sta più in primo piano e solo dopo compare la richiesta del nominativo.
 - Windows 7 e 8.1: con finestre strette le linguette vanno a capo invece di uscire dal bordo.
+- Ringraziamenti: I5MZY Massimo Zannoni per le prove su Windows 7 e 8 (manuale, README, wiki).
 
 ## 1.0.2 — 16/11/2026
 - Windows 7 SP1 e 8.1: versione riscritta apposta, nativa per **Microsoft .NET Framework 4.8** con finestra WinForms (cartella Win7 dei sorgenti). Anche i pacchetti .NET 6 della 1.0.1 non partivano su alcuni Windows 7. Il motore (cluster, PSKReporter, UDP, CALL3, previsione tropo, criteri di scarto, sospetti, aggiornamenti) e il disegno della mappa e di GRAVES sono gli stessi della versione normale; cambiano solo la finestra e il disegno, fatto con GDI+. Stesse linguette e stesse 36 lingue.

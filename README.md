@@ -44,5 +44,7 @@ Every 30 minutes the program checks the latest Release and, if newer, downloads 
 ## Credits
 Tropo maps: W. R. Hepburn (DX Info Centre), F5LEN. Weather: Open-Meteo. Coastlines: Natural Earth. Spots: DX clusters, Reverse Beacon Network, DM4X, PSKReporter. Callsign database: CALL3.TXT / MMMonVHF, G7VRD locator API. GRAVES data: PE1ITR and the YA-MS project.
 
+Thanks to **I5MZY Massimo Zannoni** for testing on Windows 7 and Windows 8.
+
 ---
 *Software for amateur radio use. Forecasts are indications, not guarantees.*

@@ -283,6 +283,9 @@ Librerie esterne: Avalonia per l'interfaccia [12], MQTTnet come client MQTT per 
 
 C# su .NET 10 (LTS) [15] con interfaccia Avalonia, pubblicato come eseguibile autonomo per Windows 64 e 32 bit, Mac Intel e Apple Silicon, Linux Debian e Raspberry Pi (64 e 32 bit). Limiti noti: Windows 10/11; macOS 14 o successivo, con app da firmare o da aprire con clic destro → Apri; Raspberry dal Pi 2 / Zero 2 W in su (i modelli ARMv6 non sono supportati da .NET).
 
+## Ringraziamenti
+Grazie a **I5MZY Massimo Zannoni** per le prove su Windows 7 e Windows 8.
+
 ## Fonti principali
 
 1. S. Heck LA0BY, “Extreme Tropo Propagation on 144 MHz and up”, presentazione al 41° Nordic VUSHF Meeting, Skjeberg 2019. Modi troposferici, lista di controllo per gli eventi (previsioni Hepburn/F5LEN, profili di temperatura in quota con Windy, DX cluster come prova dell'apertura), osservazione che le sole mappe di previsione non bastano per i percorsi estremi.
