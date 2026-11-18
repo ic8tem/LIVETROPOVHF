@@ -28,15 +28,8 @@ public static class Program
         MainForm main;
         try { main = new MainForm(); }
         catch (Exception ex) { try { splash?.Close(); } catch { } Report(ex, true); return; }
-        main.Shown += (_, _) =>
-        {
-            if (splash == null) return;
-            var left = TimeSpan.FromSeconds(2.5) - (DateTime.UtcNow - shownAt);
-            if (left < TimeSpan.FromMilliseconds(300)) left = TimeSpan.FromMilliseconds(300);
-            var t = new System.Windows.Forms.Timer { Interval = (int)left.TotalMilliseconds };
-            t.Tick += (_, _) => { t.Stop(); t.Dispose(); try { splash.Close(); } catch { } };
-            t.Start();
-        };
+        main.StartSplash = splash;
+        main.SplashShownAt = shownAt;
         Application.Run(main);
     }
 
@@ -92,7 +85,7 @@ public sealed class Splash : Form
         FormBorderStyle = FormBorderStyle.None;
         StartPosition = FormStartPosition.CenterScreen;
         ShowInTaskbar = false;
-        TopMost = true;
+        TopMost = false;
         Text = "LIVETROPOVHF";
         Icon = Program.AppIcon();
         BackColor = Color.FromArgb(0x0F, 0x24, 0x40);

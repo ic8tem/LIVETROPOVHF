@@ -24,6 +24,9 @@ public sealed partial class MainForm : Form
 {
     readonly AppState _st;
     Palette _th;
+    /// <summary>Immagine di partenza da chiudere quando la finestra è pronta (la imposta Program).</summary>
+    public Form StartSplash;
+    public DateTime SplashShownAt = DateTime.UtcNow;
     readonly MapView _map;
     readonly System.Windows.Forms.Timer _timer;
     string _tab = "map";
@@ -60,7 +63,22 @@ public sealed partial class MainForm : Form
         });
         _st.Call3StatusChanged += m => Ui(() => { if (_mmmStatus != null) _mmmStatus.Text = m; FillCalls(); _map.InvalidateVisual(); });
         _st.CallDbLoaded += () => Ui(FillCalls);
-        Shown += (_, _) => { if (!_st.HasValidCall) AskCall(); };
+        Shown += async (_, _) =>
+        {
+            // prima si chiude lo splash (dopo 2,5 s dall'apertura, o subito con un clic), poi, se serve, si chiede il
+            // nominativo: così la richiesta non resta mai nascosta sotto l'immagine di partenza
+            var sp = StartSplash;
+            if (sp != null && !sp.IsDisposed)
+            {
+                var left = TimeSpan.FromSeconds(2.5) - (DateTime.UtcNow - SplashShownAt);
+                for (var t = TimeSpan.Zero; t < left && !sp.IsDisposed; t += TimeSpan.FromMilliseconds(100))
+                    await Task.Delay(100);
+                try { if (!sp.IsDisposed) sp.Close(); } catch { }
+            }
+            StartSplash = null;
+            Activate();
+            if (!_st.HasValidCall) AskCall();
+        };
 
         _timer = new System.Windows.Forms.Timer { Interval = 1000 };
         _timer.Tick += (_, _) => Tick();
@@ -481,8 +499,9 @@ public sealed partial class MainForm : Form
 
     Control BuildTabBand()
     {
-        var band = new Panel { Dock = DockStyle.Top, Height = 42, BackColor = C(_th.Band) };
-        var row = Row(); row.Dock = DockStyle.Fill; row.WrapContents = false; row.Padding = new Padding(8, 6, 0, 0);
+        // le linguette vanno a capo se la finestra è stretta (schermi da 1024 o 1280 punti)
+        var row = Flow(C(_th.Band)); row.Padding = new Padding(8, 6, 0, 0);
+        var band = row;
         foreach (var (key, label) in new[] { ("map", "tab.map"), ("hepburn", "tab.hep"), ("f5len", "tab.f5"), ("graves", "tab.graves"), ("sus", "tab.sus"), ("collect", "tab.collect"), ("doc1", "tab.doc1"), ("doc2", "tab.doc2"), ("doc3", "tab.doc3") })
         {
             var b = new Button { Text = Lang.T(label), AutoSize = true, FlatStyle = FlatStyle.Flat, Height = 36, Padding = new Padding(6, 0, 6, 0), Margin = new Padding(0, 0, 2, 0), Font = F(9.5f), Cursor = Cursors.Hand };
@@ -492,7 +511,6 @@ public sealed partial class MainForm : Form
             _tabButtons[key] = b;
             row.Controls.Add(b);
         }
-        band.Controls.Add(row);
         return band;
     }
 
