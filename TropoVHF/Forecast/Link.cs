@@ -114,6 +114,7 @@ public sealed class LinkResult
     public int TilesMissing;
     public bool ForecastUsed;
     public List<string> Notes = new();
+    public Timing Times = new();       // tempi di reazione per tappa
 
     /// <summary>S-meter IARU per VHF/UHF: S9 = −93 dBm, 6 dB per unità.</summary>
     public static string SMeter(double dbm)
@@ -218,7 +219,9 @@ public static class LinkCalc
         if (r.DistKm < 0.05) { r.Notes.Add("le due stazioni coincidono"); return r; }
         double step = Math.Max(0.03, Math.Min(0.25, r.DistKm / 4000));      // 30 m fino a 120 km, poi più largo
         var pts = PathPoints(tx.Pos, rx.Pos, step, out var dist);
+        r.Times.Lap("preparazione");
         var (h, ok) = await srtm.Heights(pts, ct);
+        r.Times.Lap("terreno SRTM1");
         r.TilesMissing = srtm.Missing;
         {
             int imax = 0; for (int i = 1; i < h.Length; i++) if (h[i] > h[imax]) imax = i;
@@ -301,6 +304,7 @@ public static class LinkCalc
         }
         CalcLog.W($"diffrazione = Lbulla + max(Ldsph − Lbulls, 0) = {r.LbullDb:0.00} dB oltre lo spazio libero → Ldiff = {r.LdiffDb:0.00} dB");
 
+        r.Times.Lap("diffrazione e Fresnel");
         // ---- angoli d'orizzonte (mrad) e troposcatter (P.452 eq. 45, p = 50%)
         double thT = double.MinValue, thR = double.MinValue;
         int iht = n / 2, ihr = n / 2;
@@ -330,6 +334,7 @@ public static class LinkCalc
         r.LbaseDb = Math.Max(r.LbaseDb, r.LfsDb);
         CalcLog.W($"senza tropo (somma delle potenze di diffrazione e scatter, non sotto lo spazio libero): {r.LbaseDb:0.00} dB");
 
+        r.Times.Lap("orizzonti e troposcatter");
         // ---- strato fondante: continuità, quota e inclinazione dello strato lungo la tratta
         r.LpredDb = r.LbaseDb;
         r.Mechanism = r.Los ? "visibilità diretta" : r.LdiffDb <= r.LscatDb ? "diffrazione" : "troposcatter";
@@ -454,6 +459,7 @@ public static class LinkCalc
         }
         else r.Notes.Add("nessuna previsione GFS sul percorso: calcolo con atmosfera normale (k = 4/3)");
 
+        r.Times.Lap("strato fondante e condotto");
         // ---- terzo calcolo, solo da confrontare: ITU-R P.452-16 § 4.5 con ΔN del GFS (CSIRO 2026: p = 20% come costante di calibrazione)
         if (good.Count > 0 && !r.Los)
         {
@@ -461,6 +467,7 @@ public static class LinkCalc
             catch (Exception ex) { CalcLog.W("P.452: calcolo non riuscito: " + ex.Message); }
         }
 
+        r.Times.Lap("confronto P.452");
         // ---- livello e rapporto segnale/rumore
         r.EirpDbm = 10 * Math.Log10(Math.Max(0.001, tx.PowerW) * 1000) - tx.CableDb + r.GtxDbi;
         // tutto riportato ai morsetti dell'antenna ricevente: il cavo attenua il segnale e aggiunge rumore
@@ -481,6 +488,8 @@ public static class LinkCalc
         CalcLog.W($"Tsys = Ta + 290(Lc−1) + 290(F−1)Lc = {ta:0} + {290 * (Math.Pow(10, rx.CableDb / 10) - 1):0} + {290 * (Math.Pow(10, rx.NfDb / 10) - 1) * Math.Pow(10, rx.CableDb / 10):0} = {r.TsysK:0} K");
         CalcLog.W($"rumore kTsysB: SSB {o.BwSsb:0} Hz {r.NoiseSsbDbm:0.00} dBm → S/N {r.SnrSsb:0.0} dB (soglia {o.ReqSsb:0}); CW {o.BwCw:0} Hz → S/N {r.SnrCw:0.0} dB (soglia {o.ReqCw:0}); FT8 {o.BwFt8:0} Hz → S/N {r.SnrFt8:0.0} dB (soglia {o.ReqFt8:0})");
         if (r.TilesMissing > 0) r.Notes.Add($"{r.TilesMissing} riquadri SRTM1 non disponibili: lì il terreno vale 0 m");
+        r.Times.Lap("bilancio e rumore");
+        CalcLog.W($"TEMPI del calcolo sul percorso: {CalcLog.Dur(r.Times.TotalMs)} — {r.Times.Summary()}");
         return r;
     }
 

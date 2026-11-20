@@ -317,6 +317,27 @@ public sealed class OwnForecast
     public ProfileResult[][,] Grid = Array.Empty<ProfileResult[,]>();
     public string Status = "";
     public DateTime UpdatedUtc;
+    public string LastTiming = "";            // tempi dell'ultimo aggiornamento della griglia
+    public DateTime RunUtc, RunAvailableUtc;  // corsa GFS usata e quando Open-Meteo l'ha resa disponibile
+
+    /// <summary>Corsa GFS più recente su Open-Meteo (metadati del modello GFS 0,25°); non blocca se non risponde.</summary>
+    public async Task GfsRunInfo(HttpClient http, CancellationToken ct)
+    {
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(15000);
+            var json = await http.GetStringAsync("https://api.open-meteo.com/data/ncep_gfs025/static/meta.json", cts.Token);
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            DateTime U(string k) => root.TryGetProperty(k, out var v) && v.ValueKind == JsonValueKind.Number ? DateTimeOffset.FromUnixTimeSeconds(v.GetInt64()).UtcDateTime : default;
+            RunUtc = U("last_run_initialisation_time"); RunAvailableUtc = U("last_run_availability_time");
+            if (RunUtc != default)
+                CalcLog.W($"GFS: corsa delle {RunUtc:dd/MM HH:mm} UTC, disponibile su Open-Meteo dalle {RunAvailableUtc:HH:mm} UTC " +
+                          $"(ritardo dalla corsa {CalcLog.Dur((RunAvailableUtc - RunUtc).TotalMilliseconds)}, età dei dati adesso {CalcLog.Dur((DateTime.UtcNow - RunUtc).TotalMilliseconds)})");
+        }
+        catch (Exception ex) when (!ct.IsCancellationRequested) { CalcLog.W("GFS: metadati della corsa non disponibili (" + ex.Message + ")"); }
+    }
     public bool Busy;
     readonly object _lock = new();
 
@@ -338,8 +359,10 @@ public sealed class OwnForecast
     }
 
     /// <summary>Scarica e analizza una lista di punti (al massimo 80 per richiesta, con una pausa fra le richieste).</summary>
-    public static async Task<List<PointSeries>> FetchPoints(HttpClient http, IList<LatLon> pts, Action<string> progress, CancellationToken ct)
+    public static async Task<List<PointSeries>> FetchPoints(HttpClient http, IList<LatLon> pts, Action<string> progress, CancellationToken ct, FetchStats st = null)
     {
+        st ??= new FetchStats();
+        var sw = new System.Diagnostics.Stopwatch();
         var res = new List<PointSeries>();
         const int batch = 60;
         var vars = HourlyVars();
@@ -352,12 +375,20 @@ public sealed class OwnForecast
             string json = null;
             for (int attempt = 0; attempt < 3 && json == null; attempt++)
             {
+                sw.Restart();
                 using var resp = await http.GetAsync(url, ct);
-                if ((int)resp.StatusCode == 429) { progress?.Invoke("Open-Meteo: limite al minuto, attendo 60 s…"); await Task.Delay(60000, ct); continue; }
+                if ((int)resp.StatusCode == 429)
+                {
+                    st.NetMs += sw.Elapsed.TotalMilliseconds; st.Retries++;
+                    progress?.Invoke("Open-Meteo: limite al minuto, attendo 60 s…");
+                    sw.Restart(); await Task.Delay(60000, ct); st.WaitMs += sw.Elapsed.TotalMilliseconds; continue;
+                }
                 resp.EnsureSuccessStatusCode();
                 json = await resp.Content.ReadAsStringAsync(ct);
+                st.NetMs += sw.Elapsed.TotalMilliseconds; st.Batches++; st.Bytes += json.Length;
             }
             if (json == null) throw new Exception("Open-Meteo: troppe richieste");
+            sw.Restart();
             using (var doc = JsonDocument.Parse(json))
             {
                 var items = doc.RootElement.ValueKind == JsonValueKind.Array ? doc.RootElement.EnumerateArray().ToList() : new List<JsonElement> { doc.RootElement };
@@ -385,9 +416,14 @@ public sealed class OwnForecast
                     res.Add(new PointSeries { Lat = part[k].Lat, Lon = part[k].Lon, Elev = elev, Times = times, Profiles = prof });
                 }
             }
+            st.ParseMs += sw.Elapsed.TotalMilliseconds;
             progress?.Invoke($"GFS: {Math.Min(pts.Count, i + batch)} / {pts.Count} punti");
             CalcLog.W($"Open-Meteo GFS: lotto di {part.Count} punti letto ({json.Length / 1024} kB), {Hours} ore, 26 variabili (suolo + T e UR a 1000–500 hPa)");
-            if (i + batch < pts.Count) await Task.Delay(20000, ct);   // circa 160 richieste equivalenti per lotto: si resta sotto 600 al minuto
+            if (i + batch < pts.Count)
+            {
+                progress?.Invoke($"GFS: {Math.Min(pts.Count, i + batch)} / {pts.Count} punti — pausa di 20 s per il limite di Open-Meteo");
+                sw.Restart(); await Task.Delay(20000, ct); st.WaitMs += sw.Elapsed.TotalMilliseconds;   // circa 160 richieste equivalenti per lotto: si resta sotto 600 al minuto
+            }
         }
         return res;
     }
@@ -413,7 +449,12 @@ public sealed class OwnForecast
             var pts = new List<LatLon>();
             for (int r = 0; r < rows; r++) for (int c = 0; c < cols; c++) pts.Add(new LatLon(latMin + r * step, lonMin + c * step));
             Status = $"GFS: scarico {pts.Count} punti (passo {step:0.##}°)…"; changed?.Invoke();
-            var series = await FetchPoints(http, pts, m => { Status = m; changed?.Invoke(); }, ct);
+            var tm = new Timing();
+            await GfsRunInfo(http, ct);
+            tm.Lap("metadati GFS");
+            var fs = new FetchStats();
+            var series = await FetchPoints(http, pts, m => { Status = m; changed?.Invoke(); }, ct, fs);
+            tm.Lap("scaricamento e analisi");
             var times = series.FirstOrDefault(s => s.Times != null && s.Times.Length > 0)?.Times ?? Array.Empty<DateTime>();
             var grid = new ProfileResult[times.Length][,];
             for (int t = 0; t < times.Length; t++) grid[t] = new ProfileResult[rows, cols];
@@ -442,7 +483,11 @@ public sealed class OwnForecast
                 CalcLog.W($"prima ora: profili validi {nOk}, con condotto {nd}; indice 144 MHz massimo {mx:0.0} a {bl:0.##}, {bo:0.##}");
                 if (best != null) CalcLog.Profile($"profilo con l'indice più alto ({bl:0.##}, {bo:0.##})", best);
             }
-            Status = $"Previsione propria: GFS {UpdatedUtc:dd/MM HH:mm} UTC, {pts.Count} punti, passo {step:0.##}°";
+            tm.Lap("griglia e riepilogo");
+            LastTiming = $"pronta in {CalcLog.Dur(tm.TotalMs)}: {fs.Summary()}";
+            CalcLog.W($"TEMPI griglia ({pts.Count} punti): totale {CalcLog.Dur(tm.TotalMs)} — {tm.Summary()}; {fs.Summary()}");
+            Status = $"Previsione propria: GFS {UpdatedUtc:dd/MM HH:mm} UTC" + (RunUtc != default ? $" (corsa {RunUtc:HH} UTC)" : "") +
+                     $", {pts.Count} punti, passo {step:0.##}° · {LastTiming}";
             return true;
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested) { Status = "Previsione propria: interrotta"; return false; }

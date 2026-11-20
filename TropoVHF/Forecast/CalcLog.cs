@@ -85,4 +85,29 @@ public static class CalcLog
             W($"    {f:0} MHz (λ {299.792458 / f:0.00} m): {(bd == null ? "nessuno strato la intrappola" : $"intrappolata da {bd.Name}")} → guadagno {F(p.GainDb(f))} dB, indice {F(p.Index(f), "0.0")}");
         }
     }
+
+    /// <summary>Durata leggibile: ms sotto il secondo, s sotto il minuto, poi min e s.</summary>
+    public static string Dur(double ms) => ms < 1000 ? $"{ms:0} ms" : ms < 60000 ? $"{ms / 1000:0.0} s" : $"{Math.Floor(ms / 60000):0} min {(ms % 60000) / 1000:0} s";
+}
+
+/// <summary>Cronometro a tappe per misurare i tempi di reazione della previsione.</summary>
+public sealed class Timing
+{
+    readonly System.Diagnostics.Stopwatch _sw = System.Diagnostics.Stopwatch.StartNew();
+    double _last;
+    public readonly List<(string Name, double Ms)> Laps = new();
+    /// <summary>Chiude una tappa: il tempo dall'ultima tappa.</summary>
+    public void Lap(string name) { double t = _sw.Elapsed.TotalMilliseconds; Laps.Add((name, t - _last)); _last = t; }
+    /// <summary>Aggiunge una voce misurata altrove (non sposta l'inizio della tappa successiva).</summary>
+    public void Add(string name, double ms) => Laps.Add((name, ms));
+    public double TotalMs => _sw.Elapsed.TotalMilliseconds;
+    public string Summary() => string.Join(", ", Laps.Where(l => l.Ms >= 0.5).Select(l => $"{l.Name} {CalcLog.Dur(l.Ms)}"));
+}
+
+/// <summary>Statistiche di uno scaricamento GFS: rete, analisi, attese per il limite di Open-Meteo.</summary>
+public sealed class FetchStats
+{
+    public double NetMs, ParseMs, WaitMs; public int Batches, Retries; public long Bytes;
+    public string Summary() => $"rete {CalcLog.Dur(NetMs)} ({Batches} richieste, {Bytes / 1024} kB" + (Retries > 0 ? $", {Retries} ripetute per il limite" : "") +
+                               $"), analisi dei profili {CalcLog.Dur(ParseMs)}, attese obbligate {CalcLog.Dur(WaitMs)}";
 }

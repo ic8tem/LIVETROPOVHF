@@ -456,6 +456,8 @@ public sealed partial class MainWindow
         {
             try
             {
+                var tm = new Timing();
+                FetchStats fs = null;
                 // profili della previsione lungo il percorso: dalla griglia se la copre, altrimenti si scaricano
                 double d = Geo.DistKm(tx.Pos, rx.Pos);
                 int n = Math.Max(2, Math.Min(40, (int)Math.Ceiling(d / 25) + 1));
@@ -465,7 +467,8 @@ public sealed partial class MainWindow
                 if (prof.Count(p => p != null) < prof.Count * 0.8)
                 {
                     FcSetStatus(L("GFS: scarico i profili lungo il percorso…", "GFS: downloading profiles along the path…"));
-                    var ser = await OwnForecast.FetchPoints(FcHttp, pp, FcSetStatus, ct);
+                    fs = new FetchStats();
+                    var ser = await OwnForecast.FetchPoints(FcHttp, pp, FcSetStatus, ct, fs);
                     prof = ser.Select(s =>
                     {
                         int best = -1; double bd = double.MaxValue;
@@ -473,7 +476,12 @@ public sealed partial class MainWindow
                         return best >= 0 && bd <= 90 ? s.Profiles[best] : null;
                     }).ToList();
                 }
+                tm.Lap(fs != null ? "profili GFS scaricati" : "profili dalla griglia");
                 var r = await LinkCalc.Compute(tx, rx, opt, _srtm, prof, ct);
+                tm.Lap("calcolo sul percorso");
+                r.Times.Laps.Insert(0, tm.Laps[0]);
+                r.Times.Add("TOTALE", tm.TotalMs);
+                CalcLog.W($"TEMPI dal clic al risultato: {CalcLog.Dur(tm.TotalMs)} (profili {CalcLog.Dur(tm.Laps[0].Ms)}" + (fs != null ? $": {fs.Summary()}" : "") + $", percorso {CalcLog.Dur(tm.Laps[1].Ms)})");
                 _fcLast = r;
                 FcSetStatus(L("Calcolo completato.", "Done.") + (r.TilesMissing > 0 ? " " + L("Riquadri SRTM1 mancanti: ", "Missing SRTM1 tiles: ") + r.TilesMissing : ""));
                 Dispatcher.UIThread.Post(() =>
@@ -542,6 +550,11 @@ public sealed partial class MainWindow
         }
         Line(L("Perdita prevista", "Predicted loss"), $"{r.LpredDb:0.0} dB · {r.Mechanism}", _th.Text, true);
         if (r.P452Ok) Line(L("Confronto P.452 (p 20%)", "P.452 check (p 20%)"), $"{r.P452Lb:0.0} dB ({r.P452Lb - r.LpredDb:+0.0;-0.0}) · ΔN {r.P452DeltaN:0} · Lba {r.P452Lba:0.0} dB" + (r.P452Alf > 0 ? $" (Alf {r.P452Alf:0.0})" : ""));
+        {
+            var tot = r.Times.Laps.FirstOrDefault(x => x.Name == "TOTALE").Ms;
+            var parts = r.Times.Laps.Where(x => x.Name != "TOTALE" && x.Ms >= 50).Select(x => $"{x.Name} {CalcLog.Dur(x.Ms)}");
+            Line(L("Tempo di risposta", "Response time"), CalcLog.Dur(tot) + (parts.Any() ? " · " + string.Join(" · ", parts) : ""));
+        }
         Line(L("EIRP", "EIRP"), $"{r.EirpDbm:0.0} dBm ({Math.Pow(10, (r.EirpDbm - 30) / 10):0} W)");
         Line(L("Antenne TX / RX", "Antennas TX / RX"), $"{r.GtxDbi:0.0} / {r.GrxDbi:0.0} dBi");
         Line(L("Segnale ricevuto", "Received signal"), $"{r.PrxDbm:0.0} dBm · {LinkResult.SMeter(r.PrxDbm)}", _th.Accent, true);
@@ -578,10 +591,13 @@ public sealed partial class MainWindow
                 double ae = k * LinkCalc.Re;
                 double hGuess = tx.Precise ? tx.AglM + 300 : tx.AslM;
                 double maxKm = Math.Min(200, Math.Max(40, Math.Sqrt(2 * ae * Math.Max(10, hGuess) / 1000) + Math.Sqrt(2 * ae * hrx / 1000) + 40));
+                var swLos = System.Diagnostics.Stopwatch.StartNew();
                 var (az, first, far) = await LinkCalc.LineOfSight(tx, hrx, k, maxKm, _srtm, ct);
+                CalcLog.W($"TEMPI copertura in ottica: {CalcLog.Dur(swLos.Elapsed.TotalMilliseconds)}");
                 _fcLos = (az, first, far, tp);
                 FcSetStatus(L("Copertura in ottica", "Line of sight") + $": k = {k:0.00}, " + L("antenna a ", "antenna at ") + $"{tx.AntennaAsl:0} m s.l.m., " +
-                            L("prima ombra media ", "mean first shadow ") + $"{first.Average():0} km, " + L("massimo visibile ", "farthest visible ") + $"{far.Max():0} km");
+                            L("prima ombra media ", "mean first shadow ") + $"{first.Average():0} km, " + L("massimo visibile ", "farthest visible ") + $"{far.Max():0} km · " +
+                            L("in ", "in ") + CalcLog.Dur(swLos.Elapsed.TotalMilliseconds));
                 Dispatcher.UIThread.Post(() => _fcMap?.InvalidateVisual());
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested) { FcSetStatus(L("Interrotto.", "Stopped.")); }

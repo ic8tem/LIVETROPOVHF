@@ -27,7 +27,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          dotnet publish TropoVHF/TropoVHF.csproj -c Release -r win-x64 --self-contained true -p:Version=1.0.8 -p:DebugType=none -o publish/win-x64 -clp:NoSummary 2>&1 | tee build.log
+          dotnet publish TropoVHF/TropoVHF.csproj -c Release -r win-x64 --self-contained true -p:Version=1.0.9 -p:DebugType=none -o publish/win-x64 -clp:NoSummary 2>&1 | tee build.log
       - name: Errori di compilazione (ramo ci-log)
         if: failure()
         shell: bash
@@ -70,12 +70,12 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          (cd publish/win-x64 && 7z a -tzip -mx=7 ../../dist/LIVETROPOVHF-1.0.8-privata-windows-x64.zip . > /dev/null)
+          (cd publish/win-x64 && 7z a -tzip -mx=7 ../../dist/LIVETROPOVHF-1.0.9-privata-windows-x64.zip . > /dev/null)
           # chiave come testo esadecimale: openssl su Windows legge -pass file: in modo testo e si ferma al byte 0x1A
           openssl rand -hex 32 | tr -d '\r\n' > dist/k.bin
-          openssl enc -aes-256-cbc -pbkdf2 -salt -in dist/LIVETROPOVHF-1.0.8-privata-windows-x64.zip -out dist/pacchetto.enc -pass file:dist/k.bin
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in dist/LIVETROPOVHF-1.0.9-privata-windows-x64.zip -out dist/pacchetto.enc -pass file:dist/k.bin
           openssl pkeyutl -encrypt -pubin -inkey .github/privato.pub.pem -pkeyopt rsa_padding_mode:oaep -in dist/k.bin -out dist/chiave.enc
-          rm dist/k.bin dist/LIVETROPOVHF-1.0.8-privata-windows-x64.zip
+          rm dist/k.bin dist/LIVETROPOVHF-1.0.9-privata-windows-x64.zip
           ls -la dist
       - name: Ramo ci-priv
         shell: bash
