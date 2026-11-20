@@ -296,10 +296,14 @@ public sealed partial class MainWindow
         var t2 = TB(L("Indice = guadagno stimato in dB / 2,5 (25 dB = 10). Quadretti: nessuna previsione propria, Hepburn/F5LEN ≥ 5. " +
                       "Area azzurra: copertura in ottica fino alla prima ombra; linea tratteggiata: punto visibile più lontano. " +
                       "Condotti potenziali: doppio calcolo (A dal GFS, B con lo spessore climatologico ITU-R P.453, © ITU) e si usa il peggiore. " +
+                      "Strato fondante: corridoio continuo con strati di almeno 40 m; se c'è terra conta la parte di terra coperta (CSIRO 2026). " +
+                      "Confronto P.452: metodo ITU con il ΔN del GFS e p = 20%, solo indicativo. " +
                       "I valori del segnale sono stime: servono a confrontare situazioni, non garantiscono il collegamento.",
                       "Index = estimated gain in dB / 2.5 (25 dB = 10). Checkered: no own forecast, Hepburn/F5LEN ≥ 5. " +
                       "Light-blue area: line of sight up to the first shadow; dashed line: farthest visible point. " +
                       "Potential ducts: two calculations (A from GFS, B with ITU-R P.453 climatological thickness, © ITU), the worst is used. " +
+                      "Governing layer: continuous corridor of layers at least 40 m thick; over land the covered land share counts (CSIRO 2026). " +
+                      "P.452 check: ITU method with GFS ΔN and p = 20%, indicative only. " +
                       "Signal values are estimates for comparing situations, not a guarantee of a contact."), 11, _th.Muted);
         t2.TextWrapping = TextWrapping.Wrap;
         sp.Children.Add(t2);
@@ -519,6 +523,7 @@ public sealed partial class MainWindow
             {
                 Line(L("Strato fondante", "Governing layer"), $"{r.LayerName} · " + (r.LayerTraps ? L("condotto", "duct") : L("super-rifrattivo", "super-refractive")), _th.Text, true);
                 Line(L("Continuità sulla tratta", "Continuity along path"), $"{r.LayerFromKm:0}–{r.LayerToKm:0} km ({r.LayerFrac * 100:0}%)");
+                if (!double.IsNaN(r.LandCov)) Line(L("Terra coperta dallo strato", "Land covered by layer"), $"{r.LandInDuctKm:0} / {r.LandKm:0} km ({r.LandCov * 100:0}%) · " + L("frazione usata", "fraction used") + $" {r.FracUsed * 100:0}%");
                 Line(L("Quota della cima", "Top height"), $"{r.TopMean:0} m ({r.TopMin:0}–{r.TopMax:0}), " + L("base", "base") + $" {r.BaseMean:0} m");
                 Line(L("Inclinazione", "Tilt"), $"{r.TiltMkm:+0.0;-0.0} m/km");
                 if (r.LayerTraps) Line(L("Deficit / λ massima", "Deficit / max λ"), $"{r.DeficitMean:0.0} M / {r.LambdaMin:0.00} m");
@@ -536,6 +541,7 @@ public sealed partial class MainWindow
             Line(L("Guadagno tropo", "Tropo gain"), $"{r.TropoGainDb:+0.0;-0.0} dB");
         }
         Line(L("Perdita prevista", "Predicted loss"), $"{r.LpredDb:0.0} dB · {r.Mechanism}", _th.Text, true);
+        if (r.P452Ok) Line(L("Confronto P.452 (p 20%)", "P.452 check (p 20%)"), $"{r.P452Lb:0.0} dB ({r.P452Lb - r.LpredDb:+0.0;-0.0}) · ΔN {r.P452DeltaN:0} · Lba {r.P452Lba:0.0} dB" + (r.P452Alf > 0 ? $" (Alf {r.P452Alf:0.0})" : ""));
         Line(L("EIRP", "EIRP"), $"{r.EirpDbm:0.0} dBm ({Math.Pow(10, (r.EirpDbm - 30) / 10):0} W)");
         Line(L("Antenne TX / RX", "Antennas TX / RX"), $"{r.GtxDbi:0.0} / {r.GrxDbi:0.0} dBi");
         Line(L("Segnale ricevuto", "Received signal"), $"{r.PrxDbm:0.0} dBm · {LinkResult.SMeter(r.PrxDbm)}", _th.Accent, true);

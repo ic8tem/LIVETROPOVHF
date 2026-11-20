@@ -102,6 +102,11 @@ public sealed class LinkResult
     public int DualN, DualChosenB;
     public double DeficitMeanA, DeficitMeanB, LambdaMinA, LambdaMinB, ClimThickMean, AnomalyMean;
     public double CouplingTxDb, CouplingRxDb, ResidualDb, TerrainInDuctKm;
+    // terra e mare lungo la tratta (CSIRO 2026: decide il tratto su terra); corridoio con strati di almeno 40 m
+    public double SeaFrac, LandKm, LandInDuctKm, LandCov = double.NaN, FracUsed;
+    // terzo calcolo: ITU-R P.452-16 § 4.5 (condotti e riflessione su strati) con ΔN del GFS e p = 20% come calibrazione
+    public double P452DeltaN, P452K50, P452Beta, P452Lba, P452Lbs, P452Lb, P452Alf, P452Ast, P452Asr, P452Act, P452Acr, P452Ag;
+    public bool P452Ok;
     public string TxVsDuct = "", RxVsDuct = "";
     public double FresnelMinRatio = double.NaN;        // minimo di (spazio libero sopra il terreno) / raggio della 1ª zona di Fresnel
     public List<(double km, double hM, double ratio, double nu)> Obstacles = new();
@@ -225,6 +230,13 @@ public static class LinkCalc
         if (!tx.Precise && tx.AslM > 0 && hts < tx.GroundM + 1) { r.Notes.Add($"la quota s.l.m. indicata ({tx.AslM:0} m) è sotto il suolo SRTM ({tx.GroundM:0} m): uso il suolo + 2 m"); hts = tx.GroundM + 2; }
         r.HtxAsl = hts; r.HrxAsl = hrs;
         CalcLog.W($"antenne sul mare: TX {hts:0.0} m, RX {hrs:0.0} m");
+        // mare: quota SRTM a 0 m (anche i riquadri mancanti, che sono mare aperto)
+        var sea = new bool[h.Length];
+        double seaKm = 0;
+        for (int i = 0; i < h.Length; i++) sea[i] = h[i] <= 0.5;
+        for (int i = 1; i < h.Length; i++) { double dd = dist[i] - dist[i - 1]; if (sea[i]) seaKm += dd; else r.LandKm += dd; }
+        r.SeaFrac = r.DistKm > 0 ? seaKm / r.DistKm : 0;
+        CalcLog.W($"mare lungo la tratta {seaKm:0.0} km ({r.SeaFrac * 100:0}%), terra {r.LandKm:0.0} km");
 
         // ---- raggio equivalente dalla previsione (media del primo km lungo il percorso)
         double k = 4.0 / 3;
@@ -291,11 +303,15 @@ public static class LinkCalc
 
         // ---- angoli d'orizzonte (mrad) e troposcatter (P.452 eq. 45, p = 50%)
         double thT = double.MinValue, thR = double.MinValue;
+        int iht = n / 2, ihr = n / 2;
         for (int i = 1; i < n - 1; i++)
         {
-            thT = Math.Max(thT, (h[i] - hts) / dist[i] - 1000 * dist[i] / (2 * ae));
-            thR = Math.Max(thR, (h[i] - hrs) / (d - dist[i]) - 1000 * (d - dist[i]) / (2 * ae));
+            double at = (h[i] - hts) / dist[i] - 1000 * dist[i] / (2 * ae);
+            double ar = (h[i] - hrs) / (d - dist[i]) - 1000 * (d - dist[i]) / (2 * ae);
+            if (at > thT) { thT = at; iht = i; }
+            if (ar > thR) { thR = ar; ihr = i; }
         }
+        double dlt = r.Los || n < 3 ? d / 2 : dist[iht], dlr = r.Los || n < 3 ? d / 2 : d - dist[ihr];
         double thTd = (hrs - hts) / d - 1000 * d / (2 * ae), thRd = (hts - hrs) / d - 1000 * d / (2 * ae);
         if (r.Los || n < 3) { thT = thTd; thR = thRd; }
         else { thT = Math.Max(thT, thTd); thR = Math.Max(thR, thRd); }
@@ -329,7 +345,7 @@ public static class LinkCalc
             {
                 foreach (var key in keys)
                 {
-                    LayerDuct At(int i) => prof[i]?.Layers.FirstOrDefault(l => l.Key == key && (wantTrap ? l.Traps(o.FreqMHz) : l.ExcessN > 0));
+                    LayerDuct At(int i) => prof[i]?.Layers.FirstOrDefault(l => l.Key == key && (wantTrap ? l.Traps(o.FreqMHz) && l.Depth >= MinCorridorM : l.ExcessN > 0));
                     int ra = -1, rb = -2, ca = -1;
                     for (int i = 0; i <= np; i++)
                     {
@@ -348,7 +364,7 @@ public static class LinkCalc
                 var run = new List<(double dist, LayerDuct l)>();
                 for (int i = best.a; i <= best.b; i++)
                 {
-                    var l = prof[i].Layers.First(x => x.Key == best.key && (best.traps ? x.Traps(o.FreqMHz) : x.ExcessN > 0));
+                    var l = prof[i].Layers.First(x => x.Key == best.key && (best.traps ? x.Traps(o.FreqMHz) && x.Depth >= MinCorridorM : x.ExcessN > 0));
                     run.Add((pd[i], l));
                 }
                 r.LayerName = run[0].l.Name; r.LayerTraps = best.traps;
@@ -381,6 +397,9 @@ public static class LinkCalc
                         double bse = BaseAt(r, dist[i]);
                         if (h[i] >= bse) r.TerrainInDuctKm += i > 0 ? dist[i] - dist[i - 1] : 0;
                     }
+                for (int i = 1; i < n; i++)
+                    if (!sea[i] && dist[i] >= r.LayerFromKm && dist[i] <= r.LayerToKm) r.LandInDuctKm += dist[i] - dist[i - 1];
+                r.LandCov = r.LandKm > 0 ? Math.Min(1, r.LandInDuctKm / r.LandKm) : double.NaN;
                 CalcLog.W($"strato fondante: {r.LayerName}, {(best.traps ? $"condotto che intrappola λ {299.792458 / o.FreqMHz:0.00} m" : "solo super-rifrattivo (non intrappola la banda)")}; continuo da {r.LayerFromKm:0} a {r.LayerToKm:0} km ({r.LayerFrac * 100:0}% della tratta, {run.Count} punti su {np})");
                 CalcLog.W($"   quota della cima {r.TopMean:0} m (da {r.TopMin:0} a {r.TopMax:0}), base media {r.BaseMean:0} m, inclinazione {r.TiltMkm:+0.0;-0.0} m/km, deficit medio {r.DeficitMean:0.0} M, λmax minima {r.LambdaMin:0.00} m; terreno dentro lo strato per {r.TerrainInDuctKm:0} km");
             }
@@ -395,8 +414,13 @@ public static class LinkCalc
             {
                 double gl = best.traps ? Math.Min(25, 20 + r.DeficitMean / 5.0)
                                        : Enumerable.Range(best.a, best.b - best.a + 1).Average(i => prof[i].LayerGainDb);
-                g = gl * r.LayerFrac;
-                CalcLog.W($"guadagno dello strato {gl:0.0} dB × frazione continua {r.LayerFrac:0.00} = {g:0.0} dB");
+                // CSIRO 2026: sul mare il condotto c'è quasi sempre, la ricezione la decide il tratto su terra
+                bool landMatters = r.LandKm >= 0.1 * d && !double.IsNaN(r.LandCov);
+                r.FracUsed = landMatters ? Math.Min(r.LayerFrac, r.LandCov) : r.LayerFrac;
+                g = gl * r.FracUsed;
+                CalcLog.W($"terra lungo la tratta {r.LandKm:0} km ({(1 - r.SeaFrac) * 100:0}%), di cui coperti dallo strato {r.LandInDuctKm:0} km" +
+                          (landMatters ? $" → copertura della terra {r.LandCov:0.00}; frazione usata = min(continua {r.LayerFrac:0.00}, terra {r.LandCov:0.00}) = {r.FracUsed:0.00}" : " (tratto su terra sotto il 10%: conta solo la continuità)"));
+                CalcLog.W($"guadagno dello strato {gl:0.0} dB × frazione usata {r.FracUsed:0.00} = {g:0.0} dB");
             }
             int nsub = good.Count(p => p.Sub);
             if (nsub * 2 > good.Count) { g = -10.0 * nsub / good.Count; CalcLog.W($"sub-rifrazione su {nsub} profili su {good.Count}: {g:0.0} dB"); }
@@ -405,7 +429,7 @@ public static class LinkCalc
             double lpred = r.LbaseDb - g;
 
             // condotto su (quasi) tutta la tratta: spazio libero + accoppiamento delle antenne + attenuazione residua
-            if (best.traps && r.LayerFrac >= 0.8 && !r.Los)
+            if (best.traps && r.FracUsed >= 0.8 && !r.Los)
             {
                 double Coupling(double hAsl, double dk, out string where)
                 {
@@ -430,6 +454,13 @@ public static class LinkCalc
         }
         else r.Notes.Add("nessuna previsione GFS sul percorso: calcolo con atmosfera normale (k = 4/3)");
 
+        // ---- terzo calcolo, solo da confrontare: ITU-R P.452-16 § 4.5 con ΔN del GFS (CSIRO 2026: p = 20% come costante di calibrazione)
+        if (good.Count > 0 && !r.Los)
+        {
+            try { P452Duct(r, h, dist, sea, hts, hrs, hte, hre, hst, hsr, dlt, dlr, thT, thR, good, 0.5 * (tx.Pos.Lat + rx.Pos.Lat), o.FreqMHz); }
+            catch (Exception ex) { CalcLog.W("P.452: calcolo non riuscito: " + ex.Message); }
+        }
+
         // ---- livello e rapporto segnale/rumore
         r.EirpDbm = 10 * Math.Log10(Math.Max(0.001, tx.PowerW) * 1000) - tx.CableDb + r.GtxDbi;
         // tutto riportato ai morsetti dell'antenna ricevente: il cavo attenua il segnale e aggiunge rumore
@@ -451,6 +482,89 @@ public static class LinkCalc
         CalcLog.W($"rumore kTsysB: SSB {o.BwSsb:0} Hz {r.NoiseSsbDbm:0.00} dBm → S/N {r.SnrSsb:0.0} dB (soglia {o.ReqSsb:0}); CW {o.BwCw:0} Hz → S/N {r.SnrCw:0.0} dB (soglia {o.ReqCw:0}); FT8 {o.BwFt8:0} Hz → S/N {r.SnrFt8:0.0} dB (soglia {o.ReqFt8:0})");
         if (r.TilesMissing > 0) r.Notes.Add($"{r.TilesMissing} riquadri SRTM1 non disponibili: lì il terreno vale 0 m");
         return r;
+    }
+
+    /// <summary>Spessore minimo di uno strato per contare come corridoio continuo (CSIRO 2026: strati sotto 40 m scartati).</summary>
+    public const double MinCorridorM = 40;
+    public const double P452P = 20;      // percentuale di tempo usata come calibrazione
+
+    /// <summary>
+    /// Perdita per condotti e riflessione su strati, ITU-R P.452-16 § 4.5 (eq. 46–57), con il ΔN del primo km dal GFS
+    /// (mediana lungo la tratta) al posto di quello climatologico e p = 20% come costante di calibrazione
+    /// (Indermuehle e Suzuki 2026). Combinata con diffrazione e troposcatter come somma morbida. Solo per confronto.
+    /// </summary>
+    static void P452Duct(LinkResult r, double[] h, double[] dist, bool[] sea, double hts, double hrs, double hte, double hre,
+                         double hst, double hsr, double dlt, double dlr, double thT, double thR, List<ProfileResult> good, double latC, double fMHz)
+    {
+        int n = h.Length; double d = r.DistKm, f = fMHz / 1000, p = P452P;
+        var dns = good.Select(x => -x.DN1km).Where(x => !double.IsNaN(x)).OrderBy(x => x).ToList();
+        double dN = dns.Count > 0 ? dns[dns.Count / 2] : 45;
+        dN = Math.Max(1, Math.Min(150, dN));                     // il metodo non è definito dentro un condotto (ΔN ≥ 157)
+        double k50 = 157 / (157 - dN), ae = 6371 * k50;
+        // tratti di terra: il più lungo (dtm) e il più lungo interno, oltre 50 km dalla costa (dlm)
+        double dtm = 0, dlm = 0, run = 0; int runStart = -1;
+        bool anySea = sea.Any(x => x);
+        for (int i = 1; i <= n; i++)
+        {
+            bool land = i < n && !sea[i];
+            if (land) { if (runStart < 0) runStart = i - 1; run += dist[i] - dist[i - 1]; }
+            else if (runStart >= 0)
+            {
+                dtm = Math.Max(dtm, run);
+                double cut = 0;
+                if (sea[runStart] || (runStart > 0 && sea[runStart - 1])) cut += 50;
+                if (i < n && sea[i]) cut += 50;
+                dlm = Math.Max(dlm, anySea ? Math.Max(0, run - cut) : run);
+                runStart = -1; run = 0;
+            }
+        }
+        double tau = 1 - Math.Exp(-4.12e-4 * Math.Pow(dlm, 2.41));
+        double mu1 = Math.Min(1, Math.Pow(Math.Pow(10, -dtm / (16 - 6.6 * tau)) + Math.Pow(10, -5 * (0.496 + 0.354 * tau)), 0.2));
+        double phi = Math.Abs(latC);
+        double mu4 = phi <= 70 ? Math.Pow(10, (-0.935 + 0.0176 * phi) * Math.Log10(mu1)) : Math.Pow(10, 0.3 * Math.Log10(mu1));
+        double beta0 = phi <= 70 ? Math.Pow(10, -0.015 * phi + 1.67) * mu1 * mu4 : 4.17 * mu1 * mu4;
+        double alpha = -0.6 - 3.5e-9 * Math.Pow(d, 3.1) * tau;
+        double mu2 = Math.Min(1, Math.Pow(500 / ae * d * d / Math.Pow(Math.Sqrt(hte) + Math.Sqrt(hre), 2), alpha));
+        // rugosità: quota massima del terreno sopra la superficie liscia fra i due orizzonti
+        double hm = 0;
+        for (int i = 0; i < n; i++)
+            if (dist[i] >= dlt && dist[i] <= d - dlr) hm = Math.Max(hm, h[i] - (hst + (hsr - hst) * dist[i] / d));
+        double di = Math.Min(Math.Max(0, d - dlt - dlr), 40);
+        double mu3 = hm <= 10 ? 1 : Math.Exp(-4.6e-5 * (hm - 10) * (43 + 6 * di));
+        double beta = beta0 * mu2 * mu3;
+        double lgb = Math.Log10(beta);
+        double gam = 1.076 / Math.Pow(2.0058 - lgb, 1.012) * Math.Exp(-(9.51 - 4.8 * lgb + 0.198 * lgb * lgb) * 1e-6 * Math.Pow(d, 1.13));
+        double ap = -12 + (1.2 + 3.7e-3 * d) * Math.Log10(p / beta) + 12 * Math.Pow(p / beta, gam);
+        // perdite fisse: accoppiamento empirico sotto 0,5 GHz, schermatura dei siti, accoppiamento sul mare
+        double alf = f < 0.5 ? 45.375 - 137.0 * f + 92.5 * f * f : 0;
+        double Ast(double th, double dl) { double t2 = th - 0.1 * dl; return t2 > 0 ? 20 * Math.Log10(1 + 0.361 * t2 * Math.Sqrt(f * dl)) + 0.264 * t2 * Math.Pow(f, 1.0 / 3) : 0; }
+        double ast = Ast(thT, dlt), asr = Ast(thR, dlr);
+        double omega = r.SeaFrac;
+        double dct = 0; for (int i = 0; i < n && !sea[i]; i++) dct = dist[i];
+        double dcr = 0; for (int i = n - 1; i >= 0 && !sea[i]; i--) dcr = d - dist[i];
+        double Act(double dc, double dl, double hs) => omega >= 0.75 && dc <= dl && dc <= 5 ? -3 * Math.Exp(-0.25 * dc * dc) * (1 + Math.Tanh(0.07 * (50 - hs))) : 0;
+        double act = Act(dct, dlt, hts), acr = Act(dcr, dlr, hrs);
+        double af = 102.45 + 20 * Math.Log10(fMHz) + 20 * Math.Log10(Math.Max(0.1, dlt + dlr)) + alf + ast + asr + act + acr;
+        double thtp = thT <= 0.1 * dlt ? thT : 0.1 * dlt, thrp = thR <= 0.1 * dlr ? thR : 0.1 * dlr;
+        double thp = 1000 * d / ae + thtp + thrp;
+        double gd = 5e-5 * ae * Math.Pow(f, 1.0 / 3);
+        // gas (P.676 allegato 2 semplificato, livello del mare, 7,5 g/m³)
+        double go = (7.2 / (f * f + 0.34) + 0.62 / (Math.Pow(54 - f, 1.16) + 0.83)) * f * f * 1e-3;
+        double gw = (0.0313 + 3.98 / (Math.Pow(f - 22.235, 2) + 9.42)) * f * f * 7.5 * 1e-4;
+        double ag = (go + gw) * d;
+        double lba = af + gd * thp + ap + ag;
+        // troposcatter al 20%: eq. 45 con il termine in p
+        double lbs = r.LscatDb - 10.1 * Math.Pow(-Math.Log10(p / 50), 0.7);
+        const double eta = 2.5;
+        double lbam = -eta * Math.Log(Math.Exp(-lba / eta) + Math.Exp(-r.LdiffDb / eta));
+        double lb = -5 * Math.Log10(Math.Pow(10, -0.2 * lbs) + Math.Pow(10, -0.2 * lbam));
+        lb = Math.Max(lb, r.LfsDb);
+        r.P452Ok = true; r.P452DeltaN = dN; r.P452K50 = k50; r.P452Beta = beta; r.P452Lba = lba; r.P452Lbs = lbs; r.P452Lb = lb;
+        r.P452Alf = alf; r.P452Ast = ast; r.P452Asr = asr; r.P452Act = act; r.P452Acr = acr; r.P452Ag = ag;
+        CalcLog.W($"P.452 § 4.5 (p = {p:0}%): ΔN mediano GFS {dN:0.0} → k50 {k50:0.00}, ae {ae:0} km; orizzonti dlt {dlt:0.0} km, dlr {dlr:0.0} km; terra dtm {dtm:0} km, interna dlm {dlm:0} km, τ {tau:0.000}");
+        CalcLog.W($"   μ1 {mu1:0.000}, μ4 {mu4:0.000}, β0 {beta0:0.00}%, μ2 {mu2:0.000} (α {alpha:0.000}), μ3 {mu3:0.000} (hm {hm:0} m), β {beta:0.000}%, Γ {gam:0.000} → A(p) {ap:0.0} dB");
+        CalcLog.W($"   Af = 102,45 + 20 log f + 20 log(dlt+dlr) + Alf {alf:0.0} + Ast {ast:0.0} + Asr {asr:0.0} + Act {act:0.0} + Acr {acr:0.0} = {af:0.0} dB; γd·θ' = {gd:0.000} × {thp:0.0} mrad = {gd * thp:0.0} dB; gas {ag:0.0} dB");
+        CalcLog.W($"   Lba {lba:0.0} dB; troposcatter al {p:0}% {lbs:0.0} dB; diffrazione {r.LdiffDb:0.0} dB → P.452 complessiva {lb:0.0} dB (solo confronto, la perdita prevista resta la nostra {r.LpredDb:0.0} dB)");
     }
 
     static double Interp(double[] xs, double[] ys, double x)
