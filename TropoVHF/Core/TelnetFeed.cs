@@ -18,6 +18,7 @@ public sealed class TelnetFeed
 
     public int Lines, Saved, OutBand, Excluded;
     public string LastError = "";
+    bool NodeDown;
     public bool Connected { get; private set; }
     public bool Wanted { get; private set; }
 
@@ -143,6 +144,9 @@ public sealed class TelnetFeed
                         var line = p.Substring(0, i).TrimEnd('\r');
                         pending.Remove(0, i + 1);
                         HandleLine(line);
+                        // il server risponde ma il programma del cluster dietro di lui è fermo (es. 9A0DXC: "Error on connect to 127.0.0.1 port …")
+                        if (line.IndexOf("Error on connect to 127.0.0.1", StringComparison.OrdinalIgnoreCase) >= 0 || line.IndexOf("Error on connect to localhost", StringComparison.OrdinalIgnoreCase) >= 0)
+                            NodeDown = true;
                         if (line.Contains("password", StringComparison.OrdinalIgnoreCase) && loginSent && !passSent && !string.IsNullOrEmpty(Password))
                         { passSent = true; Send(Password); }
                     }
@@ -167,6 +171,7 @@ public sealed class TelnetFeed
 
             try { client.Close(); } catch { }
             lock (_lock) { _client = null; _stream = null; Connected = false; }
+            if (NodeDown) { LastError = "nodo del cluster fermo: il server risponde ma non raggiunge il programma del cluster" + (Reconnect ? $" (ritento alle {DateTime.Now.AddSeconds(10):HH:mm:ss})" : ""); NodeDown = false; }
             StateChanged?.Invoke();
             if (ct.IsCancellationRequested || !Wanted) return;
             Log?.Invoke("— connessione chiusa —", LineClass.Other);

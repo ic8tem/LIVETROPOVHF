@@ -4,6 +4,15 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
+## 1.2.3 — 20/11/2026
+- Linguette riordinate da 12 a 5: Mappa e spot, Previsioni (Propria β · Hepburn · F5LEN), GRAVES, Dati e fonti (DX cluster · PSKReporter · Reverse Beacon · UDP · Nominativi · Segnalazioni sospette), Guide (cinque documenti, con la ricerca). Ogni gruppo ricorda l'ultima sotto-linguetta.
+- Windows 7 e 8.1: anche qui la linguetta Previsioni (sperimentale), con lo stesso motore, gli stessi testi, fumetti e disegni della versione normale; manuale delle previsioni e consigli per l'operatore.
+- Registro degli errori sempre attivo (Dati/errori.log): versione, sistema, linguetta aperta, errore completo e ultime righe dei calcoli. Gli errori dell'interfaccia non chiudono più il programma: compare «⚠ errore annotato» nella barra di stato. All'avvio successivo il programma propone di inviare il rapporto con una segnalazione GitHub già compilata (nominativo, locatore e nome utente del PC tolti).
+- Aggiornamenti: primo controllo pochi secondi dopo l'avvio (subito dopo un errore); clic sulla versione nella barra di stato per controllare adesso; a installazione finita una finestra propone di riavviare. Le Release marcate [obbligatorio] fanno riavviare comunque.
+- Barra di stato: i pallini delle fonti si cliccano e portano alla fonte; il fumetto dice perché è spenta (porta rifiutata, nodo del cluster fermo, nessuna risposta, UDP senza pacchetti). Riconosciuto il caso «Error on connect to 127.0.0.1» dei nodi DX cluster fermi.
+- Previsioni: griglia GFS salvata sul disco per ogni corsa del modello; con la stessa corsa i punti già scaricati non si chiedono più a Open-Meteo. Il rifiuto per limite si legge: al minuto si attende, all'ora o al giorno ci si ferma subito con l'ora a cui riprovare.
+- Previsioni: con un locatore a 4–6 caratteri e quota sul mare 0 il calcolo non si blocca più: la quota si stima dal suolo SRTM al centro del quadrato più l'altezza dal suolo, con un avviso nei risultati.
+
 ## 1.2.2 — 20/11/2026
 - Previsioni: il pannello di sinistra si allarga o si stringe trascinando il bordo; il registro dei calcoli va a capo da solo e la sua altezza si regola trascinando la barra sotto (misure salvate).
 - Previsioni: casella «Mostra anche 3–7 dB» con un tratteggio leggero sotto la scala dei colori; riquadro della zona coperta dalla previsione propria con il guadagno massimo visibile, per distinguere una mappa vuota perché l'atmosfera è normale da una senza dati.

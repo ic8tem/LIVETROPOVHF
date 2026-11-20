@@ -15,7 +15,7 @@
     <Nullable>disable</Nullable>
     <AssemblyName>LIVETROPOVHF</AssemblyName>
     <RootNamespace>TropoVHF</RootNamespace>
-    <Version>1.2.2</Version>
+    <Version>1.2.3</Version>
     <Product>LIVETROPOVHF</Product>
     <Authors>IC8TEM</Authors>
     <Description>Previsione e osservazione in tempo reale della propagazione troposferica VHF/UHF (Windows 7)</Description>
@@ -47,7 +47,9 @@
     <!-- motore comune -->
     <Compile Include="..\TropoVHF\Core\*.cs" Link="Core\%(Filename)%(Extension)" />
     <!-- disegno e lingue comuni -->
-    <Compile Include="..\TropoVHF\Ui\Lang.cs;..\TropoVHF\Ui\MapView.cs;..\TropoVHF\Ui\GravesView.cs;..\TropoVHF\Ui\Palette.cs" Link="Ui\%(Filename)%(Extension)" />
+    <Compile Include="..\TropoVHF\Ui\Lang.cs;..\TropoVHF\Ui\MapView.cs;..\TropoVHF\Ui\GravesView.cs;..\TropoVHF\Ui\Palette.cs;..\TropoVHF\Ui\ForecastShared.cs" Link="Ui\%(Filename)%(Extension)" />
+    <!-- previsione propria (linguetta Previsioni): stesso motore della versione normale -->
+    <Compile Include="..\TropoVHF\Forecast\*.cs" Link="Forecast\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

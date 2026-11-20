@@ -23,11 +23,32 @@ public static class Updater
     public static string Status { get; private set; } = "";
     public static string Pending { get; private set; } = "";
     public static event Action Changed;
+    /// <summary>Versione nuova installata (versione, obbligatoria): l'interfaccia propone di riavviare.</summary>
+    public static event Action<string, bool> Installed;
+    /// <summary>La Release è marcata [obbligatorio] nel testo: correzione urgente, la finestra blocca finché non si riavvia.</summary>
+    public static bool Mandatory { get; private set; }
+    static readonly SemaphoreSlim Wake = new SemaphoreSlim(0);
+    /// <summary>Controlla subito (pulsante "Cerca aggiornamenti").</summary>
+    public static void CheckNow() { try { Wake.Release(); } catch { } }
+    /// <summary>Percorso dell'eseguibile in uso, per riavviare dopo l'aggiornamento.</summary>
+    public static string ExePath { get { try { return System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName ?? ""; } catch { return ""; } } }
+    /// <summary>Riavvia il programma (dopo un aggiornamento): avvia la nuova copia, il chiamante chiude la finestra.</summary>
+    public static bool StartNewInstance()
+    {
+        try
+        {
+            var exe = ExePath;
+            if (exe == "" || !File.Exists(exe)) return false;
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe) { UseShellExecute = false, WorkingDirectory = Dir });
+            return true;
+        }
+        catch (Exception ex) { ErrorLog.Write(ex, "riavvio dopo l'aggiornamento"); return false; }
+    }
     static readonly TimeSpan Every = TimeSpan.FromMinutes(30);
 
     static Version Current => typeof(Updater).Assembly.GetName().Version ?? new Version(0, 0, 0);
     static string Dir => Settings.AppDir;
-    static void Set(string s) { Status = s; Changed?.Invoke(); }
+    static void Set(string s) { Status = s; ErrorLog.Note("aggiornamenti: " + s); Changed?.Invoke(); }
 
     /// <summary>Suffisso del pacchetto portatile per questo sistema (stessi nomi della Release).</summary>
     public static string AssetSuffix()
@@ -68,11 +89,14 @@ public static class Updater
         using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
         http.DefaultRequestHeaders.UserAgent.ParseAdd($"LIVETROPOVHF/{Current.ToString(3)} (+https://github.com/{Repo})");
         http.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
-        try { await Task.Delay(TimeSpan.FromMinutes(1), ct); } catch { return; }
+        // primo controllo pochi secondi dopo l'avvio (subito se l'ultima volta il programma si è chiuso per un errore):
+        // se un errore chiude il programma presto, la correzione arriva comunque
+        try { await Task.Delay(TimeSpan.FromSeconds(ErrorLog.HasPending ? 2 : 10), ct); } catch { return; }
         while (!ct.IsCancellationRequested)
         {
             if (Enabled && Pending == "") { try { await CheckOnce(http, ct); } catch (Exception ex) { Set("Aggiornamento: " + ex.Message); } }
-            try { await Task.Delay(Every, ct); } catch { return; }
+            try { await Task.WhenAny(Task.Delay(Every, ct), Wake.WaitAsync(ct)); } catch { return; }
+            if (ct.IsCancellationRequested) return;
         }
     }
 
@@ -87,6 +111,8 @@ public static class Updater
         var vs = tag.TrimStart('v', 'V'); var cut = vs.IndexOfAny(new[] { '-', '+', ' ' }); if (cut > 0) vs = vs[..cut];
         if (!Version.TryParse(vs, out var latest)) { Set("Aggiornamenti: tag non riconosciuto " + tag); return; }
         if (latest <= Current) { Set($"Aggiornato: {Current.ToString(3)} è l'ultima versione ({DateTime.Now:HH:mm})"); return; }
+        string body = root.TryGetProperty("body", out var bd) && bd.ValueKind == JsonValueKind.String ? bd.GetString() ?? "" : "";
+        Mandatory = body.IndexOf("[obbligatorio]", StringComparison.OrdinalIgnoreCase) >= 0 || body.IndexOf("[mandatory]", StringComparison.OrdinalIgnoreCase) >= 0;
         if (Compat.IsMac) { Set($"Nuova versione {latest.ToString(3)} su GitHub: scaricala dalla pagina delle Release"); return; }
 
         var suffix = AssetSuffix();
@@ -149,5 +175,6 @@ public static class Updater
         try { Directory.Delete(work, true); } catch { }
         Pending = latest.ToString(3);
         Set($"Versione {Pending} installata ({n2} file): sarà attiva al prossimo avvio");
+        try { Installed?.Invoke(Pending, Mandatory); } catch { }
     }
 }

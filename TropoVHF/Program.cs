@@ -13,8 +13,20 @@ public sealed class App : Application
         Styles.Add(new FluentTheme());
     }
 
+    static DateTime _lastUiErr; static string _lastUiMsg = ""; static int _sameUiErr;
     public override void OnFrameworkInitializationCompleted()
     {
+        // errori dell'interfaccia: si annotano e il programma continua (stesso errore ripetuto: annotato una volta ogni 30 s)
+        Avalonia.Threading.Dispatcher.UIThread.UnhandledException += (_, e) =>
+        {
+            var msg = e.Exception.GetType().Name + e.Exception.Message;
+            var now = DateTime.UtcNow;
+            if (msg == _lastUiMsg && (now - _lastUiErr).TotalSeconds < 30) { _sameUiErr++; e.Handled = true; return; }
+            if (_sameUiErr > 0) Core.ErrorLog.Note($"(lo stesso errore si è ripetuto altre {_sameUiErr} volte)");
+            _lastUiMsg = msg; _lastUiErr = now; _sameUiErr = 0;
+            Core.ErrorLog.Write(e.Exception, "interfaccia");
+            e.Handled = true;
+        };
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // prima l'immagine di partenza, poi la finestra principale; l'immagine resta almeno 2,5 secondi
@@ -44,6 +56,10 @@ public static class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        // registro degli errori sempre attivo: errori non gestiti dell'interfaccia, dei calcoli e delle connessioni
+        Core.ErrorLog.Context = () => Forecast.CalcLog.RecentLines(50);
+        AppDomain.CurrentDomain.UnhandledException += (_, e) => Core.ErrorLog.Write(e.ExceptionObject as Exception, "AppDomain", e.IsTerminating);
+        TaskScheduler.UnobservedTaskException += (_, e) => { Core.ErrorLog.Write(e.Exception, "attività in background"); e.SetObserved(); };
         try
         {
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
@@ -52,6 +68,7 @@ public static class Program
         {
             // errore all'avvio: lo scrive accanto al programma per poterlo leggere
             try { File.WriteAllText(Path.Combine(Core.Settings.AppDir, "errore-avvio.txt"), ex.ToString()); } catch { }
+            Core.ErrorLog.Write(ex, "avvio o ciclo principale", true);
             throw;
         }
     }

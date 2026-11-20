@@ -87,7 +87,7 @@ public sealed partial class MainForm : Form
         // prova automatica (CI): LIVETROPOVHF_TOUR=secondi fa girare da solo le linguette per le fotografie
         if (int.TryParse(Environment.GetEnvironmentVariable("LIVETROPOVHF_TOUR") ?? "", out var tour) && tour > 0)
         {
-            var steps = new (string tab, string sub)[] { ("map", null), ("hepburn", null), ("f5len", null), ("graves", null), ("sus", null), ("collect", "dx"), ("collect", "psk"), ("collect", "udp"), ("collect", "calls"), ("doc1", null), ("map", null) };
+            var steps = new (string tab, string sub)[] { ("map", null), ("fc", null), ("hepburn", null), ("f5len", null), ("graves", null), ("sus", null), ("collect", "dx"), ("collect", "psk"), ("collect", "udp"), ("collect", "calls"), ("doc1", null), ("doc4", null), ("map", null) };
             int k = 0;
             var tt = new System.Windows.Forms.Timer { Interval = tour * 1000 };
             tt.Tick += (_, _) =>
@@ -101,6 +101,9 @@ public sealed partial class MainForm : Form
         }
         Move += (_, _) => TrackNormal();
         Resize += (_, _) => TrackNormal();
+        ErrorLog.Logged += msg => Ui(() => { _lastErrorNote = msg; _lastErrorAt = DateTime.Now; });
+        Updater.Installed += (v, mandatory) => Ui(() => AskRestart(v, mandatory));
+        Shown += async (_, _) => { await Task.Delay(4000); if (ErrorLog.HasPending && !IsDisposed) AskSendErrorReport(); };
     }
 
     /// <summary>Esegue sul thread della finestra (gli eventi del motore arrivano dai thread di rete).</summary>
@@ -429,16 +432,21 @@ public sealed partial class MainForm : Form
         _tabContent["map"] = BuildMapTab();
         _tabContent["hepburn"] = BuildTropoTab("hepburn");
         _tabContent["f5len"] = BuildTropoTab("f5len");
+        _tabContent["fc"] = BuildForecastTab();
         _tabContent["graves"] = BuildGravesTab();
         _tabContent["sus"] = BuildSuspectsTab();
         _tabContent["collect"] = BuildCollectTab();
         _tabContent["doc1"] = BuildDoc("funzionamento.md", "LIVETROPOVHF - Funzionamento del programma");
         _tabContent["doc2"] = BuildDoc("mappa.md", "LIVETROPOVHF - Costruzione della mappa");
         _tabContent["doc3"] = BuildDoc("tropo.md", "LIVETROPOVHF - Come si forma la tropo");
+        _tabContent["doc4"] = BuildDoc("previsioni.md", "LIVETROPOVHF - Manuale delle previsioni");
+        _tabContent["doc5"] = BuildDoc("consigli.md", "LIVETROPOVHF - Consigli per l'operatore");
         foreach (var kv in _tabContent) { kv.Value.Dock = DockStyle.Fill; kv.Value.Visible = false; _content.Controls.Add(kv.Value); }
 
         Controls.Add(_content);
-        Controls.Add(BuildTabBand());
+        var band = BuildTabBand();
+        Controls.Add(_subBar);
+        Controls.Add(band);
         Controls.Add(BuildTopRow());
         Controls.Add(BuildStatusBar());
         ResumeLayout(true);
@@ -458,13 +466,14 @@ public sealed partial class MainForm : Form
         call.TextChanged += (_, _) => { _st.Call = (call.Text ?? "").ToUpperInvariant(); _st.Dirty = true; };
         left.Controls.Add(call);
         left.Controls.Add(Lbl(Lang.T("loc"), 9f, _th.Muted));
-        _locBox = Box(_st.Loc, 90); _locBox.CharacterCasing = CharacterCasing.Upper; _locBox.MaxLength = 6;
+        _locBox = Box(_st.Loc, 120); _locBox.CharacterCasing = CharacterCasing.Upper; _locBox.MaxLength = 10;
         _locBox.TextChanged += (_, _) =>
         {
             _st.Loc = (_locBox.Text ?? "").ToUpperInvariant();
             _locBox.BackColor = _st.Loc.Length > 0 && !Locator.IsValid(_st.Loc) ? C("#F8D7D7") : C(_th.CtlBg);
             _st.Dirty = true;
             _map.InvalidateVisual();
+            FcSyncLoc();
         };
         left.Controls.Add(_locBox);
         bar.Controls.Add(left);
@@ -497,46 +506,244 @@ public sealed partial class MainForm : Form
         return bar;
     }
 
+    // ---------------------------------------------------------------- linguette in 5 gruppi con sotto-linguette
+
+    static readonly (string id, string[] items)[] Groups =
+    {
+        ("map", new[] { "map" }),
+        ("prev", new[] { "fc", "hepburn", "f5len" }),
+        ("graves", new[] { "graves" }),
+        ("data", new[] { "collect:dx", "collect:psk", "collect:rbn", "collect:udp", "collect:calls", "sus" }),
+        ("guide", new[] { "doc1", "doc2", "doc3", "doc4", "doc5" }),
+    };
+    readonly Dictionary<string, Button> _subTabButtons = new();
+    FlowLayoutPanel _subBar;
+    string _shownGroup = "";
+
+    static string GroupOf(string item) => Groups.First(g => g.items.Contains(item) || g.items.Any(x => x.StartsWith(item + ":"))).id;
+    string CurrentItem => _tab == "collect" ? "collect:" + _subTab : _tab;
+
+    string GroupLabel(string g)
+    {
+        bool it = Lang.Current == "it";
+        switch (g)
+        {
+            case "map": return Lang.T("tab.map");
+            case "prev": return it ? "Previsioni" : "Forecasts";
+            case "graves": return Lang.T("tab.graves");
+            case "data": return it ? "Dati e fonti" : "Data & sources";
+            default: return it ? "Guide" : "Guides";
+        }
+    }
+
+    string ItemLabel(string item)
+    {
+        bool it = Lang.Current == "it";
+        switch (item)
+        {
+            case "fc": return it ? "Propria (β)" : "Own (β)";
+            case "hepburn": return Lang.T("tab.hep");
+            case "f5len": return Lang.T("tab.f5");
+            case "collect:dx": return "DX cluster";
+            case "collect:psk": return "PSKReporter";
+            case "collect:rbn": return "Reverse Beacon";
+            case "collect:udp": return "UDP (WSJT-X, JTDX, MSHV)";
+            case "collect:calls": return Lang.T("c.tab");
+            case "sus": return Lang.T("tab.sus");
+            case "doc4": return it ? "Manuale previsioni" : "Forecast manual";
+            case "doc5": return it ? "Consigli all'operatore" : "Operator tips";
+            default: return Lang.T("tab." + item);
+        }
+    }
+
+    void GoTo(string tab, string sub = null)
+    {
+        if (tab == "collect" && sub != null) ShowSubTab(sub);
+        ShowTab(tab);
+    }
+
+    void GoToItem(string item)
+    {
+        var i = item.IndexOf(':');
+        if (i > 0) GoTo(item.Substring(0, i), item.Substring(i + 1)); else GoTo(item);
+    }
+
     Control BuildTabBand()
     {
-        // le linguette vanno a capo se la finestra è stretta (schermi da 1024 o 1280 punti)
         var row = Flow(C(_th.Band)); row.Padding = new Padding(8, 6, 0, 0);
-        var band = row;
-        foreach (var (key, label) in new[] { ("map", "tab.map"), ("hepburn", "tab.hep"), ("f5len", "tab.f5"), ("graves", "tab.graves"), ("sus", "tab.sus"), ("collect", "tab.collect"), ("doc1", "tab.doc1"), ("doc2", "tab.doc2"), ("doc3", "tab.doc3") })
+        foreach (var (g, items) in Groups)
         {
-            var b = new Button { Text = Lang.T(label), AutoSize = true, FlatStyle = FlatStyle.Flat, Height = 36, Padding = new Padding(6, 0, 6, 0), Margin = new Padding(0, 0, 2, 0), Font = F(9.5f), Cursor = Cursors.Hand };
+            var b = new Button { Text = GroupLabel(g), AutoSize = true, FlatStyle = FlatStyle.Flat, Height = 36, Padding = new Padding(6, 0, 6, 0), Margin = new Padding(0, 0, 2, 0), Font = F(9.5f), Cursor = Cursors.Hand };
             b.FlatAppearance.BorderSize = 0;
-            var k = key;
-            b.Click += (_, _) => ShowTab(k);
-            _tabButtons[key] = b;
+            var gg = g; var its = items;
+            // ogni gruppo riapre l'ultima sotto-linguetta usata
+            b.Click += (_, _) => { var last = _st.S.Get("grp_" + gg, its[0]); GoToItem(its.Contains(last) ? last : its[0]); };
+            _tabButtons[g] = b;
             row.Controls.Add(b);
         }
-        return band;
+        // barra delle sotto-linguette: la aggiunge BuildUi subito sotto il fascione
+        _subBar = Flow(C(_th.Page)); _subBar.Padding = new Padding(8, 4, 8, 4);
+        _shownGroup = "";
+        return row;
+    }
+
+    void RefreshSubBar()
+    {
+        if (_subBar == null || _subBar.IsDisposed) return;
+        var g = GroupOf(CurrentItem);
+        var items = Groups.First(x => x.id == g).items;
+        if (g != _shownGroup)
+        {
+            _shownGroup = g;
+            _subBar.SuspendLayout();
+            _subBar.Controls.Clear(); _subTabButtons.Clear();
+            foreach (var it in items)
+            {
+                var target = it;
+                var b = Btn(ItemLabel(it), () => GoToItem(target), false);
+                b.Padding = new Padding(10, 3, 10, 3);
+                _subTabButtons[it] = b;
+                _subBar.Controls.Add(b);
+            }
+            _subBar.ResumeLayout(true);
+        }
+        _subBar.Visible = items.Length > 1;
+        foreach (var kv in _subTabButtons)
+        {
+            bool on = kv.Key == CurrentItem;
+            kv.Value.BackColor = on ? C(_th.Accent) : C(_th.Chip);
+            kv.Value.ForeColor = on ? C(_th.AccentFg) : C(_th.Text2);
+            kv.Value.Font = F(9.5f, on);
+        }
+        _st.S.Set("grp_" + g, CurrentItem);
     }
 
     void ShowTab(string key)
     {
         _tab = key;
+        ErrorLog.CurrentTab = key;
         foreach (var kv in _tabContent) kv.Value.Visible = kv.Key == key;
+        var grp = GroupOf(key == "collect" ? "collect:" + _subTab : key);
         foreach (var kv in _tabButtons)
         {
-            bool on = kv.Key == key;
+            bool on = kv.Key == grp;
             kv.Value.BackColor = on ? C(_th.Page) : C(_th.Band);
             kv.Value.ForeColor = on ? C(_th.Text) : C(_th.BandFg);
             kv.Value.FlatAppearance.MouseOverBackColor = on ? C(_th.Page) : ControlPaint.Light(C(_th.Band), 0.15f);
             kv.Value.Font = F(9.5f, on);
         }
         if (key == "hepburn" || key == "f5len") FillTropoTab(key);
+        RefreshSubBar();
         RefreshLogs(true);
     }
 
+    readonly Dictionary<string, Label> _statusSegs = new();
+    ToolTip _statusTips;
+    string _lastErrorNote = ""; DateTime _lastErrorAt;
+
+    /// <summary>Barra di stato a segmenti: le fonti sono cliccabili (portano alla fonte) e il fumetto dice perché sono spente.</summary>
     Control BuildStatusBar()
     {
+        _statusSegs.Clear();
+        _statusTips = new ToolTip { AutoPopDelay = 30000, InitialDelay = 300 };
         var p = new Panel { Dock = DockStyle.Bottom, Height = 26, BackColor = C(_th.Bar) };
-        _status = new Label { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft, ForeColor = C(_th.Muted), Padding = new Padding(10, 0, 0, 0), AutoEllipsis = true };
-        p.Controls.Add(_status);
+        var flow = new FlowLayoutPanel { Dock = DockStyle.Fill, WrapContents = false, FlowDirection = FlowDirection.LeftToRight, BackColor = C(_th.Bar), Padding = new Padding(8, 4, 0, 0) };
+        Label Seg(string id, Action click)
+        {
+            var l = new Label { AutoSize = true, ForeColor = C(_th.Muted), BackColor = Color.Transparent, Margin = new Padding(0, 0, 16, 0) };
+            if (click != null) { l.Cursor = Cursors.Hand; l.Click += (_, _) => click(); }
+            _statusSegs[id] = l; flow.Controls.Add(l);
+            return l;
+        }
+        foreach (var f in _st.Feeds)
+        {
+            var sub = f.Src == "RBN" ? "rbn" : f.Src == "PSK" ? "psk" : "dx";
+            Seg("feed:" + f.Id, () => GoTo("collect", sub));
+        }
+        Seg("mqtt", () => GoTo("collect", "psk"));
+        Seg("udp", () => GoTo("collect", "udp"));
+        Seg("pressure", null); Seg("tropo", null); Seg("call3", () => GoTo("collect", "calls")); Seg("other", null);
+        Seg("error", () => { try { System.Diagnostics.Process.Start(ErrorLog.FilePath); } catch { } });
+        Seg("version", () => Updater.CheckNow());
+        _status = _statusSegs["version"];
+        p.Controls.Add(flow);
         p.Controls.Add(new Panel { Dock = DockStyle.Top, Height = 1, BackColor = C(_th.Line) });
         return p;
+    }
+
+    void RefreshStatus()
+    {
+        if (_statusSegs.Count == 0) return;
+        bool it = Lang.Current == "it";
+        string Dot(bool ok) => ok ? "●" : "○";
+        void Set(string id, string text, AM.Color col, string tip = null)
+        {
+            if (!_statusSegs.TryGetValue(id, out var l) || l.IsDisposed) return;
+            if (l.Text != text) l.Text = text;
+            l.ForeColor = C(col); l.Visible = text != "";
+            if (tip != null && _statusTips.GetToolTip(l) != tip) _statusTips.SetToolTip(l, tip);
+        }
+        string Why(string err)
+        {
+            if (string.IsNullOrEmpty(err)) return it ? "non collegato (spento o in attesa)" : "not connected (off or waiting)";
+            var low = err.ToLowerInvariant();
+            if (low.Contains("rifiut") || low.Contains("refused")) return err + (it ? "\r\nIl server rifiuta la connessione: porta sbagliata o servizio spento. Controlla host e porta." : "\r\nThe server refuses the connection: wrong port or service down.");
+            if (low.Contains("nodo del cluster fermo")) return err + (it ? "\r\nNon dipende dal programma: il nodo è fermo dal lato del server. Intanto usa un altro cluster." : "\r\nNot a program fault: the node is down server-side.");
+            if (low.Contains("timeout") || low.Contains("tempo")) return err + (it ? "\r\nNessuna risposta: rete lenta, firewall o server occupato." : "\r\nNo answer: slow network, firewall or busy server.");
+            return err;
+        }
+        string Click = it ? "\r\nClic: apri la fonte" : "\r\nClick: open the source";
+        foreach (var f in _st.Feeds)
+            Set("feed:" + f.Id, $"{Dot(f.Connected)} {f.Src}", f.Connected ? _th.Ok : f.LastError != "" ? _th.Bad : _th.Muted, $"{f.Host}:{f.Port}\r\n" + (f.Connected ? (it ? "collegato" : "connected") : Why(f.LastError)) + Click);
+        var q = _st.Mqtt;
+        Set("mqtt", $"{Dot(q.Connected)} PSKReporter MQTT", q.Connected ? _th.Ok : q.LastError != "" ? _th.Bad : _th.Muted, $"{q.Host}:{q.Port}\r\n" + (q.Connected ? (it ? "collegato" : "connected") : Why(q.LastError)) + Click);
+        var u = _st.Udp;
+        Set("udp", $"{Dot(u.Running)} UDP {u.ListenPort}→{u.ForwardPort}", u.Running ? (u.Packets > 0 ? _th.Ok : _th.Muted) : u.LastError != "" ? _th.Bad : _th.Muted,
+            (u.Running ? (u.Packets > 0 ? (it ? $"in ascolto, {u.Packets} pacchetti" : $"listening, {u.Packets} packets") : (it ? "in ascolto, ma WSJT-X / JTDX / MSHV non mandano ancora nulla: controlla Impostazioni → Reporting → UDP Server" : "listening, but nothing received yet: check Settings → Reporting → UDP Server")) : Why(u.LastError)) + Click);
+        Set("pressure", _st.Pressure.Status, _th.Muted);
+        Set("tropo", _st.Tropo.Status, _th.Muted);
+        bool callBad = _st.CallDb.Ready && (_st.CallDb.Error != "" || _st.CallDb.Count == 0);
+        Set("call3", _st.CallDb.Ready ? (_st.CallDb.Error != "" ? "⚠ " + _st.CallDb.Error : $"CALL3: {_st.CallDb.Count:N0}") : "CALL3: …", callBad ? _th.Bad : _th.Muted);
+        var other = new List<string>();
+        if (!_st.Map.Loaded && _st.Map.Status != "") other.Add(_st.Map.Status);
+        if (_st.Archive.Error != "") other.Add("DB: " + _st.Archive.Error);
+        Set("other", string.Join("   ·   ", other), _th.Muted);
+        bool recent = _lastErrorNote != "" && (DateTime.Now - _lastErrorAt).TotalMinutes < 15;
+        Set("error", recent ? (it ? "⚠ errore annotato" : "⚠ error logged") : "", _th.Bad, recent ? $"{_lastErrorAt:HH:mm:ss} {_lastErrorNote}\r\n" + (it ? "Il programma continua. Clic: apri il registro degli errori" : "The program goes on. Click: open the error log") : null);
+        Set("version", "v" + Program.Version + " (Windows 7)" + (Updater.Status != "" ? " · " + Updater.Status : ""), _th.Muted, it ? "Clic: cerca aggiornamenti adesso" : "Click: check for updates now");
+    }
+
+    void AskSendErrorReport()
+    {
+        bool it = Lang.Current == "it";
+        var summary = ErrorLog.PendingSummary.Replace("\n", " · ");
+        ErrorLog.ClearPending();
+        var r = MessageBox.Show(this, it
+            ? $"L'ultima volta il programma ha annotato un errore ({summary}).\r\n\r\nVuoi inviare il rapporto agli autori? Si apre il browser su una segnalazione GitHub già compilata, con nominativo, locatore e nome utente del PC tolti: controlli il testo e premi Invia (serve un account GitHub gratuito).\r\n\r\nIl registro completo è in {ErrorLog.FilePath}."
+            : $"Last time the program logged an error ({summary}).\r\n\r\nSend the report to the authors? The browser opens a prefilled GitHub issue with call, locator and PC user name removed (a free GitHub account is needed).\r\n\r\nThe full log is in {ErrorLog.FilePath}.",
+            it ? "Rapporto di errore" : "Error report", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+        if (r == DialogResult.Yes) try { System.Diagnostics.Process.Start(ErrorLog.IssueUrl(_st.Call, _st.Loc)); } catch (Exception ex) { ErrorLog.Write(ex, "apertura del browser"); }
+    }
+
+    bool _restartAsked;
+    void AskRestart(string version, bool mandatory)
+    {
+        if (_restartAsked || IsDisposed) return;
+        _restartAsked = true;
+        bool it = Lang.Current == "it";
+        bool restart;
+        if (mandatory)
+        {
+            MessageBox.Show(this, it ? $"È stata installata la versione {version}, una correzione urgente. Il programma si riavvia per usarla: impostazioni e dati restano."
+                                     : $"Version {version}, an urgent fix, has been installed. The program restarts to use it: settings and data are kept.",
+                it ? "Aggiornamento" : "Update", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            restart = true;
+        }
+        else
+            restart = MessageBox.Show(this, it ? $"È stata installata la versione {version}. Sarà attiva dal prossimo avvio: vuoi riavviare adesso? Impostazioni e dati restano."
+                                               : $"Version {version} has been installed and will be active at the next start: restart now? Settings and data are kept.",
+                it ? "Aggiornamento" : "Update", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+        if (restart && Updater.StartNewInstance()) { _closeConfirmed = true; Close(); }
     }
 
     // ================================================================ aggiornamento periodico
@@ -554,23 +761,7 @@ public sealed partial class MainForm : Form
         if (_zoomPct != null) _zoomPct.Text = _map.ZoomPercent;
         if (now.Second == 0) UpdateFcLabel();
 
-        if (_status != null)
-        {
-            string Dot(bool ok) => ok ? "●" : "○";
-            var parts = new List<string>();
-            foreach (var f in _st.Feeds) parts.Add($"{Dot(f.Connected)} {f.Src}");
-            parts.Add($"{Dot(_st.Mqtt.Connected)} PSKReporter MQTT");
-            parts.Add($"{Dot(_st.Udp.Running)} UDP {_st.Udp.ListenPort}→{_st.Udp.ForwardPort}");
-            parts.Add(_st.Pressure.Status);
-            parts.Add(_st.Tropo.Status);
-            parts.Add(_st.CallDb.Ready ? (_st.CallDb.Error != "" ? "⚠ " + _st.CallDb.Error : $"CALL3: {_st.CallDb.Count:N0}") : "CALL3: …");
-            if (!_st.Map.Loaded && _st.Map.Status != "") parts.Add(_st.Map.Status);
-            if (_st.Archive.Error != "") parts.Add("DB: " + _st.Archive.Error);
-            parts.Add("v" + Program.Version + " (Windows 7)" + (Updater.Status != "" ? " · " + Updater.Status : ""));
-            var s = string.Join("   ·   ", parts.Where(x => !string.IsNullOrEmpty(x)));
-            if (_status.Text != s) _status.Text = s;
-            _status.ForeColor = C(_st.CallDb.Ready && (_st.CallDb.Error != "" || _st.CallDb.Count == 0) ? _th.Bad : _th.Muted);
-        }
+        RefreshStatus();
 
         if (_st.Dirty)
         {

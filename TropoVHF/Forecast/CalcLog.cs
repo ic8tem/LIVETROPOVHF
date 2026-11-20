@@ -47,6 +47,9 @@ public static class CalcLog
 
     public static void Clear() { lock (Lock) Recent.Clear(); }
 
+    /// <summary>Ultime righe, per il registro degli errori.</summary>
+    public static List<string> RecentLines(int n) { lock (Lock) return Recent.Skip(Math.Max(0, Recent.Count - n)).ToList(); }
+
     static string F(double v, string fmt = "0.0") => double.IsNaN(v) ? "—" : v.ToString(fmt, CultureInfo.InvariantCulture);
 
     /// <summary>Tabella completa di un profilo: livelli, N, M, gradienti, strato migliore, condotto, guadagni per banda.</summary>
@@ -107,7 +110,7 @@ public sealed class Timing
 /// <summary>Statistiche di uno scaricamento GFS: rete, analisi, attese per il limite di Open-Meteo.</summary>
 public sealed class FetchStats
 {
-    public double NetMs, ParseMs, WaitMs; public int Batches, Retries; public long Bytes;
-    public string Summary() => $"rete {CalcLog.Dur(NetMs)} ({Batches} richieste, {Bytes / 1024} kB" + (Retries > 0 ? $", {Retries} ripetute per il limite" : "") +
+    public double NetMs, ParseMs, WaitMs; public int Batches, Retries, Cached; public long Bytes;
+    public string Summary() => (Cached > 0 ? $"{Cached} punti dalla cache, " : "") + $"rete {CalcLog.Dur(NetMs)} ({Batches} richieste, {Bytes / 1024} kB" + (Retries > 0 ? $", {Retries} ripetute per il limite" : "") +
                                $"), analisi dei profili {CalcLog.Dur(ParseMs)}, attese obbligate {CalcLog.Dur(WaitMs)}";
 }

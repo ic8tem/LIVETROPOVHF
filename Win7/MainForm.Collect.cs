@@ -20,6 +20,7 @@ public sealed partial class MainForm
         _subContent.Clear(); _subButtons.Clear();
         var root = new Panel { BackColor = C(_th.Page) };
         var bar = Row(); bar.Dock = DockStyle.Top; bar.WrapContents = false; bar.Padding = new Padding(8, 8, 8, 6); bar.BackColor = C(_th.Page);
+        bar.Visible = false;   // le sotto-linguette sono nella barra sotto il fascione
         foreach (var (key, label) in new[] { ("dx", "DX cluster"), ("psk", "PSKReporter"), ("rbn", "Reverse Beacon"), ("udp", "UDP (WSJT-X, JTDX, MSHV)"), ("calls", Lang.T("c.tab")) })
         {
             var k = key;
