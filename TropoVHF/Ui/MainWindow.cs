@@ -532,6 +532,8 @@ public sealed partial class MainWindow : Window
         _tabContent["doc1"] = DocView.Build(DocView.LoadResource("funzionamento.md"), _th, "LIVETROPOVHF - Funzionamento del programma");
         _tabContent["doc2"] = DocView.Build(DocView.LoadResource("mappa.md"), _th, "LIVETROPOVHF - Costruzione della mappa");
         _tabContent["doc3"] = DocView.Build(DocView.LoadResource("tropo.md"), _th, "LIVETROPOVHF - Come si forma la tropo");
+        _tabContent["doc4"] = DocView.Build(DocView.LoadResource("previsioni.md"), _th, "LIVETROPOVHF - Manuale delle previsioni");
+        _tabContent["doc5"] = DocView.Build(DocView.LoadResource("consigli.md"), _th, "LIVETROPOVHF - Consigli per l'operatore");
         foreach (var kv in _tabContent) content.Children.Add(kv.Value);
         root.Children.Add(content);
 
@@ -604,9 +606,15 @@ public sealed partial class MainWindow : Window
     {
         var band = new DockPanel { Background = B(_th.Band), Height = 48, LastChildFill = false };
         var sp = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Bottom };
-        foreach (var (key, label) in new[] { ("map", "tab.map"), ("hepburn", "tab.hep"), ("f5len", "tab.f5"), ("fc", "tab.fc"), ("graves", "tab.graves"), ("sus", "tab.sus"), ("collect", "tab.collect"), ("doc1", "tab.doc1"), ("doc2", "tab.doc2"), ("doc3", "tab.doc3") })
+        foreach (var (key, label) in new[] { ("map", "tab.map"), ("hepburn", "tab.hep"), ("f5len", "tab.f5"), ("fc", "tab.fc"), ("graves", "tab.graves"), ("sus", "tab.sus"), ("collect", "tab.collect"), ("doc1", "tab.doc1"), ("doc2", "tab.doc2"), ("doc3", "tab.doc3"), ("doc4", "tab.doc4"), ("doc5", "tab.doc5") })
         {
-            var b = new Button { Content = label == "tab.fc" ? (Lang.Current == "it" ? "Previsioni" : "Forecast") : Lang.T(label), Height = 40, Padding = new Thickness(18, 0), CornerRadius = new CornerRadius(8, 8, 0, 0), FontSize = 14, VerticalContentAlignment = VerticalAlignment.Center };
+            var b = new Button { Content = label switch
+            {
+                "tab.fc" => Lang.Current == "it" ? "Previsioni" : "Forecast",
+                "tab.doc4" => Lang.Current == "it" ? "Manuale previsioni" : "Forecast manual",
+                "tab.doc5" => Lang.Current == "it" ? "Consigli all'operatore" : "Operator tips",
+                _ => Lang.T(label)
+            }, Height = 40, Padding = new Thickness(18, 0), CornerRadius = new CornerRadius(8, 8, 0, 0), FontSize = 14, VerticalContentAlignment = VerticalAlignment.Center };
             b.Click += (_, _) => ShowTab(key);
             _tabButtons[key] = b;
             sp.Children.Add(b);

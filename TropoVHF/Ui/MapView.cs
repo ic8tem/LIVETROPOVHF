@@ -79,6 +79,11 @@ public sealed class MapView : Control
     public int PreviewHours;
     /// <summary>Strato disegnato sopra la base quando PreviewSource è "own" (linguetta Previsioni).</summary>
     public Action<DrawingContext> OwnLayer;
+    /// <summary>Linee opzionali della previsione propria (curve di guadagno, inversione), disegnate sopra la griglia.</summary>
+    public Action<DrawingContext> OwnOverlay;
+    /// <summary>Isobare GFS sopra la previsione propria, all'ora indicata.</summary>
+    public bool OwnIso;
+    public DateTime OwnTime;
     public bool Screen(LatLon p, out Point s) => ToScreen(p, out s);
     public (double la1, double la2, double lo1, double lo2) Box => VisibleBox();
 
@@ -403,7 +408,9 @@ public sealed class MapView : Control
         if (PreviewSource == "own")
         {
             OwnLayer?.Invoke(ctx);
-            DrawGrid(ctx);
+            DrawGrid(ctx, true);                 // griglia più scura, sopra i colori
+            if (OwnIso) DrawIsobars(ctx, OwnTime);
+            OwnOverlay?.Invoke(ctx);
             if (_st.TryQth(out var oq) && ToScreen(oq, out var oqs))
             {
                 ctx.DrawEllipse(null, new Pen(Br(th.Accent), 2.5), oqs, 10, 10);
@@ -476,11 +483,16 @@ public sealed class MapView : Control
         }
     }
 
-    void DrawGrid(DrawingContext ctx)
+    void DrawGrid(DrawingContext ctx, bool strong = false)
     {
         var th = Th;
-        var pen = new Pen(Br(th.MapGrid, 0.9), 0.8);
-        var penField = new Pen(Br(th.MapGrid), 1.3);
+        // sulla previsione propria la griglia va sopra i colori: tinta spinta verso le coste e nomi con alone
+        static Color Mix(Color a, Color b, double k) => Color.FromRgb((byte)(a.R + (b.R - a.R) * k), (byte)(a.G + (b.G - a.G) * k), (byte)(a.B + (b.B - a.B) * k));
+        var gridCol = strong ? Mix(th.MapGrid, th.MapCoast, 0.45) : th.MapGrid;
+        var labCol = strong ? Mix(th.MapGridLabel, th.MapCoast, 0.7) : th.MapGridLabel;
+        Color? labHalo = strong ? th.Halo : null;
+        var pen = new Pen(Br(gridCol, 0.9), strong ? 1.0 : 0.8);
+        var penField = new Pen(Br(gridCol), strong ? 1.6 : 1.3);
         // dimensione di un quadrato (2°) in pixel vicino al centro
         var c = FromScreen(new Point(Bounds.Width / 2, Bounds.Height / 2));
         double sqPx = 0;
@@ -526,7 +538,7 @@ public sealed class MapView : Control
                     if (lat < -80 || lat > 80) continue;
                     if (!ToScreen(new LatLon(lat, lon), out var s)) continue;
                     if (s.X < -100 || s.Y < -100 || s.X > Bounds.Width + 100 || s.Y > Bounds.Height + 100) continue;
-                    Text(ctx, $"{(char)('A' + fl)}{(char)('A' + ft)}", s, 34, th.MapGridLabel, true, null);
+                    Text(ctx, $"{(char)('A' + fl)}{(char)('A' + ft)}", s, 34, labCol, true, labHalo);
                 }
         }
         else
@@ -537,7 +549,7 @@ public sealed class MapView : Control
                     if (lat < -89 || lat > 89 || lon < -180 || lon >= 180) continue;
                     if (!ToScreen(new LatLon(lat + 0.5, lon + 1), out var ss)) continue;
                     if (ss.X < -20 || ss.Y < -20 || ss.X > Bounds.Width + 20 || ss.Y > Bounds.Height + 20) continue;
-                    Text(ctx, Locator.FromLatLon(lat + 0.5, lon + 1).Substring(0, 4), ss, Math.Clamp(sqPx / 5, 9, 16), th.MapGridLabel, true, null);
+                    Text(ctx, Locator.FromLatLon(lat + 0.5, lon + 1).Substring(0, 4), ss, Math.Clamp(sqPx / 5, 9, 16), labCol, true, labHalo);
                 }
         }
     }

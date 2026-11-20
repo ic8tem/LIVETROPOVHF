@@ -35,6 +35,29 @@ public sealed class Palette
     }
 
     /// <summary>Colore della scala dell'indice tropo 0–10.</summary>
+    /// <summary>
+    /// Scala fissa della previsione propria, in dB di guadagno stimato: uguale con tutti i temi (colori opachi all'82%).
+    /// Sotto 7 dB nessun colore.
+    /// </summary>
+    public static readonly (double Lo, double Hi, Color C)[] GainBands =
+    {
+        (7, 10, Color.Parse("#6CC4F0")), (10, 13, Color.Parse("#5BC07A")), (13, 16, Color.Parse("#E8D24A")),
+        (16, 18.5, Color.Parse("#F08A3C")), (18.5, 21, Color.Parse("#E5533D")), (21, 999, Color.Parse("#B05AD8"))
+    };
+    public const double GainAlpha = 0.82;
+    /// <summary>Colore della scala fissa per un guadagno in dB (null sotto 7 dB).</summary>
+    public static Color? GainColor(double db)
+    {
+        foreach (var b in GainBands) if (db >= b.Lo && db < b.Hi) return b.C;
+        return null;
+    }
+    /// <summary>Colore più scuro della stessa fascia, per le curve.</summary>
+    public static Color GainLineColor(double db)
+    {
+        var c = GainColor(db + 0.01) ?? GainBands[0].C;
+        return Color.FromRgb((byte)(c.R * 0.6), (byte)(c.G * 0.6), (byte)(c.B * 0.6));
+    }
+
     public static Color IndexColor(double v)
     {
         if (v < 2) return Color.Parse("#3B82C4");
