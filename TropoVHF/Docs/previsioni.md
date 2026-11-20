@@ -72,7 +72,7 @@ I dati di ITU-R P.453 sono © ITU e si possono usare per scopi personali e non c
 
 ## 7. Stazioni e locatori
 
-Il locatore può avere 4, 6, 8 o 10 caratteri. Con 8 o 10 caratteri la posizione è precisa e la quota del suolo viene da SRTM1: basta l'altezza dell'antenna dal suolo. Con 4 o 6 caratteri il quadrato è troppo grande e serve la quota dell'antenna sul mare. Per il corrispondente l'altezza predefinita è 3 m dal suolo; con quota sul mare 0 si usa il suolo SRTM più l'altezza.
+Il locatore può avere 4, 6, 8 o 10 caratteri. Con 8 o 10 caratteri la posizione è precisa e la quota del suolo viene da SRTM1: basta l'altezza dell'antenna dal suolo. Con 4 o 6 caratteri il quadrato è troppo grande: conviene scrivere la quota dell'antenna sul mare; se resta 0 il programma la stima con il suolo SRTM al centro del quadrato più l'altezza dal suolo e lo segnala nei risultati. Per il corrispondente l'altezza predefinita è 3 m dal suolo; con quota sul mare 0 si usa il suolo SRTM più l'altezza.
 
 ## 8. Terreno, diffrazione e troposcatter
 
@@ -117,6 +117,8 @@ La riga Confronto P.452 applica il metodo ITU per condotti e riflessione su stra
 ## 13. Tempi di risposta e dati
 
 Ogni calcolo misura i propri tempi: profili GFS (rete, analisi, pause obbligate di 20 s fra i lotti per il limite di Open-Meteo), terreno SRTM1 (con lo scaricamento dei riquadri, 6–7 MB l'uno, solo la prima volta), calcolo. La riga Tempo di risposta li riassume; nel registro le righe cominciano con TEMPI. All'aggiornamento della griglia il registro riporta anche la corsa GFS usata, quando è diventata disponibile e quanto sono vecchi i dati.
+
+Le richieste a Open-Meteo hanno limiti al minuto, all'ora e al giorno per ogni indirizzo internet. I profili scaricati si salvano sul disco (Dati/cache-gfs) per ogni corsa del modello: con la stessa corsa, che cambia ogni 6 ore, i punti già scaricati non si chiedono di nuovo. Se Open-Meteo rifiuta per il limite orario o giornaliero, il programma si ferma subito e dice quando riprovare.
 
 ## 14. Validare il modello
 

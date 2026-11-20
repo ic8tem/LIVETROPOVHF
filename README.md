@@ -14,8 +14,8 @@ LIVETROPOVHF puts on one map the tropo forecast and what is really happening on 
 - **Live** – spots from DX clusters (ON0DXK, 9A0DXC, S50CLX), RBN and DM4X, PSKReporter (MQTT), your own WSJT-X / JTDX / MSHV decodes (UDP), QSOs inferred from RR73/73.
 - **Clean data** – only 144 MHz and up (GRAVES 143.050 kept); meteor scatter, EME, QO-100 and fake listeners filtered out; paths over 1000 km held until confirmed.
 - **Locators** – always 6 characters: CALL3.TXT, manual entries, layered files, automatic corrections from DM4X/RBN, MMMonVHF updates and G7VRD as last source.
-- **Own forecast (experimental, 1.2.0)** – gain map computed from GFS vertical profiles (Bean & Dutton, Kerr), signal prediction between two stations over SRTM1 terrain (diffraction, troposcatter, ducts, ITU-R P.372 noise), optional gain contours, isobars and inversion lines. Not in the Windows 7 build yet.
-- **Tabs** – Map, Hepburn, F5LEN, Forecast (experimental), GRAVES, Suspicious reports (self-learning), Data collection, three technical manuals with sources.
+- **Own forecast (experimental, 1.2.0)** – gain map computed from GFS vertical profiles (Bean & Dutton, Kerr), signal prediction between two stations over SRTM1 terrain (diffraction, troposcatter, ducts, ITU-R P.372 noise), optional gain contours, isobars and inversion lines. Also in the Windows 7 build from 1.2.3.
+- **Tabs (five groups)** – Map; Forecasts (own β, Hepburn, F5LEN); GRAVES; Data & sources; Guides. Older list: Map, Hepburn, F5LEN, Forecast (experimental), GRAVES, Suspicious reports (self-learning), Data collection, three technical manuals with sources.
 - **Portable** – everything next to the program (LIVETROPOVHF.ini, LIVETROPOVHF.db, Dati\\): no registry, no AppData. Interface in 36 languages.
 
 ## Download / Scarica

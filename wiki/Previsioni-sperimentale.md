@@ -21,6 +21,6 @@ Dalla 1.2.0 la linguetta Previsioni calcola da sé la propagazione troposferica,
 - Il locatore a 8 o 10 caratteri attiva la quota del suolo da SRTM1; con 4 o 6 caratteri serve la quota dell'antenna sul mare.
 - La prima volta si scaricano i riquadri SRTM1 del percorso (6–7 MB l'uno): può volerci qualche minuto.
 - Il secondo calcolo dei condotti usa le mappe ITU-R P.453, che sono © ITU e non si ridistribuiscono: chi lo vuole le scarica dall'ITU e le mette in Dati/P453 (vedi il Manuale delle previsioni, § 6).
-- Nella versione per Windows 7 e 8.1 la linguetta per ora non c'è.
+- Dalla 1.2.3 la linguetta c'è anche nella versione per Windows 7 e 8.1.
 
 Il programma contiene il Manuale delle previsioni (ogni dato, formula e fonte) e i Consigli per l'operatore; ogni dato dei risultati ha un fumetto con la fonte.
