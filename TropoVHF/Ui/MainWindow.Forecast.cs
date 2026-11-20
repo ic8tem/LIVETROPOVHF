@@ -110,7 +110,7 @@ public sealed partial class MainWindow
         TextBox Field(string key, string def, double w = 90)
         {
             var t = Pill(_st.S.Get(key, def), w);
-            t.TextChanged += (_, _) => { _st.S.Set(key, (t.Text ?? "").Trim()); _st.Dirty = true; if (key.Contains("boom")) FcRefreshGains(); };
+            t.TextChanged += (_, _) => { _st.S.Set(key, (t.Text ?? "").Trim()); _st.Dirty = true; if (key.Contains("boom")) FcRefreshGains(); else if (key.StartsWith("fc_rx_") || key == "fc_bw_ssb") FcRefreshNoise(); };
             _fcBox[key] = t;
             return t;
         }
@@ -156,6 +156,17 @@ public sealed partial class MainWindow
         rx.Children.Add(Row(L("Yagi DL6WU: boom, m", "DL6WU Yagi: boom, m"), Field("fc_rx_boom", "2"), _fcGrx));
         rx.Children.Add(Row(L("Perdita del cavo, dB", "Cable loss, dB"), Field("fc_rx_cable", "1")));
         rx.Children.Add(Row(L("Cifra di rumore del ricevitore, dB", "Receiver noise figure, dB"), Field("fc_rx_nf", "2")));
+        {
+            var envs = new[] { ("quiet", L("rurale tranquillo", "quiet rural")), ("rural", L("rurale", "rural")), ("residential", L("residenziale", "residential")), ("city", L("città", "city")), ("manual", L("temperatura d'antenna a mano", "manual antenna temperature")) };
+            var cb = new ComboBox { Width = 200, ItemsSource = envs.Select(e => e.Item2).ToList() };
+            var cur = _st.S.Get("fc_rx_env", "quiet");
+            cb.SelectedIndex = Math.Max(0, Array.FindIndex(envs, e => e.Item1 == cur));
+            cb.SelectionChanged += (_, _) => { if (cb.SelectedIndex >= 0) { _st.S.Set("fc_rx_env", envs[cb.SelectedIndex].Item1); _st.Dirty = true; FcRefreshNoise(); } };
+            rx.Children.Add(Row(L("Ambiente di rumore del ricevitore (ITU-R P.372)", "Receiver noise environment (ITU-R P.372)"), cb));
+            rx.Children.Add(Row(L("Temperatura d'antenna a mano, K", "Manual antenna temperature, K"), Field("fc_rx_ta", "300")));
+            _fcNoise = TB("", 11, _th.Muted); _fcNoise.TextWrapping = TextWrapping.Wrap;
+            rx.Children.Add(_fcNoise);
+        }
         rx.Children.Add(Row(L("SSB: banda Hz / S/N minimo dB", "SSB: bandwidth Hz / min S/N dB"), Field("fc_bw_ssb", "2500", 70), Field("fc_req_ssb", "6", 50)));
         rx.Children.Add(Row(L("CW: banda Hz / S/N minimo dB", "CW: bandwidth Hz / min S/N dB"), Field("fc_bw_cw", "500", 70), Field("fc_req_cw", "0", 50)));
         rx.Children.Add(Row(L("FT8: banda Hz / S/N minimo dB", "FT8: bandwidth Hz / min S/N dB"), Field("fc_bw_ft8", "2500", 70), Field("fc_req_ft8", "-21", 50)));
@@ -204,8 +215,21 @@ public sealed partial class MainWindow
         _fcTime.Text = $"{Lang.DayNames()[(int)t.DayOfWeek]} {t:dd/MM HH}:00 UTC (+{FcHours} h)";
     }
 
+    TextBlock _fcNoise;
+
+    /// <summary>Mostra subito la temperatura d'antenna e il rumore in SSB per la banda e l'ambiente scelti.</summary>
+    void FcRefreshNoise()
+    {
+        if (_fcNoise == null) return;
+        var (tg, tm, ta) = LinkCalc.AntennaTemp(FcFreq, _st.S.Get("fc_rx_env", "quiet"), Num("fc_rx_ta", 300));
+        double tsys = LinkCalc.SystemTempK(ta, Num("fc_rx_cable", 1), Num("fc_rx_nf", 2));
+        _fcNoise.Text = (_st.S.Get("fc_rx_env", "quiet") == "manual" ? $"Ta {ta:0} K" : L("galattico", "galactic") + $" {tg:0} K + " + L("artificiale", "man-made") + $" {tm:0} K = Ta {ta:0} K") +
+                        $" · Tsys {tsys:0} K · " + L("rumore SSB", "SSB noise") + $" {LinkCalc.NoiseDbm(tsys, Num("fc_bw_ssb", 2500)):0.0} dBm";
+    }
+
     void FcRefreshGains()
     {
+        FcRefreshNoise();
         if (_fcGtx == null) return;
         double f = FcFreq;
         _fcGtx.Text = $"{Dl6wu.GainDbi(Num("fc_tx_boom", 2), f):0.0} dBi ({299.792458 / f:0.00} m λ)";
@@ -410,7 +434,8 @@ public sealed partial class MainWindow
         {
             FreqMHz = FcFreq, Utc = FcTime,
             BwSsb = Num("fc_bw_ssb", 2500), BwCw = Num("fc_bw_cw", 500), BwFt8 = Num("fc_bw_ft8", 2500),
-            ReqSsb = Num("fc_req_ssb", 6), ReqCw = Num("fc_req_cw", 0), ReqFt8 = Num("fc_req_ft8", -21)
+            ReqSsb = Num("fc_req_ssb", 6), ReqCw = Num("fc_req_cw", 0), ReqFt8 = Num("fc_req_ft8", -21),
+            NoiseEnv = _st.S.Get("fc_rx_env", "quiet"), ManualTaK = Num("fc_rx_ta", 300)
         };
         _srtm.Progress = FcSetStatus;
         _fcResults.Children.Clear();
@@ -506,6 +531,8 @@ public sealed partial class MainWindow
         Line(L("EIRP", "EIRP"), $"{r.EirpDbm:0.0} dBm ({Math.Pow(10, (r.EirpDbm - 30) / 10):0} W)");
         Line(L("Antenne TX / RX", "Antennas TX / RX"), $"{r.GtxDbi:0.0} / {r.GrxDbi:0.0} dBi");
         Line(L("Segnale ricevuto", "Received signal"), $"{r.PrxDbm:0.0} dBm · {LinkResult.SMeter(r.PrxDbm)}", _th.Accent, true);
+        Line(L("Rumore (P.372)", "Noise (P.372)"), (r.TgalK > 0 ? $"{L("gal.", "gal.")} {r.TgalK:0} + {L("art.", "m-m")} {r.TmanK:0} = " : "") + $"Ta {r.TaK:0} K · Tsys {r.TsysK:0} K");
+        Line(L("Rumore in SSB", "SSB noise"), $"{r.NoiseSsbDbm:0.0} dBm (" + L("ai morsetti d'antenna", "at antenna terminals") + ")");
         Color V(double snr, double req) => snr >= req ? _th.Ok : snr >= req - 6 ? Color.Parse("#D08A10") : _th.Bad;
         Line("S/N SSB", $"{r.SnrSsb:+0.0;-0.0} dB", V(r.SnrSsb, Num("fc_req_ssb", 6)), true);
         Line("S/N CW", $"{r.SnrCw:+0.0;-0.0} dB", V(r.SnrCw, Num("fc_req_cw", 0)), true);

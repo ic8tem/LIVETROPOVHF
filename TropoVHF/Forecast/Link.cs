@@ -91,6 +91,7 @@ public sealed class LinkResult
     public string Mechanism = "";
     public double GtxDbi, GrxDbi, EirpDbm, PrxDbm;
     public double NoiseSsbDbm, SnrSsb, SnrCw, SnrFt8;
+    public double TgalK, TmanK, TaK, TsysK, PantDbm;
     public double[] DistAlong = Array.Empty<double>(), Terrain = Array.Empty<double>();
     public double HtxAsl, HrxAsl;
     // strato fondante lungo la tratta
@@ -127,18 +128,41 @@ public static class LinkCalc
 
     static double J(double nu) => nu > -0.78 ? 6.9 + 20 * Math.Log10(Math.Sqrt((nu - 0.1) * (nu - 0.1) + 1) + nu - 0.1) : 0;
 
-    /// <summary>Temperatura d'antenna tipica verso l'orizzonte (K): rumore galattico e terreno.</summary>
-    public static double AntennaTempK(double f) => f < 300 ? 400 : f < 1000 ? 120 : 70;
-
-    /// <summary>Rumore nella banda B (Hz) con cifra di rumore e perdita del cavo, in dBm.</summary>
-    public static double NoiseDbm(double bwHz, double nfDb, double cableDb, double f)
+    /// <summary>
+    /// Rumore esterno secondo ITU-R P.372: galattico Fa = 52 − 23 log f (mediana) e rumore artificiale
+    /// Fa = c − d log f per l'ambiente del ricevitore (città 76,8/27,7; residenziale 72,5/27,7; rurale 67,2/27,7;
+    /// rurale tranquillo 53,6/28,6). Fa in dB sopra kT0b, T = 290·10^(Fa/10). Le curve del rumore artificiale
+    /// sono date fino a 250 MHz: sopra si prolunga la stessa legge. env = "manual" usa manualK.
+    /// </summary>
+    public static (double tgal, double tman, double ta) AntennaTemp(double fMHz, string env, double manualK)
     {
-        double t0 = 290;
-        double lc = Math.Pow(10, cableDb / 10);
-        // antenna + cavo (temperatura fisica 290 K) + ricevitore, riportati all'ingresso del ricevitore
-        double tsys = AntennaTempK(f) / lc + t0 * (1 - 1 / lc) + t0 * (Math.Pow(10, nfDb / 10) - 1);
-        return 10 * Math.Log10(1.380649e-23 * tsys * bwHz) + 30;
+        double lf = Math.Log10(fMHz);
+        double tgal = 290 * Math.Pow(10, (52 - 23 * lf) / 10);
+        double c, dd;
+        switch (env)
+        {
+            case "city": c = 76.8; dd = 27.7; break;
+            case "residential": c = 72.5; dd = 27.7; break;
+            case "rural": c = 67.2; dd = 27.7; break;
+            case "manual": return (0, 0, Math.Max(1, manualK));
+            default: c = 53.6; dd = 28.6; break;     // rurale tranquillo
+        }
+        double tman = 290 * Math.Pow(10, (c - dd * lf) / 10);
+        return (tgal, tman, tgal + tman);
     }
+
+    /// <summary>
+    /// Temperatura di sistema riportata ai morsetti d'antenna: antenna + cavo (perdita Lc a 290 K) + ricevitore (NF)
+    /// visto attraverso il cavo: Tsys = Ta + 290·(Lc − 1) + 290·(F − 1)·Lc.
+    /// </summary>
+    public static double SystemTempK(double ta, double cableDb, double nfDb)
+    {
+        double lc = Math.Pow(10, cableDb / 10), f = Math.Pow(10, nfDb / 10);
+        return ta + 290 * (lc - 1) + 290 * (f - 1) * lc;
+    }
+
+    /// <summary>Potenza di rumore kTB in dBm.</summary>
+    public static double NoiseDbm(double tsysK, double bwHz) => 10 * Math.Log10(1.380649e-23 * tsysK * bwHz) + 30;
 
     /// <summary>Punti del cerchio massimo ogni stepKm (almeno 2 punti).</summary>
     public static List<LatLon> PathPoints(LatLon a, LatLon b, double stepKm, out double[] dist)
@@ -169,6 +193,8 @@ public static class LinkCalc
         public DateTime Utc;
         public double BwSsb = 2500, BwCw = 500, BwFt8 = 2500;
         public double ReqSsb = 6, ReqCw = 0, ReqFt8 = -21;
+        public string NoiseEnv = "quiet";      // ambiente del ricevitore (P.372)
+        public double ManualTaK = 300;
     }
 
     /// <summary>Calcolo completo; prof = profili di previsione lungo il percorso (o null se non c'è previsione).</summary>
@@ -392,14 +418,23 @@ public static class LinkCalc
 
         // ---- livello e rapporto segnale/rumore
         r.EirpDbm = 10 * Math.Log10(Math.Max(0.001, tx.PowerW) * 1000) - tx.CableDb + r.GtxDbi;
-        r.PrxDbm = r.EirpDbm - r.LpredDb + r.GrxDbi - rx.CableDb;
-        r.NoiseSsbDbm = NoiseDbm(o.BwSsb, rx.NfDb, 0, o.FreqMHz);    // il cavo è già tolto dal segnale
-        r.SnrSsb = r.PrxDbm - r.NoiseSsbDbm;
-        r.SnrCw = r.PrxDbm - NoiseDbm(o.BwCw, rx.NfDb, 0, o.FreqMHz);
-        r.SnrFt8 = r.PrxDbm - NoiseDbm(o.BwFt8, rx.NfDb, 0, o.FreqMHz);
+        // tutto riportato ai morsetti dell'antenna ricevente: il cavo attenua il segnale e aggiunge rumore
+        r.PantDbm = r.EirpDbm - r.LpredDb + r.GrxDbi;
+        r.PrxDbm = r.PantDbm - rx.CableDb;                       // all'ingresso del ricevitore (S-meter)
+        var (tg, tm, ta) = AntennaTemp(o.FreqMHz, o.NoiseEnv, o.ManualTaK);
+        r.TgalK = tg; r.TmanK = tm; r.TaK = ta;
+        r.TsysK = SystemTempK(ta, rx.CableDb, rx.NfDb);
+        r.NoiseSsbDbm = NoiseDbm(r.TsysK, o.BwSsb);
+        r.SnrSsb = r.PantDbm - r.NoiseSsbDbm;
+        r.SnrCw = r.PantDbm - NoiseDbm(r.TsysK, o.BwCw);
+        r.SnrFt8 = r.PantDbm - NoiseDbm(r.TsysK, o.BwFt8);
         CalcLog.W($"EIRP = {tx.PowerW:0.#} W ({10 * Math.Log10(Math.Max(0.001, tx.PowerW) * 1000):0.0} dBm) − cavo {tx.CableDb:0.0} + {r.GtxDbi:0.0} dBi = {r.EirpDbm:0.00} dBm");
-        CalcLog.W($"ricevuto = EIRP − {r.LpredDb:0.00} + {r.GrxDbi:0.0} dBi − cavo {rx.CableDb:0.0} = {r.PrxDbm:0.00} dBm ({LinkResult.SMeter(r.PrxDbm)})");
-        CalcLog.W($"rumore (Tant {AntennaTempK(o.FreqMHz):0} K, NF {rx.NfDb:0.0} dB): SSB {o.BwSsb:0} Hz {r.NoiseSsbDbm:0.00} dBm → S/N {r.SnrSsb:0.0} dB (soglia {o.ReqSsb:0}); CW {o.BwCw:0} Hz → S/N {r.SnrCw:0.0} dB (soglia {o.ReqCw:0}); FT8 {o.BwFt8:0} Hz → S/N {r.SnrFt8:0.0} dB (soglia {o.ReqFt8:0})");
+        CalcLog.W($"ai morsetti dell'antenna RX: EIRP − {r.LpredDb:0.00} + {r.GrxDbi:0.0} dBi = {r.PantDbm:0.00} dBm; all'ingresso del ricevitore (− cavo {rx.CableDb:0.0}) {r.PrxDbm:0.00} dBm ({LinkResult.SMeter(r.PrxDbm)})");
+        CalcLog.W(o.NoiseEnv == "manual"
+            ? $"rumore: temperatura d'antenna impostata a mano {ta:0} K"
+            : $"rumore esterno (ITU-R P.372, ambiente {o.NoiseEnv}): galattico {tg:0} K (Fa {10 * Math.Log10(tg / 290):0.0} dB) + artificiale {tm:0} K (Fa {10 * Math.Log10(Math.Max(1e-9, tm) / 290):0.0} dB) = Ta {ta:0} K" + (o.FreqMHz > 250 ? " (curve del rumore artificiale prolungate oltre 250 MHz)" : ""));
+        CalcLog.W($"Tsys = Ta + 290(Lc−1) + 290(F−1)Lc = {ta:0} + {290 * (Math.Pow(10, rx.CableDb / 10) - 1):0} + {290 * (Math.Pow(10, rx.NfDb / 10) - 1) * Math.Pow(10, rx.CableDb / 10):0} = {r.TsysK:0} K");
+        CalcLog.W($"rumore kTsysB: SSB {o.BwSsb:0} Hz {r.NoiseSsbDbm:0.00} dBm → S/N {r.SnrSsb:0.0} dB (soglia {o.ReqSsb:0}); CW {o.BwCw:0} Hz → S/N {r.SnrCw:0.0} dB (soglia {o.ReqCw:0}); FT8 {o.BwFt8:0} Hz → S/N {r.SnrFt8:0.0} dB (soglia {o.ReqFt8:0})");
         if (r.TilesMissing > 0) r.Notes.Add($"{r.TilesMissing} riquadri SRTM1 non disponibili: lì il terreno vale 0 m");
         return r;
     }
