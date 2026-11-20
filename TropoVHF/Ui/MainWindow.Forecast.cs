@@ -561,8 +561,10 @@ public sealed partial class MainWindow
         }
         double rp = R(gp.Select(x => (x.g, x.p)).ToList()), ri = R(gi.Select(x => (x.g, x.i)).ToList());
         string F(double r) => double.IsNaN(r) ? "—" : r.ToString("+0.00;−0.00", CultureInfo.InvariantCulture);
-        _fcCorr.Text = L($"Accordo del guadagno con la pressione {F(rp)}, con l'inversione {F(ri)} ({gp.Count} punti, {t:dd/MM HH}:00 UTC, {f:0} MHz)",
+        // siamo dentro il disegno della mappa: il testo si cambia dopo, fuori dal passaggio di rendering
+        var corrText = L($"Accordo del guadagno con la pressione {F(rp)}, con l'inversione {F(ri)} ({gp.Count} punti, {t:dd/MM HH}:00 UTC, {f:0} MHz)",
                          $"Gain agreement with pressure {F(rp)}, with inversion {F(ri)} ({gp.Count} points, {t:dd/MM HH}:00 UTC, {f:0} MHz)");
+        Dispatcher.UIThread.Post(() => { if (_fcCorr != null) _fcCorr.Text = corrText; });
         CalcLog.W($"accordo sulla zona visibile, {t:dd/MM HH}:00 UTC, {f:0} MHz: guadagno–pressione r = {F(rp)} ({gp.Count} punti), guadagno–inversione r = {F(ri)} ({gi.Count} punti)");
     }
 

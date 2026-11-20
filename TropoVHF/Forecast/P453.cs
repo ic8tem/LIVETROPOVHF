@@ -59,6 +59,13 @@ public static class P453
     /// <summary>Cartella in cui mettere i file delle mappe P.453 scaricati dal sito dell'ITU.</summary>
     public static string Folder => Path.Combine(TropoVHF.Core.Settings.DataDir, "P453");
     static readonly string[] Names = { "S_OCCUR", "S_THICK", "S_STREN", "E_OCCUR", "E_base", "E_THICK", "E_STREN" };
+    /// <summary>Nome canonico da un nome di file: nell'archivio dell'ITU i file si chiamano E_OCCURRENCE, E_THICKNESS, E_STRENGTH…</summary>
+    static string Canon(string stem)
+    {
+        var u = stem.ToUpperInvariant();
+        foreach (var (full, shortName) in new[] { ("OCCURRENCE", "OCCUR"), ("THICKNESS", "THICK"), ("STRENGTH", "STREN") }) u = u.Replace(full, shortName);
+        return Names.FirstOrDefault(x => string.Equals(x, u, StringComparison.OrdinalIgnoreCase));
+    }
     public static bool Available => Maps.Length >= 7;
     /// <summary>Pagina dei prodotti digitali della Study Group 3 e archivio dei condotti (stesso file per suolo ed elevati).</summary>
     public const string ItuPage = "https://www.itu.int/en/ITU-R/study-groups/rsg3/Pages/iono-tropo-spheric.aspx";
@@ -95,7 +102,7 @@ public static class P453
                 seen.Add(e.FullName);
                 var stem = Path.GetFileNameWithoutExtension(e.Name);
                 var ext = Path.GetExtension(e.Name).ToLowerInvariant();
-                var n = Names.FirstOrDefault(x => string.Equals(x, stem, StringComparison.OrdinalIgnoreCase));
+                var n = Canon(stem);
                 if (n != null && (ext == ".txt" || ext == ""))
                 {
                     using var es = e.Open(); using var fo = File.Create(Path.Combine(Folder, n + ".TXT"));
@@ -132,7 +139,7 @@ public static class P453
             var m = new float[Names.Length][];
             for (int k = 0; k < Names.Length; k++)
             {
-                var f = Directory.Exists(Folder) ? Directory.GetFiles(Folder).FirstOrDefault(x => string.Equals(Path.GetFileNameWithoutExtension(x), Names[k], StringComparison.OrdinalIgnoreCase)) : null;
+                var f = Directory.Exists(Folder) ? Directory.GetFiles(Folder, "*.txt").Concat(Directory.GetFiles(Folder, "*.TXT")).Distinct().FirstOrDefault(x => Canon(Path.GetFileNameWithoutExtension(x)) == Names[k]) : null;
                 if (f == null)
                 {
                     CalcLog.W($"P.453: file {Names[k]}.TXT non trovato in {Folder}: il calcolo B dei condotti potenziali è spento (vedi il manuale delle previsioni, § 6)");
