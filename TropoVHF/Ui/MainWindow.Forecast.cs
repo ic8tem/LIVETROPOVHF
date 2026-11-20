@@ -18,6 +18,9 @@ namespace TropoVHF.Ui;
 public sealed partial class MainWindow
 {
     readonly OwnForecast _own = new();
+    // client dedicato: i riquadri SRTM1 sono di 6–7 MB e su linee lente superano i 40 s del client generale
+    static readonly HttpClient FcHttp = new() { Timeout = TimeSpan.FromMinutes(10) };
+    TextBlock _fcProgress;
     Srtm _srtm;
     MapView _fcMap;
     TextBlock _fcStatus, _fcTime, _fcGtx, _fcGrx;
@@ -59,7 +62,7 @@ public sealed partial class MainWindow
 
     Control BuildForecastTab()
     {
-        _srtm ??= new Srtm(_st.Http);
+        _srtm ??= new Srtm(FcHttp);
         var g = new Grid { ColumnDefinitions = new ColumnDefinitions("430,*") };
         var col = new StackPanel { Spacing = 8, Margin = new Thickness(14) };
 
@@ -357,7 +360,20 @@ public sealed partial class MainWindow
 
     // ------------------------------------------------------------------ azioni
 
-    void FcSetStatus(string s) => Dispatcher.UIThread.Post(() => { if (_fcStatus != null) _fcStatus.Text = s; });
+    void FcSetStatus(string s) => Dispatcher.UIThread.Post(() =>
+    {
+        if (_fcStatus != null) _fcStatus.Text = s;
+        if (_fcProgress != null) _fcProgress.Text = s;     // durante il calcolo l'avanzamento si vede anche sotto il profilo
+        CalcLog.W("stato: " + s);
+    });
+
+    void FcResultMessage(string s, Color c) => Dispatcher.UIThread.Post(() =>
+    {
+        _fcProgress = null;
+        _fcResults.Children.Clear();
+        var t = TB(s, 12, c); t.TextWrapping = TextWrapping.Wrap;
+        _fcResults.Children.Add(t);
+    });
 
     void FcUpdateGrid()
     {
@@ -369,7 +385,7 @@ public sealed partial class MainWindow
         CalcLog.W($"zona visibile {la1:0.##}–{la2:0.##} N, {lo1:0.##}–{lo2:0.##} E");
         Task.Run(async () =>
         {
-            await _own.UpdateAsync(_st.Http, la1, la2, lo1, lo2, () => { FcSetStatus(_own.Status); Dispatcher.UIThread.Post(() => _fcMap?.InvalidateVisual()); }, ct);
+            await _own.UpdateAsync(FcHttp, la1, la2, lo1, lo2, () => { FcSetStatus(_own.Status); Dispatcher.UIThread.Post(() => _fcMap?.InvalidateVisual()); }, ct);
         });
     }
 
@@ -398,7 +414,13 @@ public sealed partial class MainWindow
         };
         _srtm.Progress = FcSetStatus;
         _fcResults.Children.Clear();
-        _fcResults.Children.Add(TB(L("Calcolo in corso…", "Computing…"), 12, _th.Muted));
+        _fcResults.Children.Add(TB(L("Calcolo in corso…", "Computing…"), 12, _th.Muted, true));
+        _fcProgress = TB(L("preparo il percorso", "preparing the path"), 12, _th.Sub); _fcProgress.TextWrapping = TextWrapping.Wrap;
+        _fcResults.Children.Add(_fcProgress);
+        var hint = TB(L("La prima volta si scaricano i riquadri SRTM1 del percorso (6–7 MB l'uno) e i profili GFS: può volerci qualche minuto. L'avanzamento è anche nel registro qui sotto.",
+                        "The first time the path's SRTM1 tiles (6–7 MB each) and GFS profiles are downloaded: it can take a few minutes. Progress is also in the log below."), 11, _th.Muted);
+        hint.TextWrapping = TextWrapping.Wrap;
+        _fcResults.Children.Add(hint);
         Task.Run(async () =>
         {
             try
@@ -412,7 +434,7 @@ public sealed partial class MainWindow
                 if (prof.Count(p => p != null) < prof.Count * 0.8)
                 {
                     FcSetStatus(L("GFS: scarico i profili lungo il percorso…", "GFS: downloading profiles along the path…"));
-                    var ser = await OwnForecast.FetchPoints(_st.Http, pp, FcSetStatus, ct);
+                    var ser = await OwnForecast.FetchPoints(FcHttp, pp, FcSetStatus, ct);
                     prof = ser.Select(s =>
                     {
                         int best = -1; double bd = double.MaxValue;
@@ -430,13 +452,20 @@ public sealed partial class MainWindow
                     _fcMap?.InvalidateVisual();
                 });
             }
-            catch (OperationCanceledException) { FcSetStatus(L("Interrotto.", "Stopped.")); }
-            catch (Exception ex) { FcSetStatus(L("Errore: ", "Error: ") + ex.Message); Dispatcher.UIThread.Post(() => { _fcResults.Children.Clear(); _fcResults.Children.Add(TB(ex.Message, 12, _th.Bad)); }); }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested) { FcSetStatus(L("Interrotto.", "Stopped.")); FcResultMessage(L("Calcolo interrotto.", "Computation stopped."), _th.Muted); }
+            catch (Exception ex)
+            {
+                var msg = ex is OperationCanceledException ? L("tempo scaduto nello scaricamento dei dati (rete lenta o server occupato): riprova", "download timed out (slow network or busy server): try again") : ex.Message;
+                CalcLog.W("ERRORE: " + ex);
+                FcSetStatus(L("Errore: ", "Error: ") + msg);
+                FcResultMessage(L("Calcolo non riuscito: ", "Computation failed: ") + msg, _th.Bad);
+            }
         });
     }
 
     void FcShowResult(LinkResult r)
     {
+        _fcProgress = null;
         _fcResults.Children.Clear();
         void Line(string a, string b, Color? c = null, bool bold = false)
         {
@@ -501,8 +530,8 @@ public sealed partial class MainWindow
                             L("prima ombra media ", "mean first shadow ") + $"{first.Average():0} km, " + L("massimo visibile ", "farthest visible ") + $"{far.Max():0} km");
                 Dispatcher.UIThread.Post(() => _fcMap?.InvalidateVisual());
             }
-            catch (OperationCanceledException) { FcSetStatus(L("Interrotto.", "Stopped.")); }
-            catch (Exception ex) { FcSetStatus(L("Errore: ", "Error: ") + ex.Message); }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested) { FcSetStatus(L("Interrotto.", "Stopped.")); }
+            catch (Exception ex) { CalcLog.W("ERRORE: " + ex); FcSetStatus(L("Errore: ", "Error: ") + (ex is OperationCanceledException ? L("tempo scaduto nello scaricamento, riprova", "download timed out, try again") : ex.Message)); }
         });
     }
 }
@@ -527,7 +556,13 @@ public sealed class ProfileView : Control
     {
         double W = Bounds.Width, H = Bounds.Height;
         ctx.DrawRectangle(new SolidColorBrush(Th?.MapSea ?? Colors.AliceBlue), null, new Rect(0, 0, W, H));
-        if (_r == null || _r.Terrain.Length < 2) return;
+        if (_r == null || _r.Terrain.Length < 2)
+        {
+            var e = new FormattedText(Lang.Current == "it" ? "Il profilo del terreno compare qui a calcolo finito." : "The terrain profile appears here when the computation ends.",
+                CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface.Default, 11, new SolidColorBrush(Th?.Muted ?? Colors.Gray));
+            ctx.DrawText(e, new Point(10, H / 2 - 8));
+            return;
+        }
         var dist = _r.DistAlong; var h = _r.Terrain; double D = _r.DistKm, ae = _r.K * LinkCalc.Re;
         int n = h.Length;
         var y = new double[n];

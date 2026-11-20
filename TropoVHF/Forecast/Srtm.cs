@@ -36,8 +36,9 @@ public sealed class Srtm
         var file = Path.Combine(Folder, name + ".hgt.gz");
         if (!File.Exists(file))
         {
-            Progress?.Invoke($"SRTM1: scarico {name}…");
+            Progress?.Invoke($"SRTM1: scarico {name} (6–7 MB, la prima volta)…");
             var url = $"https://s3.amazonaws.com/elevation-tiles-prod/skadi/{name.Substring(0, 3)}/{name}.hgt.gz";
+            for (int attempt = 1; attempt <= 2 && !File.Exists(file); attempt++)
             try
             {
                 using var resp = await _http.GetAsync(url, ct);
@@ -49,8 +50,12 @@ public sealed class Srtm
                 Downloaded++;
                 CalcLog.W($"SRTM1: scaricato {name} ({bytes.Length / 1024} kB) da {url}");
             }
-            catch (OperationCanceledException) { throw; }
-            catch { _missing.Add(name); Missing++; return (null, 0); }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
+            catch (Exception ex)
+            {
+                CalcLog.W($"SRTM1: {name} tentativo {attempt} non riuscito: {ex.Message}");
+                if (attempt == 2) { _missing.Add(name); Missing++; return (null, 0); }
+            }
         }
         short[] data; int side;
         try

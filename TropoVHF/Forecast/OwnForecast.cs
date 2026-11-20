@@ -334,8 +334,9 @@ public sealed class OwnForecast
             Status = $"Previsione propria: GFS {UpdatedUtc:dd/MM HH:mm} UTC, {pts.Count} punti, passo {step:0.##}°";
             return true;
         }
-        catch (OperationCanceledException) { Status = "Previsione propria: interrotta"; return false; }
-        catch (Exception ex) { Status = "Previsione propria non riuscita: " + ex.Message; return false; }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested) { Status = "Previsione propria: interrotta"; return false; }
+        catch (OperationCanceledException) { Status = "Previsione propria: tempo scaduto nello scaricamento, riprova"; CalcLog.W(Status); return false; }
+        catch (Exception ex) { Status = "Previsione propria non riuscita: " + ex.Message; CalcLog.W("ERRORE: " + ex); return false; }
         finally { Busy = false; changed?.Invoke(); }
     }
 
