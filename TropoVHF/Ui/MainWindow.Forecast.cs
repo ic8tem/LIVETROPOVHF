@@ -81,7 +81,40 @@ public sealed partial class MainWindow
             var p4 = TB(L($"Calcolo B dei condotti spento: mancano i file ITU-R P.453 (mappe dei condotti) in {P453.Folder}. Vedi il manuale delle previsioni, § 6.",
                           $"Duct calculation B off: ITU-R P.453 duct map files missing in {P453.Folder}. See the forecast manual, § 6."), 11, _th.Muted);
             p4.TextWrapping = TextWrapping.Wrap;
-            col.Children.Add(p4);
+            var box = new StackPanel { Spacing = 6 };
+            box.Children.Add(p4);
+            Button dl = null;
+            dl = OutlineButton(L("Scarica le mappe P.453 dall'ITU (uso personale)", "Download P.453 maps from ITU (personal use)"), async () =>
+            {
+                bool ok = await AskYesNo(L("Mappe ITU-R P.453", "ITU-R P.453 maps"),
+                    L("Il programma scarica dal sito dell'ITU l'archivio dei condotti (elevated_and_surface_duct.zip) e ne estrae i sette file in " + P453.Folder + ".\n\n" +
+                      "I dati sono © ITU. Le condizioni d'uso del sito ITU permettono di scaricarli, copiarli e usarli per scopi personali, educativi o non commerciali, citando la fonte; " +
+                      "non permettono di ridistribuirli, modificarli o usarli a fini commerciali senza permesso scritto dell'ITU. Scaricandoli accetti queste condizioni.\n\n" +
+                      "Fonte: ITU-R P.453, prodotti digitali della Study Group 3 (" + P453.ItuPage + ").",
+                      "The program downloads the duct archive (elevated_and_surface_duct.zip) from the ITU website and extracts the seven files into " + P453.Folder + ".\n\n" +
+                      "The data are © ITU. The ITU website terms allow downloading, copying and using them for personal, educational or non-commercial purposes with credit to the source; " +
+                      "they do not allow redistribution, modification or commercial use without ITU's written permission. By downloading you accept these terms.\n\n" +
+                      "Source: ITU-R P.453, Study Group 3 digital products (" + P453.ItuPage + ")."),
+                    L("Scarica", "Download"), L("Annulla", "Cancel"));
+                if (!ok) return;
+                dl.IsEnabled = false;
+                try
+                {
+                    var (done, msg) = await Task.Run(() => P453.DownloadFromItu(FcHttp, FcSetStatus, CancellationToken.None));
+                    p4.Text = msg; p4.Foreground = B(done ? _th.Ok : _th.Bad);
+                    FcSetStatus(msg);
+                    if (done) dl.IsVisible = false; else dl.IsEnabled = true;
+                }
+                catch (Exception ex)
+                {
+                    CalcLog.W("P.453: scaricamento non riuscito: " + ex);
+                    p4.Text = L("Scaricamento dall'ITU non riuscito: ", "ITU download failed: ") + ex.Message + L(". Si può scaricare a mano dalla pagina dell'ITU (vedi il manuale, § 6).", ". You can download it manually from the ITU page (see the manual, § 6).");
+                    p4.Foreground = B(_th.Bad); dl.IsEnabled = true;
+                }
+            });
+            ToolTip.SetTip(dl, P453.ItuZip);
+            box.Children.Add(dl);
+            col.Children.Add(box);
         }
         var help = TB(L("Indice calcolato dai profili verticali GFS (soglie di Bean e Dutton, condotti con la formula di Kerr). " +
                         "Quadretti: qui la previsione propria non c'è ma Hepburn o F5LEN danno 5 o più. Clic sulla mappa per scegliere il corrispondente.",
@@ -528,8 +561,10 @@ public sealed partial class MainWindow
         }
         double rp = R(gp.Select(x => (x.g, x.p)).ToList()), ri = R(gi.Select(x => (x.g, x.i)).ToList());
         string F(double r) => double.IsNaN(r) ? "—" : r.ToString("+0.00;−0.00", CultureInfo.InvariantCulture);
-        _fcCorr.Text = L($"Accordo del guadagno con la pressione {F(rp)}, con l'inversione {F(ri)} ({gp.Count} punti, {t:dd/MM HH}:00 UTC, {f:0} MHz)",
+        // siamo dentro il disegno della mappa: il testo si cambia dopo, fuori dal passaggio di rendering
+        var corrText = L($"Accordo del guadagno con la pressione {F(rp)}, con l'inversione {F(ri)} ({gp.Count} punti, {t:dd/MM HH}:00 UTC, {f:0} MHz)",
                          $"Gain agreement with pressure {F(rp)}, with inversion {F(ri)} ({gp.Count} points, {t:dd/MM HH}:00 UTC, {f:0} MHz)");
+        Dispatcher.UIThread.Post(() => { if (_fcCorr != null) _fcCorr.Text = corrText; });
         CalcLog.W($"accordo sulla zona visibile, {t:dd/MM HH}:00 UTC, {f:0} MHz: guadagno–pressione r = {F(rp)} ({gp.Count} punti), guadagno–inversione r = {F(ri)} ({gi.Count} punti)");
     }
 

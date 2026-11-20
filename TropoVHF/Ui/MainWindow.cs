@@ -128,6 +128,31 @@ public sealed partial class MainWindow : Window
         return result;
     }
 
+    /// <summary>Domanda sì/no con titolo e testo, nello stile della finestra di chiusura.</summary>
+    async Task<bool> AskYesNo(string title, string text, string yesText, string noText)
+    {
+        var dlg = new Window
+        {
+            Title = title, Width = 560, SizeToContent = SizeToContent.Height, CanResize = false,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = B(_th.Panel), ShowInTaskbar = false,
+            Icon = Splash.AppIcon(), FlowDirection = Lang.IsRtl(Lang.Current) ? FlowDirection.RightToLeft : FlowDirection.LeftToRight
+        };
+        bool result = false;
+        var body = new TextBlock { Text = text, FontSize = 13, Foreground = B(_th.Text), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(20, 18, 20, 16) };
+        var yes = PrimaryButton(yesText, () => { result = true; dlg.Close(); });
+        var no = OutlineButton(noText, () => dlg.Close());
+        yes.MinWidth = 90; no.MinWidth = 90;
+        var bar = new Border
+        {
+            Background = B(_th.Chip), BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 1, 0, 0), Padding = new Thickness(16, 10),
+            Child = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, HorizontalAlignment = HorizontalAlignment.Right, Children = { yes, no } }
+        };
+        dlg.Content = new StackPanel { Children = { body, bar } };
+        dlg.KeyDown += (_, e) => { if (e.Key == Avalonia.Input.Key.Escape) dlg.Close(); };
+        await dlg.ShowDialog(this);
+        return result;
+    }
+
     async Task AskCall()
     {
         var dlg = new Window

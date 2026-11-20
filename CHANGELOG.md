@@ -4,6 +4,10 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
+## 1.2.1 — 20/11/2026
+- Previsioni: con una griglia scaricata il programma poteva chiudersi con l'errore «Visual was invalidated during the render pass» (la riga dell'accordo fra guadagno, pressione e inversione veniva aggiornata mentre si disegnava la mappa). Corretto.
+- Previsioni: pulsante per scaricare le mappe ITU-R P.453 dal sito dell'ITU per uso personale (con le condizioni d'uso), estratte in Dati/P453; il calcolo B dei condotti si accende senza riavviare. Riconosciuti anche i nomi dei file dell'archivio ITU (E_OCCURRENCE, E_THICKNESS, E_STRENGTH…).
+
 ## 1.2.0 — 20/11/2026
 Nuova linguetta **Previsioni (sperimentale)**: previsione troposferica calcolata dal programma stesso, oltre alle mappe Hepburn e F5LEN. I calcoli sono in fase di verifica: servono a confrontare situazioni, non garantiscono un collegamento.
 - Mappa del guadagno stimato sulla zona visibile, dai profili verticali GFS (Open-Meteo, 1000–500 hPa) con le soglie di Bean e Dutton e i condotti con la formula di Kerr; bande 144, 432 e 1296 MHz; fino a 72 ore avanti.
