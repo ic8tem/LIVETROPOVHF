@@ -18,9 +18,11 @@ public static class Program
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+        // registro degli errori sempre attivo (Dati/errori.log): gli errori dell'interfaccia si annotano e il programma continua
+        ErrorLog.Context = () => TropoVHF.Forecast.CalcLog.RecentLines(50);
         Application.ThreadException += (_, e) => Report(e.Exception, false);
         AppDomain.CurrentDomain.UnhandledException += (_, e) => Report(e.ExceptionObject as Exception, true);
-        TaskScheduler.UnobservedTaskException += (_, e) => e.SetObserved();
+        TaskScheduler.UnobservedTaskException += (_, e) => { ErrorLog.Write(e.Exception, "attività in background"); e.SetObserved(); };
 
         Splash splash = null;
         try { splash = new Splash(); splash.Show(); Application.DoEvents(); } catch { splash = null; }
@@ -36,6 +38,8 @@ public static class Program
     static void Report(Exception ex, bool fatal)
     {
         if (ex == null) return;
+        ErrorLog.Write(ex, fatal ? "chiusura" : "interfaccia", fatal);
+        if (!fatal) return;
         try { File.AppendAllText(Path.Combine(Settings.AppDir, "errore-avvio.txt"), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\r\n" + ex + "\r\n\r\n"); } catch { }
         if (fatal)
             try { MessageBox.Show(ex.Message + "\r\n\r\n" + Path.Combine(Settings.AppDir, "errore-avvio.txt"), "LIVETROPOVHF", MessageBoxButtons.OK, MessageBoxIcon.Error); } catch { }

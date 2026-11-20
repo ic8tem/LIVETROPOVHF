@@ -47,7 +47,9 @@
     <!-- motore comune -->
     <Compile Include="..\TropoVHF\Core\*.cs" Link="Core\%(Filename)%(Extension)" />
     <!-- disegno e lingue comuni -->
-    <Compile Include="..\TropoVHF\Ui\Lang.cs;..\TropoVHF\Ui\MapView.cs;..\TropoVHF\Ui\GravesView.cs;..\TropoVHF\Ui\Palette.cs" Link="Ui\%(Filename)%(Extension)" />
+    <Compile Include="..\TropoVHF\Ui\Lang.cs;..\TropoVHF\Ui\MapView.cs;..\TropoVHF\Ui\GravesView.cs;..\TropoVHF\Ui\Palette.cs;..\TropoVHF\Ui\ForecastShared.cs" Link="Ui\%(Filename)%(Extension)" />
+    <!-- previsione propria (linguetta Previsioni): stesso motore della versione normale -->
+    <Compile Include="..\TropoVHF\Forecast\*.cs" Link="Forecast\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

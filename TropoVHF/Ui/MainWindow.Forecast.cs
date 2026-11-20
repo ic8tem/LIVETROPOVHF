@@ -487,7 +487,7 @@ public sealed partial class MainWindow
         if (!LocatorX.TryParse(rl, out var rp)) { err = L("Locatore del corrispondente non valido: scrivilo o fai clic sulla mappa.", "Invalid other locator: type it or click the map."); return false; }
         tx = new Station { Loc = tl, Pos = tp, Precise = tl.Length >= 8, AglM = Num("fc_tx_agl", 10), AslM = Num("fc_tx_asl", 0), BoomM = Num("fc_tx_boom", 2), CableDb = Num("fc_tx_cable", 1), PowerW = Num("fc_tx_w", 100) };
         rx = new Station { Loc = rl, Pos = rp, Precise = rl.Length >= 8, AglM = Num("fc_rx_agl", 3), AslM = Num("fc_rx_asl", 0), BoomM = Num("fc_rx_boom", 2), CableDb = Num("fc_rx_cable", 1), NfDb = Num("fc_rx_nf", 2) };
-        if (!tx.Precise && tx.AslM <= 0) { err = L("Con un locatore a 4 o 6 caratteri serve la quota dell'antenna sul mare.", "With a 4 or 6 character locator the antenna height above sea level is required."); return false; }
+        // locatore a 4–6 caratteri senza quota sul mare: si stima con il suolo SRTM al centro del quadrato più l'altezza dal suolo
         return true;
     }
 
@@ -541,6 +541,10 @@ public sealed partial class MainWindow
                 tm.Lap("calcolo sul percorso");
                 r.Times.Laps.Insert(0, tm.Laps[0]);
                 r.Times.Add("TOTALE", tm.TotalMs);
+                if (!tx.Precise && tx.AslM <= 0) r.Notes.Add(L($"quota della mia antenna stimata: suolo SRTM al centro del quadrato {tx.Loc} + {tx.AglM:0} m; per la precisione usa un locatore a 8–10 caratteri o scrivi la quota sul mare",
+                                                             $"my antenna height estimated: SRTM ground at the centre of {tx.Loc} + {tx.AglM:0} m; for precision use an 8–10 character locator or enter the height above sea"));
+                if (!rx.Precise && rx.AslM <= 0) r.Notes.Add(L($"quota dell'antenna del corrispondente stimata: suolo SRTM al centro del quadrato {rx.Loc} + {rx.AglM:0} m",
+                                                             $"other antenna height estimated: SRTM ground at the centre of {rx.Loc} + {rx.AglM:0} m"));
                 CalcLog.W($"TEMPI dal clic al risultato: {CalcLog.Dur(tm.TotalMs)} (profili {CalcLog.Dur(tm.Laps[0].Ms)}" + (fs != null ? $": {fs.Summary()}" : "") + $", percorso {CalcLog.Dur(tm.Laps[1].Ms)})");
                 _fcLast = r;
                 FcSetStatus(L("Calcolo completato.", "Done.") + (r.TilesMissing > 0 ? " " + L("Riquadri SRTM1 mancanti: ", "Missing SRTM1 tiles: ") + r.TilesMissing : ""));
@@ -592,7 +596,7 @@ public sealed partial class MainWindow
         if (!LocatorX.TryParse((_fcTxLoc.Text ?? "").Trim(), out var tp)) { FcSetStatus(L("Locatore della mia stazione non valido.", "Invalid own locator.")); return; }
         var tl = (_fcTxLoc.Text ?? "").Trim();
         var tx = new Station { Loc = tl, Pos = tp, Precise = tl.Length >= 8, AglM = Num("fc_tx_agl", 10), AslM = Num("fc_tx_asl", 0) };
-        if (!tx.Precise && tx.AslM <= 0) { FcSetStatus(L("Con un locatore a 4 o 6 caratteri serve la quota dell'antenna sul mare.", "Antenna height above sea level required with a 4–6 character locator.")); return; }
+
         _fcCts?.Cancel(); _fcCts = new CancellationTokenSource();
         var ct = _fcCts.Token;
         _srtm.Progress = FcSetStatus;

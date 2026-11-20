@@ -43,9 +43,9 @@ public sealed class Srtm
             {
                 using var resp = await _http.GetAsync(url, ct);
                 if (!resp.IsSuccessStatusCode) { _missing.Add(name); Missing++; CalcLog.W($"SRTM1: {name} non disponibile (HTTP {(int)resp.StatusCode}), quota 0"); return (null, 0); }
-                var bytes = await resp.Content.ReadAsByteArrayAsync(ct);
+                var bytes = await resp.Content.ReadAsByteArrayAsync();
                 var tmp = file + ".part";
-                await File.WriteAllBytesAsync(tmp, bytes, ct);
+                await Compat.WriteBytes(tmp, bytes, ct);
                 Compat.MoveOver(tmp, file);
                 Downloaded++;
                 CalcLog.W($"SRTM1: scaricato {name} ({bytes.Length / 1024} kB) da {url}");
@@ -63,7 +63,7 @@ public sealed class Srtm
             using var fs = File.OpenRead(file);
             using var gz = new GZipStream(fs, CompressionMode.Decompress);
             using var ms = new MemoryStream();
-            await gz.CopyToAsync(ms, ct);
+            await gz.CopyToAsync(ms, 81920, ct);
             var b = ms.GetBuffer(); int n = (int)ms.Length;
             int count = n / 2;
             side = (int)Math.Round(Math.Sqrt(count));

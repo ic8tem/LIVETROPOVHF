@@ -87,9 +87,9 @@ public static class P453
         using (var resp = await http.GetAsync(ItuZip, HttpCompletionOption.ResponseHeadersRead, ct))
         {
             resp.EnsureSuccessStatusCode();
-            using var src = await resp.Content.ReadAsStreamAsync(ct);
+            using var src = await resp.Content.ReadAsStreamAsync();
             using var dst = File.Create(zipPath);
-            await src.CopyToAsync(dst, ct);
+            await src.CopyToAsync(dst, 81920, ct);
         }
         CalcLog.W($"P.453: archivio salvato ({new FileInfo(zipPath).Length / 1024} kB), estraggo");
         var found = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

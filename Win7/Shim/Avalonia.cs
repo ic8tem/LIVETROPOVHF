@@ -47,6 +47,7 @@ namespace Avalonia
         public double Width { get; }
         public double Height { get; }
         public Rect(double x, double y, double w, double h) { X = x; Y = y; Width = w; Height = h; }
+        public Rect(Point a, Point b) : this(System.Math.Min(a.X, b.X), System.Math.Min(a.Y, b.Y), System.Math.Abs(b.X - a.X), System.Math.Abs(b.Y - a.Y)) { }
         public Rect(Point p, Size s) : this(p.X, p.Y, s.Width, s.Height) { }
         public double Left => X; public double Top => Y; public double Right => X + Width; public double Bottom => Y + Height;
         public Point Center => new Point(X + Width / 2, Y + Height / 2);
@@ -295,6 +296,9 @@ namespace Avalonia.Media
         public static Color Transparent => Color.FromArgb(0, 255, 255, 255);
         public static Color Red => Color.FromRgb(255, 0, 0);
         public static Color Gray => Color.FromRgb(128, 128, 128);
+        public static Color AliceBlue => Color.FromRgb(240, 248, 255);
+        public static Color Beige => Color.FromRgb(245, 245, 220);
+        public static Color SaddleBrown => Color.FromRgb(139, 69, 19);
     }
 
     public interface IBrush { double Opacity { get; } }
@@ -427,6 +431,7 @@ namespace Avalonia.Media
     {
         public string Name { get; }
         public FontFamily(string name) { Name = name; }
+        public static FontFamily Default => new FontFamily("Segoe UI");
         public override string ToString() => Name;
     }
 
@@ -437,6 +442,7 @@ namespace Avalonia.Media
         public FontWeight Weight { get; }
         public Typeface(FontFamily family, FontStyle style = FontStyle.Normal, FontWeight weight = FontWeight.Normal) { FontFamily = family; Style = style; Weight = weight; }
         public Typeface(string family, FontStyle style = FontStyle.Normal, FontWeight weight = FontWeight.Normal) : this(new FontFamily(family), style, weight) { }
+        public static Typeface Default => new Typeface(FontFamily.Default);
 
         static readonly Dictionary<string, SD.FontFamily> Resolved = new Dictionary<string, SD.FontFamily>();
         internal SD.FontFamily Gdi
@@ -606,6 +612,9 @@ namespace Avalonia.Media
             }
             return gp;
         }
+
+        /// <summary>Rettangolo con gli angoli arrotondati (qui disegnato con angoli vivi: basta per etichette piccole).</summary>
+        public void DrawRectangle(IBrush brush, IPen pen, Rect r, double radiusX, double radiusY) => DrawRectangle(brush, pen, r);
 
         public void DrawRectangle(IBrush brush, IPen pen, Rect r)
         {

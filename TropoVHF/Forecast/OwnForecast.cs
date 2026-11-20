@@ -327,7 +327,9 @@ public sealed class OwnForecast
         {
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(15000);
-            var json = await http.GetStringAsync("https://api.open-meteo.com/data/ncep_gfs025/static/meta.json", cts.Token);
+            using var mresp = await http.GetAsync("https://api.open-meteo.com/data/ncep_gfs025/static/meta.json", cts.Token);
+            mresp.EnsureSuccessStatusCode();
+            var json = await Compat.ReadString(mresp.Content, cts.Token);
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
             DateTime U(string k) => root.TryGetProperty(k, out var v) && v.ValueKind == JsonValueKind.Number ? DateTimeOffset.FromUnixTimeSeconds(v.GetInt64()).UtcDateTime : default;
