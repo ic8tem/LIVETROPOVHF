@@ -66,7 +66,9 @@ public sealed partial class MainWindow
     {
         _srtm ??= new Srtm(FcHttp);
         _fcTips = null;          // i fumetti seguono la lingua corrente
-        var g = new Grid { ColumnDefinitions = new ColumnDefinitions("430,*") };
+        // pannello a sinistra largo a piacere: si trascina il bordo (larghezza salvata)
+        double panelW = Math.Clamp(_st.S.GetInt("fc_panel_w", 430), 320, 1100);
+        var g = new Grid { ColumnDefinitions = new ColumnDefinitions($"{panelW.ToString(CultureInfo.InvariantCulture)},6,*") };
         var col = new StackPanel { Spacing = 8, Margin = new Thickness(14) };
 
         col.Children.Add(new TextBlock { Text = L("Previsione propria", "Own forecast"), FontSize = 18, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent) });
@@ -284,7 +286,16 @@ public sealed partial class MainWindow
                 _fcPath = null;
             }
         };
-        Grid.SetColumn(_fcMap, 1);
+        var split = new GridSplitter { ResizeDirection = GridResizeDirection.Columns, Background = B(_th.Line), Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.SizeWestEast) };
+        ToolTip.SetTip(split, L("Trascina per allargare o stringere il pannello", "Drag to widen or narrow the panel"));
+        split.DragCompleted += (_, _) =>
+        {
+            g.ColumnDefinitions[0].Width = new GridLength(Math.Clamp(g.ColumnDefinitions[0].ActualWidth, 320, 1100));
+            _st.S.SetInt("fc_panel_w", (int)g.ColumnDefinitions[0].ActualWidth); _st.Dirty = true;
+        };
+        Grid.SetColumn(split, 1);
+        g.Children.Add(split);
+        Grid.SetColumn(_fcMap, 2);
         g.Children.Add(_fcMap);
         return g;
     }
@@ -339,11 +350,24 @@ public sealed partial class MainWindow
         sp.Children.Add(path);
         _fcLogBox = new TextBox
         {
-            IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.NoWrap, Height = 320, FontSize = 11,
+            IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, FontSize = 11,
             FontFamily = new FontFamily("Consolas, Menlo, DejaVu Sans Mono, monospace"), Text = CalcLog.RecentText()
         };
-        ScrollViewer.SetHorizontalScrollBarVisibility(_fcLogBox, ScrollBarVisibility.Auto);
-        sp.Children.Add(_fcLogBox);
+        ScrollViewer.SetHorizontalScrollBarVisibility(_fcLogBox, ScrollBarVisibility.Disabled);   // a capo automatico
+        // altezza della finestra del registro a piacere: si trascina la barra sotto (altezza salvata)
+        double logH = Math.Clamp(_st.S.GetInt("fc_log_h", 320), 120, 2000);
+        var lg = new Grid { RowDefinitions = new RowDefinitions($"{logH.ToString(CultureInfo.InvariantCulture)},8,Auto") };
+        lg.Children.Add(_fcLogBox);
+        var hs = new GridSplitter { ResizeDirection = GridResizeDirection.Rows, Background = B(_th.Line), Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.SizeNorthSouth) };
+        ToolTip.SetTip(hs, L("Trascina per alzare o abbassare il registro", "Drag to make the log taller or shorter"));
+        hs.DragCompleted += (_, _) =>
+        {
+            lg.RowDefinitions[0].Height = new GridLength(Math.Clamp(lg.RowDefinitions[0].ActualHeight, 120, 2000));
+            _st.S.SetInt("fc_log_h", (int)lg.RowDefinitions[0].ActualHeight); _st.Dirty = true;
+        };
+        Grid.SetRow(hs, 1);
+        lg.Children.Add(hs);
+        sp.Children.Add(lg);
         CalcLog.Line -= FcOnLogLine; CalcLog.Line += FcOnLogLine;
         if (_fcLogTimer == null)
         {
