@@ -202,40 +202,28 @@ public static class LinkCalc
         r.LfsDb = 92.44 + 20 * Math.Log10(fGHz) + 20 * Math.Log10(d);
         CalcLog.W($"raggio equivalente ae = k·6371 = {ae:0} km; λ = {lam:0.000} m; spazio libero Lfs = 92,44 + 20 log f(GHz) + 20 log d = {r.LfsDb:0.00} dB");
 
-        // ---- Bullington (P.452 § 4.2.1)
+        // ---- diffrazione: Bullington sul profilo reale + correzione di terra sferica (metodo "delta-Bullington", P.452 § 4.2)
         int n = h.Length;
-        double stim = double.MinValue;
-        for (int i = 1; i < n - 1; i++) stim = Math.Max(stim, (h[i] + 500 * ce * dist[i] * (d - dist[i]) - hts) / dist[i]);
-        double str = (hrs - hts) / d;
-        double luc;
-        if (n < 3 || stim < str)
+        double lbulla = Bullington(h, dist, hts, hrs, d, ce, lam, out bool los, out double stim, out double str, out int io);
+        r.Los = los;
+        // superficie liscia ai minimi quadrati (P.452 eq. 161–164) e altezze efficaci delle antenne sopra di essa
+        double v1 = 0, v2 = 0;
+        for (int i = 1; i < n; i++)
         {
-            r.Los = true;
-            double numax = double.MinValue;
-            for (int i = 1; i < n - 1; i++)
-            {
-                double di = dist[i];
-                double nu = (h[i] + 500 * ce * di * (d - di) - (hts * (d - di) + hrs * di) / d) * Math.Sqrt(0.002 * d / (lam * di * (d - di)));
-                numax = Math.Max(numax, nu);
-            }
-            luc = n < 3 ? 0 : J(numax);
+            double dd = dist[i] - dist[i - 1];
+            v1 += dd * (h[i] + h[i - 1]);
+            v2 += dd * (h[i] * (2 * dist[i] + dist[i - 1]) + h[i - 1] * (dist[i] + 2 * dist[i - 1]));
         }
-        else
-        {
-            double srim = double.MinValue;
-            for (int i = 1; i < n - 1; i++) srim = Math.Max(srim, (h[i] + 500 * ce * dist[i] * (d - dist[i]) - hrs) / (d - dist[i]));
-            double db = (hrs - hts + srim * d) / (stim + srim);
-            db = Math.Max(0.001, Math.Min(d - 0.001, db));
-            double nub = (hts + stim * db - (hts * (d - db) + hrs * db) / d) * Math.Sqrt(0.002 * d / (lam * db * (d - db)));
-            luc = J(nub);
-        }
-        r.LbullDb = luc + (1 - Math.Exp(-luc / 6)) * (10 + 0.02 * d);
-        {
-            int io = 1; double best = double.MinValue;
-            for (int i = 1; i < n - 1; i++) { double v = (h[i] + 500 * ce * dist[i] * (d - dist[i]) - hts) / dist[i]; if (v > best) { best = v; io = i; } }
-            CalcLog.W($"Bullington: Stim {stim:0.000} m/km (ostacolo più alto visto dal TX: {h[io]:0} m a {dist[io]:0.0} km), Str {str:0.000} m/km → {(r.Los ? "in vista" : "oltre l'orizzonte")}; Luc = J(ν) = {luc:0.00} dB; Lbull = Luc + (1−e^(−Luc/6))(10+0,02d) = {r.LbullDb:0.00} dB; Ldiff = {r.LdiffDb:0.00} dB");
-        }
+        double hst = Math.Min((2 * v1 * d - v2) / (d * d), h[0]), hsr = Math.Min((v2 - v1 * d) / (d * d), h[n - 1]);
+        double hte = Math.Max(1, hts - hst), hre = Math.Max(1, hrs - hsr);
+        var zero = new double[n];
+        double lbulls = Bullington(zero, dist, hte, hre, d, ce, lam, out _, out _, out _, out _);
+        double ldsph = SphericalLoss(d, hte, hre, ae, o.FreqMHz);
+        r.LbullDb = lbulla + Math.Max(ldsph - lbulls, 0);
         r.LdiffDb = r.LfsDb + r.LbullDb;
+        CalcLog.W($"Bullington sul profilo: Stim {stim:0.000} m/km (ostacolo più alto visto dal TX: {h[io]:0} m a {dist[io]:0.0} km), Str {str:0.000} m/km → {(los ? "in vista" : "oltre l'orizzonte")}; Lbulla = {lbulla:0.00} dB");
+        CalcLog.W($"terra liscia: superficie {hst:0} m al TX e {hsr:0} m al RX → altezze efficaci {hte:0.0} / {hre:0.0} m; Bullington liscio {lbulls:0.00} dB; terra sferica (P.526, primo termine) {ldsph:0.00} dB");
+        CalcLog.W($"diffrazione = Lbulla + max(Ldsph − Lbulls, 0) = {r.LbullDb:0.00} dB oltre lo spazio libero → Ldiff = {r.LdiffDb:0.00} dB");
 
         // ---- angoli d'orizzonte (mrad) e troposcatter (P.452 eq. 45, p = 50%)
         double thT = double.MinValue, thR = double.MinValue;
@@ -304,6 +292,66 @@ public static class LinkCalc
         CalcLog.W($"rumore (Tant {AntennaTempK(o.FreqMHz):0} K, NF {rx.NfDb:0.0} dB): SSB {o.BwSsb:0} Hz {r.NoiseSsbDbm:0.00} dBm → S/N {r.SnrSsb:0.0} dB (soglia {o.ReqSsb:0}); CW {o.BwCw:0} Hz → S/N {r.SnrCw:0.0} dB (soglia {o.ReqCw:0}); FT8 {o.BwFt8:0} Hz → S/N {r.SnrFt8:0.0} dB (soglia {o.ReqFt8:0})");
         if (r.TilesMissing > 0) r.Notes.Add($"{r.TilesMissing} riquadri SRTM1 non disponibili: lì il terreno vale 0 m");
         return r;
+    }
+
+    /// <summary>Perdita di Bullington (dB oltre lo spazio libero) su un profilo, come in ITU-R P.452 § 4.2.1.</summary>
+    static double Bullington(double[] h, double[] dist, double hts, double hrs, double d, double ce, double lam, out bool los, out double stim, out double str, out int io)
+    {
+        int n = h.Length; stim = double.MinValue; io = 1;
+        for (int i = 1; i < n - 1; i++)
+        {
+            double v = (h[i] + 500 * ce * dist[i] * (d - dist[i]) - hts) / dist[i];
+            if (v > stim) { stim = v; io = i; }
+        }
+        str = (hrs - hts) / d;
+        double luc;
+        if (n < 3 || stim < str)
+        {
+            los = true;
+            double numax = double.MinValue;
+            for (int i = 1; i < n - 1; i++)
+            {
+                double di = dist[i];
+                double nu = (h[i] + 500 * ce * di * (d - di) - (hts * (d - di) + hrs * di) / d) * Math.Sqrt(0.002 * d / (lam * di * (d - di)));
+                numax = Math.Max(numax, nu);
+            }
+            luc = n < 3 ? 0 : J(numax);
+        }
+        else
+        {
+            los = false;
+            double srim = double.MinValue;
+            for (int i = 1; i < n - 1; i++) srim = Math.Max(srim, (h[i] + 500 * ce * dist[i] * (d - dist[i]) - hrs) / (d - dist[i]));
+            double db = (hrs - hts + srim * d) / (stim + srim);
+            db = Math.Max(0.001, Math.Min(d - 0.001, db));
+            double nub = (hts + stim * db - (hts * (d - db) + hrs * db) / d) * Math.Sqrt(0.002 * d / (lam * db * (d - db)));
+            luc = J(nub);
+        }
+        return luc + (1 - Math.Exp(-luc / 6)) * (10 + 0.02 * d);
+    }
+
+    /// <summary>
+    /// Perdita di diffrazione su terra sferica liscia oltre l'orizzonte (dB oltre lo spazio libero), formula del primo
+    /// termine di ITU-R P.526 § 3.1.1 con polarizzazione orizzontale e terreno medio (ε 22, σ 0,003 S/m).
+    /// Entro l'orizzonte radio della terra liscia vale 0 (lì basta Bullington).
+    /// </summary>
+    public static double SphericalLoss(double d, double h1, double h2, double ae, double fMHz)
+    {
+        double dlos = Math.Sqrt(2 * ae) * (Math.Sqrt(0.001 * h1) + Math.Sqrt(0.001 * h2));
+        if (d <= dlos) return 0;
+        double k = 0.36 * Math.Pow(ae * fMHz, -1.0 / 3) * Math.Pow(Math.Pow(22 - 1, 2) + Math.Pow(18000 * 0.003 / fMHz, 2), -0.25);
+        double beta = 1;
+        double x = 2.188 * beta * Math.Pow(fMHz, 1.0 / 3) * Math.Pow(ae, -2.0 / 3) * d;
+        double F = x >= 1.6 ? 11 + 10 * Math.Log10(x) - 17.6 * x : -20 * Math.Log10(x) - 5.6488 * Math.Pow(x, 1.425);
+        double G(double hm)
+        {
+            double y = 9.575e-3 * beta * Math.Pow(fMHz, 2.0 / 3) * Math.Pow(ae, -1.0 / 3) * hm, b = beta * y;
+            if (b > 2) return 17.6 * Math.Sqrt(b - 1.1) - 5 * Math.Log10(b - 1.1) - 8;
+            if (b > 10 * k) return 20 * Math.Log10(b + 0.1 * b * b * b);
+            if (b > k / 10) return 2 + 20 * Math.Log10(k) + 9 * Math.Log10(b / k) * (Math.Log10(b / k) + 1);
+            return 2 + 20 * Math.Log10(k);
+        }
+        return Math.Max(0, -(F + G(h1) + G(h2)));
     }
 
     /// <summary>
