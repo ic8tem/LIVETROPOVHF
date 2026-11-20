@@ -17,6 +17,19 @@ Indicazioni pratiche per usare la linguetta Previsioni nel lavoro di stazione. N
 - Le isobare mostrano dove sta l'anticiclone; le curve dell'inversione dove l'aria in quota è più calda. Se il guadagno segue l'inversione più della pressione, conta lo strato vicino al suolo.
 - Le Alpi e gli Appennini interrompono i condotti bassi: una zona colorata che finisce contro una catena montuosa di solito non la attraversa.
 
+## Le situazioni meteo che contano
+
+Dall'esperienza raccolta nell'ARRL Handbook (§ 19.4.3) e negli studi del NBS:
+
+- Anticicloni lenti: l'aria che scende si scalda e forma inversioni fra 500 e 3000 m. Sono i condotti più estesi e durano anche giorni. Nell'emisfero nord le tratte migliori stanno a sud del centro dell'alta pressione.
+- Sera e mattino: i condotti si rinforzano quando il suolo si raffredda; le inversioni all'alba e al tramonto valgono fino a 20 dB in più.
+- Inversioni di radiazione (sere calme e serene, aria asciutta, valli): migliorano il segnale ma raramente fanno un condotto vero.
+- Davanti a un fronte caldo, per alcune centinaia di km, le condizioni sono spesso buone; dietro un fronte freddo l'inversione è forte ma instabile, e conviene cercare parallelamente al fronte.
+- Brezza di terra lungo le coste dopo il tramonto: aria fresca al suolo e calda a 200–300 m, tratte anche oltre 800 km lungo la costa.
+- Foehn (anche nelle Alpi): aria calda e secca che scende sopra aria fredda o terreno innevato.
+- Scirocco: aria calda e secca dal Sahara sopra il Mediterraneo più fresco e umido; inversioni fortissime, che hanno dato i record oltre 1500 km in microonde.
+- Temporali, fronti freddi e vento forte rompono gli strati.
+
 ## Prima di un collegamento
 
 1. Mettere il locatore del corrispondente (cliccando sulla mappa o scrivendolo) e calcolare il segnale.
