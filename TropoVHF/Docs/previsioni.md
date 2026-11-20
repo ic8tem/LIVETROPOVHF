@@ -43,6 +43,8 @@ Il colore è il guadagno stimato in dB, con una scala fissa uguale in tutti i te
 | 18,5–21 dB | rosso | condotto che intrappola la banda |
 | da 21 dB | viola | condotto forte e profondo |
 
+Con la casella Mostra anche 3–7 dB le zone fra 3 e 7 dB, dove qualcosa si sta formando ma resta sotto la scala, si vedono con un tratteggio grigio leggero; i colori non cambiano. Un riquadro tratteggiato delimita la zona coperta dalla previsione propria e riporta il guadagno massimo visibile: se è sotto 7 dB la mappa resta senza colori perché l'atmosfera è quasi normale, non perché mancano i dati. Durante lo scaricamento un nuovo clic su Aggiorna previsione non lo interrompe; per fermarlo c'è Stop.
+
 I colori sono opachi all'82%, così lo sfondo del tema li cambia appena. La griglia dei locatori e i nomi dei quadrati sono disegnati sopra i colori. Dove la previsione propria non c'è ma Hepburn o F5LEN danno 5 o più compaiono quadretti a scacchi con il colore di quella fonte.
 
 La mappa giudica ogni punto da solo. Il calcolo del segnale invece controlla che lo strato sia continuo lungo la tratta (paragrafo 9): una tratta che attraversa molto giallo può dare meno di quanto la mappa faccia pensare.

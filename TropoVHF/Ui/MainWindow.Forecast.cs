@@ -66,7 +66,9 @@ public sealed partial class MainWindow
     {
         _srtm ??= new Srtm(FcHttp);
         _fcTips = null;          // i fumetti seguono la lingua corrente
-        var g = new Grid { ColumnDefinitions = new ColumnDefinitions("430,*") };
+        // pannello a sinistra largo a piacere: si trascina il bordo (larghezza salvata)
+        double panelW = Math.Clamp(_st.S.GetInt("fc_panel_w", 430), 320, 1100);
+        var g = new Grid { ColumnDefinitions = new ColumnDefinitions($"{panelW.ToString(CultureInfo.InvariantCulture)},6,*") };
         var col = new StackPanel { Spacing = 8, Margin = new Thickness(14) };
 
         col.Children.Add(new TextBlock { Text = L("Previsione propria", "Own forecast"), FontSize = 18, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent) });
@@ -157,6 +159,10 @@ public sealed partial class MainWindow
                 Ov("fc_ov_curves", "Curve di guadagno (dB)", "Gain contours (dB)",
                    "Curve a 7, 10, 13, 16, 18,5 e 21 dB, i bordi della scala dei colori, sul campo levigato. Tracciate con i quadrati marcianti. Manuale delle previsioni, § 5.",
                    "Contours at 7, 10, 13, 16, 18.5 and 21 dB, the edges of the colour scale, on the smoothed field (marching squares). Forecast manual, § 5."),
+                new Border { Width = 10 },
+                Ov("fc_ov_low", "Mostra anche 3–7 dB (tratteggio)", "Also show 3–7 dB (hatched)",
+                   "Disegna con un tratteggio grigio leggero le zone fra 3 e 7 dB, dove qualcosa si sta formando ma resta sotto la scala dei colori. I colori non cambiano. Manuale delle previsioni, § 4.",
+                   "Draws a light grey hatch where the gain is 3–7 dB, where something is forming but stays below the colour scale. Colours are unchanged. Forecast manual, § 4."),
                 new Border { Width = 10 },
                 Ov("fc_ov_iso", "Isobare (GFS)", "Isobars (GFS)",
                    "Pressione al livello del mare ogni 4 hPa dal modello GFS (NOAA/NCEP) tramite Open-Meteo, alla stessa ora della previsione. Manuale delle previsioni, § 5.",
@@ -284,7 +290,16 @@ public sealed partial class MainWindow
                 _fcPath = null;
             }
         };
-        Grid.SetColumn(_fcMap, 1);
+        var split = new GridSplitter { ResizeDirection = GridResizeDirection.Columns, Background = B(_th.Line), Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.SizeWestEast) };
+        ToolTip.SetTip(split, L("Trascina per allargare o stringere il pannello", "Drag to widen or narrow the panel"));
+        split.DragCompleted += (_, _) =>
+        {
+            g.ColumnDefinitions[0].Width = new GridLength(Math.Clamp(g.ColumnDefinitions[0].ActualWidth, 320, 1100));
+            _st.S.SetInt("fc_panel_w", (int)g.ColumnDefinitions[0].ActualWidth); _st.Dirty = true;
+        };
+        Grid.SetColumn(split, 1);
+        g.Children.Add(split);
+        Grid.SetColumn(_fcMap, 2);
         g.Children.Add(_fcMap);
         return g;
     }
@@ -339,11 +354,24 @@ public sealed partial class MainWindow
         sp.Children.Add(path);
         _fcLogBox = new TextBox
         {
-            IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.NoWrap, Height = 320, FontSize = 11,
+            IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, FontSize = 11,
             FontFamily = new FontFamily("Consolas, Menlo, DejaVu Sans Mono, monospace"), Text = CalcLog.RecentText()
         };
-        ScrollViewer.SetHorizontalScrollBarVisibility(_fcLogBox, ScrollBarVisibility.Auto);
-        sp.Children.Add(_fcLogBox);
+        ScrollViewer.SetHorizontalScrollBarVisibility(_fcLogBox, ScrollBarVisibility.Disabled);   // a capo automatico
+        // altezza della finestra del registro a piacere: si trascina la barra sotto (altezza salvata)
+        double logH = Math.Clamp(_st.S.GetInt("fc_log_h", 320), 120, 2000);
+        var lg = new Grid { RowDefinitions = new RowDefinitions($"{logH.ToString(CultureInfo.InvariantCulture)},8,Auto") };
+        lg.Children.Add(_fcLogBox);
+        var hs = new GridSplitter { ResizeDirection = GridResizeDirection.Rows, Background = B(_th.Line), Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.SizeNorthSouth) };
+        ToolTip.SetTip(hs, L("Trascina per alzare o abbassare il registro", "Drag to make the log taller or shorter"));
+        hs.DragCompleted += (_, _) =>
+        {
+            lg.RowDefinitions[0].Height = new GridLength(Math.Clamp(lg.RowDefinitions[0].ActualHeight, 120, 2000));
+            _st.S.SetInt("fc_log_h", (int)lg.RowDefinitions[0].ActualHeight); _st.Dirty = true;
+        };
+        Grid.SetRow(hs, 1);
+        lg.Children.Add(hs);
+        sp.Children.Add(lg);
         CalcLog.Line -= FcOnLogLine; CalcLog.Line += FcOnLogLine;
         if (_fcLogTimer == null)
         {
@@ -579,6 +607,9 @@ public sealed partial class MainWindow
         double step = Math.Max(0.1, Math.Min(2.0, Math.Round(span / 90 * 20) / 20));
         var t = FcTime; double f = FcFreq;
         double lat0 = Math.Floor(la1 / step) * step, lon0 = Math.Floor(lo1 / step) * step;
+        bool low = _st.S.GetBool("fc_ov_low", false);
+        var hatchPen = new Pen(new SolidColorBrush(Color.FromArgb(150, 0x6C, 0x7A, 0x89)), 1);
+        double maxDb = double.NaN;
         for (double lat = lat0; lat < la2; lat += step)
         {
             if (lat < -85 || lat + step > 85) continue;
@@ -591,8 +622,17 @@ public sealed partial class MainWindow
                 if (!double.IsNaN(v))
                 {
                     // scala fissa in dB (uguale con tutti i temi): sotto 7 dB nessun colore
-                    if (Palette.GainColor(v * 2.5) is Color c)
+                    double db = v * 2.5;
+                    if (double.IsNaN(maxDb) || db > maxDb) maxDb = db;
+                    if (Palette.GainColor(db) is Color c)
                         ctx.DrawRectangle(new SolidColorBrush(Color.FromArgb((byte)(255 * Palette.GainAlpha), c.R, c.G, c.B)), null, rect);
+                    else if (low && db >= 3)
+                    {
+                        // tratteggio leggero fra 3 e 7 dB: qualcosa si forma, ma resta sotto la scala
+                        using (ctx.PushClip(rect))
+                            for (double k = -rect.Height; k < rect.Width; k += 6)
+                                ctx.DrawLine(hatchPen, new Point(rect.X + k, rect.Bottom), new Point(rect.X + k + rect.Height, rect.Y));
+                    }
                     continue;
                 }
                 double hv = _st.Tropo.Value("media", lat + step / 2, lon + step / 2, t);
@@ -605,6 +645,21 @@ public sealed partial class MainWindow
                     for (int j = 0; j < 4; j++)
                         if (((i + j) & 1) == 0) ctx.DrawRectangle(br, null, new Rect(rect.X + i * w, rect.Y + j * h, w, h));
             }
+        }
+
+        // zona coperta dalla previsione propria, con il massimo visibile: una mappa vuota "perché va tutto normale"
+        // si distingue da una vuota "perché mancano i dati"
+        if (_own.HasData && m.Screen(new LatLon(_own.LatMin, _own.LonMin), out var c1) && m.Screen(new LatLon(_own.LatMax, _own.LonMax), out var c2))
+        {
+            var box = new Rect(new Point(Math.Min(c1.X, c2.X), Math.Min(c1.Y, c2.Y)), new Point(Math.Max(c1.X, c2.X), Math.Max(c1.Y, c2.Y)));
+            var bc = _th.Dark ? Color.Parse("#C8D2DC") : Color.Parse("#3E4A57");
+            ctx.DrawRectangle(null, new Pen(new SolidColorBrush(bc), 1.4, new DashStyle(new double[] { 6, 4 }, 0)), box);
+            string txt = L("previsione propria", "own forecast") + (double.IsNaN(maxDb) ? "" : $" · {L("massimo visibile", "max visible")} {maxDb:0.0} dB") +
+                         $" · {f:0} MHz · {t:dd/MM HH}:00 UTC" + (!double.IsNaN(maxDb) && maxDb < 7 ? " · " + L("tutto sotto 7 dB: nessun colore", "all below 7 dB: no colour") : "");
+            var ft = new FormattedText(txt, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.Bold), 11, new SolidColorBrush(bc));
+            var at = new Point(Math.Max(4, box.X + 6), Math.Max(4, box.Y + 6));
+            ctx.DrawRectangle(new SolidColorBrush(Color.FromArgb(220, _th.Panel.R, _th.Panel.G, _th.Panel.B)), null, new Rect(at.X - 4, at.Y - 2, ft.Width + 8, ft.Height + 4), 4, 4);
+            ctx.DrawText(ft, at);
         }
 
         // copertura in ottica
@@ -666,6 +721,8 @@ public sealed partial class MainWindow
     void FcUpdateGrid()
     {
         if (_fcMap == null) return;
+        // un nuovo clic durante lo scaricamento non lo interrompe (per fermare c'è Stop)
+        if (_own.Busy) { FcSetStatus(L("Scaricamento già in corso: ", "Download already running: ") + _own.Status + L(" (per fermarlo: Stop)", " (to stop it: Stop)")); return; }
         _fcCts?.Cancel(); _fcCts = new CancellationTokenSource();
         var ct = _fcCts.Token;
         var (la1, la2, lo1, lo2) = _fcMap.Box;
