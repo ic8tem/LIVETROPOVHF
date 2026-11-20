@@ -27,9 +27,9 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          dotnet publish TropoVHF/TropoVHF.csproj -c Release -r win-x64 --self-contained true -p:Version=1.0.9 -p:Privato=true -p:DebugType=none -o publish/win-x64 -clp:NoSummary 2>&1 | tee build.log
+          dotnet publish TropoVHF/TropoVHF.csproj -c Release -r win-x64 --self-contained true -p:Version=1.2.1 -p:Privato=true -p:DebugType=none -o publish/win-x64 -clp:NoSummary 2>&1 | tee build.log
           # controllo: la versione per Windows 7 (.NET Framework 4.8) deve compilare con lo stesso motore
-          dotnet publish Win7/LIVETROPOVHF7.csproj -c Release -r win-x64 -p:Version=1.0.9 -p:DebugType=none -o publish/w7 -clp:NoSummary 2>&1 | tee -a build.log
+          dotnet publish Win7/LIVETROPOVHF7.csproj -c Release -r win-x64 -p:Version=1.2.1 -p:DebugType=none -o publish/w7 -clp:NoSummary 2>&1 | tee -a build.log
       - name: Errori di compilazione (ramo ci-log)
         if: failure()
         shell: bash
@@ -68,17 +68,19 @@ jobs:
           python -c "import json;d=json.load(open('om.json'));d=d if isinstance(d,list) else [d];h=d[0]['hourly'];print('elev',d[0].get('elevation'),'ore',len(h['time']),'nulli 975',sum(1 for x in h['temperature_975hPa'] if x is None),'blh',h['boundary_layer_height'][:3],'cape',h['cape'][:3])" >> dist/avvio.txt 2>&1 || echo "json non leggibile" >> dist/avvio.txt
           C=$(curl -s -o t.gz -w "%{http_code}" https://s3.amazonaws.com/elevation-tiles-prod/skadi/N40/N40E014.hgt.gz); echo "SRTM1 HTTP $C gz $(wc -c < t.gz) hgt $(gunzip -c t.gz 2>/dev/null | wc -c)" >> dist/avvio.txt
           C=$(curl -s -o meta.json -w "%{http_code}" https://api.open-meteo.com/data/ncep_gfs025/static/meta.json); echo "meta GFS HTTP $C $(head -c 300 meta.json)" >> dist/avvio.txt
+          C=$(curl -sL -o p453.zip -w "%{http_code}" https://www.itu.int/en/ITU-R/study-groups/rsg3/rwp3m/Documents/elevated_and_surface_duct.zip); echo "ITU P.453 HTTP $C $(wc -c < p453.zip) byte" >> dist/avvio.txt
+          python -c "import zipfile,io;z=zipfile.ZipFile('p453.zip');[print(i.filename,i.file_size) for i in z.infolist()[:40]]" >> dist/avvio.txt 2>&1 || echo "zip ITU non leggibile" >> dist/avvio.txt
           cat dist/avvio.txt
       - name: Zip e cifratura
         shell: bash
         run: |
           mkdir -p dist
-          (cd publish/win-x64 && 7z a -tzip -mx=7 ../../dist/LIVETROPOVHF-1.0.9-privata-windows-x64.zip . > /dev/null)
+          (cd publish/win-x64 && 7z a -tzip -mx=7 ../../dist/LIVETROPOVHF-1.2.1-privata-windows-x64.zip . > /dev/null)
           # chiave come testo esadecimale: openssl su Windows legge -pass file: in modo testo e si ferma al byte 0x1A
           openssl rand -hex 32 | tr -d '\r\n' > dist/k.bin
-          openssl enc -aes-256-cbc -pbkdf2 -salt -in dist/LIVETROPOVHF-1.0.9-privata-windows-x64.zip -out dist/pacchetto.enc -pass file:dist/k.bin
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in dist/LIVETROPOVHF-1.2.1-privata-windows-x64.zip -out dist/pacchetto.enc -pass file:dist/k.bin
           openssl pkeyutl -encrypt -pubin -inkey .github/privato.pub.pem -pkeyopt rsa_padding_mode:oaep -in dist/k.bin -out dist/chiave.enc
-          rm dist/k.bin dist/LIVETROPOVHF-1.0.9-privata-windows-x64.zip
+          rm dist/k.bin dist/LIVETROPOVHF-1.2.1-privata-windows-x64.zip
           ls -la dist
       - name: Ramo ci-priv
         shell: bash

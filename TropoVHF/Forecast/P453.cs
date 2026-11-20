@@ -60,6 +60,66 @@ public static class P453
     public static string Folder => Path.Combine(TropoVHF.Core.Settings.DataDir, "P453");
     static readonly string[] Names = { "S_OCCUR", "S_THICK", "S_STREN", "E_OCCUR", "E_base", "E_THICK", "E_STREN" };
     public static bool Available => Maps.Length >= 7;
+    /// <summary>Pagina dei prodotti digitali della Study Group 3 e archivio dei condotti (stesso file per suolo ed elevati).</summary>
+    public const string ItuPage = "https://www.itu.int/en/ITU-R/study-groups/rsg3/Pages/iono-tropo-spheric.aspx";
+    public const string ItuZip = "https://www.itu.int/en/ITU-R/study-groups/rsg3/rwp3m/Documents/elevated_and_surface_duct.zip";
+
+    /// <summary>Rilegge le mappe (dopo averle scaricate o copiate), senza riavviare.</summary>
+    public static void Reload() { lock (_lock) _maps = null; }
+
+    /// <summary>
+    /// Scarica l'archivio dei condotti dal sito dell'ITU per uso personale dell'utente ed estrae i sette file in Dati/P453
+    /// (anche se nell'archivio stanno in sottocartelle o in un altro zip). Restituisce l'esito da mostrare.
+    /// </summary>
+    public static async Task<(bool ok, string msg)> DownloadFromItu(HttpClient http, Action<string> progress, CancellationToken ct)
+    {
+        Directory.CreateDirectory(Folder);
+        var zipPath = Path.Combine(Folder, "elevated_and_surface_duct.zip");
+        progress?.Invoke("ITU: scarico l'archivio dei condotti…");
+        CalcLog.W("P.453: scarico " + ItuZip);
+        using (var resp = await http.GetAsync(ItuZip, HttpCompletionOption.ResponseHeadersRead, ct))
+        {
+            resp.EnsureSuccessStatusCode();
+            using var src = await resp.Content.ReadAsStreamAsync(ct);
+            using var dst = File.Create(zipPath);
+            await src.CopyToAsync(dst, ct);
+        }
+        CalcLog.W($"P.453: archivio salvato ({new FileInfo(zipPath).Length / 1024} kB), estraggo");
+        var found = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var seen = new List<string>();
+        void Scan(ZipArchive za, int depth)
+        {
+            foreach (var e in za.Entries)
+            {
+                if (string.IsNullOrEmpty(e.Name)) continue;
+                seen.Add(e.FullName);
+                var stem = Path.GetFileNameWithoutExtension(e.Name);
+                var ext = Path.GetExtension(e.Name).ToLowerInvariant();
+                var n = Names.FirstOrDefault(x => string.Equals(x, stem, StringComparison.OrdinalIgnoreCase));
+                if (n != null && (ext == ".txt" || ext == ""))
+                {
+                    using var es = e.Open(); using var fo = File.Create(Path.Combine(Folder, n + ".TXT"));
+                    es.CopyTo(fo); found.Add(n);
+                }
+                else if (ext == ".zip" && depth < 2)
+                {
+                    using var es = e.Open(); var ms = new MemoryStream(); es.CopyTo(ms); ms.Position = 0;
+                    using var inner = new ZipArchive(ms, ZipArchiveMode.Read); Scan(inner, depth + 1);
+                }
+            }
+        }
+        using (var za = ZipFile.OpenRead(zipPath)) Scan(za, 0);
+        CalcLog.W("P.453: contenuto dell'archivio: " + string.Join(", ", seen.Take(60)));
+        var missing = Names.Where(n => !found.Contains(n)).ToList();
+        Reload();
+        if (missing.Count == 0 && Available)
+        {
+            try { File.Delete(zipPath); } catch { }
+            return (true, $"Mappe P.453 scaricate dall'ITU e attive ({Folder}). Calcolo B dei condotti acceso.");
+        }
+        return (false, "Nell'archivio dell'ITU non ho trovato: " + string.Join(", ", missing) +
+                       $". L'archivio è rimasto in {zipPath}: estrarre a mano i file in {Folder} (vedi il registro per il contenuto).");
+    }
 
     /// <summary>
     /// Versioni pubbliche: i dati ITU non si ridistribuiscono, l'utente li scarica dalla pagina dei prodotti digitali
