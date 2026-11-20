@@ -4,6 +4,19 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
+## 1.2.0 — 20/11/2026
+Nuova linguetta **Previsioni (sperimentale)**: previsione troposferica calcolata dal programma stesso, oltre alle mappe Hepburn e F5LEN. I calcoli sono in fase di verifica: servono a confrontare situazioni, non garantiscono un collegamento.
+- Mappa del guadagno stimato sulla zona visibile, dai profili verticali GFS (Open-Meteo, 1000–500 hPa) con le soglie di Bean e Dutton e i condotti con la formula di Kerr; bande 144, 432 e 1296 MHz; fino a 72 ore avanti.
+- Scala dei colori fissa in dB, uguale con tutti i temi: sotto 7 dB nessun colore, poi azzurro, verde, giallo, arancio, rosso e viola da 21 dB. Griglia dei locatori più scura, sopra i colori.
+- Linee opzionali: curve di guadagno, isobare GFS, curve dell'inversione termica; riga con l'accordo numerico fra guadagno, pressione e inversione.
+- Calcolo del segnale fra la propria stazione e un corrispondente: locatore a 4–10 caratteri (8–10 attivano SRTM1), terreno SRTM1, diffrazione delta-Bullington, prima zona di Fresnel, troposcatter P.452, strato fondante continuo lungo la tratta (quota, inclinazione, terreno e terra coperti), condotti con accoppiamento e attenuazione residua, confronto con ITU-R P.452 al 20%, Yagi DL6WU, rumore ITU-R P.372, S/N in SSB, CW e FT8.
+- Condotti potenziali con doppio calcolo (salto in 50 m e spessore climatologico ITU-R P.453): si usa il peggiore. Le mappe P.453 sono © ITU e non si ridistribuiscono: chi vuole il secondo calcolo le scarica dall'ITU in Dati/P453.
+- Copertura in ottica sul terreno SRTM1; tempi di risposta di ogni calcolo; registro dettagliato dei calcoli (Dati/previsioni-calcoli.log).
+- Fumetti con la fonte e il richiamo al manuale su ogni dato dei risultati.
+- Nuovi documenti: Manuale delle previsioni e Consigli per l'operatore.
+- Locatore della propria stazione a 8 o 10 caratteri nella riga in alto.
+- Windows 7 e 8.1: il programma resta lo stesso della 1.0.3 con le correzioni comuni; la linguetta Previsioni per ora c'è solo nelle versioni per Windows 10/11, Linux e Mac.
+
 ## 1.0.3 — 18/11/2026
 - Windows 7 e 8.1: al primo avvio, senza nominativo, l'immagine di partenza restava sopra la finestra che chiede il Call e il programma sembrava bloccato (segnalato da un tester su Windows 8). Ora l'immagine si chiude sempre dopo 2,5 secondi (o subito con un clic), non sta più in primo piano e solo dopo compare la richiesta del nominativo.
 - Windows 7 e 8.1: con finestre strette le linguette vanno a capo invece di uscire dal bordo.

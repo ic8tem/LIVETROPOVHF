@@ -352,7 +352,7 @@ jobs:
             Il programma si aggiorna da solo da GitHub (controllo ogni 30 minuti, nuova versione attiva al riavvio).
 
             - Windows 10 e 11: LIVETROPOVHF-...-windows-x64-setup.exe (installa in C:\LIVETROPOVHF) oppure lo zip portatile; per Windows a 32 bit i file -windows-x86-, per Windows su ARM i file -windows-arm64-.
-            - Windows 7 SP1 e 8.1: i file -windows7-x64- o -windows7-x86- (setup o zip portatile), compilati su .NET 6; senza la lettura OCR delle mappe.
+            - Windows 7 SP1 e 8.1: i file -windows7-x64- o -windows7-x86- (setup o zip portatile), programma per .NET Framework 4.8; senza la lettura OCR delle mappe e, per ora, senza la linguetta Previsioni.
             - Linux (Debian, Ubuntu, Mint): livetropovhf_..._amd64.deb, con: sudo apt install ./livetropovhf_..._amd64.deb (al primo avvio il programma si copia in ~/LIVETROPOVHF). Oppure LIVETROPOVHF-...-linux-x64.tar.gz, portatile o installabile con ./installa.sh.
             - Fedora, openSUSE: livetropovhf-....x86_64.rpm (o .aarch64.rpm, .armv7hl.rpm).
             - Arch, Manjaro, EndeavourOS: livetropovhf-...-x86_64.pkg.tar.zst (o -aarch64), con sudo pacman -U.

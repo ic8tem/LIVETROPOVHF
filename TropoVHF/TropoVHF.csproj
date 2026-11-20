@@ -16,7 +16,7 @@
     <Nullable>disable</Nullable>
     <AssemblyName>LIVETROPOVHF</AssemblyName>
     <RootNamespace>TropoVHF</RootNamespace>
-    <Version>1.0.3</Version>
+    <Version>1.2.0</Version>
     <Product>LIVETROPOVHF</Product>
     <ApplicationIcon>Assets\livetropovhf.ico</ApplicationIcon>
     <Description>Previsione e osservazione in tempo reale della propagazione troposferica VHF/UHF</Description>

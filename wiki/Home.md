@@ -7,6 +7,7 @@ Previsione e osservazione in tempo reale della propagazione troposferica da 144 
 - [[Guida rapida|Guida-rapida]] – compilare, primo avvio, fonti da accendere.
 - [[Criteri di scarto|Criteri-di-scarto]] – che cosa il programma scarta e perché.
 - [[Colori e simboli|Colori-e-simboli]] – come leggere la mappa.
+- [[Previsioni (sperimentale)|Previsioni-sperimentale]] – la previsione calcolata dal programma: mappa, segnale fra due stazioni, limiti.
 - [[Windows 7 e 8.1|Windows-7-e-8.1]] – la versione scritta apposta per Windows 7 (.NET Framework 4.8) e che cosa serve.
 - [[Storia delle versioni|Storia-delle-versioni]] – tutte le versioni.
 
