@@ -213,7 +213,7 @@ public static class Refractivity
             };
             ld.Inversion = lapse < 3.0 && ld.QRatio < 0.8;
             ld.Resolved = b.M < a.M;
-            double deficit, top;
+            double deficit, top = (a.Z + b.Z) / 2;
             if (ld.Resolved) { deficit = a.M - b.M; top = b.Z; }
             else if (ld.Inversion) { deficit = excess - 157 * 0.05; top = (a.Z + b.Z) / 2; }   // salto in circa 50 m a metà strato
             else deficit = 0;
