@@ -31,6 +31,19 @@ public sealed partial class MainWindow
     (double[] az, double[] first, double[] far, LatLon origin)? _fcLos;
     List<LatLon> _fcPath;
 
+    bool _fcSyncing;
+
+    /// <summary>La riga in alto ha cambiato il locatore: lo si riporta nella linguetta Previsioni.</summary>
+    void FcSyncLoc()
+    {
+        if (_fcTxLoc == null || _fcSyncing) return;
+        var v = _st.Loc ?? "";
+        if ((_fcTxLoc.Text ?? "").Trim().ToUpperInvariant() == v) return;
+        _fcSyncing = true;
+        try { _fcTxLoc.Text = v; } finally { _fcSyncing = false; }
+        _fcMap?.InvalidateVisual();
+    }
+
     static string L(string it, string en) => Lang.Current == "it" ? it : en;
 
     double FcFreq => _st.S.Get("fc_band", "144") switch { "432" => 432.2, "1296" => 1296.2, _ => 144.3 };
@@ -109,7 +122,18 @@ public sealed partial class MainWindow
 
         var me = new StackPanel { Spacing = 6 };
         me.Children.Add(TB(L("La mia stazione (trasmette)", "My station (transmitting)"), 14, _th.Text, true));
-        _fcTxLoc = Field("fc_tx_loc", _st.Loc, 130); _fcTxLoc.MaxLength = 10;
+        // il locatore della mia stazione è lo stesso della riga in alto (4–10 caratteri): cambiarlo qui lo cambia anche là
+        _fcTxLoc = Pill(_st.Loc, 130, "JN70CN83CL"); _fcTxLoc.MaxLength = 10;
+        _fcTxLoc.TextChanged += (_, _) =>
+        {
+            if (_fcSyncing) return;
+            var v = (_fcTxLoc.Text ?? "").Trim().ToUpperInvariant();
+            if (v == (_st.Loc ?? "")) return;
+            _st.Loc = v; _st.Dirty = true;
+            _fcSyncing = true;
+            try { if (_locBox != null && (_locBox.Text ?? "").Trim().ToUpperInvariant() != v) _locBox.Text = v; } finally { _fcSyncing = false; }
+            _fcMap?.InvalidateVisual(); _map.InvalidateVisual();
+        };
         me.Children.Add(Row(L("Locatore (4–10 caratteri; 8–10 = punto preciso su SRTM1)", "Locator (4–10 chars; 8–10 = exact point on SRTM1)"), _fcTxLoc));
         me.Children.Add(Row(L("Antenna dal suolo, m (locatore 8–10)", "Antenna above ground, m (8–10 locator)"), Field("fc_tx_agl", "10")));
         me.Children.Add(Row(L("Antenna sul mare, m (locatore 4–6: fondamentale)", "Antenna above sea, m (4–6 locator: required)"), Field("fc_tx_asl", "0")));
@@ -150,6 +174,7 @@ public sealed partial class MainWindow
         col.Children.Add(_fcResults);
         if (_fcLast != null) FcShowResult(_fcLast); else _fcResults.Children.Add(TB(L("Nessun calcolo ancora.", "No computation yet."), 12, _th.Muted));
         col.Children.Add(FcLegend());
+        col.Children.Add(FcLogPanel());
 
         g.Children.Add(new Border { Background = B(_th.Panel), BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 0, 1, 0), Child = new ScrollViewer { Content = col } });
 
@@ -183,6 +208,51 @@ public sealed partial class MainWindow
         _fcGtx.Text = $"{Dl6wu.GainDbi(Num("fc_tx_boom", 2), f):0.0} dBi ({299.792458 / f:0.00} m λ)";
         _fcGrx.Text = $"{Dl6wu.GainDbi(Num("fc_rx_boom", 2), f):0.0} dBi";
     }
+
+    TextBox _fcLogBox;
+    bool _fcLogDirty;
+    DispatcherTimer _fcLogTimer;
+
+    /// <summary>Registro dettagliato: ogni passo dei calcoli, anche nel file Dati/previsioni-calcoli.log.</summary>
+    Control FcLogPanel()
+    {
+        var sp = new StackPanel { Spacing = 6, Margin = new Thickness(0, 10, 0, 0) };
+        sp.Children.Add(TB(L("Registro dei calcoli", "Computation log"), 13, _th.Text, true));
+        CalcLog.Enabled = _st.S.GetBool("fc_log", true);
+        var chk = Check(L("Registro dettagliato attivo", "Verbose log enabled"), CalcLog.Enabled, v => { CalcLog.Enabled = v; _st.S.SetBool("fc_log", v); _st.Dirty = true; });
+        var open = OutlineButton(L("Apri il file", "Open file"), () =>
+        {
+            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(CalcLog.FilePath) { UseShellExecute = true }); }
+            catch (Exception ex) { FcSetStatus(ex.Message); }
+        });
+        var clear = OutlineButton(L("Svuota la finestra", "Clear window"), () => { CalcLog.Clear(); _fcLogDirty = true; });
+        sp.Children.Add(new WrapPanel { Children = { chk, new Border { Width = 8 }, open, new Border { Width = 8 }, clear } });
+        var path = TB(CalcLog.FilePath, 11, _th.Muted); path.TextWrapping = TextWrapping.Wrap;
+        sp.Children.Add(path);
+        _fcLogBox = new TextBox
+        {
+            IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.NoWrap, Height = 320, FontSize = 11,
+            FontFamily = new FontFamily("Consolas, Menlo, DejaVu Sans Mono, monospace"), Text = CalcLog.RecentText()
+        };
+        ScrollViewer.SetHorizontalScrollBarVisibility(_fcLogBox, ScrollBarVisibility.Auto);
+        sp.Children.Add(_fcLogBox);
+        CalcLog.Line -= FcOnLogLine; CalcLog.Line += FcOnLogLine;
+        if (_fcLogTimer == null)
+        {
+            _fcLogTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
+            _fcLogTimer.Tick += (_, _) =>
+            {
+                if (!_fcLogDirty || _fcLogBox == null) return;
+                _fcLogDirty = false;
+                _fcLogBox.Text = CalcLog.RecentText();
+                _fcLogBox.CaretIndex = _fcLogBox.Text?.Length ?? 0;
+            };
+            _fcLogTimer.Start();
+        }
+        return sp;
+    }
+
+    void FcOnLogLine(string _) => _fcLogDirty = true;
 
     Control FcLegend()
     {
@@ -295,6 +365,8 @@ public sealed partial class MainWindow
         _fcCts?.Cancel(); _fcCts = new CancellationTokenSource();
         var ct = _fcCts.Token;
         var (la1, la2, lo1, lo2) = _fcMap.Box;
+        CalcLog.Section("Aggiornamento della previsione propria");
+        CalcLog.W($"zona visibile {la1:0.##}–{la2:0.##} N, {lo1:0.##}–{lo2:0.##} E");
         Task.Run(async () =>
         {
             await _own.UpdateAsync(_st.Http, la1, la2, lo1, lo2, () => { FcSetStatus(_own.Status); Dispatcher.UIThread.Post(() => _fcMap?.InvalidateVisual()); }, ct);
@@ -336,6 +408,7 @@ public sealed partial class MainWindow
                 int n = Math.Max(2, Math.Min(40, (int)Math.Ceiling(d / 25) + 1));
                 var pp = Geo.GreatCircle(tx.Pos, rx.Pos, n - 1);
                 var prof = pp.Select(p => _own.At(p.Lat, p.Lon, opt.Utc)).ToList();
+                CalcLog.W($"percorso {d:0.0} km: {n} punti di previsione; dalla griglia già scaricata {prof.Count(p => p != null)}");
                 if (prof.Count(p => p != null) < prof.Count * 0.8)
                 {
                     FcSetStatus(L("GFS: scarico i profili lungo il percorso…", "GFS: downloading profiles along the path…"));
@@ -410,6 +483,9 @@ public sealed partial class MainWindow
         double hrx = Num("fc_rx_agl", 3);
         var p0 = _own.At(tp.Lat, tp.Lon, FcTime);
         double k = p0 != null ? LinkCalc.KFromDn(p0.DN1km) : 4.0 / 3;
+        CalcLog.Section("Copertura in ottica: dati di partenza");
+        CalcLog.Profile("profilo GFS sulla mia stazione", p0);
+        CalcLog.W(p0 == null ? "nessuna previsione sulla stazione: k = 4/3" : $"k dal ΔN del primo km = {k:0.000}");
         Task.Run(async () =>
         {
             try

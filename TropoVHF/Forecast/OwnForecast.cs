@@ -275,6 +275,7 @@ public sealed class OwnForecast
                 }
             }
             progress?.Invoke($"GFS: {Math.Min(pts.Count, i + batch)} / {pts.Count} punti");
+            CalcLog.W($"Open-Meteo GFS: lotto di {part.Count} punti letto ({json.Length / 1024} kB), {Hours} ore, 26 variabili (suolo + T e UR a 1000–500 hPa)");
             if (i + batch < pts.Count) await Task.Delay(20000, ct);   // circa 160 richieste equivalenti per lotto: si resta sotto 600 al minuto
         }
         return res;
@@ -316,6 +317,20 @@ public sealed class OwnForecast
                 Step = step; Rows = rows; Cols = cols; Times = times; Grid = grid;
             }
             UpdatedUtc = DateTime.UtcNow;
+            {
+                int ti = 0; int nd = 0, nOk = 0; double mx = 0; ProfileResult best = null; double bl = 0, bo = 0;
+                if (times.Length > 0)
+                    for (int r = 0; r < rows; r++) for (int c = 0; c < cols; c++)
+                    {
+                        var pr = grid[ti][r, c]; if (pr == null) continue; nOk++;
+                        if (pr.HasDuct) nd++;
+                        double v = pr.Index(144.3); if (v > mx) { mx = v; best = pr; bl = latMin + r * step; bo = lonMin + c * step; }
+                    }
+                CalcLog.Section($"Griglia della previsione propria");
+                CalcLog.W($"riquadro {latMin:0.##}–{latMin + (rows - 1) * step:0.##} N, {lonMin:0.##}–{lonMin + (cols - 1) * step:0.##} E, passo {step:0.##}°, {rows}×{cols} punti, {times.Length} ore dal {(times.Length > 0 ? times[0].ToString("dd/MM HH:mm") : "—")} UTC");
+                CalcLog.W($"prima ora: profili validi {nOk}, con condotto {nd}; indice 144 MHz massimo {mx:0.0} a {bl:0.##}, {bo:0.##}");
+                if (best != null) CalcLog.Profile($"profilo con l'indice più alto ({bl:0.##}, {bo:0.##})", best);
+            }
             Status = $"Previsione propria: GFS {UpdatedUtc:dd/MM HH:mm} UTC, {pts.Count} punti, passo {step:0.##}°";
             return true;
         }

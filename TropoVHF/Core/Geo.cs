@@ -9,7 +9,7 @@ public readonly struct LatLon
     public override string ToString() => $"{Lat:0.00},{Lon:0.00}";
 }
 
-/// <summary>Locatore Maidenhead (4 o 6 caratteri) e conversioni.</summary>
+/// <summary>Locatore Maidenhead (4, 6, 8 o 10 caratteri) e conversioni.</summary>
 public static class Locator
 {
     public static bool TryToLatLon(string loc, out LatLon p)
@@ -17,23 +17,29 @@ public static class Locator
         p = default;
         if (string.IsNullOrWhiteSpace(loc)) return false;
         var l = loc.Trim().ToUpperInvariant();
-        if (l.Length != 4 && l.Length != 6) return false;
+        if (l.Length != 4 && l.Length != 6 && l.Length != 8 && l.Length != 10) return false;
         if (l[0] < 'A' || l[0] > 'R' || l[1] < 'A' || l[1] > 'R') return false;
         if (l[2] < '0' || l[2] > '9' || l[3] < '0' || l[3] > '9') return false;
         double lon = (l[0] - 'A') * 20 - 180 + (l[2] - '0') * 2;
         double lat = (l[1] - 'A') * 10 - 90 + (l[3] - '0');
-        if (l.Length == 6)
+        double w = 2, h = 1;
+        // 6 caratteri: sottoquadrato; 8 e 10 caratteri (posizione precisa a circa 400 m e 20 m)
+        if (l.Length >= 6)
         {
             if (l[4] < 'A' || l[4] > 'X' || l[5] < 'A' || l[5] > 'X') return false;
-            lon += ((l[4] - 'A') + 0.5) * (2.0 / 24);
-            lat += ((l[5] - 'A') + 0.5) / 24.0;
+            w /= 24; h /= 24; lon += (l[4] - 'A') * w; lat += (l[5] - 'A') * h;
         }
-        else
+        if (l.Length >= 8)
         {
-            lon += 1;
-            lat += 0.5;
+            if (l[6] < '0' || l[6] > '9' || l[7] < '0' || l[7] > '9') return false;
+            w /= 10; h /= 10; lon += (l[6] - '0') * w; lat += (l[7] - '0') * h;
         }
-        p = new LatLon(lat, lon);
+        if (l.Length >= 10)
+        {
+            if (l[8] < 'A' || l[8] > 'X' || l[9] < 'A' || l[9] > 'X') return false;
+            w /= 24; h /= 24; lon += (l[8] - 'A') * w; lat += (l[9] - 'A') * h;
+        }
+        p = new LatLon(lat + h / 2, lon + w / 2);
         return true;
     }
 

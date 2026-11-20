@@ -353,8 +353,8 @@ public sealed class AppState
             if (c != _myCall() && Db(c, bc) != grid[..6]) LearnedLoc.Learn(bc, grid);
             return grid;
         }
-        // il proprio nominativo: vale sempre il proprio locatore a 6 caratteri
-        if ((c == _myCall() || bc == _myCall()) && _myLoc().Length == 6 && Locator.IsValid(_myLoc())) return _myLoc();
+        // il proprio nominativo: vale sempre il proprio locatore (i primi 6 caratteri se è a 8 o 10)
+        if ((c == _myCall() || bc == _myCall()) && _myLoc().Length >= 6 && Locator.IsValid(_myLoc())) return _myLoc()[..6];
         var db = Db(c, bc);                 // solo nominativo esatto (o base di uno skimmer): F/IC8TEM non diventa JN70
         bool moved = db.Length == 6 && grid.Length >= 4 && db[..4] != grid[..4] && (_sus?.Verdict("locatore", bc) ?? 0) > 0;
         if (db.Length == 6 && !moved) return db;

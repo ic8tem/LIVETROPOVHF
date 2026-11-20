@@ -137,7 +137,7 @@ public sealed partial class MainWindow : Window
             FlowDirection = Lang.IsRtl(Lang.Current) ? FlowDirection.RightToLeft : FlowDirection.LeftToRight
         };
         var call = Pill(_st.Call, 200, "IC8TEM");
-        var loc = Pill(_st.Loc, 200, "JN70CN");
+        var loc = Pill(_st.Loc, 200, "JN70CN83CL"); loc.MaxLength = 10;
         var err = TB("", 12, _th.Bad);
         bool ok = false;
         void Confirm()
@@ -552,14 +552,15 @@ public sealed partial class MainWindow : Window
         call.TextChanged += (_, _) => { _st.Call = (call.Text ?? "").ToUpperInvariant(); _st.Dirty = true; };
         left.Children.Add(call);
         left.Children.Add(TB(Lang.T("loc"), 12, _th.Muted));
-        _locBox = Pill(_st.Loc, 96, "JN70CN");
-        _locBox.MaxLength = 6;
+        _locBox = Pill(_st.Loc, 130, "JN70CN83CL");
+        _locBox.MaxLength = 10;
         _locBox.TextChanged += (_, _) =>
         {
             _st.Loc = (_locBox.Text ?? "").ToUpperInvariant();
             _locBox.BorderBrush = B(_st.Loc.Length > 0 && !Locator.IsValid(_st.Loc) ? Color.Parse("#D64545") : _th.Ctl);
             _st.Dirty = true;
             _map.InvalidateVisual();
+            FcSyncLoc();
         };
         left.Children.Add(_locBox);
         DockPanel.SetDock(left, Dock.Left);

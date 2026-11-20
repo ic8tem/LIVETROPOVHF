@@ -168,27 +168,39 @@ public static class LinkCalc
         var r = new LinkResult { FreqMHz = o.FreqMHz };
         r.DistKm = Geo.DistKm(tx.Pos, rx.Pos);
         r.AzDeg = Geo.Azimuth(tx.Pos, rx.Pos);
+        CalcLog.Section($"Calcolo del segnale {tx.Loc} → {rx.Loc}, {o.FreqMHz:0.0} MHz, ora {o.Utc:dd/MM HH:mm} UTC");
+        CalcLog.W($"TX {tx.Loc}: {tx.Pos.Lat:0.00000}, {tx.Pos.Lon:0.00000}; {(tx.Precise ? $"locatore preciso, antenna {tx.AglM:0.0} m dal suolo" : $"locatore a {tx.Loc.Length} caratteri, antenna {tx.AslM:0} m s.l.m.")}; {tx.PowerW:0.#} W, cavo {tx.CableDb:0.0} dB, boom {tx.BoomM:0.00} m");
+        CalcLog.W($"RX {rx.Loc}: {rx.Pos.Lat:0.00000}, {rx.Pos.Lon:0.00000}; {(rx.Precise ? $"locatore preciso, antenna {rx.AglM:0.0} m dal suolo" : rx.AslM > 0 ? $"antenna {rx.AslM:0} m s.l.m." : $"antenna {rx.AglM:0.0} m sul suolo SRTM")}; boom {rx.BoomM:0.00} m, cavo {rx.CableDb:0.0} dB, NF {rx.NfDb:0.0} dB");
+        CalcLog.W($"distanza {r.DistKm:0.000} km, azimut {r.AzDeg:0.0}°");
         if (r.DistKm < 0.05) { r.Notes.Add("le due stazioni coincidono"); return r; }
         double step = Math.Max(0.03, Math.Min(0.25, r.DistKm / 4000));      // 30 m fino a 120 km, poi più largo
         var pts = PathPoints(tx.Pos, rx.Pos, step, out var dist);
         var (h, ok) = await srtm.Heights(pts, ct);
         r.TilesMissing = srtm.Missing;
+        {
+            int imax = 0; for (int i = 1; i < h.Length; i++) if (h[i] > h[imax]) imax = i;
+            CalcLog.W($"profilo SRTM1: {pts.Count} punti ogni {step * 1000:0} m; suolo TX {h[0]:0.0} m, suolo RX {h[h.Length - 1]:0.0} m; quota massima {h[imax]:0} m a {dist[imax]:0.0} km; punti senza riquadro {ok.Count(x => !x)}");
+        }
         r.DistAlong = dist; r.Terrain = h;
         tx.GroundM = h[0]; rx.GroundM = h[h.Length - 1];
         double hts = tx.AntennaAsl, hrs = rx.AntennaAsl;
         if (!tx.Precise && tx.AslM > 0 && hts < tx.GroundM + 1) { r.Notes.Add($"la quota s.l.m. indicata ({tx.AslM:0} m) è sotto il suolo SRTM ({tx.GroundM:0} m): uso il suolo + 2 m"); hts = tx.GroundM + 2; }
         r.HtxAsl = hts; r.HrxAsl = hrs;
+        CalcLog.W($"antenne sul mare: TX {hts:0.0} m, RX {hrs:0.0} m");
 
         // ---- raggio equivalente dalla previsione (media del primo km lungo il percorso)
         double k = 4.0 / 3;
         var good = prof?.Where(p => p != null).ToList() ?? new List<ProfileResult>();
         if (good.Count > 0) { k = KFromDn(good.Average(p => p.DN1km)); r.ForecastUsed = true; }
         r.K = k;
+        CalcLog.W($"profili di previsione sul percorso: {good.Count} su {prof?.Count ?? 0}; ΔN medio primo km {(good.Count > 0 ? good.Average(p => p.DN1km).ToString("0.0") : "—")} N/km → k = 157/(157+ΔN) = {k:0.000} (limitato fra 0,6 e 4)");
+        if (prof != null) for (int i = 0; i < prof.Count; i++) CalcLog.Profile($"punto {i + 1}/{prof.Count} del percorso", prof[i]);
         double ae = k * Re, d = r.DistKm, lam = 299.792458 / o.FreqMHz, fGHz = o.FreqMHz / 1000;
         double ce = 1 / ae;
 
         // ---- spazio libero
         r.LfsDb = 92.44 + 20 * Math.Log10(fGHz) + 20 * Math.Log10(d);
+        CalcLog.W($"raggio equivalente ae = k·6371 = {ae:0} km; λ = {lam:0.000} m; spazio libero Lfs = 92,44 + 20 log f(GHz) + 20 log d = {r.LfsDb:0.00} dB");
 
         // ---- Bullington (P.452 § 4.2.1)
         int n = h.Length;
@@ -218,6 +230,11 @@ public static class LinkCalc
             luc = J(nub);
         }
         r.LbullDb = luc + (1 - Math.Exp(-luc / 6)) * (10 + 0.02 * d);
+        {
+            int io = 1; double best = double.MinValue;
+            for (int i = 1; i < n - 1; i++) { double v = (h[i] + 500 * ce * dist[i] * (d - dist[i]) - hts) / dist[i]; if (v > best) { best = v; io = i; } }
+            CalcLog.W($"Bullington: Stim {stim:0.000} m/km (ostacolo più alto visto dal TX: {h[io]:0} m a {dist[io]:0.0} km), Str {str:0.000} m/km → {(r.Los ? "in vista" : "oltre l'orizzonte")}; Luc = J(ν) = {luc:0.00} dB; Lbull = Luc + (1−e^(−Luc/6))(10+0,02d) = {r.LbullDb:0.00} dB; Ldiff = {r.LdiffDb:0.00} dB");
+        }
         r.LdiffDb = r.LfsDb + r.LbullDb;
 
         // ---- angoli d'orizzonte (mrad) e troposcatter (P.452 eq. 45, p = 50%)
@@ -237,10 +254,13 @@ public static class LinkCalc
         double lf = 25 * Math.Log10(fGHz) - 2.5 * Math.Pow(Math.Log10(fGHz / 2), 2);   // f in GHz
         double lc = 0.051 * Math.Exp(0.055 * (r.GtxDbi + r.GrxDbi));
         r.LscatDb = 190.1 + lf + 20 * Math.Log10(d) + 0.573 * Math.Max(0, r.ThetaMrad) - 0.15 * n0 + lc;
+        CalcLog.W($"angoli d'orizzonte: TX {thT:0.00} mrad, RX {thR:0.00} mrad; θ = 1000 d/ae + θt + θr = {r.ThetaMrad:0.00} mrad");
+        CalcLog.W($"troposcatter P.452 eq. 45 (p = 50%): Lf {lf:0.00}, N0 {n0:0.0}, Lc = 0,051·e^(0,055(Gt+Gr)) {lc:0.00} → Lbs = {r.LscatDb:0.00} dB (Gt {r.GtxDbi:0.0} dBi, Gr {r.GrxDbi:0.0} dBi, DL6WU)");
 
         // ---- combinazione (somma delle potenze) senza tropo
         r.LbaseDb = -10 * Math.Log10(Math.Pow(10, -r.LdiffDb / 10) + Math.Pow(10, -r.LscatDb / 10));
         r.LbaseDb = Math.Max(r.LbaseDb, r.LfsDb);
+        CalcLog.W($"senza tropo (somma delle potenze di diffrazione e scatter, non sotto lo spazio libero): {r.LbaseDb:0.00} dB");
 
         // ---- tropo dalla previsione propria: guadagno medio lungo il percorso, condotto se copre quasi tutto il tragitto
         r.LpredDb = r.LbaseDb;
@@ -266,6 +286,9 @@ public static class LinkCalc
             }
             else if (gmean >= 10 && !r.Los) r.Mechanism = "tropo (super-rifrazione)";
             r.LpredDb = Math.Max(r.LfsDb, lpred);
+            CalcLog.W($"tropo: guadagno medio {gmean:0.00} dB su {good.Count} profili (min {good.Min(p => p.GainDb(o.FreqMHz)):0.0}, max {good.Max(p => p.GainDb(o.FreqMHz)):0.0}); condotti utili (spessore ≥ {dmin:0} m) sul {r.DuctFrac * 100:0}% del percorso; TX {(inT ? "dentro" : "fuori")}, RX {(inR ? "dentro" : "fuori")}");
+            if (r.LductDb > 0) CalcLog.W($"condotto: Lfs + accoppiamento + 0,01 dB/km = {r.LductDb:0.00} dB");
+            CalcLog.W($"perdita prevista {r.LpredDb:0.00} dB, meccanismo: {r.Mechanism}");
         }
         else r.Notes.Add("nessuna previsione GFS sul percorso: calcolo con atmosfera normale (k = 4/3)");
 
@@ -276,6 +299,9 @@ public static class LinkCalc
         r.SnrSsb = r.PrxDbm - r.NoiseSsbDbm;
         r.SnrCw = r.PrxDbm - NoiseDbm(o.BwCw, rx.NfDb, 0, o.FreqMHz);
         r.SnrFt8 = r.PrxDbm - NoiseDbm(o.BwFt8, rx.NfDb, 0, o.FreqMHz);
+        CalcLog.W($"EIRP = {tx.PowerW:0.#} W ({10 * Math.Log10(Math.Max(0.001, tx.PowerW) * 1000):0.0} dBm) − cavo {tx.CableDb:0.0} + {r.GtxDbi:0.0} dBi = {r.EirpDbm:0.00} dBm");
+        CalcLog.W($"ricevuto = EIRP − {r.LpredDb:0.00} + {r.GrxDbi:0.0} dBi − cavo {rx.CableDb:0.0} = {r.PrxDbm:0.00} dBm ({LinkResult.SMeter(r.PrxDbm)})");
+        CalcLog.W($"rumore (Tant {AntennaTempK(o.FreqMHz):0} K, NF {rx.NfDb:0.0} dB): SSB {o.BwSsb:0} Hz {r.NoiseSsbDbm:0.00} dBm → S/N {r.SnrSsb:0.0} dB (soglia {o.ReqSsb:0}); CW {o.BwCw:0} Hz → S/N {r.SnrCw:0.0} dB (soglia {o.ReqCw:0}); FT8 {o.BwFt8:0} Hz → S/N {r.SnrFt8:0.0} dB (soglia {o.ReqFt8:0})");
         if (r.TilesMissing > 0) r.Notes.Add($"{r.TilesMissing} riquadri SRTM1 non disponibili: lì il terreno vale 0 m");
         return r;
     }
@@ -295,6 +321,8 @@ public static class LinkCalc
         var (h, _) = await srtm.Heights(pts, ct);
         tx.GroundM = h[0];
         double hts = tx.AntennaAsl, ae = k * Re;
+        CalcLog.Section($"Copertura in ottica da {tx.Loc}");
+        CalcLog.W($"suolo SRTM1 {tx.GroundM:0.0} m, antenna {hts:0.0} m s.l.m., ricevente {hRx:0.0} m dal suolo, k {k:0.000} (ae {ae:0} km), raggio {maxKm:0} km, {naz} azimut, passo {stepKm * 1000:0} m, {pts.Count} punti");
         var az = new double[naz]; var first = new double[naz]; var far = new double[naz];
         for (int a = 0; a < naz; a++)
         {
@@ -312,6 +340,7 @@ public static class LinkCalc
                 maxSlope = Math.Max(maxSlope, slopeGround);
             }
             if (first[a] < 0) first[a] = maxKm;
+            if (a % 5 == 0) CalcLog.W($"azimut {az[a],5:0}°: prima ombra {first[a],6:0.0} km, visibile più lontano {far[a],6:0.0} km");
         }
         return (az, first, far);
     }

@@ -41,12 +41,13 @@ public sealed class Srtm
             try
             {
                 using var resp = await _http.GetAsync(url, ct);
-                if (!resp.IsSuccessStatusCode) { _missing.Add(name); Missing++; return (null, 0); }
+                if (!resp.IsSuccessStatusCode) { _missing.Add(name); Missing++; CalcLog.W($"SRTM1: {name} non disponibile (HTTP {(int)resp.StatusCode}), quota 0"); return (null, 0); }
                 var bytes = await resp.Content.ReadAsByteArrayAsync(ct);
                 var tmp = file + ".part";
                 await File.WriteAllBytesAsync(tmp, bytes, ct);
                 Compat.MoveOver(tmp, file);
                 Downloaded++;
+                CalcLog.W($"SRTM1: scaricato {name} ({bytes.Length / 1024} kB) da {url}");
             }
             catch (OperationCanceledException) { throw; }
             catch { _missing.Add(name); Missing++; return (null, 0); }
@@ -68,6 +69,7 @@ public sealed class Srtm
         catch (OperationCanceledException) { throw; }
         catch { try { File.Delete(file); } catch { } _missing.Add(name); Missing++; return (null, 0); }
         _tiles[name] = data; _side[name] = side; _lru.AddFirst(name);
+        CalcLog.W($"SRTM1: letto {name}, {side}×{side} punti");
         while (_lru.Count > MaxTiles) { var old = _lru.Last.Value; _lru.RemoveLast(); _tiles.Remove(old); _side.Remove(old); }
         return (data, side);
     }
