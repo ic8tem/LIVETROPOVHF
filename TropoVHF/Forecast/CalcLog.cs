@@ -68,10 +68,14 @@ public static class CalcLog
             W($"    {F(l.Z, "0"),7} {F(l.P, "0"),7} {F(l.T, "0.0"),7} {F(l.RH, "0"),6} {F(l.N, "0.0"),8} {F(l.M, "0.0"),8} {g,12} {gm,8}");
         }
         W($"    gradiente più forte {F(p.MaxGrad)} N/km; strato migliore: {(p.LayerName == "" ? "nessuno sopra il normale" : p.LayerName)}, guadagno dal gradiente {F(p.LayerGainDb)} dB{(p.Sub ? " (sub-rifrazione)" : "")}");
+        if (p.Clim.Ok)
+            W($"    climatologia P.453 ({F(p.Lat, "0.00")}, {F(p.Lon, "0.00")}): condotti al suolo {F(p.Clim.SOccur)}% del tempo, spessore {F(p.Clim.SThick, "0")} m, intensità {F(p.Clim.SStren)} M; " +
+              $"elevati {F(p.Clim.EOccur)}%, base {F(p.Clim.EBase, "0")} m, spessore {F(p.Clim.EThick, "0")} m, intensità {F(p.Clim.EStren)} M");
         foreach (var l in p.Layers)
             W($"    strato {l.Name} ({F(l.ZBot, "0")}–{F(l.ZTop, "0")} m): calo oltre il normale {F(l.ExcessN)} N, gradiente termico {F(l.LapseKkm)} K/km, umidità sopra/sotto {F(l.QRatio, "0.00")}" +
               (l.Resolved ? " → condotto visibile al modello" : l.Inversion ? " → inversione: salto netto probabile" : " → senza segni di inversione") +
-              (l.Deficit > 0 ? $"; condotto {(l.Resolved ? "risolto" : "potenziale")}: cima {F(l.DuctTop, "0")} m, base {F(l.DuctBase, "0")} m{(l.Surface ? " (suolo)" : "")}, deficit {F(l.Deficit)} M, λmax {F(l.LambdaMax, "0.00")} m" : ""));
+              (l.Deficit > 0 ? $"; condotto {(l.Resolved ? "risolto" : "potenziale")}: cima {F(l.DuctTop, "0")} m, base {F(l.DuctBase, "0")} m{(l.Surface ? " (suolo)" : "")}, deficit {F(l.Deficit)} M, λmax {F(l.LambdaMax, "0.00")} m" : "") +
+              (l.Dual ? $"\n      doppio calcolo: A (salto in 50 m) {F(l.DeficitA)} M, λ {F(l.LambdaA, "0.00")} m; B (spessore P.453 {F(l.ClimThick, "0")} m) {F(l.DeficitB)} M, λ {F(l.LambdaB, "0.00")} m → usato il peggiore ({l.Chosen}); anomalia {F(l.Anomaly, "0.0")}× l'intensità tipica {F(l.ClimStren)} M" : ""));
         if (p.HasDuct)
             W($"    condotto: base {F(p.DuctBase, "0")} m, cima {F(p.DuctTop, "0")} m, spessore {F(p.DuctThick, "0")} m, deficit ΔM {F(p.DuctDeficit)}{(p.SurfaceDuct ? ", al suolo" : ", elevato")}");
         else W("    nessun condotto (M non cala in nessuno strato)");

@@ -30,6 +30,10 @@ public sealed class LayerDuct
     public double DuctTop, DuctBase;   // m s.l.m.
     public bool Surface;               // la base tocca il suolo
     public double LambdaMax;           // lunghezza d'onda massima intrappolata (m), Kerr eq. 17 con calo lineare
+    // doppio calcolo dei condotti potenziali: A = salto in 50 m (GFS), B = spessore climatologico P.453; si tiene il peggiore
+    public bool Dual;                  // il doppio calcolo è stato fatto (condotto potenziale con climatologia disponibile)
+    public double DeficitA, LambdaA, DeficitB, LambdaB, ClimThick, ClimStren, Anomaly;
+    public string Chosen = "";         // "A", "B" o "" (condotto risolto: un solo calcolo)
     public double Depth => DuctTop - DuctBase;
     public bool Traps(double freqMHz) => LambdaMax >= 299.792458 / freqMHz;
 }
@@ -51,6 +55,8 @@ public sealed class ProfileResult
     public double DuctBase, DuctTop, DuctDeficit;   // m s.l.m. e unità M
     public bool SurfaceDuct;       // la base del condotto è il suolo
     public double Wind10, Blh, Cape;
+    public double Lat = double.NaN, Lon = double.NaN;
+    public DuctClimate Clim;                  // climatologia P.453 del punto
     public Level[] Levels = Array.Empty<Level>();
     public List<LayerDuct> Layers = new();     // strati con calo di N oltre il normale (condotti risolti o potenziali)
 
@@ -119,9 +125,10 @@ public static class Refractivity
     /// dalla quota e dalla pressione al suolo, e analizza strati e condotti.
     /// </summary>
     public static ProfileResult Analyze(double elev, double ps, double t2, double rh2, double[] tLev, double[] rhLev,
-                                        double wind10, double blh, double cape)
+                                        double wind10, double blh, double cape, double lat = double.NaN, double lon = double.NaN)
     {
-        var r = new ProfileResult { Elev = elev, Wind10 = wind10, Blh = blh, Cape = cape };
+        var r = new ProfileResult { Elev = elev, Wind10 = wind10, Blh = blh, Cape = cape, Lat = lat, Lon = lon };
+        r.Clim = P453.At(lat, lon);
         if (double.IsNaN(ps) || double.IsNaN(t2) || double.IsNaN(rh2)) return null;
         var lev = new List<Level>();
         double z0 = elev + 2;
@@ -224,11 +231,49 @@ public static class Refractivity
                 if (ld.Resolved) depth = Math.Max(depth, b.Z - a.Z);
                 ld.DuctBase = top - depth;
                 if (ld.DuctBase <= lev[0].Z + 10) { ld.DuctBase = lev[0].Z; ld.Surface = true; }
-                ld.LambdaMax = 2 * Math.Sqrt(2) * (2.0 / 3.0) * Math.Sqrt(deficit * 1e-6) * (ld.DuctTop - ld.DuctBase);
+                ld.LambdaMax = Kerr(deficit, ld.DuctTop - ld.DuctBase);
+                if (!ld.Resolved && r.Clim.Ok) DualCalc(ld, excess, a, b, lev[0].Z, r.Clim);
             }
             r.Layers.Add(ld);
         }
         return r;
+    }
+
+    /// <summary>Lunghezza d'onda massima intrappolata (m), Kerr 1951 eq. 17 con calo lineare di M nel condotto.</summary>
+    public static double Kerr(double deficitM, double depthM) => deficitM > 0 && depthM > 0 ? 2 * Math.Sqrt(2) * (2.0 / 3.0) * Math.Sqrt(deficitM * 1e-6) * depthM : 0;
+
+    /// <summary>
+    /// Doppio calcolo di un condotto potenziale. A (già fatto): il salto di N in eccesso è concentrato in 50 m.
+    /// B: lo stesso salto è distribuito sullo spessore climatologico ITU-R P.453 del condotto (al suolo o elevato) del punto,
+    /// quindi il deficit è excess − 0,157·h e il condotto comprende lo strato di salto più il tratto sottostante.
+    /// Per il deficit e per λmax si tiene il valore più basso dei due (il peggiore).
+    /// </summary>
+    static void DualCalc(LayerDuct ld, double excess, Level a, Level b, double ground, DuctClimate c)
+    {
+        ld.Dual = true;
+        ld.DeficitA = ld.Deficit; ld.LambdaA = ld.LambdaMax;
+        double thick = ld.Surface ? c.SThick : c.EThick, stren = ld.Surface ? c.SStren : c.EStren;
+        ld.ClimThick = thick; ld.ClimStren = stren;
+        ld.Anomaly = stren > 0 ? ld.DeficitA / stren : 0;
+        double h = Math.Max(50, Math.Min(thick, b.Z - a.Z));
+        double defB = excess - 0.157 * h;
+        double topB = Math.Min(b.Z, (a.Z + b.Z) / 2 + h / 2);
+        double baseB = 0; bool surfB = false;
+        if (defB > 0)
+        {
+            baseB = topB - h - defB / 0.118;
+            if (baseB <= ground + 10) { baseB = ground; surfB = true; }
+        }
+        ld.DeficitB = Math.Max(0, defB);
+        ld.LambdaB = defB > 0 ? Kerr(defB, topB - baseB) : 0;
+        if (ld.LambdaB < ld.LambdaA || ld.DeficitB < ld.DeficitA)
+        {
+            ld.Chosen = "B";
+            ld.Deficit = Math.Min(ld.DeficitA, ld.DeficitB);
+            ld.LambdaMax = Math.Min(ld.LambdaA, ld.LambdaB);
+            if (defB > 0 && ld.LambdaB <= ld.LambdaA) { ld.DuctTop = topB; ld.DuctBase = baseB; ld.Surface = surfB; }
+        }
+        else ld.Chosen = "A";
     }
 
     /// <summary>Umidità specifica (kg/kg) di un livello.</summary>
@@ -335,7 +380,7 @@ public sealed class OwnForecast
                     {
                         var tt = new double[tl.Length]; var rr = new double[rl.Length];
                         for (int j = 0; j < tl.Length; j++) { tt[j] = t < tl[j].Length ? tl[j][t] : double.NaN; rr[j] = t < rl[j].Length ? rl[j][t] : double.NaN; }
-                        prof[t] = Refractivity.Analyze(elev, At(ps, t), At(t2, t), At(rh2, t), tt, rr, At(w, t), At(blh, t), At(cape, t));
+                        prof[t] = Refractivity.Analyze(elev, At(ps, t), At(t2, t), At(rh2, t), tt, rr, At(w, t), At(blh, t), At(cape, t), part[k].Lat, part[k].Lon);
                     }
                     res.Add(new PointSeries { Lat = part[k].Lat, Lon = part[k].Lon, Elev = elev, Times = times, Profiles = prof });
                 }

@@ -98,6 +98,9 @@ public sealed class LinkResult
     public string LayerName = "";
     public bool LayerTraps;                 // lo strato intrappola la banda (condotto) o è solo super-rifrattivo
     public double LayerFromKm, LayerToKm, LayerFrac, TopMean, TopMin, TopMax, BaseMean, TiltMkm, DeficitMean, LambdaMin;
+    // doppio calcolo dei condotti potenziali lungo lo strato fondante (A = salto in 50 m, B = spessore P.453)
+    public int DualN, DualChosenB;
+    public double DeficitMeanA, DeficitMeanB, LambdaMinA, LambdaMinB, ClimThickMean, AnomalyMean;
     public double CouplingTxDb, CouplingRxDb, ResidualDb, TerrainInDuctKm;
     public string TxVsDuct = "", RxVsDuct = "";
     public double FresnelMinRatio = double.NaN;        // minimo di (spazio libero sopra il terreno) / raggio della 1ª zona di Fresnel
@@ -356,6 +359,14 @@ public static class LinkCalc
                 r.BaseMean = run.Average(x => bas(x.l));
                 r.DeficitMean = run.Average(x => x.l.Deficit);
                 r.LambdaMin = run.Min(x => x.l.LambdaMax);
+                var dual = run.Where(x => x.l.Dual).Select(x => x.l).ToList();
+                if (dual.Count > 0)
+                {
+                    r.DualN = dual.Count; r.DualChosenB = dual.Count(l => l.Chosen == "B");
+                    r.DeficitMeanA = dual.Average(l => l.DeficitA); r.DeficitMeanB = dual.Average(l => l.DeficitB);
+                    r.LambdaMinA = dual.Min(l => l.LambdaA); r.LambdaMinB = dual.Min(l => l.LambdaB);
+                    r.ClimThickMean = dual.Average(l => l.ClimThick); r.AnomalyMean = dual.Average(l => l.Anomaly);
+                }
                 r.RunDist = run.Select(x => x.dist).ToArray(); r.RunTop = run.Select(x => top(x.l)).ToArray(); r.RunBase = run.Select(x => bas(x.l)).ToArray();
                 if (run.Count >= 2)
                 {
@@ -373,6 +384,9 @@ public static class LinkCalc
                 CalcLog.W($"strato fondante: {r.LayerName}, {(best.traps ? $"condotto che intrappola λ {299.792458 / o.FreqMHz:0.00} m" : "solo super-rifrattivo (non intrappola la banda)")}; continuo da {r.LayerFromKm:0} a {r.LayerToKm:0} km ({r.LayerFrac * 100:0}% della tratta, {run.Count} punti su {np})");
                 CalcLog.W($"   quota della cima {r.TopMean:0} m (da {r.TopMin:0} a {r.TopMax:0}), base media {r.BaseMean:0} m, inclinazione {r.TiltMkm:+0.0;-0.0} m/km, deficit medio {r.DeficitMean:0.0} M, λmax minima {r.LambdaMin:0.00} m; terreno dentro lo strato per {r.TerrainInDuctKm:0} km");
             }
+            if (r.DualN > 0)
+                CalcLog.W($"   doppio calcolo su {r.DualN} punti (condotti potenziali): A salto in 50 m → deficit medio {r.DeficitMeanA:0.0} M, λmax minima {r.LambdaMinA:0.00} m; " +
+                          $"B spessore P.453 {r.ClimThickMean:0} m → {r.DeficitMeanB:0.0} M, {r.LambdaMinB:0.00} m; peggiore = B in {r.DualChosenB} punti su {r.DualN}; anomalia media {r.AnomalyMean:0.0}× la norma");
             else CalcLog.W("strato fondante: nessuno strato con calo di N oltre il normale continuo su almeno un punto");
 
             // guadagno: conta solo lo strato continuo, in proporzione al tratto che copre (Bean e Dutton: 10–25 dB per strato)

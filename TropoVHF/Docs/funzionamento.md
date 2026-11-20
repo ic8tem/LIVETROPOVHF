@@ -286,6 +286,8 @@ C# su .NET 10 (LTS) [15] con interfaccia Avalonia, pubblicato come eseguibile au
 ## Ringraziamenti
 Grazie a **I5MZY Massimo Zannoni** per le prove su Windows 7 e Windows 8.
 
+Climatologia dei condotti: ITU-R P.453, prodotti digitali della Study Group 3 (© ITU), usata per scopi personali e non commerciali.
+
 ## Fonti principali
 
 1. S. Heck LA0BY, “Extreme Tropo Propagation on 144 MHz and up”, presentazione al 41° Nordic VUSHF Meeting, Skjeberg 2019. Modi troposferici, lista di controllo per gli eventi (previsioni Hepburn/F5LEN, profili di temperatura in quota con Windy, DX cluster come prova dell'apertura), osservazione che le sole mappe di previsione non bastano per i percorsi estremi.

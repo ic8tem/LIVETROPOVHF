@@ -295,9 +295,11 @@ public sealed partial class MainWindow
         sp.Children.Add(row);
         var t2 = TB(L("Indice = guadagno stimato in dB / 2,5 (25 dB = 10). Quadretti: nessuna previsione propria, Hepburn/F5LEN ≥ 5. " +
                       "Area azzurra: copertura in ottica fino alla prima ombra; linea tratteggiata: punto visibile più lontano. " +
+                      "Condotti potenziali: doppio calcolo (A dal GFS, B con lo spessore climatologico ITU-R P.453, © ITU) e si usa il peggiore. " +
                       "I valori del segnale sono stime: servono a confrontare situazioni, non garantiscono il collegamento.",
                       "Index = estimated gain in dB / 2.5 (25 dB = 10). Checkered: no own forecast, Hepburn/F5LEN ≥ 5. " +
                       "Light-blue area: line of sight up to the first shadow; dashed line: farthest visible point. " +
+                      "Potential ducts: two calculations (A from GFS, B with ITU-R P.453 climatological thickness, © ITU), the worst is used. " +
                       "Signal values are estimates for comparing situations, not a guarantee of a contact."), 11, _th.Muted);
         t2.TextWrapping = TextWrapping.Wrap;
         sp.Children.Add(t2);
@@ -520,6 +522,12 @@ public sealed partial class MainWindow
                 Line(L("Quota della cima", "Top height"), $"{r.TopMean:0} m ({r.TopMin:0}–{r.TopMax:0}), " + L("base", "base") + $" {r.BaseMean:0} m");
                 Line(L("Inclinazione", "Tilt"), $"{r.TiltMkm:+0.0;-0.0} m/km");
                 if (r.LayerTraps) Line(L("Deficit / λ massima", "Deficit / max λ"), $"{r.DeficitMean:0.0} M / {r.LambdaMin:0.00} m");
+                if (r.DualN > 0)
+                {
+                    Line(L("Calcolo A (GFS, salto in 50 m)", "Calc A (GFS, 50 m jump)"), $"{r.DeficitMeanA:0.0} M / {r.LambdaMinA:0.00} m");
+                    Line(L("Calcolo B (P.453, spessore", "Calc B (P.453, thickness") + $" {r.ClimThickMean:0} m)", $"{r.DeficitMeanB:0.0} M / {r.LambdaMinB:0.00} m");
+                    Line(L("Usato il peggiore", "Worst used"), (r.DualChosenB * 2 >= r.DualN ? "B" : "A") + $" ({r.DualChosenB}/{r.DualN} " + L("punti B", "points B") + ") · " + L("anomalia", "anomaly") + $" {r.AnomalyMean:0.0}×");
+                }
                 if (r.TerrainInDuctKm > 0) Line(L("Terreno dentro lo strato", "Terrain inside layer"), $"{r.TerrainInDuctKm:0} km");
                 if (r.TxVsDuct != "") Line(L("Antenne e condotto", "Antennas vs duct"), $"TX {r.TxVsDuct}, RX {r.RxVsDuct}");
                 if (r.ResidualDb > 0) Line(L("Attenuazione residua", "Residual attenuation"), $"{r.ResidualDb:0.0} dB (+ {r.CouplingTxDb + r.CouplingRxDb:0.0} dB " + L("accoppiamento", "coupling") + ")");
