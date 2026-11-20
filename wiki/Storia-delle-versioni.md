@@ -4,6 +4,11 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
+## 1.2.2 — 20/11/2026
+- Previsioni: il pannello di sinistra si allarga o si stringe trascinando il bordo; il registro dei calcoli va a capo da solo e la sua altezza si regola trascinando la barra sotto (misure salvate).
+- Previsioni: casella «Mostra anche 3–7 dB» con un tratteggio leggero sotto la scala dei colori; riquadro della zona coperta dalla previsione propria con il guadagno massimo visibile, per distinguere una mappa vuota perché l'atmosfera è normale da una senza dati.
+- Previsioni: un secondo clic su Aggiorna previsione non interrompe più lo scaricamento in corso.
+
 ## 1.2.1 — 20/11/2026
 - Previsioni: con una griglia scaricata il programma poteva chiudersi con l'errore «Visual was invalidated during the render pass» (la riga dell'accordo fra guadagno, pressione e inversione veniva aggiornata mentre si disegnava la mappa). Corretto.
 - Previsioni: pulsante per scaricare le mappe ITU-R P.453 dal sito dell'ITU per uso personale (con le condizioni d'uso), estratte in Dati/P453; il calcolo B dei condotti si accende senza riavviare. Riconosciuti anche i nomi dei file dell'archivio ITU (E_OCCURRENCE, E_THICKNESS, E_STRENGTH…).
