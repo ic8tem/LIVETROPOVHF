@@ -11,6 +11,30 @@ public struct Level
 }
 
 /// <summary>
+/// Strato rifrattivo fra due livelli di pressione consecutivi. Con i livelli GFS (passi di 200–1000 m) un'inversione
+/// sottile viene "spalmata": se la termodinamica dice che c'è un'inversione (aria più stabile del normale e più secca
+/// sopra), il salto di N in eccesso sul normale si considera concentrato in uno strato sottile (circa 50 m) e se ne
+/// ricava il condotto potenziale: deficit di M, profondità e lunghezza d'onda massima con la formula di Kerr.
+/// </summary>
+public sealed class LayerDuct
+{
+    public int Key;                    // indice del livello di pressione superiore (stessa chiave lungo il percorso)
+    public string Name = "";           // es. "850–800 hPa"
+    public double ZBot, ZTop;          // quote dei due livelli (m s.l.m.)
+    public double ExcessN;             // calo di N oltre il normale (40 N/km), unità N
+    public double LapseKkm;            // gradiente termico nello strato (K/km, positivo = la temperatura cala salendo)
+    public double QRatio;              // rapporto fra umidità specifica sopra e sotto
+    public bool Inversion;             // stabile e più secco sopra: salto probabilmente netto
+    public bool Resolved;              // M cala già fra i due livelli (condotto visibile al modello)
+    public double Deficit;             // deficit di M del condotto (unità M)
+    public double DuctTop, DuctBase;   // m s.l.m.
+    public bool Surface;               // la base tocca il suolo
+    public double LambdaMax;           // lunghezza d'onda massima intrappolata (m), Kerr eq. 17 con calo lineare
+    public double Depth => DuctTop - DuctBase;
+    public bool Traps(double freqMHz) => LambdaMax >= 299.792458 / freqMHz;
+}
+
+/// <summary>
 /// Analisi di un profilo verticale (un punto, un'ora): strati di Bean e Dutton, condotto più forte, guadagno stimato.
 /// Le soglie per strato di pressione sono quelle della tabella 6.5 di Bean e Dutton (NBS Monograph 92, 1966, p. 248).
 /// </summary>
@@ -28,6 +52,10 @@ public sealed class ProfileResult
     public bool SurfaceDuct;       // la base del condotto è il suolo
     public double Wind10, Blh, Cape;
     public Level[] Levels = Array.Empty<Level>();
+    public List<LayerDuct> Layers = new();     // strati con calo di N oltre il normale (condotti risolti o potenziali)
+
+    /// <summary>Lo strato che intrappola la frequenza con il deficit maggiore (null se nessuno).</summary>
+    public LayerDuct BestDuct(double freqMHz) => Layers.Where(l => l.Traps(freqMHz)).OrderByDescending(l => l.Deficit).FirstOrDefault();
 
     public double DuctThick => HasDuct ? DuctTop - DuctBase : 0;
 
@@ -42,14 +70,12 @@ public sealed class ProfileResult
     public double GainDb(double freqMHz)
     {
         double g = LayerGainDb;
-        if (HasDuct)
-        {
-            double dmin = MinDuctM(freqMHz);
-            double dg = DuctThick >= dmin ? Math.Min(25, 20 + DuctDeficit / 5.0) : 15;
-            g = Math.Max(g, dg);
-        }
+        var bd = BestDuct(freqMHz);
+        if (bd != null) g = Math.Max(g, Math.Min(25, 20 + bd.Deficit / 5.0));
+        else if (Layers.Any(l => l.Deficit > 0)) g = Math.Max(g, 15);     // condotto troppo sottile per la banda
         // rimescolamento: vento forte al suolo o strato limite molto alto cancellano i condotti al suolo (Bean e Dutton § 4.4)
-        if (HasDuct && SurfaceDuct && g > 10)
+        bool surf = bd != null ? bd.Surface : (HasDuct && SurfaceDuct);
+        if (surf && g > 10)
         {
             if (Wind10 > 8) g = 10 + (g - 10) * 0.4;
             else if (Wind10 > 5) g = 10 + (g - 10) * 0.7;
@@ -169,7 +195,47 @@ public static class Refractivity
             }
             i = top;
         }
+
+        // ---- strati fra livelli consecutivi: condotti risolti e potenziali (salto netto nascosto dal passo dei livelli)
+        for (int i = 1; i < lev.Count; i++)
+        {
+            var a = lev[i - 1]; var b = lev[i];
+            double dz = b.Z - a.Z;
+            if (dz < 10) continue;
+            double excess = -(b.N - a.N) - 40 * dz / 1000.0;
+            if (excess <= 0) continue;
+            double qa = Q(a), qb = Q(b);
+            double lapse = (a.T - b.T) / (dz / 1000.0);
+            var ld = new LayerDuct
+            {
+                Key = Array.IndexOf(PLevels, (int)Math.Round(b.P)), Name = (i == 1 ? "suolo" : a.P.ToString("0")) + "–" + b.P.ToString("0") + " hPa",
+                ZBot = a.Z, ZTop = b.Z, ExcessN = excess, LapseKkm = lapse, QRatio = qa > 0 ? qb / qa : 1
+            };
+            ld.Inversion = lapse < 3.0 && ld.QRatio < 0.8;
+            ld.Resolved = b.M < a.M;
+            double deficit, top;
+            if (ld.Resolved) { deficit = a.M - b.M; top = b.Z; }
+            else if (ld.Inversion) { deficit = excess - 157 * 0.05; top = (a.Z + b.Z) / 2; }   // salto in circa 50 m a metà strato
+            else deficit = 0;
+            if (deficit > 0)
+            {
+                ld.Deficit = deficit; ld.DuctTop = top;
+                double depth = deficit / 0.118;                 // sotto il salto M cresce di circa 118 unità/km
+                if (ld.Resolved) depth = Math.Max(depth, b.Z - a.Z);
+                ld.DuctBase = top - depth;
+                if (ld.DuctBase <= lev[0].Z + 10) { ld.DuctBase = lev[0].Z; ld.Surface = true; }
+                ld.LambdaMax = 2 * Math.Sqrt(2) * (2.0 / 3.0) * Math.Sqrt(deficit * 1e-6) * (ld.DuctTop - ld.DuctBase);
+            }
+            r.Layers.Add(ld);
+        }
         return r;
+    }
+
+    /// <summary>Umidità specifica (kg/kg) di un livello.</summary>
+    static double Q(Level l)
+    {
+        double e = Math.Max(0, Math.Min(100, l.RH)) / 100.0 * Es(l.T);
+        return 0.622 * e / Math.Max(1, l.P - 0.378 * e);
     }
 
     static string Lang(string k) => k == "sub" ? "sub-rifrazione" : k;

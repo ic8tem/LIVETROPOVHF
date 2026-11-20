@@ -93,6 +93,15 @@ public sealed class LinkResult
     public double NoiseSsbDbm, SnrSsb, SnrCw, SnrFt8;
     public double[] DistAlong = Array.Empty<double>(), Terrain = Array.Empty<double>();
     public double HtxAsl, HrxAsl;
+    // strato fondante lungo la tratta
+    public string LayerName = "";
+    public bool LayerTraps;                 // lo strato intrappola la banda (condotto) o è solo super-rifrattivo
+    public double LayerFromKm, LayerToKm, LayerFrac, TopMean, TopMin, TopMax, BaseMean, TiltMkm, DeficitMean, LambdaMin;
+    public double CouplingTxDb, CouplingRxDb, ResidualDb, TerrainInDuctKm;
+    public string TxVsDuct = "", RxVsDuct = "";
+    public double FresnelMinRatio = double.NaN;        // minimo di (spazio libero sopra il terreno) / raggio della 1ª zona di Fresnel
+    public List<(double km, double hM, double ratio, double nu)> Obstacles = new();
+    public double[] RunDist = Array.Empty<double>(), RunTop = Array.Empty<double>(), RunBase = Array.Empty<double>();
     public int TilesMissing;
     public bool ForecastUsed;
     public List<string> Notes = new();
@@ -223,6 +232,32 @@ public static class LinkCalc
         r.LdiffDb = r.LfsDb + r.LbullDb;
         CalcLog.W($"Bullington sul profilo: Stim {stim:0.000} m/km (ostacolo più alto visto dal TX: {h[io]:0} m a {dist[io]:0.0} km), Str {str:0.000} m/km → {(los ? "in vista" : "oltre l'orizzonte")}; Lbulla = {lbulla:0.00} dB");
         CalcLog.W($"terra liscia: superficie {hst:0} m al TX e {hsr:0} m al RX → altezze efficaci {hte:0.0} / {hre:0.0} m; Bullington liscio {lbulls:0.00} dB; terra sferica (P.526, primo termine) {ldsph:0.00} dB");
+        // ---- prima zona di Fresnel lungo il raggio diretto: ostacoli che la invadono (ν di Fresnel-Kirchhoff, P.526)
+        {
+            r.FresnelMinRatio = double.MaxValue;
+            var cand = new List<(double km, double hM, double ratio, double nu)>();
+            for (int i = 1; i < n - 1; i++)
+            {
+                double d1 = dist[i], d2 = d - dist[i];
+                double ray = hts + (hrs - hts) * d1 / d;                           // raggio diretto (m s.l.m.)
+                double ground = h[i] + d1 * d2 / (2 * ae) * 1000;                  // terreno sollevato dalla curvatura
+                double f1 = Math.Sqrt(lam * d1 * d2 * 1000 / d);                   // raggio 1ª zona (m), d in km
+                double ratio = (ray - ground) / f1;
+                r.FresnelMinRatio = Math.Min(r.FresnelMinRatio, ratio);
+                bool peak = h[i] >= h[i - 1] && h[i] >= h[i + 1];
+                if (peak && ratio < 0.6) cand.Add((d1, h[i], ratio, -ratio * Math.Sqrt(2)));   // ν = −√2 · spazio/F1
+            }
+            // le cime più invadenti, una ogni 5 km
+            foreach (var c in cand.OrderBy(c => c.ratio))
+            {
+                if (r.Obstacles.Any(o2 => Math.Abs(o2.km - c.km) < 5)) continue;
+                r.Obstacles.Add(c);
+                if (r.Obstacles.Count >= 6) break;
+            }
+            r.Obstacles = r.Obstacles.OrderBy(c => c.km).ToList();
+            CalcLog.W($"1ª zona di Fresnel: rapporto minimo spazio/raggio {r.FresnelMinRatio:0.00} (≥ 0,6 = libera); cime che la invadono: " +
+                      (r.Obstacles.Count == 0 ? "nessuna" : string.Join("; ", r.Obstacles.Select(c => $"{c.hM:0} m a {c.km:0.0} km (spazio/F1 {c.ratio:0.0}, ν {c.nu:0.0}, J(ν) {J(c.nu):0.0} dB)"))));
+        }
         CalcLog.W($"diffrazione = Lbulla + max(Ldsph − Lbulls, 0) = {r.LbullDb:0.00} dB oltre lo spazio libero → Ldiff = {r.LdiffDb:0.00} dB");
 
         // ---- angoli d'orizzonte (mrad) e troposcatter (P.452 eq. 45, p = 50%)
@@ -250,32 +285,107 @@ public static class LinkCalc
         r.LbaseDb = Math.Max(r.LbaseDb, r.LfsDb);
         CalcLog.W($"senza tropo (somma delle potenze di diffrazione e scatter, non sotto lo spazio libero): {r.LbaseDb:0.00} dB");
 
-        // ---- tropo dalla previsione propria: guadagno medio lungo il percorso, condotto se copre quasi tutto il tragitto
+        // ---- strato fondante: continuità, quota e inclinazione dello strato lungo la tratta
         r.LpredDb = r.LbaseDb;
         r.Mechanism = r.Los ? "visibilità diretta" : r.LdiffDb <= r.LscatDb ? "diffrazione" : "troposcatter";
         if (good.Count > 0)
         {
-            double gmean = good.Average(p => p.GainDb(o.FreqMHz));
-            r.TropoGainDb = gmean;
-            double dmin = ProfileResult.MinDuctM(o.FreqMHz);
-            var ducts = good.Where(p => p.HasDuct && p.DuctThick >= dmin).ToList();
-            r.DuctFrac = (double)ducts.Count / good.Count;
-            // accoppiamento: un'antenna "entra" nel condotto se sta sotto la sua cima (e non troppo sotto la base di uno elevato)
-            bool In(double hAsl) => ducts.Count > 0 && hAsl <= ducts.Average(p => p.DuctTop) + 50 && hAsl >= ducts.Average(p => p.SurfaceDuct ? 0 : p.DuctBase) - 150;
-            bool inT = In(hts), inR = In(hrs);
-            r.DuctCoupled = inT && inR;
-            double lpred = r.LbaseDb - Math.Max(0, gmean);
-            if (gmean < 0) lpred = r.LbaseDb - gmean;             // sub-rifrazione: perdita in più
-            if (r.DuctFrac >= 0.8 && !r.Los)
+            int np = prof.Count;
+            var pd = new double[np];
+            for (int i = 0; i < np; i++) pd[i] = np > 1 ? d * i / (np - 1) : 0;
+            double cell = np > 1 ? d / (np - 1) : d;
+            var keys = prof.Where(p => p != null).SelectMany(p => p.Layers).Select(l => l.Key).Distinct().ToList();
+            (int key, int a, int b, bool traps, double score) best = (-1, 0, -1, false, 0);
+            foreach (bool wantTrap in new[] { true, false })
             {
-                double coupling = inT && inR ? 10 : inT || inR ? 20 : 35;
-                r.LductDb = r.LfsDb + coupling + 0.01 * d;
+                foreach (var key in keys)
+                {
+                    LayerDuct At(int i) => prof[i]?.Layers.FirstOrDefault(l => l.Key == key && (wantTrap ? l.Traps(o.FreqMHz) : l.ExcessN > 0));
+                    int ra = -1, rb = -2, ca = -1;
+                    for (int i = 0; i <= np; i++)
+                    {
+                        bool on = i < np && At(i) != null;
+                        if (on && ca < 0) ca = i;
+                        if (!on && ca >= 0) { if (i - 1 - ca > rb - ra) { ra = ca; rb = i - 1; } ca = -1; }
+                    }
+                    if (ra < 0) continue;
+                    double score = (rb - ra + 1) + (wantTrap ? 1000 : 0);
+                    if (score > best.score) best = (key, ra, rb, wantTrap, score);
+                }
+                if (best.key >= 0 && best.traps) break;
+            }
+            if (best.key >= 0)
+            {
+                var run = new List<(double dist, LayerDuct l)>();
+                for (int i = best.a; i <= best.b; i++)
+                {
+                    var l = prof[i].Layers.First(x => x.Key == best.key && (best.traps ? x.Traps(o.FreqMHz) : x.ExcessN > 0));
+                    run.Add((pd[i], l));
+                }
+                r.LayerName = run[0].l.Name; r.LayerTraps = best.traps;
+                r.LayerFromKm = Math.Max(0, run[0].dist - cell / 2); r.LayerToKm = Math.Min(d, run[run.Count - 1].dist + cell / 2);
+                r.LayerFrac = (r.LayerToKm - r.LayerFromKm) / d;
+                Func<LayerDuct, double> top = l => l.Deficit > 0 ? l.DuctTop : l.ZTop, bas = l => l.Deficit > 0 ? l.DuctBase : l.ZBot;
+                r.TopMean = run.Average(x => top(x.l)); r.TopMin = run.Min(x => top(x.l)); r.TopMax = run.Max(x => top(x.l));
+                r.BaseMean = run.Average(x => bas(x.l));
+                r.DeficitMean = run.Average(x => x.l.Deficit);
+                r.LambdaMin = run.Min(x => x.l.LambdaMax);
+                r.RunDist = run.Select(x => x.dist).ToArray(); r.RunTop = run.Select(x => top(x.l)).ToArray(); r.RunBase = run.Select(x => bas(x.l)).ToArray();
+                if (run.Count >= 2)
+                {
+                    double mx = run.Average(x => x.dist), my = r.TopMean, sxy = 0, sxx = 0;
+                    foreach (var x in run) { sxy += (x.dist - mx) * (top(x.l) - my); sxx += (x.dist - mx) * (x.dist - mx); }
+                    r.TiltMkm = sxx > 0 ? sxy / sxx : 0;
+                }
+                // terreno che entra nello strato lungo il tratto in cui esiste
+                for (int i = 0; i < n; i++)
+                    if (dist[i] >= r.LayerFromKm && dist[i] <= r.LayerToKm)
+                    {
+                        double bse = BaseAt(r, dist[i]);
+                        if (h[i] >= bse) r.TerrainInDuctKm += i > 0 ? dist[i] - dist[i - 1] : 0;
+                    }
+                CalcLog.W($"strato fondante: {r.LayerName}, {(best.traps ? $"condotto che intrappola λ {299.792458 / o.FreqMHz:0.00} m" : "solo super-rifrattivo (non intrappola la banda)")}; continuo da {r.LayerFromKm:0} a {r.LayerToKm:0} km ({r.LayerFrac * 100:0}% della tratta, {run.Count} punti su {np})");
+                CalcLog.W($"   quota della cima {r.TopMean:0} m (da {r.TopMin:0} a {r.TopMax:0}), base media {r.BaseMean:0} m, inclinazione {r.TiltMkm:+0.0;-0.0} m/km, deficit medio {r.DeficitMean:0.0} M, λmax minima {r.LambdaMin:0.00} m; terreno dentro lo strato per {r.TerrainInDuctKm:0} km");
+            }
+            else CalcLog.W("strato fondante: nessuno strato con calo di N oltre il normale continuo su almeno un punto");
+
+            // guadagno: conta solo lo strato continuo, in proporzione al tratto che copre (Bean e Dutton: 10–25 dB per strato)
+            double g = 0;
+            if (best.key >= 0)
+            {
+                double gl = best.traps ? Math.Min(25, 20 + r.DeficitMean / 5.0)
+                                       : Enumerable.Range(best.a, best.b - best.a + 1).Average(i => prof[i].LayerGainDb);
+                g = gl * r.LayerFrac;
+                CalcLog.W($"guadagno dello strato {gl:0.0} dB × frazione continua {r.LayerFrac:0.00} = {g:0.0} dB");
+            }
+            int nsub = good.Count(p => p.Sub);
+            if (nsub * 2 > good.Count) { g = -10.0 * nsub / good.Count; CalcLog.W($"sub-rifrazione su {nsub} profili su {good.Count}: {g:0.0} dB"); }
+            r.TropoGainDb = g;
+            r.DuctFrac = best.traps ? r.LayerFrac : 0;
+            double lpred = r.LbaseDb - g;
+
+            // condotto su (quasi) tutta la tratta: spazio libero + accoppiamento delle antenne + attenuazione residua
+            if (best.traps && r.LayerFrac >= 0.8 && !r.Los)
+            {
+                double Coupling(double hAsl, double dk, out string where)
+                {
+                    double tp = TopAt(r, dk), bs = BaseAt(r, dk);
+                    if (hAsl > tp) { where = $"sopra la cima di {hAsl - tp:0} m"; return Math.Min(40, 3 + (hAsl - tp) / 10); }
+                    if (hAsl < bs) { where = $"sotto la base di {bs - hAsl:0} m"; return Math.Min(40, 3 + (bs - hAsl) / 10); }
+                    where = "dentro"; return 3;
+                }
+                r.CouplingTxDb = Coupling(hts, 0, out var wt); r.CouplingRxDb = Coupling(hrs, d, out var wr);
+                r.TxVsDuct = wt; r.RxVsDuct = wr;
+                r.DuctCoupled = wt == "dentro" && wr == "dentro";
+                // attenuazione residua nel condotto: P.452 eq. 49, γd = 5·10⁻⁵ · ae · f(GHz)^(1/3) dB/mrad sulla distanza angolare
+                double gammaD = 5e-5 * ae * Math.Pow(fGHz, 1.0 / 3);
+                r.ResidualDb = gammaD * (1000 * d / ae);
+                r.LductDb = r.LfsDb + r.CouplingTxDb + r.CouplingRxDb + r.ResidualDb;
+                CalcLog.W($"condotto su tutta la tratta: TX {wt} ({r.CouplingTxDb:0.0} dB), RX {wr} ({r.CouplingRxDb:0.0} dB); attenuazione residua γd {gammaD:0.000} dB/mrad × {1000 * d / ae:0.0} mrad = {r.ResidualDb:0.0} dB; Lduct = {r.LductDb:0.00} dB");
                 if (r.LductDb < lpred) { lpred = r.LductDb; r.Mechanism = "condotto"; }
             }
-            else if (gmean >= 10 && !r.Los) r.Mechanism = "tropo (super-rifrazione)";
+            else if (best.key >= 0 && g >= 3 && !r.Los) r.Mechanism = best.traps ? "tropo (condotto parziale)" : "tropo (super-rifrazione)";
             r.LpredDb = Math.Max(r.LfsDb, lpred);
-            CalcLog.W($"tropo: guadagno medio {gmean:0.00} dB su {good.Count} profili (min {good.Min(p => p.GainDb(o.FreqMHz)):0.0}, max {good.Max(p => p.GainDb(o.FreqMHz)):0.0}); condotti utili (spessore ≥ {dmin:0} m) sul {r.DuctFrac * 100:0}% del percorso; TX {(inT ? "dentro" : "fuori")}, RX {(inR ? "dentro" : "fuori")}");
-            if (r.LductDb > 0) CalcLog.W($"condotto: Lfs + accoppiamento + 0,01 dB/km = {r.LductDb:0.00} dB");
             CalcLog.W($"perdita prevista {r.LpredDb:0.00} dB, meccanismo: {r.Mechanism}");
         }
         else r.Notes.Add("nessuna previsione GFS sul percorso: calcolo con atmosfera normale (k = 4/3)");
@@ -293,6 +403,16 @@ public static class LinkCalc
         if (r.TilesMissing > 0) r.Notes.Add($"{r.TilesMissing} riquadri SRTM1 non disponibili: lì il terreno vale 0 m");
         return r;
     }
+
+    static double Interp(double[] xs, double[] ys, double x)
+    {
+        if (xs.Length == 0) return double.NaN;
+        if (x <= xs[0]) return ys[0];
+        for (int i = 1; i < xs.Length; i++) if (x <= xs[i]) return ys[i - 1] + (ys[i] - ys[i - 1]) * (x - xs[i - 1]) / Math.Max(1e-9, xs[i] - xs[i - 1]);
+        return ys[ys.Length - 1];
+    }
+    static double TopAt(LinkResult r, double dk) => Interp(r.RunDist, r.RunTop, dk);
+    static double BaseAt(LinkResult r, double dk) => Interp(r.RunDist, r.RunBase, dk);
 
     /// <summary>Perdita di Bullington (dB oltre lo spazio libero) su un profilo, come in ITU-R P.452 § 4.2.1.</summary>
     static double Bullington(double[] h, double[] dist, double hts, double hrs, double d, double ce, double lam, out bool los, out double stim, out double str, out int io)

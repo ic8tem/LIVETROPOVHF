@@ -480,14 +480,27 @@ public sealed partial class MainWindow
         Line(L("Antenne sul mare TX / RX", "Antennas above sea TX / RX"), $"{r.HtxAsl:0} m / {r.HrxAsl:0} m");
         Line(L("Raggio equivalente k", "Effective radius k"), $"{r.K:0.00}" + (r.ForecastUsed ? " (GFS)" : " (4/3)"));
         Line(L("In vista ottica", "Line of sight"), r.Los ? L("sì", "yes") : L("no (ostacolato)", "no (obstructed)"));
+        Line(L("1ª zona di Fresnel", "1st Fresnel zone"), double.IsNaN(r.FresnelMinRatio) ? "—" : (r.FresnelMinRatio >= 0.6 ? L("libera", "clear") : L("invasa", "obstructed")) + $" ({L("minimo", "min")} {r.FresnelMinRatio:0.0} F1)");
+        foreach (var ob in r.Obstacles) Line("  " + L("ostacolo", "obstacle") + $" {ob.km:0.0} km", $"{ob.hM:0} m · {ob.ratio:0.0} F1 · ν {ob.nu:0.0}");
         Line(L("Spazio libero", "Free space"), $"{r.LfsDb:0.0} dB");
         Line(L("Diffrazione (Bullington)", "Diffraction (Bullington)"), $"{r.LdiffDb:0.0} dB (+{r.LbullDb:0.0})");
         Line(L("Troposcatter (P.452)", "Troposcatter (P.452)"), $"{r.LscatDb:0.0} dB (θ {r.ThetaMrad:0.0} mrad)");
         Line(L("Senza tropo", "Without tropo"), $"{r.LbaseDb:0.0} dB");
         if (r.ForecastUsed)
         {
-            Line(L("Guadagno tropo medio", "Mean tropo gain"), $"{r.TropoGainDb:+0.0;-0.0} dB");
-            Line(L("Condotto utile sul percorso", "Usable duct along path"), $"{r.DuctFrac * 100:0}%" + (r.DuctFrac > 0 ? (r.DuctCoupled ? L(", antenne dentro", ", antennas inside") : L(", antenne fuori", ", antennas outside")) : ""));
+            if (r.LayerName != "")
+            {
+                Line(L("Strato fondante", "Governing layer"), $"{r.LayerName} · " + (r.LayerTraps ? L("condotto", "duct") : L("super-rifrattivo", "super-refractive")), _th.Text, true);
+                Line(L("Continuità sulla tratta", "Continuity along path"), $"{r.LayerFromKm:0}–{r.LayerToKm:0} km ({r.LayerFrac * 100:0}%)");
+                Line(L("Quota della cima", "Top height"), $"{r.TopMean:0} m ({r.TopMin:0}–{r.TopMax:0}), " + L("base", "base") + $" {r.BaseMean:0} m");
+                Line(L("Inclinazione", "Tilt"), $"{r.TiltMkm:+0.0;-0.0} m/km");
+                if (r.LayerTraps) Line(L("Deficit / λ massima", "Deficit / max λ"), $"{r.DeficitMean:0.0} M / {r.LambdaMin:0.00} m");
+                if (r.TerrainInDuctKm > 0) Line(L("Terreno dentro lo strato", "Terrain inside layer"), $"{r.TerrainInDuctKm:0} km");
+                if (r.TxVsDuct != "") Line(L("Antenne e condotto", "Antennas vs duct"), $"TX {r.TxVsDuct}, RX {r.RxVsDuct}");
+                if (r.ResidualDb > 0) Line(L("Attenuazione residua", "Residual attenuation"), $"{r.ResidualDb:0.0} dB (+ {r.CouplingTxDb + r.CouplingRxDb:0.0} dB " + L("accoppiamento", "coupling") + ")");
+            }
+            else Line(L("Strato fondante", "Governing layer"), L("nessuno strato continuo", "no continuous layer"));
+            Line(L("Guadagno tropo", "Tropo gain"), $"{r.TropoGainDb:+0.0;-0.0} dB");
         }
         Line(L("Perdita prevista", "Predicted loss"), $"{r.LpredDb:0.0} dB · {r.Mechanism}", _th.Text, true);
         Line(L("EIRP", "EIRP"), $"{r.EirpDbm:0.0} dBm ({Math.Pow(10, (r.EirpDbm - 30) / 10):0} W)");
@@ -546,9 +559,8 @@ public sealed class ProfileView : Control
     public void Set(LinkResult r, List<ProfileResult> prof)
     {
         _r = r;
-        var d = prof.Where(p => p.HasDuct).ToList();
-        if (d.Count > 0) { _ductBase = d.Average(p => p.SurfaceDuct ? 0 : p.DuctBase); _ductTop = d.Average(p => p.DuctTop); }
-        else { _ductBase = _ductTop = double.NaN; }
+        _ductTop = r.RunTop.Length > 0 ? r.RunTop.Max() : double.NaN;
+        _ductBase = r.RunBase.Length > 0 ? r.RunBase.Min() : double.NaN;
         InvalidateVisual();
     }
 
@@ -577,10 +589,23 @@ public sealed class ProfileView : Control
         ymax = ymax * 1.08 + 20;
         double X(double dk) => 8 + (W - 16) * dk / D;
         double Y(double m) => H - 14 - (H - 24) * (m - ymin) / (ymax - ymin);
-        if (!double.IsNaN(_ductTop))
+        if (_r.RunDist.Length > 0)
         {
-            var dc = Color.FromArgb(60, 255, 140, 0);
-            ctx.DrawRectangle(new SolidColorBrush(dc), null, new Rect(new Point(8, Y(_ductTop)), new Point(W - 8, Y(Math.Max(0, _ductBase)))));
+            // lo strato fondante solo dove esiste, con la sua quota e inclinazione (cima e base punto per punto)
+            var dc = Color.FromArgb(_r.LayerTraps ? (byte)90 : (byte)50, 255, 140, 0);
+            var band = new StreamGeometry();
+            double x0 = Math.Max(0, _r.LayerFromKm), x1 = Math.Min(D, _r.LayerToKm);
+            using (var c = band.Open())
+            {
+                c.BeginFigure(new Point(X(x0), Y(_r.RunTop[0])), true);
+                for (int i = 0; i < _r.RunDist.Length; i++) c.LineTo(new Point(X(Math.Max(x0, Math.Min(x1, _r.RunDist[i]))), Y(_r.RunTop[i])));
+                c.LineTo(new Point(X(x1), Y(_r.RunTop[_r.RunTop.Length - 1])));
+                c.LineTo(new Point(X(x1), Y(Math.Max(0, _r.RunBase[_r.RunBase.Length - 1]))));
+                for (int i = _r.RunDist.Length - 1; i >= 0; i--) c.LineTo(new Point(X(Math.Max(x0, Math.Min(x1, _r.RunDist[i]))), Y(Math.Max(0, _r.RunBase[i]))));
+                c.LineTo(new Point(X(x0), Y(Math.Max(0, _r.RunBase[0]))));
+                c.EndFigure(true);
+            }
+            ctx.DrawGeometry(new SolidColorBrush(dc), new Pen(new SolidColorBrush(Color.FromRgb(230, 120, 0)), 1), band);
         }
         var g = new StreamGeometry();
         using (var c = g.Open())
@@ -593,6 +618,26 @@ public sealed class ProfileView : Control
             c.EndFigure(true);
         }
         ctx.DrawGeometry(new SolidColorBrush(Th?.MapLand ?? Colors.Beige), new Pen(new SolidColorBrush(Th?.MapCoast ?? Colors.SaddleBrown), 1), g);
+        // limite inferiore della 1ª zona di Fresnel attorno al raggio diretto
+        {
+            double lam = 299.792458 / _r.FreqMHz;
+            var fz = new StreamGeometry();
+            using (var c = fz.Open())
+            {
+                int stepI = Math.Max(1, n / 300);
+                c.BeginFigure(new Point(X(0), Y(_r.HtxAsl)), false);
+                for (int i = 0; i < n; i += stepI)
+                {
+                    double d1 = dist[i], d2 = D - dist[i];
+                    double f1 = d1 > 0 && d2 > 0 ? Math.Sqrt(lam * d1 * d2 * 1000 / D) : 0;
+                    c.LineTo(new Point(X(d1), Y(_r.HtxAsl + (_r.HrxAsl - _r.HtxAsl) * d1 / D - f1)));
+                }
+                c.LineTo(new Point(X(D), Y(_r.HrxAsl)));
+                c.EndFigure(false);
+            }
+            ctx.DrawGeometry(null, new Pen(new SolidColorBrush(Color.Parse("#7A5AD8")), 1, new DashStyle(new double[] { 3, 3 }, 0)), fz);
+            foreach (var ob in _r.Obstacles) ctx.DrawEllipse(new SolidColorBrush(Color.Parse("#D64545")), null, new Point(X(ob.km), Y(ob.hM + ob.km * (D - ob.km) / (2 * ae) * 1000)), 3, 3);
+        }
         var ray = new Pen(new SolidColorBrush(_r.Los ? Color.Parse("#1F9D55") : Color.Parse("#D64545")), 1.6);
         ctx.DrawLine(ray, new Point(X(0), Y(_r.HtxAsl)), new Point(X(D), Y(_r.HrxAsl)));
         var ft = new FormattedText($"{_r.DistKm:0} km · k {_r.K:0.00}", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface.Default, 11, new SolidColorBrush(Th?.Ink ?? Colors.Black));
