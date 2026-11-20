@@ -20,6 +20,8 @@ public sealed partial class MainWindow : Window
     string _tab = "map";
 
     // controlli aggiornati dal timer
+    StackPanel _statusPanel;
+    readonly Dictionary<string, TextBlock> _statusSegs = new();
     TextBlock _clock, _ntp, _statusBar, _zoomPct, _fcLabel, _legendSrc, _obsNote, _emptyText;
     TextBlock _nSpots, _nAs, _nExcl, _nRx, _nDec, _nHeld;
     TextBlock _mqttCount; Avalonia.Controls.Shapes.Ellipse _mqttDot;
@@ -85,6 +87,72 @@ public sealed partial class MainWindow : Window
         PositionChanged += (_, _) => TrackNormal();
         Resized += (_, _) => TrackNormal();
         Opened += (_, _) => EnsureTitleVisible();
+        // errore annotato: avviso discreto nella barra di stato
+        ErrorLog.Logged += msg => Dispatcher.UIThread.Post(() => { _lastErrorNote = msg; _lastErrorAt = DateTime.Now; });
+        // errore della volta scorsa: si propone di inviare il rapporto
+        Opened += (_, _) => DispatcherTimer.RunOnce(async () => { if (ErrorLog.HasPending && IsVisible) await AskSendErrorReport(); }, TimeSpan.FromSeconds(4));
+        // versione nuova installata: riavviare adesso (obbligatoria: la finestra blocca)
+        Updater.Installed += (v, mandatory) => Dispatcher.UIThread.Post(async () => await AskRestart(v, mandatory));
+    }
+
+    string _lastErrorNote = ""; DateTime _lastErrorAt;
+
+    static void OpenUrl(string url)
+    {
+        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true }); }
+        catch
+        {
+            try { if (!Compat.IsWindows) System.Diagnostics.Process.Start(Compat.IsMac ? "open" : "xdg-open", url); } catch (Exception ex) { ErrorLog.Write(ex, "apertura del browser"); }
+        }
+    }
+
+    async Task AskSendErrorReport()
+    {
+        var summary = ErrorLog.PendingSummary.Replace("\n", " · ");
+        bool it = Lang.Current == "it";
+        var dlg = new Window
+        {
+            Title = it ? "Rapporto di errore" : "Error report", Width = 600, SizeToContent = SizeToContent.Height, CanResize = false,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = B(_th.Panel), ShowInTaskbar = false, Icon = Splash.AppIcon()
+        };
+        var t = TB(it ? $"L'ultima volta il programma ha annotato un errore ({summary}).\n\nPuoi inviare il rapporto agli autori: si apre il browser su una segnalazione GitHub già compilata, con nominativo, locatore e nome utente del PC tolti. Controlli il testo e premi Invia (serve un account GitHub gratuito). Il registro completo è in {ErrorLog.FilePath}."
+                      : $"Last time the program logged an error ({summary}).\n\nYou can send the report to the authors: the browser opens a prefilled GitHub issue, with call, locator and PC user name removed. Check the text and press Submit (a free GitHub account is needed). The full log is in {ErrorLog.FilePath}.", 13, _th.Text);
+        t.TextWrapping = TextWrapping.Wrap; t.Margin = new Thickness(20, 18, 20, 16);
+        var send = PrimaryButton(it ? "Invia il rapporto" : "Send report", () => { OpenUrl(ErrorLog.IssueUrl(_st.Call, _st.Loc)); dlg.Close(); });
+        var file = OutlineButton(it ? "Apri il registro" : "Open log", () => OpenUrl(ErrorLog.FilePath));
+        var no = OutlineButton(it ? "No, grazie" : "No, thanks", () => dlg.Close());
+        dlg.Content = new StackPanel { Children = { t, new Border { Background = B(_th.Chip), BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 1, 0, 0), Padding = new Thickness(16, 10),
+            Child = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, HorizontalAlignment = HorizontalAlignment.Right, Children = { send, file, no } } } } };
+        ErrorLog.ClearPending();
+        await dlg.ShowDialog(this);
+    }
+
+    bool _restartAsked;
+    async Task AskRestart(string version, bool mandatory)
+    {
+        if (_restartAsked || !IsVisible) return;
+        _restartAsked = true;
+        bool it = Lang.Current == "it";
+        var dlg = new Window
+        {
+            Title = it ? "Aggiornamento" : "Update", Width = 520, SizeToContent = SizeToContent.Height, CanResize = false,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = B(_th.Panel), ShowInTaskbar = false, Icon = Splash.AppIcon(),
+            SystemDecorations = mandatory ? SystemDecorations.BorderOnly : SystemDecorations.Full
+        };
+        var t = TB(mandatory
+            ? (it ? $"È stata installata la versione {version}, una correzione urgente. Il programma deve riavviarsi per usarla: impostazioni e dati restano."
+                  : $"Version {version}, an urgent fix, has been installed. The program must restart to use it: settings and data are kept.")
+            : (it ? $"È stata installata la versione {version}. Sarà attiva dal prossimo avvio: vuoi riavviare adesso? Impostazioni e dati restano."
+                  : $"Version {version} has been installed and will be active at the next start: restart now? Settings and data are kept."), 13, _th.Text);
+        t.TextWrapping = TextWrapping.Wrap; t.Margin = new Thickness(20, 18, 20, 16);
+        bool restart = false;
+        var now = PrimaryButton(it ? "Riavvia adesso" : "Restart now", () => { restart = true; dlg.Close(); });
+        var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, HorizontalAlignment = HorizontalAlignment.Right, Children = { now } };
+        if (!mandatory) buttons.Children.Add(OutlineButton(it ? "Più tardi" : "Later", () => dlg.Close()));
+        else dlg.Closing += (_, e) => { if (!restart) e.Cancel = true; };
+        dlg.Content = new StackPanel { Children = { t, new Border { Background = B(_th.Chip), BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 1, 0, 0), Padding = new Thickness(16, 10), Child = buttons } } };
+        await dlg.ShowDialog(this);
+        if (restart && Updater.StartNewInstance()) { _closeConfirmed = true; Close(); }
     }
 
     /// <summary>Finestra iniziale: nominativo (obbligatorio per i cluster) e locatore. Il nominativo diventa il nome utente dei cluster.</summary>
@@ -627,21 +695,81 @@ public sealed partial class MainWindow : Window
         return new Border { Child = row, BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 0, 0, 1) };
     }
 
+    // ---------------------------------------------------------------- linguette in 5 gruppi con sotto-linguette
+
+    /// <summary>Gruppi di linguette: (id, voci). Ogni voce è "linguetta" oppure "collect:sottolinguetta".</summary>
+    static readonly (string id, string[] items)[] Groups =
+    {
+        ("map", new[] { "map" }),
+        ("prev", new[] { "fc", "hepburn", "f5len" }),
+        ("graves", new[] { "graves" }),
+        ("data", new[] { "collect:dx", "collect:psk", "collect:rbn", "collect:udp", "collect:calls", "sus" }),
+        ("guide", new[] { "doc1", "doc2", "doc3", "doc4", "doc5" }),
+    };
+    readonly Dictionary<string, Button> _subTabButtons = new();
+    StackPanel _subBarItems; Border _subBar; TextBox _guideSearch;
+    string _shownGroup = "";
+
+    static string GroupOf(string item) => Groups.First(g => g.items.Contains(item) || g.items.Any(x => x.StartsWith(item + ":"))).id;
+    string CurrentItem => _tab == "collect" ? "collect:" + _subTab : _tab;
+
+    string GroupLabel(string g)
+    {
+        bool it = Lang.Current == "it";
+        return g switch
+        {
+            "map" => Lang.T("tab.map"),
+            "prev" => it ? "Previsioni" : "Forecasts",
+            "graves" => Lang.T("tab.graves"),
+            "data" => it ? "Dati e fonti" : "Data & sources",
+            _ => it ? "Guide" : "Guides",
+        };
+    }
+
+    string ItemLabel(string item)
+    {
+        bool it = Lang.Current == "it";
+        return item switch
+        {
+            "fc" => it ? "Propria (β)" : "Own (β)",
+            "hepburn" => Lang.T("tab.hep"),
+            "f5len" => Lang.T("tab.f5"),
+            "collect:dx" => "DX cluster",
+            "collect:psk" => "PSKReporter",
+            "collect:rbn" => "Reverse Beacon",
+            "collect:udp" => "UDP (WSJT-X, JTDX, MSHV)",
+            "collect:calls" => Lang.T("c.tab"),
+            "sus" => Lang.T("tab.sus"),
+            "doc4" => it ? "Manuale previsioni" : "Forecast manual",
+            "doc5" => it ? "Consigli all'operatore" : "Operator tips",
+            _ => Lang.T("tab." + item),
+        };
+    }
+
+    /// <summary>Va a una linguetta (e, per la raccolta dati, a una sotto-linguetta).</summary>
+    void GoTo(string tab, string sub = null)
+    {
+        if (tab == "collect" && sub != null) ShowSubTab(sub);
+        ShowTab(tab);
+    }
+
+    void GoToItem(string item)
+    {
+        var i = item.IndexOf(':');
+        if (i > 0) GoTo(item.Substring(0, i), item.Substring(i + 1)); else GoTo(item);
+    }
+
     Control BuildTabBand()
     {
+        _subTabButtons.Clear();
         var band = new DockPanel { Background = B(_th.Band), Height = 48, LastChildFill = false };
         var sp = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Bottom };
-        foreach (var (key, label) in new[] { ("map", "tab.map"), ("hepburn", "tab.hep"), ("f5len", "tab.f5"), ("fc", "tab.fc"), ("graves", "tab.graves"), ("sus", "tab.sus"), ("collect", "tab.collect"), ("doc1", "tab.doc1"), ("doc2", "tab.doc2"), ("doc3", "tab.doc3"), ("doc4", "tab.doc4"), ("doc5", "tab.doc5") })
+        foreach (var (g, items) in Groups)
         {
-            var b = new Button { Content = label switch
-            {
-                "tab.fc" => Lang.Current == "it" ? "Previsioni (sperimentale)" : "Forecast (experimental)",
-                "tab.doc4" => Lang.Current == "it" ? "Manuale previsioni" : "Forecast manual",
-                "tab.doc5" => Lang.Current == "it" ? "Consigli all'operatore" : "Operator tips",
-                _ => Lang.T(label)
-            }, Height = 40, Padding = new Thickness(18, 0), CornerRadius = new CornerRadius(8, 8, 0, 0), FontSize = 14, VerticalContentAlignment = VerticalAlignment.Center };
-            b.Click += (_, _) => ShowTab(key);
-            _tabButtons[key] = b;
+            var b = new Button { Content = GroupLabel(g), Height = 40, Padding = new Thickness(18, 0), CornerRadius = new CornerRadius(8, 8, 0, 0), FontSize = 14, VerticalContentAlignment = VerticalAlignment.Center };
+            // ogni gruppo riapre l'ultima sotto-linguetta usata
+            b.Click += (_, _) => { var last = _st.S.Get("grp_" + g, items[0]); GoToItem(items.Contains(last) ? last : items[0]); };
+            _tabButtons[g] = b;
             sp.Children.Add(b);
         }
         DockPanel.SetDock(sp, Dock.Left);
@@ -650,29 +778,114 @@ public sealed partial class MainWindow : Window
         note.Margin = new Thickness(0, 0, 14, 0);
         DockPanel.SetDock(note, Dock.Right);
         band.Children.Add(note);
-        return band;
+
+        // barra delle sotto-linguette, sotto il fascione (solo per i gruppi con più voci)
+        _subBarItems = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4, Margin = new Thickness(10, 6, 10, 6) };
+        _guideSearch = new TextBox { Width = 220, Watermark = Lang.Current == "it" ? "Cerca nelle guide…" : "Search the guides…", Margin = new Thickness(16, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+        _guideSearch.TextChanged += (_, _) => GuideSearch(false);
+        _guideSearch.KeyDown += (_, e) => { if (e.Key == Avalonia.Input.Key.Enter) GuideSearch(true); };
+        _subBar = new Border { Background = B(_th.Page), BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 0, 0, 1),
+            Child = new ScrollViewer { HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                Content = new StackPanel { Orientation = Orientation.Horizontal, Children = { _subBarItems, _guideSearch } } } };
+        _shownGroup = "";
+        return new StackPanel { Children = { band, _subBar } };
+    }
+
+    static readonly Dictionary<string, string> _docFiles = new() { ["doc1"] = "funzionamento.md", ["doc2"] = "mappa.md", ["doc3"] = "tropo.md", ["doc4"] = "previsioni.md", ["doc5"] = "consigli.md" };
+    readonly Dictionary<string, string> _docText = new();
+
+    /// <summary>Ricerca nelle guide: ogni sotto-linguetta mostra quante volte compare il testo; Invio apre la prima che lo contiene.</summary>
+    void GuideSearch(bool open)
+    {
+        var q = (_guideSearch?.Text ?? "").Trim();
+        string first = null;
+        foreach (var kv in _docFiles)
+        {
+            if (!_docText.TryGetValue(kv.Key, out var txt)) _docText[kv.Key] = txt = DocView.LoadResource(kv.Value) ?? "";
+            int n = 0;
+            if (q.Length >= 3) for (int i = txt.IndexOf(q, StringComparison.OrdinalIgnoreCase); i >= 0; i = txt.IndexOf(q, i + q.Length, StringComparison.OrdinalIgnoreCase)) n++;
+            if (n > 0 && first == null) first = kv.Key;
+            if (_subTabButtons.TryGetValue(kv.Key, out var b)) b.Content = ItemLabel(kv.Key) + (n > 0 ? $" ({n})" : "");
+        }
+        if (open && first != null) GoTo(first);
+    }
+
+    void RefreshSubBar()
+    {
+        if (_subBar == null) return;
+        var g = GroupOf(CurrentItem);
+        var items = Groups.First(x => x.id == g).items;
+        if (g != _shownGroup)
+        {
+            _shownGroup = g;
+            _subBarItems.Children.Clear(); _subTabButtons.Clear();
+            foreach (var it in items)
+            {
+                var b = new Button { Content = ItemLabel(it), Padding = new Thickness(16, 5), CornerRadius = new CornerRadius(16), FontSize = 13 };
+                var target = it;
+                b.Click += (_, _) => GoToItem(target);
+                _subTabButtons[it] = b;
+                _subBarItems.Children.Add(b);
+            }
+            _guideSearch.IsVisible = g == "guide";
+            if (g == "guide") GuideSearch(false);
+        }
+        _subBar.IsVisible = items.Length > 1;
+        foreach (var kv in _subTabButtons)
+        {
+            bool on = kv.Key == CurrentItem;
+            kv.Value.Background = on ? B(_th.Accent) : B(_th.Chip);
+            kv.Value.Foreground = on ? B(_th.AccentFg) : B(_th.Text);
+            kv.Value.FontWeight = on ? FontWeight.SemiBold : FontWeight.Normal;
+        }
+        _st.S.Set("grp_" + g, CurrentItem);
     }
 
     void ShowTab(string key)
     {
         _tab = key;
+        ErrorLog.CurrentTab = key;
         foreach (var kv in _tabContent) kv.Value.IsVisible = kv.Key == key;
+        var grp = GroupOf(key == "collect" ? "collect:" + _subTab : key);
         foreach (var kv in _tabButtons)
         {
-            bool on = kv.Key == key;
+            bool on = kv.Key == grp;
             kv.Value.Background = on ? B(_th.Page) : Brushes.Transparent;
             kv.Value.Foreground = on ? B(_th.Text) : B(_th.BandFg);
             kv.Value.FontWeight = on ? FontWeight.SemiBold : FontWeight.Normal;
         }
         if (key == "hepburn" || key == "f5len") FillTropoTab(key);
+        RefreshSubBar();
         RefreshLogs(true);
     }
 
     Control BuildStatusBar()
     {
-        _statusBar = TB("", 12, _th.Muted);
-        _statusBar.Margin = new Thickness(12, 0);
-        return new Border { Background = B(_th.Bar), BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 1, 0, 0), Height = 30, Child = _statusBar };
+        // segmenti: le fonti sono cliccabili (portano alla fonte) e il fumetto dice perché sono spente
+        _statusSegs.Clear();
+        _statusPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(12, 0), VerticalAlignment = VerticalAlignment.Center };
+        TextBlock Seg(string id, Action click, string tip = null)
+        {
+            var t = TB("", 12, _th.Muted);
+            t.Margin = new Thickness(0, 0, 18, 0);
+            if (click != null) { t.Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand); t.PointerPressed += (_, _) => click(); }
+            if (tip != null) ToolTip.SetTip(t, tip);
+            _statusSegs[id] = t; _statusPanel.Children.Add(t);
+            return t;
+        }
+        foreach (var f in _st.Feeds)
+        {
+            var sub = f.Src == "RBN" ? "rbn" : f.Src == "PSK" ? "psk" : "dx";
+            Seg("feed:" + f.Id, () => GoTo("collect", sub));
+        }
+        Seg("mqtt", () => GoTo("collect", "psk"));
+        Seg("udp", () => GoTo("collect", "udp"));
+        Seg("pressure", null); Seg("tropo", null); Seg("call3", () => GoTo("collect", "calls"));
+        Seg("other", null);
+        Seg("error", () => OpenUrl(ErrorLog.FilePath), Lang.Current == "it" ? "Clic: apri il registro degli errori" : "Click: open the error log");
+        Seg("version", () => { Updater.CheckNow(); }, Lang.Current == "it" ? "Clic: cerca aggiornamenti adesso" : "Click: check for updates now");
+        _statusBar = _statusSegs["version"];
+        return new Border { Background = B(_th.Bar), BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 1, 0, 0), Height = 30, ClipToBounds = true, Child = _statusPanel };
     }
 
     // ---------------------------------------------------------------- linguetta mappa
@@ -1096,7 +1309,7 @@ public sealed partial class MainWindow : Window
             _subButtons[key] = b;
             bar.Children.Add(b);
         }
-        var barBorder = new Border { Child = bar, BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 0, 0, 1), Padding = new Thickness(0, 0, 0, 8) };
+        var barBorder = new Border { Child = bar, BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 0, 0, 1), Padding = new Thickness(0, 0, 0, 8), IsVisible = false };   // le sotto-linguette sono nella barra sotto il fascione
         DockPanel.SetDock(barBorder, Dock.Top);
         dock.Children.Add(barBorder);
 
@@ -1907,21 +2120,48 @@ public sealed partial class MainWindow : Window
         if (_zoomPct != null) _zoomPct.Text = _map.ZoomPercent;
         if (now.Second == 0) UpdateFcLabel();
 
-        if (_statusBar != null)
+        if (_statusPanel != null)
         {
+            bool it = Lang.Current == "it";
             string Dot(bool ok) => ok ? "●" : "○";
-            var parts = new List<string>();
-            foreach (var f in _st.Feeds) parts.Add($"{Dot(f.Connected)} {f.Src}");
-            parts.Add($"{Dot(_st.Mqtt.Connected)} PSKReporter MQTT");
-            parts.Add($"{Dot(_st.Udp.Running)} UDP {_st.Udp.ListenPort}→{_st.Udp.ForwardPort}");
-            parts.Add(_st.Pressure.Status);
-            parts.Add(_st.Tropo.Status);
-            parts.Add(_st.CallDb.Ready ? (_st.CallDb.Error != "" ? "⚠ " + _st.CallDb.Error : $"CALL3: {_st.CallDb.Count:N0}") : "CALL3: …");
-            if (!_st.Map.Loaded && _st.Map.Status != "") parts.Add(_st.Map.Status);
-            if (_st.Archive.Error != "") parts.Add("DB: " + _st.Archive.Error);
-            parts.Add("v" + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "") + (Updater.Status != "" ? " · " + Updater.Status : ""));
-            _statusBar.Text = string.Join("   ·   ", parts);
-            _statusBar.Foreground = B(_st.CallDb.Ready && (_st.CallDb.Error != "" || _st.CallDb.Count == 0) ? _th.Bad : _th.Muted);
+            void Set(string id, string text, Color col, string tip = null)
+            {
+                if (!_statusSegs.TryGetValue(id, out var t)) return;
+                t.Text = text; t.Foreground = B(col); t.IsVisible = text != "";
+                if (tip != null) ToolTip.SetTip(t, tip);
+            }
+            string Why(string err)
+            {
+                if (string.IsNullOrEmpty(err)) return it ? "non collegato (spento nelle impostazioni o in attesa)" : "not connected (off or waiting)";
+                var low = err.ToLowerInvariant();
+                if (low.Contains("rifiut") || low.Contains("refused")) return err + (it ? "\nIl server rifiuta la connessione: porta sbagliata o servizio spento. Controlla host e porta." : "\nThe server refuses the connection: wrong port or service down. Check host and port.");
+                if (low.Contains("nodo del cluster fermo")) return err + (it ? "\nNon dipende dal programma: il nodo è fermo dal lato del server. Intanto usa un altro cluster." : "\nNot a program fault: the node is down server-side. Use another cluster meanwhile.");
+                if (low.Contains("timeout") || low.Contains("tempo")) return err + (it ? "\nNessuna risposta: rete lenta, firewall o server occupato." : "\nNo answer: slow network, firewall or busy server.");
+                if (low.Contains("host") || low.Contains("nome") || low.Contains("name")) return err + (it ? "\nIndirizzo del server non trovato: controlla il nome o la connessione a internet." : "\nServer address not found: check the name or the internet connection.");
+                return err;
+            }
+            foreach (var f in _st.Feeds)
+                Set("feed:" + f.Id, $"{Dot(f.Connected)} {f.Src}", f.Connected ? _th.Ok : f.LastError != "" ? _th.Bad : _th.Muted,
+                    $"{f.Host}:{f.Port}\n" + (f.Connected ? (it ? "collegato" : "connected") : Why(f.LastError)) + (it ? "\nClic: apri la fonte" : "\nClick: open the source"));
+            var q = _st.Mqtt;
+            Set("mqtt", $"{Dot(q.Connected)} PSKReporter MQTT", q.Connected ? _th.Ok : q.LastError != "" ? _th.Bad : _th.Muted,
+                $"{q.Host}:{q.Port}\n" + (q.Connected ? (it ? "collegato" : "connected") : Why(q.LastError)) + (it ? "\nClic: apri la fonte" : "\nClick: open the source"));
+            var u = _st.Udp;
+            Set("udp", $"{Dot(u.Running)} UDP {u.ListenPort}→{u.ForwardPort}", u.Running ? (u.Packets > 0 ? _th.Ok : _th.Muted) : u.LastError != "" ? _th.Bad : _th.Muted,
+                (u.Running ? (u.Packets > 0 ? (it ? $"in ascolto, {u.Packets} pacchetti ricevuti" : $"listening, {u.Packets} packets") : (it ? "in ascolto, ma WSJT-X / JTDX / MSHV non mandano ancora nulla: controlla in quei programmi Impostazioni → Reporting → UDP Server (indirizzo e porta)" : "listening, but WSJT-X / JTDX / MSHV send nothing yet: check Settings → Reporting → UDP Server"))
+                           : Why(u.LastError)) + (it ? "\nClic: apri la fonte" : "\nClick: open the source"));
+            Set("pressure", _st.Pressure.Status, _th.Muted);
+            Set("tropo", _st.Tropo.Status, _th.Muted);
+            bool callBad = _st.CallDb.Ready && (_st.CallDb.Error != "" || _st.CallDb.Count == 0);
+            Set("call3", _st.CallDb.Ready ? (_st.CallDb.Error != "" ? "⚠ " + _st.CallDb.Error : $"CALL3: {_st.CallDb.Count:N0}") : "CALL3: …", callBad ? _th.Bad : _th.Muted);
+            var other = new List<string>();
+            if (!_st.Map.Loaded && _st.Map.Status != "") other.Add(_st.Map.Status);
+            if (_st.Archive.Error != "") other.Add("DB: " + _st.Archive.Error);
+            Set("other", string.Join("   ·   ", other), _th.Muted);
+            bool recentErr = _lastErrorNote != "" && (DateTime.Now - _lastErrorAt).TotalMinutes < 15;
+            Set("error", recentErr ? (it ? "⚠ errore annotato" : "⚠ error logged") : "", _th.Bad,
+                recentErr ? (it ? $"{_lastErrorAt:HH:mm:ss} {_lastErrorNote}\nIl programma continua. Clic: apri il registro degli errori ({ErrorLog.FilePath})" : $"{_lastErrorAt:HH:mm:ss} {_lastErrorNote}\nThe program goes on. Click: open the error log") : null);
+            Set("version", "v" + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "") + (Updater.Status != "" ? " · " + Updater.Status : ""), _th.Muted);
         }
 
         if (_st.Dirty)

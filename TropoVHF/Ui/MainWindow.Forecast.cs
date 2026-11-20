@@ -783,7 +783,7 @@ public sealed partial class MainWindow
                 {
                     FcSetStatus(L("GFS: scarico i profili lungo il percorso…", "GFS: downloading profiles along the path…"));
                     fs = new FetchStats();
-                    var ser = await OwnForecast.FetchPoints(FcHttp, pp, FcSetStatus, ct, fs);
+                    var ser = await OwnForecast.FetchPoints(FcHttp, pp, FcSetStatus, ct, fs, _own.RunUtc);
                     prof = ser.Select(s =>
                     {
                         int best = -1; double bd = double.MaxValue;
@@ -811,6 +811,7 @@ public sealed partial class MainWindow
             {
                 var msg = ex is OperationCanceledException ? L("tempo scaduto nello scaricamento dei dati (rete lenta o server occupato): riprova", "download timed out (slow network or busy server): try again") : ex.Message;
                 CalcLog.W("ERRORE: " + ex);
+                if (!(ex is OperationCanceledException) && !(ex is OwnForecast.RateLimitException)) ErrorLog.Write(ex, "calcolo del segnale");
                 FcSetStatus(L("Errore: ", "Error: ") + msg);
                 FcResultMessage(L("Calcolo non riuscito: ", "Computation failed: ") + msg, _th.Bad);
             }
@@ -919,7 +920,7 @@ public sealed partial class MainWindow
                 Dispatcher.UIThread.Post(() => _fcMap?.InvalidateVisual());
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested) { FcSetStatus(L("Interrotto.", "Stopped.")); }
-            catch (Exception ex) { CalcLog.W("ERRORE: " + ex); FcSetStatus(L("Errore: ", "Error: ") + (ex is OperationCanceledException ? L("tempo scaduto nello scaricamento, riprova", "download timed out, try again") : ex.Message)); }
+            catch (Exception ex) { CalcLog.W("ERRORE: " + ex); if (!(ex is OperationCanceledException)) ErrorLog.Write(ex, "copertura in ottica"); FcSetStatus(L("Errore: ", "Error: ") + (ex is OperationCanceledException ? L("tempo scaduto nello scaricamento, riprova", "download timed out, try again") : ex.Message)); }
         });
     }
 }
