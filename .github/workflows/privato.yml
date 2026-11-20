@@ -55,14 +55,16 @@ jobs:
           if ($alive) { Stop-Process -Id $p.Id -Force }
       - name: Prova delle fonti dati (Open-Meteo GFS e SRTM1)
         shell: bash
+        continue-on-error: true
         run: |
+          set +e +o pipefail
           V="surface_pressure,temperature_2m,relative_humidity_2m,wind_speed_10m,boundary_layer_height,cape"
           for p in 1000 975 950 925 900 850 800 700 600 500; do V="$V,temperature_${p}hPa,relative_humidity_${p}hPa"; done
           U="https://api.open-meteo.com/v1/forecast?latitude=40.9,45.5&longitude=14.3,9.2&hourly=$V&models=gfs_seamless&forecast_hours=78&wind_speed_unit=ms&timezone=GMT"
           C=$(curl -s -o om.json -w "%{http_code}" "$U"); echo "Open-Meteo HTTP $C" >> dist/avvio.txt
           head -c 600 om.json >> dist/avvio.txt; echo >> dist/avvio.txt
           python -c "import json;d=json.load(open('om.json'));d=d if isinstance(d,list) else [d];h=d[0]['hourly'];print('elev',d[0].get('elevation'),'ore',len(h['time']),'nulli 975',sum(1 for x in h['temperature_975hPa'] if x is None),'blh',h['boundary_layer_height'][:3],'cape',h['cape'][:3])" >> dist/avvio.txt 2>&1 || echo "json non leggibile" >> dist/avvio.txt
-          C=$(curl -s -o t.gz -w "%{http_code}" https://s3.amazonaws.com/elevation-tiles-prod/skadi/N40/N40E014.hgt.gz); echo "SRTM1 HTTP $C gz $(stat -c %s t.gz) hgt $(gunzip -c t.gz | wc -c)" >> dist/avvio.txt
+          C=$(curl -s -o t.gz -w "%{http_code}" https://s3.amazonaws.com/elevation-tiles-prod/skadi/N40/N40E014.hgt.gz); echo "SRTM1 HTTP $C gz $(wc -c < t.gz) hgt $(gunzip -c t.gz 2>/dev/null | wc -c)" >> dist/avvio.txt
           cat dist/avvio.txt
       - name: Zip e cifratura
         shell: bash
