@@ -11,7 +11,7 @@ using TropoVHF.Core;
 
 namespace TropoVHF.Ui;
 
-public sealed class MainWindow : Window
+public sealed partial class MainWindow : Window
 {
     readonly AppState _st;
     Palette _th;
@@ -41,7 +41,7 @@ public sealed class MainWindow : Window
         _map = new MapView(_st, _th);
         _map.SelectionChanged += () => { RefreshInfoCard(); RefreshSpotList(); };
 
-        Title = "LIVETROPOVHF " + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "") + " · IC8TEM";
+        Title = "LIVETROPOVHF " + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "") + " · IC8TEM · versione privata (Previsioni)";
         MinWidth = 900; MinHeight = 560;
         PlaceAtStartup();
 
@@ -525,6 +525,7 @@ public sealed class MainWindow : Window
         _tabContent["map"] = BuildMapTab();
         _tabContent["hepburn"] = BuildTropoTab("hepburn");
         _tabContent["f5len"] = BuildTropoTab("f5len");
+        _tabContent["fc"] = BuildForecastTab();
         _tabContent["graves"] = BuildGravesTab();
         _tabContent["sus"] = BuildSuspectsTab();
         _tabContent["collect"] = BuildCollectTab();
@@ -602,9 +603,9 @@ public sealed class MainWindow : Window
     {
         var band = new DockPanel { Background = B(_th.Band), Height = 48, LastChildFill = false };
         var sp = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Bottom };
-        foreach (var (key, label) in new[] { ("map", "tab.map"), ("hepburn", "tab.hep"), ("f5len", "tab.f5"), ("graves", "tab.graves"), ("sus", "tab.sus"), ("collect", "tab.collect"), ("doc1", "tab.doc1"), ("doc2", "tab.doc2"), ("doc3", "tab.doc3") })
+        foreach (var (key, label) in new[] { ("map", "tab.map"), ("hepburn", "tab.hep"), ("f5len", "tab.f5"), ("fc", "tab.fc"), ("graves", "tab.graves"), ("sus", "tab.sus"), ("collect", "tab.collect"), ("doc1", "tab.doc1"), ("doc2", "tab.doc2"), ("doc3", "tab.doc3") })
         {
-            var b = new Button { Content = Lang.T(label), Height = 40, Padding = new Thickness(18, 0), CornerRadius = new CornerRadius(8, 8, 0, 0), FontSize = 14, VerticalContentAlignment = VerticalAlignment.Center };
+            var b = new Button { Content = label == "tab.fc" ? (Lang.Current == "it" ? "Previsioni" : "Forecast") : Lang.T(label), Height = 40, Padding = new Thickness(18, 0), CornerRadius = new CornerRadius(8, 8, 0, 0), FontSize = 14, VerticalContentAlignment = VerticalAlignment.Center };
             b.Click += (_, _) => ShowTab(key);
             _tabButtons[key] = b;
             sp.Children.Add(b);

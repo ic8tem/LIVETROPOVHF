@@ -1,0 +1,75 @@
+# LIVETROPOVHF - versione privata con la linguetta Previsioni (ramo "privato").
+# Compila Windows 64 bit, cifra il pacchetto con la chiave pubblica .github/privato.pub.pem e lo mette nel ramo ci-priv:
+# senza la chiave privata il file non si può aprire. Nessuna Release pubblica.
+name: privato
+
+on:
+  push:
+    branches: [ privato ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Compila
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet publish TropoVHF/TropoVHF.csproj -c Release -r win-x64 --self-contained true -p:Version=1.0.4 -p:DebugType=none -o publish/win-x64 -clp:NoSummary 2>&1 | tee build.log
+      - name: Errori di compilazione (ramo ci-log)
+        if: failure()
+        shell: bash
+        run: |
+          grep -E ": error |error NU|error MSB" build.log | sort -u > errori.txt || true
+          cp build.log tutto.txt
+          git config user.name "IC8TEM"; git config user.email "ic8tem@users.noreply.github.com"
+          git checkout --orphan ci-log
+          git rm -rf --cached . > /dev/null
+          git add -f errori.txt tutto.txt
+          git commit -m "errori di compilazione versione privata ($GITHUB_SHA)"
+          git push -f origin ci-log
+      - name: Prova di avvio
+        shell: pwsh
+        run: |
+          $d = "$env:RUNNER_TEMP\prova"
+          Copy-Item -Recurse publish\win-x64 $d
+          Set-Content "$d\LIVETROPOVHF.ini" "call=IC8TEM`r`nloc=JN70CN`r`nupdates=0`r`nwin_max=1"
+          $p = Start-Process "$d\LIVETROPOVHF.exe" -PassThru
+          Start-Sleep 20
+          $alive = -not $p.HasExited
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Set-Content dist\avvio.txt "in esecuzione dopo 20 s: $alive"
+          if (Test-Path "$d\errore-avvio.txt") { Copy-Item "$d\errore-avvio.txt" dist\ }
+          if ($alive) { Stop-Process -Id $p.Id -Force }
+      - name: Zip e cifratura
+        shell: bash
+        run: |
+          mkdir -p dist
+          (cd publish/win-x64 && 7z a -tzip -mx=7 ../../dist/LIVETROPOVHF-1.0.4-privata-windows-x64.zip . > /dev/null)
+          openssl rand -out dist/k.bin 32
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in dist/LIVETROPOVHF-1.0.4-privata-windows-x64.zip -out dist/pacchetto.enc -pass file:dist/k.bin
+          openssl pkeyutl -encrypt -pubin -inkey .github/privato.pub.pem -pkeyopt rsa_padding_mode:oaep -in dist/k.bin -out dist/chiave.enc
+          rm dist/k.bin dist/LIVETROPOVHF-1.0.4-privata-windows-x64.zip
+          ls -la dist
+      - name: Ramo ci-priv
+        shell: bash
+        run: |
+          git config user.name "IC8TEM"; git config user.email "ic8tem@users.noreply.github.com"
+          git checkout --orphan ci-priv
+          git rm -rf --cached . > /dev/null
+          git add -f dist/pacchetto.enc dist/chiave.enc dist/avvio.txt
+          [ -f dist/errore-avvio.txt ] && git add -f dist/errore-avvio.txt || true
+          git commit -m "versione privata cifrata ($GITHUB_SHA)"
+          git push -f origin ci-priv

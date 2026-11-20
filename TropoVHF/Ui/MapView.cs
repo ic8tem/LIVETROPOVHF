@@ -77,6 +77,10 @@ public sealed class MapView : Control
     public string PreviewSource;
     /// <summary>Ora di previsione dell'anteprima (indipendente dalla mappa principale).</summary>
     public int PreviewHours;
+    /// <summary>Strato disegnato sopra la base quando PreviewSource è "own" (linguetta Previsioni).</summary>
+    public Action<DrawingContext> OwnLayer;
+    public bool Screen(LatLon p, out Point s) => ToScreen(p, out s);
+    public (double la1, double la2, double lo1, double lo2) Box => VisibleBox();
 
     // cache delle linee proiettate (per livello di dettaglio)
     sealed class ProjLine
@@ -127,7 +131,7 @@ public sealed class MapView : Control
         if (!Proj.Azimuthal)
         {
             double la1 = 33, lo1 = -25, la2 = 68, lo2 = 45;
-            if (PreviewSource != null)
+            if (PreviewSource != null && PreviewSource != "own")
             {
                 // anteprima: inquadra tutte le regioni lette di quella fonte
                 var rs = _st.Tropo.Rasters.Where(r => r.Fonte == PreviewSource && r.Fit == null).ToList();
@@ -216,6 +220,7 @@ public sealed class MapView : Control
         e.Pointer.Capture(null);
         if (_moved) return;
         var p = e.GetPosition(this);
+        if (PreviewSource == "own") { Probe = FromScreen(p); SelectionChanged?.Invoke(); InvalidateVisual(); return; }
         if (PreviewSource != null) return;      // anteprima: niente selezioni
         // 1) stazione in ascolto
         foreach (var (key, rp) in _rxHits)
@@ -395,6 +400,24 @@ public sealed class MapView : Control
             ctx.DrawGeometry(null, new Pen(Br(th.MapCoast), detail ? 1.1 : 1.0, lineJoin: PenLineJoin.Round), LinesGeometry(lc.Coast, false, false, box));
         }
 
+        if (PreviewSource == "own")
+        {
+            OwnLayer?.Invoke(ctx);
+            DrawGrid(ctx);
+            if (_st.TryQth(out var oq) && ToScreen(oq, out var oqs))
+            {
+                ctx.DrawEllipse(null, new Pen(Br(th.Accent), 2.5), oqs, 10, 10);
+                ctx.DrawEllipse(Br(th.Accent), null, oqs, 4, 4);
+            }
+            if (Probe.HasValue && ToScreen(Probe.Value, out var ops))
+            {
+                var pen = new Pen(Br(th.Ink), 1.8);
+                ctx.DrawEllipse(null, pen, ops, 7, 7);
+                ctx.DrawLine(pen, new Point(ops.X - 12, ops.Y), new Point(ops.X + 12, ops.Y));
+                ctx.DrawLine(pen, new Point(ops.X, ops.Y - 12), new Point(ops.X, ops.Y + 12));
+            }
+            return;
+        }
         if (PreviewSource != null)
         {
             // anteprima di una fonte: fusione delle sue immagini, buchi in grigio, riquadri delle regioni
