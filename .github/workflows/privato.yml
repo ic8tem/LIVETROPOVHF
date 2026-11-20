@@ -27,7 +27,9 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          dotnet publish TropoVHF/TropoVHF.csproj -c Release -r win-x64 --self-contained true -p:Version=1.0.9 -p:DebugType=none -o publish/win-x64 -clp:NoSummary 2>&1 | tee build.log
+          dotnet publish TropoVHF/TropoVHF.csproj -c Release -r win-x64 --self-contained true -p:Version=1.0.9 -p:Privato=true -p:DebugType=none -o publish/win-x64 -clp:NoSummary 2>&1 | tee build.log
+          # controllo: la versione per Windows 7 (.NET Framework 4.8) deve compilare con lo stesso motore
+          dotnet publish Win7/LIVETROPOVHF7.csproj -c Release -r win-x64 -p:Version=1.0.9 -p:DebugType=none -o publish/w7 -clp:NoSummary 2>&1 | tee -a build.log
       - name: Errori di compilazione (ramo ci-log)
         if: failure()
         shell: bash
@@ -65,6 +67,7 @@ jobs:
           head -c 600 om.json >> dist/avvio.txt; echo >> dist/avvio.txt
           python -c "import json;d=json.load(open('om.json'));d=d if isinstance(d,list) else [d];h=d[0]['hourly'];print('elev',d[0].get('elevation'),'ore',len(h['time']),'nulli 975',sum(1 for x in h['temperature_975hPa'] if x is None),'blh',h['boundary_layer_height'][:3],'cape',h['cape'][:3])" >> dist/avvio.txt 2>&1 || echo "json non leggibile" >> dist/avvio.txt
           C=$(curl -s -o t.gz -w "%{http_code}" https://s3.amazonaws.com/elevation-tiles-prod/skadi/N40/N40E014.hgt.gz); echo "SRTM1 HTTP $C gz $(wc -c < t.gz) hgt $(gunzip -c t.gz 2>/dev/null | wc -c)" >> dist/avvio.txt
+          C=$(curl -s -o meta.json -w "%{http_code}" https://api.open-meteo.com/data/ncep_gfs025/static/meta.json); echo "meta GFS HTTP $C $(head -c 300 meta.json)" >> dist/avvio.txt
           cat dist/avvio.txt
       - name: Zip e cifratura
         shell: bash

@@ -41,7 +41,7 @@ public sealed partial class MainWindow : Window
         _map = new MapView(_st, _th);
         _map.SelectionChanged += () => { RefreshInfoCard(); RefreshSpotList(); };
 
-        Title = "LIVETROPOVHF " + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "") + " · IC8TEM · versione privata (Previsioni)";
+        Title = "LIVETROPOVHF " + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "") + " · IC8TEM";
         MinWidth = 900; MinHeight = 560;
         PlaceAtStartup();
 
@@ -610,7 +610,7 @@ public sealed partial class MainWindow : Window
         {
             var b = new Button { Content = label switch
             {
-                "tab.fc" => Lang.Current == "it" ? "Previsioni" : "Forecast",
+                "tab.fc" => Lang.Current == "it" ? "Previsioni (sperimentale)" : "Forecast (experimental)",
                 "tab.doc4" => Lang.Current == "it" ? "Manuale previsioni" : "Forecast manual",
                 "tab.doc5" => Lang.Current == "it" ? "Consigli all'operatore" : "Operator tips",
                 _ => Lang.T(label)

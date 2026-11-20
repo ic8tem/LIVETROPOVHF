@@ -38,7 +38,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Docs\*.md" />
     <!-- climatologia dei condotti ITU-R P.453 (© ITU, uso personale e non commerciale) -->
-    <EmbeddedResource Include="Forecast\Climatologia\p453.bin.gz" LogicalName="TropoVHF.Forecast.p453.bin.gz" />
+    <!-- solo nella versione privata (-p:Privato=true): nelle versioni pubbliche l'utente scarica i file dall'ITU in Dati/P453 -->
+    <EmbeddedResource Include="Forecast\Climatologia\p453.bin.gz" LogicalName="TropoVHF.Forecast.p453.bin.gz" Condition="'$(Privato)' == 'true'" />
     <EmbeddedResource Include="Assets\splash.jpg;Assets\livetropovhf.ico;Assets\livetropovhf-256.png" />
     <!-- database nominativi accanto al programma (anche nei pacchetti e negli installatori) -->
     <None Include="..\CALL3.TXT" Link="CALL3.TXT" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" Condition="Exists('..\CALL3.TXT')" />

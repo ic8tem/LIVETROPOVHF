@@ -64,7 +64,9 @@ I livelli GFS distano da 200 a 1000 m: un'inversione sottile viene spalmata e il
 - Calcolo A: tutto il calo in eccesso concentrato in 50 m.
 - Calcolo B: lo stesso calo distribuito sullo spessore tipico dei condotti di quella zona, preso dalle mappe climatologiche di ITU-R P.453 [4] (al suolo o elevato).
 
-Per il deficit e per la lunghezza d'onda massima intrappolata si tiene il valore più basso: è una stima prudente. Il rapporto fra il deficit A e l'intensità tipica P.453 è l'anomalia: quante volte il condotto di oggi è più forte del normale.
+Per il deficit e per la lunghezza d'onda massima intrappolata si tiene il valore più basso: è una stima prudente.
+
+I dati di ITU-R P.453 sono © ITU e si possono usare per scopi personali e non commerciali citando la fonte, ma non si possono ridistribuire: per questo non sono nel pacchetto del programma. Per accendere il calcolo B si scaricano dalla pagina dei prodotti digitali della Study Group 3 dell'ITU (itu.int, ITU-R Study Group 3, Digital products, voce P.453, Surface duct data ed Elevated duct data) e si mettono i sette file S_OCCUR.TXT, S_THICK.TXT, S_STREN.TXT, E_OCCUR.TXT, E_base.TXT, E_THICK.TXT ed E_STREN.TXT nella cartella Dati/P453 accanto al programma, poi si riavvia. Senza i file il programma usa solo il calcolo A e lo scrive nella linguetta e nel registro. Il rapporto fra il deficit A e l'intensità tipica P.453 è l'anomalia: quante volte il condotto di oggi è più forte del normale.
 
 ## 7. Stazioni e locatori
 

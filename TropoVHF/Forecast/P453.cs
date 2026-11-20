@@ -32,7 +32,7 @@ public static class P453
                 try
                 {
                     using var s = Assembly.GetExecutingAssembly().GetManifestResourceStream("TropoVHF.Forecast.p453.bin.gz");
-                    if (s == null) { CalcLog.W("P.453: dati climatologici non trovati nel programma"); return _maps = Array.Empty<float[]>(); }
+                    if (s == null) return _maps = FromFiles();
                     using var gz = new GZipStream(s, CompressionMode.Decompress);
                     using var br = new BinaryReader(gz);
                     if (new string(br.ReadChars(4)) != "P453") throw new InvalidDataException("intestazione");
@@ -54,6 +54,39 @@ public static class P453
                 }
             }
         }
+    }
+
+    /// <summary>Cartella in cui mettere i file delle mappe P.453 scaricati dal sito dell'ITU.</summary>
+    public static string Folder => Path.Combine(TropoVHF.Core.Settings.DataDir, "P453");
+    static readonly string[] Names = { "S_OCCUR", "S_THICK", "S_STREN", "E_OCCUR", "E_base", "E_THICK", "E_STREN" };
+    public static bool Available => Maps.Length >= 7;
+
+    /// <summary>
+    /// Versioni pubbliche: i dati ITU non si ridistribuiscono, l'utente li scarica dalla pagina dei prodotti digitali
+    /// della Study Group 3 e mette i file .TXT (S_OCCUR, S_THICK, S_STREN, E_OCCUR, E_base, E_THICK, E_STREN) in Dati/P453.
+    /// </summary>
+    static float[][] FromFiles()
+    {
+        try
+        {
+            var m = new float[Names.Length][];
+            for (int k = 0; k < Names.Length; k++)
+            {
+                var f = Directory.Exists(Folder) ? Directory.GetFiles(Folder).FirstOrDefault(x => string.Equals(Path.GetFileNameWithoutExtension(x), Names[k], StringComparison.OrdinalIgnoreCase)) : null;
+                if (f == null)
+                {
+                    CalcLog.W($"P.453: file {Names[k]}.TXT non trovato in {Folder}: il calcolo B dei condotti potenziali è spento (vedi il manuale delle previsioni, § 6)");
+                    return Array.Empty<float[]>();
+                }
+                var vals = File.ReadAllText(f).Split(new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                               .Select(x => float.Parse(x, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
+                if (vals.Length != Rows * Cols) { CalcLog.W($"P.453: {Path.GetFileName(f)} ha {vals.Length} valori invece di {Rows * Cols}"); return Array.Empty<float[]>(); }
+                m[k] = vals;
+            }
+            CalcLog.W($"P.453: {m.Length} mappe climatologiche dei condotti lette da {Folder} (1,5°, © ITU)");
+            return m;
+        }
+        catch (Exception ex) { CalcLog.W("P.453: errore nella lettura dei file: " + ex.Message); return Array.Empty<float[]>(); }
     }
 
     static double Bilinear(float[] m, double lat, double lon)

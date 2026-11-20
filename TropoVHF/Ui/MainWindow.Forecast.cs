@@ -11,7 +11,7 @@ using TropoVHF.Forecast;
 namespace TropoVHF.Ui;
 
 /// <summary>
-/// Linguetta Previsioni (versione privata): indice tropo proprio calcolato dai profili GFS, quadretti dove manca la
+/// Linguetta Previsioni (sperimentale): indice tropo proprio calcolato dai profili GFS, quadretti dove manca la
 /// previsione propria ma Hepburn o F5LEN sono alti, copertura in ottica dal terreno SRTM1 e stima del segnale sul
 /// percorso verso un corrispondente con antenne yagi DL6WU.
 /// </summary>
@@ -70,6 +70,19 @@ public sealed partial class MainWindow
         var col = new StackPanel { Spacing = 8, Margin = new Thickness(14) };
 
         col.Children.Add(new TextBlock { Text = L("Previsione propria", "Own forecast"), FontSize = 18, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent) });
+        var exp = TB(L("SPERIMENTALE: i calcoli sono in fase di verifica. Usare i risultati per confrontare situazioni, non come garanzia di un collegamento. " +
+                       "Il manuale delle previsioni spiega ogni dato; i rapporti dei collegamenti reali servono a validare il modello.",
+                       "EXPERIMENTAL: the calculations are being validated. Use the results to compare situations, not as a guarantee of a contact. " +
+                       "The forecast manual explains every value; reports of real contacts help validate the model."), 12, _th.Bad, true);
+        exp.TextWrapping = TextWrapping.Wrap;
+        col.Children.Add(new Border { BorderBrush = B(_th.Bad), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(8, 6), Child = exp });
+        if (!P453.Available)
+        {
+            var p4 = TB(L($"Calcolo B dei condotti spento: mancano i file ITU-R P.453 (mappe dei condotti) in {P453.Folder}. Vedi il manuale delle previsioni, § 6.",
+                          $"Duct calculation B off: ITU-R P.453 duct map files missing in {P453.Folder}. See the forecast manual, § 6."), 11, _th.Muted);
+            p4.TextWrapping = TextWrapping.Wrap;
+            col.Children.Add(p4);
+        }
         var help = TB(L("Indice calcolato dai profili verticali GFS (soglie di Bean e Dutton, condotti con la formula di Kerr). " +
                         "Quadretti: qui la previsione propria non c'è ma Hepburn o F5LEN danno 5 o più. Clic sulla mappa per scegliere il corrispondente.",
                         "Index from GFS vertical profiles (Bean & Dutton thresholds, ducts with Kerr's formula). " +
