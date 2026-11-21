@@ -5,6 +5,26 @@ namespace TropoVHF.Forecast;
 /// <summary>Locatore Maidenhead da 4 a 10 caratteri (a 8 e 10 caratteri il punto è preciso a circa 400 m e 20 m).</summary>
 public static class LocatorX
 {
+    /// <summary>Locatore a 10 caratteri (es. JN70CN83CL): campo, quadrato, sottoquadrato, quadrato esteso, sottoquadrato esteso.</summary>
+    public static string To10(double lat, double lon)
+    {
+        double x = lon + 180, y = lat + 90;
+        if (x < 0 || x >= 360 || y < 0 || y >= 180) return "";
+        var c = new char[10];
+        c[0] = (char)('A' + (int)(x / 20)); c[1] = (char)('A' + (int)(y / 10));
+        x %= 20; y %= 10;
+        c[2] = (char)('0' + (int)(x / 2)); c[3] = (char)('0' + (int)y);
+        x %= 2; y %= 1;
+        int sx = Math.Min(23, (int)(x * 12)), sy = Math.Min(23, (int)(y * 24));
+        c[4] = (char)('A' + sx); c[5] = (char)('A' + sy);
+        x -= sx / 12.0; y -= sy / 24.0;
+        int ex = Math.Min(9, (int)(x * 120)), ey = Math.Min(9, (int)(y * 240));
+        c[6] = (char)('0' + ex); c[7] = (char)('0' + ey);
+        x -= ex / 120.0; y -= ey / 240.0;
+        c[8] = (char)('A' + Math.Min(23, (int)(x * 2880))); c[9] = (char)('A' + Math.Min(23, (int)(y * 5760)));
+        return new string(c);
+    }
+
     public static bool TryParse(string loc, out LatLon p)
     {
         p = default;
@@ -84,7 +104,11 @@ public static class Dl6wu
 public sealed class ViaPeak
 {
     public double AzDeg, DistKm, HeightM, L1Db, L2Db, ConvDb, TotalDb;
-    public string Mechanism2 = "";
+    public string Mechanism2 = "", Loc10 = "";
+    /// <summary>Opzione «senza perdita fino al monte»: la stazione è portata sul punto, conta solo la tratta dal monte al corrispondente.</summary>
+    public double IdealDb => L2Db;
+    /// <summary>Perdita usata per scegliere il puntamento: quella ideale con l'opzione accesa, altrimenti il totale bistatico.</summary>
+    public double RankDb => Refractivity.ViaIdeal ? L2Db : TotalDb;
     public LatLon Pos;
 }
 
@@ -1102,7 +1126,8 @@ public static class LinkCalc
                 hor = Math.Max(hor, Math.Atan((hg - dk * dk / (2 * ae) * 1000 - hp) / (dk * 1000)) * 180 / Math.PI);
             }
             double r1 = c.km * 1000;
-            double quick = 20 * Math.Log10(4 * Math.PI * r1 / lam) + Conv(r1) + 10 * Math.Max(0, hor);
+            // con l'opzione «senza perdita fino al monte» conta solo l'orizzonte dal punto verso il corrispondente (a parità, il punto più alto)
+            double quick = Refractivity.ViaIdeal ? 10 * Math.Max(0, hor) - c.hM / 100 : 20 * Math.Log10(4 * Math.PI * r1 / lam) + Conv(r1) + 10 * Math.Max(0, hor);
             scored.Add((c.az, c.km, c.hM, c.pos, quick, hor));
         }
         var pick = new List<(double az, double km, double hM, LatLon pos, double quick, double horDeg)>();
@@ -1116,20 +1141,20 @@ public static class LinkCalc
             CalcLog.W($"   stima rapida: azimut {c.az:0}°, {c.km:0.0} km, {c.hM:0} m, orizzonte dal diffusore verso il corrispondente {c.horDeg:+0.0;-0.0}° → {c.quick:0.0} dB + tratta");
         foreach (var c in pick)
         {
-            var peak = new Station { Loc = Locator.FromLatLon(c.pos.Lat, c.pos.Lon), Pos = c.pos, Precise = true, AglM = 10, BoomM = tx.BoomM, PowerW = tx.PowerW };
+            var peak = new Station { Loc = LocatorX.To10(c.pos.Lat, c.pos.Lon), Pos = c.pos, Precise = true, AglM = 10, BoomM = tx.BoomM, PowerW = tx.PowerW, CableDb = tx.CableDb };
             var leg = await Compute(peak, rx, o, srtm, prof, ct, sub: true);
             double r1 = c.km * 1000;
             double lfs1 = 20 * Math.Log10(4 * Math.PI * r1 / lam);
             double conv = Conv(r1);
             double tot = lfs1 + leg.LpredDb + conv;
-            r.Via.Add(new ViaPeak { AzDeg = c.az, DistKm = c.km, HeightM = c.hM, Pos = c.pos, L1Db = lfs1, L2Db = leg.LpredDb, ConvDb = conv, TotalDb = tot, Mechanism2 = leg.Mechanism });
-            CalcLog.W($"via azimut {c.az:0}°: diffusore a {c.km:0.0} km, quota {c.hM:0} m → Lfs1 {lfs1:0.0} dB + tratta dal diffusore {leg.LpredDb:0.0} dB ({leg.Mechanism}) + conversione bistatica {conv:+0.0;-0.0} dB (σ0 {sigma0Db} dB) = {tot:0.0} dB; diretto {r.LpredDb:0.0} dB");
+            r.Via.Add(new ViaPeak { AzDeg = c.az, DistKm = c.km, HeightM = c.hM, Pos = c.pos, L1Db = lfs1, L2Db = leg.LpredDb, ConvDb = conv, TotalDb = tot, Mechanism2 = leg.Mechanism, Loc10 = peak.Loc });
+            CalcLog.W($"via azimut {c.az:0}°: diffusore {peak.Loc} a {c.km:0.0} km, quota {c.hM:0} m → Lfs1 {lfs1:0.0} dB + tratta dal diffusore {leg.LpredDb:0.0} dB ({leg.Mechanism}) + conversione bistatica {conv:+0.0;-0.0} dB (σ0 {sigma0Db} dB) = {tot:0.0} dB; diretto {r.LpredDb:0.0} dB");
         }
         if (r.Via.Count > 0)
         {
-            var b = r.Via.OrderBy(v => v.TotalDb).First();
-            r.BestPointAz = b.TotalDb < r.LpredDb ? b.AzDeg : r.AzDeg;
-            CalcLog.W($"puntamento consigliato: {(b.TotalDb < r.LpredDb ? $"azimut {b.AzDeg:0}° (diffusore a {b.DistKm:0.0} km, {b.HeightM:0} m), {r.LpredDb - b.TotalDb:0.0} dB meglio del diretto" : $"diretto, azimut {r.AzDeg:0}°")}");
+            var b = r.Via.OrderBy(v => v.RankDb).First();
+            r.BestPointAz = b.RankDb < r.LpredDb ? b.AzDeg : r.AzDeg;
+            CalcLog.W($"puntamento consigliato{(Refractivity.ViaIdeal ? " (opzione senza perdita fino al monte: stazione portata sul punto)" : "")}: {(b.RankDb < r.LpredDb ? $"azimut {b.AzDeg:0}° (punto {b.Loc10} a {b.DistKm:0.0} km, {b.HeightM:0} m), {r.LpredDb - b.RankDb:0.0} dB meglio del diretto" : $"diretto, azimut {r.AzDeg:0}°")}");
         }
     }
 

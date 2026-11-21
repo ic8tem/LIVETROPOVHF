@@ -276,6 +276,8 @@ L_{via} = L_{fs}(R_1) + L_2 + 10\log_{10}\frac{\lambda^2}{4\pi\,\sigma_0 A}
 
 La riga «Puntamento consigliato» indica l'azimut della via migliore, se costa meno del diretto. A 144 MHz, con un rilievo a 20 km e una yagi da 15°, la via monte costa circa 45 dB più della tratta 2 da sola: conviene solo quando il diretto è chiuso da ostacoli vicini. La stima è grossolana (±10 dB), soprattutto per σ0.
 
+
+**Senza perdita fino al monte (opzione, dalla 1.3.2).** Con la casella «Via monte senza perdita fino al monte» l'abbattimento fra la stazione e il punto di diffrazione è considerato nullo: è come portare la stazione sulla cima (antenna a 10 m sopra il punto, stessa potenza, antenna e cavo). Il giro d'orizzonte sceglie allora il punto con l'orizzonte più libero verso il corrispondente (a parità, il più alto) e il risultato mostra la tratta dal punto al corrispondente, con segnale e S/N, accanto al totale con la diffusione. È un limite ottimistico: dice se la direzione si apre quando il monte rilancia bene il segnale, oppure dove andare in portatile. Ogni punto è dato con il locatore a 10 caratteri.
 ## 12. Antenne, segnale e rumore
 
 - Yagi DL6WU: guadagno ≈ 8,6 + 8·log10(boom/λ) dBd, più 2,15 per i dBi [12].

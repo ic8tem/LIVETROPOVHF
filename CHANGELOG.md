@@ -5,6 +5,7 @@ Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole 
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
 ## 1.3.2 — 21/11/2026
+- Via monte: locatore a 10 caratteri per ogni punto e nuova casella «Via monte senza perdita fino al monte», che porta la stazione sul punto migliore e calcola solo la tratta dal punto al corrispondente (segnale e S/N).
 - Risultati: i valori lunghi vanno a capo invece di essere tagliati, spazio per la barra di scorrimento; perdite oltre 300 dB scritte «> 300 dB» con «direzione chiusa da un ostacolo vicino»; niente più «-+0,0»; la curvatura della terra sul mare non è più chiamata «ostacolo 0 m». Profilo: fumetto sul raggio diretto rosso/verde e sui punti rossi della zona di Fresnel.
 - Segni meteo sulla mappa grandi il doppio e colorati per effetto (↓ verde subsidenza favorevole, ↑ rosso aria in salita sfavorevole, S arancio scirocco), con un fumetto al passaggio del mouse; tabella nel manuale delle previsioni (§ 9 bis).
 - ITM (Longley-Rice) 1.2.2 dell'NTIA tradotto in C#: nella linguetta Previsioni c'è una riga con la perdita in atmosfera normale (50%, 10% e 1% del tempo) accanto a P.452, e una riga «Uscita dal condotto» quando il condotto finisce prima del corrispondente (tratto finale calcolato con l'ITM). La compilazione automatica controlla che i numeri siano uguali a quelli del codice originale.

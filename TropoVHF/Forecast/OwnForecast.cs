@@ -191,6 +191,8 @@ public static class Refractivity
     public static bool UseViaMountain = true;
     /// <summary>1.3.2: ITM (Longley-Rice, NTIA) come calcolo di confronto in atmosfera normale e per il tratto finale dopo l'uscita dal condotto.</summary>
     public static bool UseItm = true;
+    /// <summary>Via monte «senza perdita fino al monte»: la stazione è portata sul punto migliore (perdita nulla fra la stazione e il punto).</summary>
+    public static bool ViaIdeal = false;
     public static bool UseItmTail = true;
     public const double BlhRidgeDbBonus = 1.5;
     /// <summary>Calo normale nel primo km del profilo CRPL: −ΔN = 7,32·e^(0,005577·Ns) (NBS Monograph 4).</summary>

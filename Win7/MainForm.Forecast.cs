@@ -339,6 +339,7 @@ public sealed partial class MainForm
     {
         OwnForecast.Source = WxSources.Parse(_st.S.Get("fc_source", "Auto"));
         Refractivity.UseCorrections = _st.S.GetBool("fc_corr", true);
+        Refractivity.ViaIdeal = _st.S.GetBool("fc_via_ideal", false);
         var r1 = Row();
         var l1 = Lbl(L("Sorgente dei dati", "Data source"), 8.5f, _th.Muted); l1.AutoSize = false; l1.Width = 120; l1.Height = 28; l1.TextAlign = ContentAlignment.MiddleLeft;
         var src = Combo(WxSources.All.Select(WxSources.Name), Math.Max(0, Array.IndexOf(WxSources.All, OwnForecast.Source)), 320, i =>
@@ -381,6 +382,12 @@ public sealed partial class MainForm
         _fcTips.SetToolTip(corr, L("Termine di stabilità di Misme (solo senza condotto, da −4 a +6 dB, taratura provvisoria) e moto verticale: +1,5 dB con subsidenza, −2 dB con aria in salita. Manuale delle previsioni, § 9 bis.",
                                    "Misme stability term (only without a duct, −4 to +6 dB, provisional) and vertical motion: +1.5 dB with subsidence, −2 dB with rising air. Forecast manual, § 9 bis."));
         Add(col, corr);
+        var vi = Chk(L("Via monte senza perdita fino al monte (stazione portata sul punto)", "Via mountain lossless to the peak (station moved to the point)"), Refractivity.ViaIdeal, v =>
+        {
+            Refractivity.ViaIdeal = v; _st.S.SetBool("fc_via_ideal", v); _st.Dirty = true;
+        });
+        _fcTips.SetToolTip(vi, L("Quando il corrispondente è chiuso da un rilievo vicino, il giro d'orizzonte cerca il punto migliore da cui rilanciare il segnale. Con questa casella la perdita fra la tua stazione e il punto è considerata nulla: è come portare la stazione sulla cima (antenna a 10 m, stessa potenza e antenna) e conta solo la tratta dal punto al corrispondente. Il punto è dato con il locatore a 10 caratteri. Limite ottimistico. Manuale delle previsioni, § 10 bis.", "When the other station is blocked by nearby terrain, the horizon sweep looks for the best point to relaunch the signal. With this box the loss between your station and the point is taken as zero: as if you moved the station to the summit (antenna 10 m, same power and antenna); only the leg from the point to the other station counts. The point is given with a 10-character locator. Optimistic bound. Forecast manual, § 10 bis."));
+        Add(col, vi);
     }
 
     bool FcAuto { get => _st.S.GetBool("fc_auto", true); set => _st.S.SetBool("fc_auto", value); }
