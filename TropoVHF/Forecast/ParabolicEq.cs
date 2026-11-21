@@ -7,7 +7,8 @@ namespace TropoVHF.Forecast;
 /// framework wave-propagation di M. Lytaev (MIT): u(x+Δx) = e^(i·k·Δx·m) · F⁻¹[e^(−i·p²·Δx/2k) · F[u(x)]], con m = M·10⁻⁶
 /// la rifrattività modificata (la curvatura della Terra è già dentro M). Suolo conduttore (polarizzazione orizzontale,
 /// estensione dispari), terreno a gradini (sotto il suolo il campo si annulla), sorgente gaussiana con l'immagine,
-/// assorbitore di Hann nel terzo alto del dominio. Perdita di base: L = −20 log|u| + 20 log 4π + 10 log x − 30 log λ.
+/// assorbitore di Hann nella metà alta di un dominio di almeno 8 km, fascio di al massimo 6°. Verifica (prototipo):
+/// atmosfera standard, 144 MHz, antenne a 30 m: 164 dB a 100 km; condotto elevato a 300 m: 145 dB a 200 km contro 216. Perdita di base: L = −20 log|u| + 20 log 4π + 10 log x − 30 log λ.
 /// Non comprende il troposcatter: va sommato a parte (somma delle potenze).
 /// </summary>
 public static class ParabolicEq
@@ -70,7 +71,7 @@ public static class ParabolicEq
         double lam = 299.792458 / fMHz, k = 2 * Math.PI / lam;
         double tMax = terrain != null && terrain.Length > 0 ? terrain.Max() : 0;
         double top = Math.Max(Math.Max(hts, hrs), tMax);
-        double hmax = Math.Max(3000, top + 2500);
+        double hmax = Math.Max(8000, top + 6000);   // dominio alto e assorbitore spesso: con meno il campo oltre l'orizzonte è solo rumore numerico
         double dz = Math.Min(2.0, 5 * lam);
         int nz = 1; while (nz * dz < hmax) nz <<= 1;
         hmax = nz * dz;
@@ -80,7 +81,7 @@ public static class ParabolicEq
         if (prof != null && prof.Any(p => p != null)) foreach (var p in prof) mFuncs.Add(p != null ? MProfile(p) : null);
         double[] Solve(bool std)
         {
-            double th = Math.Max(2, Math.Min(30, bwDeg)) * Math.PI / 180;
+            double th = Math.Max(2, Math.Min(6, bwDeg)) * Math.PI / 180;   // fascio stretto (≤ 6°): ad angoli grandi il metodo ad angolo stretto sbaglia e l'energia rimbalza sull'assorbitore
             double A = k * th / (2 * Math.Sqrt(2 * Math.PI * Math.Log(2)));
             var u = new Complex[nz];
             for (int i = 0; i < nz; i++)
@@ -97,7 +98,7 @@ public static class ParabolicEq
                 double p = 2 * Math.PI * (i < nz ? i : i - n2) / (n2 * dz);
                 prop[i] = Complex.FromPolarCoordinates(1, -p * p * dx / (2 * k));
             }
-            var win = new double[nz]; int na = nz / 3;
+            var win = new double[nz]; int na = nz / 2;
             for (int i = 0; i < nz; i++) win[i] = i < nz - na ? 1 : 0.5 * (1 + Math.Cos(Math.PI * (i - (nz - na)) / na));
             var buf = new Complex[n2];
             int steps = (int)Math.Ceiling(dKm * 1000 / dx);
