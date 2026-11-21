@@ -66,6 +66,11 @@ public sealed class ProfileResult
     public string KDropLayer = "";
     public bool Subsidence, Ascent, Scirocco;
     public double VertDb;                  // correzione per moto verticale (dB)
+    public double LayerGainAggrDb;         // come LayerGainDb ma con la soglia ITU di super-rifrazione (79 N/km) nello strato basso: stima aggressiva
+    public double CrplDN1km = double.NaN;  // calo normale nel primo km del profilo CRPL per l'Ns del punto (N/km)
+    public double Pmsl = double.NaN;       // pressione ridotta al livello del mare (hPa)
+    public bool HighP;                     // alta pressione estesa (≥ 1020 hPa su quasi tutte le celle vicine) e vento debole nei bassi strati
+    public double HighPDb => Refractivity.UseHighPressure && HighP && !Ascent ? Refractivity.HighPDbBonus : 0;
     public Level[] Levels = Array.Empty<Level>();
     public List<LayerDuct> Layers = new();     // strati con calo di N oltre il normale (condotti risolti o potenziali)
 
@@ -132,6 +137,7 @@ public sealed class ProfileResult
             // Moler e Holden 1960: la subsidenza mantiene gli strati, i moti ascendenti li rompono
             g += VertDb;
         }
+        g += HighPDb;
         // senza condotto il guadagno resta nel giallo: rosso e viola solo per i condotti (pieni o morbidi)
         if (bd == null && sf <= 0) g = Math.Min(g, Refractivity.NoDuctCapDb);
         return g;
@@ -158,6 +164,29 @@ public static class Refractivity
     public static bool UsePersistence = true;
     /// <summary>Equazione parabolica nel calcolo del segnale (solo confronto).</summary>
     public static bool UseParabolic = true;
+    /// <summary>1.3.2: profilo normale CRPL (Bean e Thayer 1959) con l'Ns del punto al posto di 40 N/km fissi. Alternativa, spenta per difetto.</summary>
+    public static bool UseCrplNormal = false;
+    /// <summary>1.3.2: mappa con la stima aggressiva (soglia ITU di super-rifrazione 79 N/km nello strato basso) invece della prudente (Bean e Dutton, 100 N/km).</summary>
+    public static bool UseItuSuper = false;
+    /// <summary>1.3.2: strati e condotti cercati solo fino a 1500 m sopra il suolo.</summary>
+    public static bool UseDuctCeiling = true;
+    public const double DuctCeilingM = 1500;
+    /// <summary>1.3.2: bonus con alta pressione estesa e vento debole nei bassi strati.</summary>
+    public static bool UseHighPressure = true;
+    public const double HighPDbBonus = 1.0, HighPHpa = 1020, HighPWind10 = 5, HighPWind850 = 8;
+    /// <summary>1.3.2: peso del percorso su mare (μ1 di ITU-R P.452) sul guadagno degli strati, fra × 0,8 e × 1,2.</summary>
+    public static bool UseSeaWeight = true;
+    /// <summary>1.3.2: bonus quando la cima dello strato limite supera le creste lungo la tratta (IT9GSF).</summary>
+    public static bool UseBlhRidges = true;
+    public const double BlhRidgeDbBonus = 1.5;
+    /// <summary>Calo normale nel primo km del profilo CRPL: −ΔN = 7,32·e^(0,005577·Ns) (NBS Monograph 4).</summary>
+    public static double CrplDN(double ns) => 7.32 * Math.Exp(0.005577 * ns);
+    /// <summary>Calo normale CRPL fra due quote sopra il suolo (m): N(h) = Ns·e^(−c·h), c = −ln(1 − ΔN/Ns) per km.</summary>
+    public static double CrplDrop(double ns, double h1, double h2)
+    {
+        double c = -Math.Log(1 - Math.Min(0.5, CrplDN(ns) / ns));
+        return ns * (Math.Exp(-c * Math.Max(0, h1) / 1000) - Math.Exp(-c * Math.Max(0, h2) / 1000));
+    }
     public const double PersistMaxDb = 2, PersistThrDb = 13;
     public const int PersistHours = 24;
 
@@ -192,6 +221,9 @@ public static class Refractivity
         double e = Math.Max(0, Math.Min(100, rh)) / 100.0 * Es(tC);
         return 77.6 / tk * (pHpa + 4810.0 * e / tk);
     }
+
+    /// <summary>Guadagno dal gradiente: 0 fino al limite del normale, 10 dB alla soglia di super-rifrazione, 15 dB a 157 N/km.</summary>
+    static double Ramp(double grad, double lo, double hi) => grad <= lo ? 0 : grad < hi ? 10 * (grad - lo) / (hi - lo) : 10 + 5 * Math.Min(1, (grad - hi) / Math.Max(1, 157 - hi));
 
     /// <summary>Soglie di Bean e Dutton (tab. 6.5): limite alto del profilo normale e soglia di super-rifrazione (N/km).</summary>
     static (string name, double pTop, double normHi, double superThr) LayerFor(double pMid)
@@ -234,28 +266,36 @@ public static class Refractivity
         if (lev.Count < 3) return null;
         r.Levels = lev.ToArray();
         r.Ns = lev[0].N;
+        r.CrplDN1km = CrplDN(r.Ns);
+        r.Pmsl = ps * Math.Pow(1 - 0.0065 * elev / (t2 + 0.0065 * elev + 273.15), -5.257);
         r.DN1km = Interp(lev, z0 + 1000) - lev[0].N;
 
         // ---- strati di Bean e Dutton: gradiente più forte fra livelli vicini, classificato con le soglie dello strato
-        double best = 0; string bestName = "";
+        double best = 0, bestAggr = 0; string bestName = "";
         double maxGrad = double.MinValue;
+        // con il profilo CRPL le soglie dello strato basso si spostano di quanto il calo normale locale differisce da 40 N/km
+        double crplShift = UseCrplNormal ? r.CrplDN1km - 40 : 0;
         for (int i = 1; i < lev.Count; i++)
         {
             double dz = (lev[i].Z - lev[i - 1].Z) / 1000.0;
             if (dz <= 0.01) continue;
+            if (UseDuctCeiling && lev[i - 1].Z > z0 + DuctCeilingM) break;
             double g = -(lev[i].N - lev[i - 1].N) / dz;           // −dN/dh in N/km
             if (g > maxGrad) maxGrad = g;
-            var (name, _, normHi, superThr) = LayerFor((lev[i].P + lev[i - 1].P) / 2);
-            double gain;
-            if (g <= normHi) gain = 0;
-            else if (g < superThr) gain = 10 * (g - normHi) / (superThr - normHi);
-            else gain = 10 + 5 * Math.Min(1, (g - superThr) / Math.Max(1, 157 - superThr));
+            var (name, pTop, normHi, superThr) = LayerFor((lev[i].P + lev[i - 1].P) / 2);
+            if (pTop == 850) { normHi += crplShift; superThr += crplShift; }
+            double gain = Ramp(g, normHi, superThr);
+            // stima aggressiva: soglia ITU-R P.453 di 79 N/km nello strato basso (k ≈ 2: 157/(157−79)); prudente = Bean e Dutton 100 N/km
+            double gainA = pTop == 850 ? Ramp(g, Math.Min(normHi, 79 - 19), 79 + crplShift) : gain;
             if (gain > best) { best = gain; bestName = name; }
+            bestAggr = Math.Max(bestAggr, gainA);
         }
         r.MaxGrad = maxGrad;
         // sub-rifrazione: N cresce con la quota nel primo strato sopra il suolo
         if (lev.Count > 1 && lev[1].N > lev[0].N && best < 1) { r.Sub = true; best = -10; bestName = Lang("sub"); }
-        r.LayerGainDb = best; r.LayerName = bestName;
+        r.LayerGainAggrDb = r.Sub ? best : Math.Max(best, bestAggr);
+        if (UseItuSuper && !r.Sub) { r.LayerGainDb = r.LayerGainAggrDb; } else r.LayerGainDb = best;
+        r.LayerName = bestName;
 
         // ---- condotto: strato in cui M cala con la quota (dM/dh < 0); si prende quello con il deficit maggiore
         for (int i = 1; i < lev.Count; i++)
@@ -293,7 +333,9 @@ public static class Refractivity
             var a = lev[i - 1]; var b = lev[i];
             double dz = b.Z - a.Z;
             if (dz < 10) continue;
-            double excess = -(b.N - a.N) - 40 * dz / 1000.0;
+            if (UseDuctCeiling && a.Z > z0 + DuctCeilingM) break;
+            double normal = UseCrplNormal ? CrplDrop(r.Ns, a.Z - z0, b.Z - z0) : 40 * dz / 1000.0;
+            double excess = -(b.N - a.N) - normal;
             if (excess <= 0) continue;
             double qa = Q(a), qb = Q(b);
             double lapse = (a.T - b.T) / (dz / 1000.0);
@@ -825,6 +867,7 @@ public sealed class OwnForecast
                         if (bk >= 0) grid[t][r, c] = ser.Profiles[bk];
                     }
             }
+            MarkHighPressure(grid, rows, cols);
             UsedSource = src; UsedDetail = detail;
             lock (_lock)
             {
@@ -965,6 +1008,30 @@ public sealed class OwnForecast
     }
 
     /// <summary>Celle della griglia all'ora più vicina (per i segni meteo sulla mappa).</summary>
+    /// <summary>
+    /// Alta pressione estesa: almeno 7 delle 9 celle (la cella e le vicine) con pressione ridotta al mare ≥ 1020 hPa,
+    /// e vento debole nei bassi strati nella cella (10 m &lt; 5 m/s, 850 hPa &lt; 8 m/s). Anticiclone stabile: strati che durano.
+    /// </summary>
+    static void MarkHighPressure(ProfileResult[][,] grid, int rows, int cols)
+    {
+        foreach (var g in grid)
+            for (int r = 0; r < rows; r++)
+                for (int c = 0; c < cols; c++)
+                {
+                    var p = g[r, c]; if (p == null) continue;
+                    int hi = 0, n = 0;
+                    for (int dr = -1; dr <= 1; dr++)
+                        for (int dc = -1; dc <= 1; dc++)
+                        {
+                            int rr = r + dr, cc = c + dc;
+                            if (rr < 0 || cc < 0 || rr >= rows || cc >= cols || g[rr, cc] == null || double.IsNaN(g[rr, cc].Pmsl)) continue;
+                            n++; if (g[rr, cc].Pmsl >= Refractivity.HighPHpa) hi++;
+                        }
+                    bool calm = !(p.Wind10 >= Refractivity.HighPWind10) && !(p.Wind850 >= Refractivity.HighPWind850);
+                    p.HighP = n >= 4 && hi >= Math.Ceiling(n * 7.0 / 9) && calm;
+                }
+    }
+
     public List<(double lat, double lon, ProfileResult p)> Cells(DateTime utc)
     {
         var res = new List<(double, double, ProfileResult)>();

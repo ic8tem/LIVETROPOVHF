@@ -51,6 +51,8 @@ public static class Validation
             W($"griglia «{h.Name}»: {(ok ? "ok" : "NON riuscita")} — {own.Status} ({sw.Elapsed.TotalSeconds:0} s)");
             return ok ? own : null;
         }
+        // base 1.3.1: le novità della 1.3.2 spente, si accendono una alla volta più sotto
+        Refractivity.UseDuctCeiling = false; Refractivity.UseHighPressure = false; Refractivity.UseCrplNormal = false; Refractivity.UseItuSuper = false;
         var gEv = Load(ev); var gCt = Load(ct);
         if (gEv == null) { File.WriteAllText(outFile, sb.ToString()); return 2; }
 
@@ -77,16 +79,27 @@ public static class Validation
             return r;
         }
 
-        var configs = new (string name, bool soft, bool corr, bool pers, bool detail)[]
+        // reload: la novità cambia l'analisi dei profili, quindi le griglie si rileggono (dalla cache) con le nuove regole
+        var configs = new (string name, bool soft, bool corr, bool pers, bool detail, int v132, bool reload)[]
         {
-            ("modello 1.2 (niente condotto morbido, niente correzioni)", false, false, false, false),
-            ("+ condotto morbido", true, false, false, false),
-            ("+ condotto morbido + Misme e subsidenza", true, true, false, false),
-            ("1.3.1 completo: + persistenza", true, true, true, true),
+            ("modello 1.2 (niente condotto morbido, niente correzioni)", false, false, false, false, 0, false),
+            ("+ condotto morbido", true, false, false, false, 0, false),
+            ("+ condotto morbido + Misme e subsidenza", true, true, false, false, 0, false),
+            ("1.3.1 completo: + persistenza", true, true, true, true, 0, false),
+            ("1.3.2: + alta pressione estesa e vento debole", true, true, true, false, 1, false),
+            ("1.3.2: + condotti cercati solo sotto 1500 m", true, true, true, false, 2, true),
+            ("1.3.2 alternativa: + profilo normale CRPL con Ns locale", true, true, true, false, 3, true),
+            ("1.3.2 stima aggressiva: soglia ITU 79 N/km (senza CRPL)", true, true, true, false, 4, true),
+            ("1.3.2 prudente (configurazione predefinita)", true, true, true, true, 5, true),
         };
         foreach (var cf in configs)
         {
             Refractivity.UseSoftDuct = cf.soft; Refractivity.UseCorrections = cf.corr; Refractivity.UsePersistence = cf.pers;
+            Refractivity.UseHighPressure = cf.v132 >= 1;
+            Refractivity.UseDuctCeiling = cf.v132 >= 2;
+            Refractivity.UseCrplNormal = cf.v132 == 3;
+            Refractivity.UseItuSuper = cf.v132 == 4;
+            if (cf.reload) { gEv = Load(ev) ?? gEv; gCt = Load(ct) ?? gCt; }
             bool corr = cf.detail;
             W("");
             W($"===== {cf.name} =====");

@@ -120,6 +120,12 @@ public sealed class LinkResult
     public double PeLossDb = double.NaN, PeStdDb = double.NaN, PeTotalDb = double.NaN;
     public double PeGainDb => PeStdDb - PeLossDb;
     public double PersistFrac = double.NaN;           // persistenza media lungo la tratta (0–1)
+    // 1.3.2: stima aggressiva (soglia ITU 79 N/km), μ1 di P.452 sul tratto di terra, aggancio delle stazioni al condotto, strato limite e creste
+    public double AggrGainDb = double.NaN, LpredAggrDb = double.NaN;
+    public double Mu1 = double.NaN, SeaWeight = 1, DtmKm;
+    public double DuctCouplingF = double.NaN;
+    public int RidgeN, RidgeCovered; public double RidgeMaxM, BlhRidgeDb;
+    public double HighPFrac;
     public string TxVsDuct = "", RxVsDuct = "";
     public double FresnelMinRatio = double.NaN;        // minimo di (spazio libero sopra il terreno) / raggio della 1ª zona di Fresnel
     public List<(double km, double hM, double ratio, double nu)> Obstacles = new();
@@ -255,6 +261,17 @@ public static class LinkCalc
         for (int i = 1; i < h.Length; i++) { double dd = dist[i] - dist[i - 1]; if (sea[i]) seaKm += dd; else r.LandKm += dd; }
         r.SeaFrac = r.DistKm > 0 ? seaKm / r.DistKm : 0;
         CalcLog.W($"mare lungo la tratta {seaKm:0.0} km ({r.SeaFrac * 100:0}%), terra {r.LandKm:0.0} km");
+        if (Refractivity.UseSeaWeight && seaKm > 0)
+        {
+            // ITU-R P.452 μ1: più lungo è il tratto continuo di terra (dtm), meno probabili i condotti; sul mare aperto μ1 → 1
+            double run = 0, dtm = 0;
+            for (int i = 1; i < h.Length; i++) { if (!sea[i]) { run += dist[i] - dist[i - 1]; dtm = Math.Max(dtm, run); } else run = 0; }
+            double tau = 1 - Math.Exp(-4.12e-4 * Math.Pow(dtm, 2.41));
+            r.DtmKm = dtm;
+            r.Mu1 = Math.Min(1, Math.Pow(Math.Pow(10, -dtm / (16 - 6.6 * tau)) + Math.Pow(10, -5 * (0.496 + 0.354 * tau)), 0.2));
+            r.SeaWeight = 0.8 + 0.4 * r.Mu1;
+            CalcLog.W($"peso del mare (μ1 di P.452): tratto di terra continuo più lungo {dtm:0} km → μ1 {r.Mu1:0.00}, guadagno degli strati × {r.SeaWeight:0.00}");
+        }
 
         // ---- raggio equivalente dalla previsione (media del primo km lungo il percorso)
         double k = 4.0 / 3;
@@ -462,7 +479,9 @@ public static class LinkCalc
                 {
                     // 1.3.0: stabilità di Misme (solo senza condotto) e moto verticale lungo il tratto dello strato
                     var rng = Enumerable.Range(best.a, best.b - best.a + 1).Select(i => prof[i]).ToList();
-                    double corr = rng.Average(p => p.VertDb + (best.traps ? 0 : p.StabDb));
+                    double corr = rng.Average(p => p.VertDb + p.HighPDb + (best.traps ? 0 : p.StabDb));
+                    r.HighPFrac = rng.Count(p => p.HighPDb > 0) / (double)rng.Count;
+                    if (r.HighPFrac > 0) CalcLog.W($"alta pressione estesa e vento debole su {r.HighPFrac * 100:0}% dello strato: +{Refractivity.HighPDbBonus * r.HighPFrac:0.0} dB");
                     if (Math.Abs(corr) >= 0.05) CalcLog.W($"correzioni meteo sullo strato: {(best.traps ? "moto verticale" : "stabilità di Misme + moto verticale")} {corr:+0.0;-0.0} dB");
                     gl += corr;
                     if (Refractivity.UsePersistence && !double.IsNaN(o.PersistFrac) && gl >= 10)
@@ -478,12 +497,52 @@ public static class LinkCalc
                 bool landMatters = r.LandKm >= 0.1 * d && !double.IsNaN(r.LandCov);
                 r.FracUsed = landMatters ? Math.Min(r.LayerFrac, r.LandCov) : r.LayerFrac;
                 g = gl * r.FracUsed;
+                // stima aggressiva: stessa catena con la soglia ITU di 79 N/km nello strato basso (solo senza condotto pieno)
+                if (!best.traps)
+                {
+                    double da = Enumerable.Range(best.a, best.b - best.a + 1).Average(i => Math.Max(0, prof[i].LayerGainAggrDb - prof[i].LayerGainDb));
+                    double ga = gl + da;
+                    if (Refractivity.UseCorrections && r.SoftN == 0) ga = Math.Min(ga, Refractivity.NoDuctCapDb);
+                    r.AggrGainDb = ga * r.FracUsed;
+                }
+                else r.AggrGainDb = g;
+                // peso del mare (μ1)
+                if (r.SeaWeight != 1) { g *= r.SeaWeight; r.AggrGainDb *= r.SeaWeight; }
+                // aggancio delle stazioni al condotto anche quando copre solo parte della tratta: fuori dal condotto il segnale entra male
+                if (best.traps && !(r.FracUsed >= 0.8 && !r.Los))
+                {
+                    double Off(double hAsl, double dk) { double tp = TopAt(r, dk), bs = BaseAt(r, dk); return hAsl > tp ? hAsl - tp : hAsl < bs ? bs - hAsl : 0; }
+                    double dkT = Math.Max(r.LayerFromKm, 0), dkR = Math.Min(r.LayerToKm, d);
+                    double oT = Off(hts, dkT), oR = Off(hrs, dkR);
+                    r.DuctCouplingF = 0.5 + 0.5 * Math.Sqrt(Math.Exp(-oT / 300) * Math.Exp(-oR / 300));
+                    g *= r.DuctCouplingF; r.AggrGainDb *= r.DuctCouplingF;
+                    CalcLog.W($"quota delle stazioni rispetto al condotto: TX fuori di {oT:0} m, RX fuori di {oR:0} m → fattore {r.DuctCouplingF:0.00}");
+                }
                 CalcLog.W($"terra lungo la tratta {r.LandKm:0} km ({(1 - r.SeaFrac) * 100:0}%), di cui coperti dallo strato {r.LandInDuctKm:0} km" +
                           (landMatters ? $" → copertura della terra {r.LandCov:0.00}; frazione usata = min(continua {r.LayerFrac:0.00}, terra {r.LandCov:0.00}) = {r.FracUsed:0.00}" : " (tratto su terra sotto il 10%: conta solo la continuità)"));
                 CalcLog.W($"guadagno dello strato {gl:0.0} dB × frazione usata {r.FracUsed:0.00} = {g:0.0} dB");
             }
             int nsub = good.Count(p => p.Sub);
             if (nsub * 2 > good.Count) { g = -10.0 * nsub / good.Count; CalcLog.W($"sub-rifrazione su {nsub} profili su {good.Count}: {g:0.0} dB"); }
+            // strato limite sopra le creste (IT9GSF): se la cima dello strato limite supera le creste lungo la tratta lo strato non si spezza
+            if (Refractivity.UseBlhRidges && best.key >= 0 && g >= 3)
+            {
+                for (int i = 2; i < n - 2; i++)
+                {
+                    if (h[i] < 300 || h[i] < h[i - 1] || h[i] < h[i + 1] || h[i] < h[i - 2] || h[i] < h[i + 2]) continue;
+                    int pi = (int)Math.Round(dist[i] / Math.Max(1e-6, d) * (prof.Count - 1));
+                    var pp = prof[Math.Max(0, Math.Min(prof.Count - 1, pi))];
+                    if (pp == null || double.IsNaN(pp.Blh)) continue;
+                    r.RidgeN++; r.RidgeMaxM = Math.Max(r.RidgeMaxM, h[i]);
+                    if (pp.Elev + pp.Blh > h[i]) r.RidgeCovered++;
+                }
+                if (r.RidgeN > 0 && r.RidgeMaxM >= 500)
+                {
+                    r.BlhRidgeDb = Refractivity.BlhRidgeDbBonus * r.RidgeCovered / r.RidgeN;
+                    g += r.BlhRidgeDb; r.AggrGainDb += r.BlhRidgeDb;
+                    CalcLog.W($"strato limite e creste: {r.RidgeCovered} creste su {r.RidgeN} (la più alta {r.RidgeMaxM:0} m) sotto la cima dello strato limite → +{r.BlhRidgeDb:0.0} dB");
+                }
+            }
             r.TropoGainDb = g;
             r.DuctFrac = best.traps ? r.LayerFrac : 0;
             double lpred = r.LbaseDb - g;
@@ -510,6 +569,8 @@ public static class LinkCalc
             }
             else if (best.key >= 0 && g >= 3 && !r.Los) r.Mechanism = best.traps ? "tropo (condotto parziale)" : "tropo (super-rifrazione)";
             r.LpredDb = Math.Max(r.LfsDb, lpred);
+            if (!double.IsNaN(r.AggrGainDb)) r.LpredAggrDb = Math.Max(r.LfsDb, Math.Min(r.LpredDb, r.LbaseDb - r.AggrGainDb));
+            if (!double.IsNaN(r.LpredAggrDb)) CalcLog.W($"stima prudente (Bean e Dutton, 100 N/km) {r.LpredDb:0.00} dB; stima aggressiva (ITU-R P.453, 79 N/km) {r.LpredAggrDb:0.00} dB");
             CalcLog.W($"perdita prevista {r.LpredDb:0.00} dB, meccanismo: {r.Mechanism}");
         }
         else r.Notes.Add("nessuna previsione GFS sul percorso: calcolo con atmosfera normale (k = 4/3)");

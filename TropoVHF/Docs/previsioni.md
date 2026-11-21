@@ -141,6 +141,22 @@ La casella Correzioni meteo spegne queste correzioni per vedere il modello della
 
 Validazione (paragrafo 14): sui 593 collegamenti a 144 MHz fra il 29 dicembre 2021 e il 2 gennaio 2022, confrontati con le stesse tratte e ore due settimane dopo, l'indice di separazione (0,5 = nessuna, 1 = perfetta) vale 0,79 senza correzioni e 0,91 con le correzioni (prima del tetto a 16 dB). Lo stesso confronto mostra il limite principale: il condotto sul mare a bassa quota, che in quei giorni portava i segnali fra la Campania e la Liguria, non è visibile ai livelli del GFS.
 
+## 9 ter. Novità 1.3.2: due stime, soffitto, alta pressione, mare, stazioni, creste
+
+**Stima prudente e aggressiva.** Il guadagno dal gradiente cresce da 0 dB al limite del normale fino a 10 dB alla soglia di super-rifrazione. Nello strato 1000–850 hPa la soglia prudente è quella di Bean e Dutton (100 N/km); quella aggressiva è la soglia ITU-R P.453 di 79 N/km, che con k50 = 157/(157 − ΔN) vale k ≈ 2 (k = 2,5 corrisponde a circa 94 N/km). Il calcolo punto-punto mostra le due perdite affiancate; con un condotto che intrappola la banda coincidono. La mappa usa la prudente.
+
+**Soffitto di 1500 m.** Strati e condotti si cercano solo fino a 1500 m sopra il suolo: più in alto le antenne dei radioamatori non li sfruttano.
+
+**Alta pressione estesa.** +1 dB dove almeno 7 delle 9 celle intorno hanno pressione ridotta al mare di 1020 hPa o più e il vento è debole nei bassi strati (10 m sotto 5 m/s, 850 hPa sotto 8 m/s), salvo moti ascendenti.
+
+**Peso del mare.** Nel calcolo punto-punto il guadagno degli strati si moltiplica per 0,8 + 0,4·μ1, dove μ1 è il fattore di ITU-R P.452 (eq. 51) sul tratto continuo di terra più lungo: 1 sul mare aperto, piccolo con lunghi tratti di terra.
+
+**Stazioni e condotto.** Quando un condotto che intrappola la banda copre solo parte della tratta, la quota di ciascuna antenna si confronta con base e cima del condotto all'inizio e alla fine del tratto coperto; il guadagno si moltiplica per 0,5 + 0,5·√(e^(−ΔhTX/300)·e^(−ΔhRX/300)), con Δh la distanza in metri fuori dal condotto. Con il condotto su quasi tutta la tratta vale l'accoppiamento del § 10.
+
+**Strato limite e creste.** Se la cima dello strato limite del GFS (quota del suolo del modello più boundary_layer_height) supera le creste della tratta (massimi locali oltre 300 m, se la più alta supera 500 m), lo strato passa sopra i monti senza spezzarsi: +1,5 dB per la frazione di creste coperte. È l'osservazione di IT9GSF sulle aperture dalla Sicilia alla Germania con Tirreno favorevole.
+
+**Profilo normale CRPL (alternativa).** Invece di 40 N/km fissi il calo normale segue l'atmosfera di riferimento esponenziale CRPL: N(h) = Ns·e^(−c·h), con −ΔN nel primo km = 7,32·e^(0,005577·Ns) (Bean e Thayer 1959). Con aria umida (Ns alto) il normale è più ripido e serve un gradiente più forte per dare guadagno; in quota è più dolce. Spento per difetto finché la validazione non dice che aiuta.
+
 ## 10. Condotto su tutta la tratta
 
 Se lo strato intrappola la banda su almeno l'80% della frazione usata e le stazioni non sono in vista, si calcola anche la perdita nel condotto: spazio libero, più l'accoppiamento delle antenne (3 dB se sono dentro il condotto, di più se sono sopra o sotto), più l'attenuazione residua γd = 5·10⁻⁵·ae·f^(1/3) dB/mrad di ITU-R P.452 eq. 49 [6]. Se è minore della perdita senza tropo diventa la perdita prevista.

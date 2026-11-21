@@ -67,6 +67,14 @@ public static class ParabolicEq
     public static Result Run(double fMHz, double dKm, double hts, double hrs, double[] terrain, double[] dist,
                              IList<ProfileResult> prof, double bwDeg, CancellationToken ct, bool alsoStandard = true)
     {
+        // riferimento "normale": 315 + 0,118·z, oppure (1.3.2, alternativa) profilo CRPL con l'Ns medio della tratta
+        Func<double, double> stdM = z => 315 + 0.118 * z;
+        var nsl = prof?.Where(q => q != null && !double.IsNaN(q.Ns)).Select(q => q.Ns).ToList();
+        if (Refractivity.UseCrplNormal && nsl != null && nsl.Count > 0)
+        {
+            double ns = nsl.Average(), c = -Math.Log(1 - Math.Min(0.5, Refractivity.CrplDN(ns) / ns));
+            stdM = z => ns * Math.Exp(-c * Math.Max(0, z) / 1000) + 157 * z / 1000;
+        }
         var r = new Result();
         double lam = 299.792458 / fMHz, k = 2 * Math.PI / lam;
         double tMax = terrain != null && terrain.Length > 0 ? terrain.Max() : 0;
@@ -117,7 +125,7 @@ public static class ParabolicEq
                 if (pi != mIdx)
                 {
                     mIdx = pi;
-                    var mf = pi >= 0 ? (mFuncs[Math.Max(0, Math.Min(mFuncs.Count - 1, pi))] ?? (z => 315 + 0.118 * z)) : (z => 315 + 0.118 * z);
+                    var mf = pi >= 0 ? (mFuncs[Math.Max(0, Math.Min(mFuncs.Count - 1, pi))] ?? stdM) : stdM;
                     for (int i = 0; i < nz; i++) mCur[i] = mf(i * dz) * 1e-6;
                 }
                 // terreno a gradini: sotto il suolo il campo è nullo

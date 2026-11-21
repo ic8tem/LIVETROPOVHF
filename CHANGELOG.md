@@ -4,6 +4,15 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
+## 1.3.2 — 21/11/2026
+- Previsioni: due stime affiancate nel calcolo punto-punto, prudente (soglia di super-rifrazione di Bean e Dutton, 100 N/km nello strato basso) e aggressiva (soglia ITU-R P.453, 79 N/km). La mappa usa la prudente.
+- Previsioni: strati e condotti cercati solo fino a 1500 m sopra il suolo.
+- Previsioni: +1 dB con alta pressione estesa (almeno 7 celle su 9 a 1020 hPa o più) e vento debole nei bassi strati (10 m sotto 5 m/s, 850 hPa sotto 8 m/s).
+- Calcolo punto-punto: peso del percorso su mare con il μ1 di ITU-R P.452 (× 0,8–1,2); quota delle due stazioni confrontata con base e cima del condotto anche quando copre solo parte della tratta; +1,5 dB al massimo quando la cima dello strato limite del GFS supera le creste lungo la tratta (osservazione di IT9GSF).
+- Alternativa (spenta per difetto): profilo normale CRPL con l'Ns del punto (−ΔN = 7,32·e^(0,005577·Ns), Bean e Thayer 1959) al posto di 40 N/km fissi, anche come riferimento dell'equazione parabolica.
+- Equazione parabolica: dominio di almeno 8 km, assorbitore sulla metà alta, fascio di al massimo 6°. Prima il campo oltre l'orizzonte era rumore numerico.
+- Validazione: le novità si provano una alla volta sui 593 collegamenti del 29/12/2021–2/1/2022.
+
 ## 1.3.1 — 21/11/2026
 - Previsioni: senza un condotto che intrappola la banda il guadagno non supera più 16 dB (fine del giallo, «strato forte, nessun condotto»): il termine di stabilità di Misme e la subsidenza non portano più al rosso o al viola le zone senza condotto. Rosso e viola restano solo per i condotti.
 - Previsioni: condotto «morbido» (Kerr, Hepburn, VHF/UHF DX Book): uno strato che non intrappola del tutto la banda, con λ fino a 3 volte la lunghezza d'onda massima, dà un guadagno graduale fra 15 dB e quello del condotto pieno, invece di fermarsi a 15 dB.
