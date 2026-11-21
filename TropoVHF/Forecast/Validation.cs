@@ -151,7 +151,7 @@ public static class Validation
 
         // ---- ITM (Longley-Rice, NTIA) sulle tratte reali, terreno da Open-Meteo (DEM Copernicus 90 m, 100 punti per tratta):
         // quanti QSO si spiegano con una giornata normale, e se il guadagno previsto copre quello che manca
-        try { ItmSection(qs.Where(q => q.Cat == "tropo").ToList(), gEv, gCt, shift, W, ci, Path); }
+        try { var tq0 = qs.Where(q => q.Cat == "tropo").ToList(); int everyN = Math.Max(1, tq0.Count / 150); ItmSection(tq0.Where((q, i) => i % everyN == 0).ToList(), gEv, gCt, shift, W, ci, Path); }
         catch (Exception ex) { W("ITM: sezione non riuscita: " + ex.Message); }
 
         // ---- equazione parabolica nel profilo M del GFS: guadagno rispetto all'atmosfera standard, evento contro confronto
@@ -206,7 +206,7 @@ public static class Validation
     static void ItmSection(List<Qso> tq, OwnForecast gEv, OwnForecast gCt, int shift, Action<string> W, CultureInfo ci, Func<OwnForecast, Qso, DateTime, Res> path)
     {
         W("");
-        W($"===== ITM (Longley-Rice, NTIA) sulle tratte reali: {tq.Count} QSO tropo, terreno Open-Meteo 90 m (100 punti), antenne a 10 m, 144 MHz =====");
+        W($"===== ITM (Longley-Rice, NTIA) sulle tratte reali: campione di {tq.Count} QSO tropo, terreno Open-Meteo 90 m (100 punti), antenne a 10 m, 144 MHz =====");
         W(string.Format(ci, "   bilancio di riferimento SSB (100 W, 2×14 dBi, cavi 2+2 dB, NF 2 dB, S/N 3 dB in 2,4 kHz): perdita massima {0:0} dB", BudgetSsbDb));
         var cache = Path.Combine(Path.GetTempPath(), "livetropovhf-quote");
         Directory.CreateDirectory(cache);
@@ -214,9 +214,10 @@ public static class Validation
         http.DefaultRequestHeaders.UserAgent.ParseAdd("LIVETROPOVHF-validazione/1.3");
         var sw = System.Diagnostics.Stopwatch.StartNew();
         var rows = new List<(Qso q, double l50, double l10, double l1, string mode, double gEv, double gCt)>();
-        int fail = 0, done = 0;
+        int fail = 0, done = 0; bool limit = false;
         foreach (var q in tq)
         {
+            if (limit) break;
             var pts = Geo.GreatCircle(q.A, q.B, 99);
             string key = string.Format(ci, "{0:0.000}_{1:0.000}_{2:0.000}_{3:0.000}.txt", q.A.Lat, q.A.Lon, q.B.Lat, q.B.Lon);
             string fc = Path.Combine(cache, key);
@@ -231,7 +232,7 @@ public static class Validation
                     for (int att = 0; att < 3 && hh == null; att++)
                     {
                         var resp = http.GetAsync(url).GetAwaiter().GetResult();
-                        if ((int)resp.StatusCode == 429) { Thread.Sleep(20000); continue; }
+                        if ((int)resp.StatusCode == 429) { limit = true; break; }   // limite orario di Open-Meteo: ci si ferma con quello che c'è
                         if (!resp.IsSuccessStatusCode) break;
                         var js = System.Text.Json.JsonDocument.Parse(resp.Content.ReadAsStringAsync().GetAwaiter().GetResult());
                         hh = js.RootElement.GetProperty("elevation").EnumerateArray().Select(e => e.ValueKind == System.Text.Json.JsonValueKind.Number ? e.GetDouble() : 0).ToArray();
@@ -256,7 +257,7 @@ public static class Validation
             rows.Add((q, a50.AdB, a10.AdB, a01.AdB, a50.ModeName, path(gEv, q, q.Utc).Mean, gCt != null ? path(gCt, q, q.Utc.AddDays(shift)).Mean : double.NaN));
             if (++done % 100 == 0) W($"   … {done} tratte ({sw.Elapsed.TotalSeconds:0} s)");
         }
-        W($"   tratte calcolate {rows.Count}, senza terreno o fuori dai limiti {fail} ({sw.Elapsed.TotalSeconds:0} s)");
+        W($"   tratte calcolate {rows.Count}, senza terreno o fuori dai limiti {fail} ({sw.Elapsed.TotalSeconds:0} s)" + (limit ? " — interrotto dal limite orario di Open-Meteo" : ""));
         if (rows.Count == 0) return;
         string Q(IEnumerable<double> v) { var a = v.Where(x => !double.IsNaN(x)).OrderBy(x => x).ToArray(); if (a.Length == 0) return "—"; double P(double f) => a[(int)Math.Min(a.Length - 1, Math.Floor(f * a.Length))]; return string.Format(ci, "mediana {0:0.0}, 10° {1:0.0}, 90° {2:0.0}", P(0.5), P(0.1), P(0.9)); }
         W($"   perdita ITM al 50% del tempo (dB): {Q(rows.Select(x => x.l50))}; al 10%: {Q(rows.Select(x => x.l10))}; all'1%: {Q(rows.Select(x => x.l1))}");
