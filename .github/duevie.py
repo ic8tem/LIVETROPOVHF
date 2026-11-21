@@ -24,7 +24,12 @@ def elev(la,lo):
     return max(0.0,a[int(round(r)),int(round(c))])
 def loc(l):
     l=l.upper(); lo=(ord(l[0])-65)*20-180+int(l[2])*2; la=(ord(l[1])-65)*10-90+int(l[3])
-    if len(l)>=6: lo+=(ord(l[4])-65)/12+1/24; la+=(ord(l[5])-65)/24+1/48
+    if len(l)>=10:
+        lo+=(ord(l[4])-65)/12+int(l[6])/120+(ord(l[8])-65)/2880+1/5760
+        la+=(ord(l[5])-65)/24+int(l[7])/240+(ord(l[9])-65)/5760+1/11520
+    elif len(l)>=8:
+        lo+=(ord(l[4])-65)/12+int(l[6])/120+1/240; la+=(ord(l[5])-65)/24+int(l[7])/240+1/480
+    elif len(l)>=6: lo+=(ord(l[4])-65)/12+1/24; la+=(ord(l[5])-65)/24+1/48
     else: lo+=1; la+=0.5
     return la,lo
 def dest(la,lo,az,km):
@@ -91,6 +96,57 @@ def two_way_field(htx_asl,ter_b,xs_b,ter_f,xs_f,phase,prop):
     for i in range(1,len(xs_f)):
         v=step(v,prop,phase); v[:int(ter_f[i]/DZ)]=0
     return v
+def main3():
+    out=[]; W=lambda s:(print(s),out.append(s))
+    QTH='JN70CN83CL'; AGL=8.0
+    tla,tlo=loc(QTH); g0=elev(tla,tlo); htx=g0+AGL
+    W(f"QTH {QTH} = {tla:.5f}, {tlo:.5f}; suolo SRTM1 {g0:.0f} m; antenna {AGL:.0f} m dal suolo ({htx:.0f} m s.l.m.); 144,3 MHz, polarizzazione orizzontale, atmosfera standard")
+    W("Misura: potenza media del campo fra 20 e 400 m s.l.m. a 80 km dalla stazione, sulla tratta verso il corrispondente (dB relativi).")
+    W("Diretto = antenna verso il corrispondente. Via monte = antenna verso il rilievo, riflessione sulle facce del terreno (Γ = −1), ritorno lungo la tratta.")
+    W("«Nel piano» = rilievo entro 40° dalla direzione opposta al corrispondente; altrimenti il numero è solo indicativo (il calcolo è in due dimensioni).")
+    peaks={'Vesuvio':(40.8213,14.4261),'Faito/Molare':(40.6560,14.5000),'Monte Solaro':(40.5530,14.2240),'Monte Tiberio':(40.5560,14.2570)}
+    dx=100.0; prop=propagator(dx); phase=np.exp(1j*K*Mprof('standard')*1e-6*dx)*WIN
+    for pn,(pla,plo) in peaks.items():
+        dp,azp=dist_az(tla,tlo,pla,plo); W(f"   {pn}: azimut {azp:.0f}°, {dp:.1f} km, quota SRTM {elev(pla,plo):.0f} m")
+    # orizzonte intorno alla stazione
+    hz=[]
+    for a in range(0,360,10):
+        xs,ter=profile(tla,tlo,a,30,0.05)
+        hz.append((a,max(math.degrees(math.atan((ter[i]-htx)/(xs[i]*1000))) for i in range(1,len(xs)))))
+    W("Orizzonte (elevazione dell'ostacolo più alto entro 30 km): "+", ".join(f"{a}° {h:+.1f}°" for a,h in hz))
+    locs=[]
+    for l in open('TropoVHF/Tarature/validazione-2021-12-29.txt'):
+        p=l.strip().split(';')
+        if len(p)>=5 and p[4]=='monte' and p[2] not in locs: locs.append(p[2])
+    W(f"\nI {len(locs)} corrispondenti della categoria «monte» (1–2/1/2022):")
+    for l in locs:
+        rla,rlo=loc(l); d,az=dist_az(tla,tlo,rla,rlo)
+        xs,ter=profile(tla,tlo,az,80,dx/1000)
+        hzm=max(math.degrees(math.atan((ter[i]-htx)/(xs[i]*1000))) for i in range(1,len(xs)))
+        ld=launch(run_oneway(source(htx),xs,ter,phase,prop,dx))
+        best=None; line=f"  {l} {d:.0f} km az {az:.0f}° (ostacolo {hzm:+.1f}°): diretto {ld:.1f}"
+        for pn,(pla,plo) in peaks.items():
+            dp,azp=dist_az(tla,tlo,pla,plo); off=abs(((azp-az+540)%360)-180)
+            xb,tb=profile(tla,tlo,azp,min(40,dp+6),dx/1000)
+            lv=launch(two_way_field(htx,tb,xb,ter,xs,phase,prop))
+            line+=f"; {pn} {lv-ld:+.1f}{'' if off>=140 else '*'}"
+            if best is None or lv>best[1]: best=(pn,lv)
+        line+=f" → meglio: {'diretto' if best[1]<=ld else best[0]}"
+        W(line)
+    W("  (* = fuori dal piano, indicativo)")
+    W("\nPuntamento migliore, giro completo ogni 10° (due vie nel piano solo vicino alla direzione opposta; il resto indicativo):")
+    for name,l in {'EA3 JN11CK':'JN11CK','EA5 IM98PG':'IM98PG','EA6 JM29DV':'JM29DV','I1 JN44ET':'JN44ET'}.items():
+        rla,rlo=loc(l); d,az=dist_az(tla,tlo,rla,rlo)
+        xs,ter=profile(tla,tlo,az,80,dx/1000)
+        ld=launch(run_oneway(source(htx),xs,ter,phase,prop,dx)); res=[]
+        for a in range(0,360,10):
+            off=abs(((a-az+540)%360)-180)
+            if off<30: continue
+            xb,tb=profile(tla,tlo,a,40,dx/1000)
+            res.append((launch(two_way_field(htx,tb,xb,ter,xs,phase,prop))-ld,a))
+        res.sort(reverse=True)
+        W(f"  {name} (az {az:.0f}°): "+", ".join(f"{a}° {v:+.1f}" for v,a in res[:6]))
+    open('esito-monte.txt','w').write('\n'.join(out)+'\n')
 def main2():
     out=[]; W=lambda s:(print(s),out.append(s))
     W("Lancio nel condotto: potenza media del campo fra 20 e 400 m s.l.m. a 80 km dalla stazione, sulla tratta verso il corrispondente (dB relativi).")
@@ -148,4 +204,4 @@ def main():
                         line+=f"; {pn} fuori asse {abs(off):.0f}°: non in piano"
                 W(line)
     open('esito-monte.txt','w').write('\n'.join(out)+'\n')
-t0=time.time(); main2(); print('tempo',time.time()-t0)
+t0=time.time(); main3(); print('tempo',time.time()-t0)
