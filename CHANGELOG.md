@@ -15,6 +15,7 @@ Previsioni (sempre sperimentali):
 - Troposcatter con tre modelli affiancati: P.452, ITU-R P.617-5 con N0 e ΔN del GFS ora per ora, formula RSGB (DL2FZN); la differenza è mostrata come incertezza.
 - Modi digitali nei risultati: FT4, FT8, Q65 e JT65 con le soglie misurate; in troposcatter la soglia FT8 tiene conto dell'evanescenza (−18,6 dB).
 - Le ore della griglia ora combaciano anche quando alcuni punti vengono dalla cache scaricata un'ora prima.
+- DX cluster S50CLX: nuovo indirizzo s50clx.si:41112 (il vecchio s50clx.infrax.si non esiste più e dava «Host sconosciuto»); l'indirizzo salvato si corregge da solo.
 - Consigli per l'operatore: situazioni meteo (anticicloni, fronti, brezza di terra, foehn, scirocco) dall'ARRL Handbook. Fumetto delle Yagi con il confronto con le misure NBS.
 
 ## 1.2.3 — 20/11/2026

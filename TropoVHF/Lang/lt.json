@@ -245,7 +245,7 @@
  "c.g7": "Ieškoti trūkstamų lokatorių G7VRD (paskutinis šaltinis)",
  "c.g7_help": "Tik šaukiniams, kurie jokiame kitame šaltinyje neturi 6 simbolių lokatoriaus; priimami tik 6 simbolių lokatoriai, kurie nėra kvadrato centras (LL/MM). Duomenis automatiškai renka api.g7vrd.co.uk, mėgėjiška paslauga: ne daugiau kaip 40 užklausų per minutę, kiekvienas šaukinys kartą per dieną. Rezultatai faile Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Antrasis šaltinis: S50CLX",
- "u.s50clx_help": "S50CLX (Slovėnija), s50clx.infrax.si:41112, DX Spider. Tuščias vartotojas = šaukinys viršuje. Adresą galima keisti.",
+ "u.s50clx_help": "S50CLX (Slovėnija), s50clx.si:41112, DX Spider. Tuščias vartotojas = šaukinys viršuje. Adresą galima keisti.",
  "close.q": "Ar uždaryti LIVETROPOVHF?",
  "close.title": "Programos uždarymas",
  "close.thanks": "Ačiū, kad mane naudojote: tikiuosi, buvau naudinga.",

@@ -245,7 +245,7 @@
  "c.g7": "Cari lokator yang hilang di G7VRD (sumber terakhir)",
  "c.g7_help": "Hanya untuk callsign tanpa lokator 6 karakter di sumber lain mana pun; hanya lokator 6 karakter yang bukan pusat kotak (LL/MM) yang diterima. Data dikumpulkan otomatis oleh api.g7vrd.co.uk, layanan hobi: paling banyak 40 permintaan per menit, tiap callsign sekali sehari. Hasil di Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Sumber kedua: S50CLX",
- "u.s50clx_help": "S50CLX (Slovenia), s50clx.infrax.si:41112, DX Spider. Login kosong = Call di atas. Alamat dapat diubah.",
+ "u.s50clx_help": "S50CLX (Slovenia), s50clx.si:41112, DX Spider. Login kosong = Call di atas. Alamat dapat diubah.",
  "close.q": "Tutup LIVETROPOVHF?",
  "close.title": "Menutup program",
  "close.thanks": "Terima kasih telah memakai saya: semoga saya bermanfaat bagimu.",

@@ -237,7 +237,7 @@
  "c.g7": "Hiányzó lokátorok keresése a G7VRD-n (utolsó forrás)",
  "c.g7_help": "Csak olyan hívójelekhez, amelyeknek egyetlen más forrásban sincs 6 karakteres lokátoruk; csak a négyzet közepének (LL/MM) nem számító 6 karakteres lokátorok fogadhatók el. Az adatokat az api.g7vrd.co.uk gyűjti automatikusan, hobbiszolgáltatás: percenként legfeljebb 40 lekérdezés, minden hívójel naponta egyszer. Eredmények: Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Második forrás: S50CLX",
- "u.s50clx_help": "S50CLX (Szlovénia), s50clx.infrax.si:41112, DX Spider. Üres login = a fenti hívójel. A cím módosítható.",
+ "u.s50clx_help": "S50CLX (Szlovénia), s50clx.si:41112, DX Spider. Üres login = a fenti hívójel. A cím módosítható.",
  "close.q": "Bezárod a LIVETROPOVHF-et?",
  "close.title": "A program bezárása",
  "close.thanks": "Köszönöm, hogy használtál: remélem, hasznos voltam.",

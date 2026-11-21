@@ -237,7 +237,7 @@
  "c.g7": "Szukaj brakujących lokatorów w G7VRD (ostatnie źródło)",
  "c.g7_help": "Tylko dla znaków bez 6-znakowego lokatora w żadnym innym źródle; przyjmowane są tylko lokatory 6-znakowe, które nie są środkiem kwadratu (LL/MM). Dane zbierane automatycznie przez api.g7vrd.co.uk, usługa hobbystyczna: najwyżej 40 zapytań na minutę, każdy znak raz dziennie. Wyniki w Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Drugie źródło: S50CLX",
- "u.s50clx_help": "S50CLX (Słowenia), s50clx.infrax.si:41112, DX Spider. Pusty login = znak na górze. Adres można zmienić.",
+ "u.s50clx_help": "S50CLX (Słowenia), s50clx.si:41112, DX Spider. Pusty login = znak na górze. Adres można zmienić.",
  "close.q": "Czy zamknąć LIVETROPOVHF?",
  "close.title": "Zamykanie programu",
  "close.thanks": "Dziękuję za korzystanie ze mnie: mam nadzieję, że się przydałem.",

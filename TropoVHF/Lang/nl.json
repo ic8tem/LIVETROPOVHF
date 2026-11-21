@@ -245,7 +245,7 @@
  "c.g7": "Ontbrekende locators opzoeken bij G7VRD (laatste bron)",
  "c.g7_help": "Alleen voor roepnamen zonder locator van 6 tekens in alle andere bronnen; alleen locators van 6 tekens die niet het midden van het vak zijn (LL/MM) worden aanvaard. Gegevens automatisch verzameld door api.g7vrd.co.uk, een hobbydienst: hoogstens 40 opvragingen per minuut, elke roepnaam eenmaal per dag. Resultaten in Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Tweede bron: S50CLX",
- "u.s50clx_help": "S50CLX (Slovenië), s50clx.infrax.si:41112, DX Spider. Lege login = de roepnaam bovenaan. Adres te wijzigen.",
+ "u.s50clx_help": "S50CLX (Slovenië), s50clx.si:41112, DX Spider. Lege login = de roepnaam bovenaan. Adres te wijzigen.",
  "close.q": "Wil je LIVETROPOVHF afsluiten?",
  "close.title": "Programma afsluiten",
  "close.thanks": "Bedankt dat je mij hebt gebruikt: ik hoop dat ik je van nut ben geweest.",

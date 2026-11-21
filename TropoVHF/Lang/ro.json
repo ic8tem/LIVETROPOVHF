@@ -237,7 +237,7 @@
  "c.g7": "Caută locatoarele lipsă pe G7VRD (ultima sursă)",
  "c.g7_help": "Doar pentru indicativele fără locator de 6 caractere în nicio altă sursă; se acceptă doar locatoare de 6 caractere care nu sunt centrul pătratului (LL/MM). Date colectate automat de api.g7vrd.co.uk, serviciu de hobby: cel mult 40 de interogări pe minut, fiecare indicativ o dată pe zi. Rezultate în Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. A doua sursă: S50CLX",
- "u.s50clx_help": "S50CLX (Slovenia), s50clx.infrax.si:41112, DX Spider. Autentificare goală = indicativul de sus. Adresa poate fi schimbată.",
+ "u.s50clx_help": "S50CLX (Slovenia), s50clx.si:41112, DX Spider. Autentificare goală = indicativul de sus. Adresa poate fi schimbată.",
  "close.q": "Vrei să închizi LIVETROPOVHF?",
  "close.title": "Închiderea programului",
  "close.thanks": "Mulțumesc că m-ai folosit: sper că ți-am fost util.",

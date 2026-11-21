@@ -245,7 +245,7 @@
  "c.g7": "Look up missing locators on G7VRD (last source)",
  "c.g7_help": "Only for callsigns without a 6-character locator in any other source; only 6-character locators not centred (LL/MM) are accepted. Data collected automatically by api.g7vrd.co.uk, a hobby service: at most 40 lookups per minute, each callsign once a day. Results in Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Second source: S50CLX",
- "u.s50clx_help": "S50CLX (Slovenia), s50clx.infrax.si:41112, DX Spider. Empty login = the Call at the top. Address can be changed.",
+ "u.s50clx_help": "S50CLX (Slovenia), s50clx.si:41112, DX Spider. Empty login = the Call at the top. Address can be changed.",
  "close.q": "Do you want to close LIVETROPOVHF?",
  "close.title": "Closing the program",
  "close.thanks": "Thank you for using me: I hope I have been useful to you.",

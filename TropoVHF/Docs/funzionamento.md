@@ -44,7 +44,7 @@ Ogni fonte ha la sua sezione nella linguetta Raccolta dati, con Connetti/Disconn
 
 | Fonte | Collegamento | Che cosa porta |
 | 1. DX cluster a scelta | on0dxk.dyndns.org:8000 comando set/filter dxbm/pass 6 | Spot dei radioamatori, anche SSB e CW. Su ON0DXK le VHF sono filtrate e vanno abilitate col comando indicato (poi pass 4, 2…). |
-| 2. Seconda fonte | 9a0dxc.hamradio.hr:8000 (9A0DXC, Zagabria) e s50clx.infrax.si:41112 (S50CLX, Slovenia) | Due cluster DX Spider, login con il proprio nominativo; indirizzi modificabili. |
+| 2. Seconda fonte | 9a0dxc.hamradio.hr:8000 (9A0DXC, Zagabria) e s50clx.si:41112 (S50CLX, Slovenia) | Due cluster DX Spider, login con il proprio nominativo; indirizzi modificabili. |
 | 3. Reverse Beacon Network | telnet.reversebeacon.net 7000 CW/RTTY · 7001 FT8 | Spot automatici degli skimmer. Login con il solo nominativo [9]. |
 | 4. Cluster con PSKReporter | dm4x.ddns.net:8500 | Spot digitali di PSKReporter in formato cluster. |
 | 5. PSKReporter MQTT | mqtt.pskreporter.info 1883 · 1884 con TLS | Ogni rapporto di ricezione in tempo reale: chi trasmette, chi ascolta e i rispettivi locatori [5]. Bande 144, 222 e 432 MHz. |

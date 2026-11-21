@@ -245,7 +245,7 @@
  "c.g7": "Hanapin ang kulang na locator sa G7VRD (huling pinagmulan)",
  "c.g7_help": "Para lamang sa mga callsign na walang 6-karakter na locator sa ibang pinagmulan; tinatanggap lamang ang 6-karakter na locator na hindi gitna ng parisukat (LL/MM). Datos na awtomatikong kinokolekta ng api.g7vrd.co.uk, isang serbisyong pang-libangan: hanggang 40 kahilingan bawat minuto, bawat callsign minsan sa isang araw. Mga resulta sa Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Ikalawang pinagmulan: S50CLX",
- "u.s50clx_help": "S50CLX (Slovenia), s50clx.infrax.si:41112, DX Spider. Walang laman na login = ang Call sa itaas. Mapapalitan ang address.",
+ "u.s50clx_help": "S50CLX (Slovenia), s50clx.si:41112, DX Spider. Walang laman na login = ang Call sa itaas. Mapapalitan ang address.",
  "close.q": "Gusto mo bang isara ang LIVETROPOVHF?",
  "close.title": "Pagsasara ng programa",
  "close.thanks": "Salamat sa paggamit mo sa akin: sana ay nakatulong ako sa iyo.",

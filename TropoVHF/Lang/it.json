@@ -245,7 +245,7 @@
  "c.g7": "Cerca i locatori mancanti su G7VRD (ultima fonte)",
  "c.g7_help": "Solo per i nominativi senza un locatore a 6 caratteri in nessun'altra fonte; si accettano solo locatori a 6 caratteri non centrati (LL/MM). Dati raccolti in automatico da api.g7vrd.co.uk, servizio hobbistico: al massimo 40 richieste al minuto, ogni nominativo una volta al giorno. Risultati in Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Seconda fonte: S50CLX",
- "u.s50clx_help": "S50CLX (Slovenia), s50clx.infrax.si:41112, DX Spider. Login vuoto = il Call in alto. Indirizzo modificabile.",
+ "u.s50clx_help": "S50CLX (Slovenia), s50clx.si:41112, DX Spider. Login vuoto = il Call in alto. Indirizzo modificabile.",
  "close.q": "Vuoi chiudere LIVETROPOVHF?",
  "close.title": "Chiusura del programma",
  "close.thanks": "Grazie per avermi usato: spero di esserti stato utile.",

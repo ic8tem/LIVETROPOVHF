@@ -245,7 +245,7 @@
  "c.g7": "Søg manglende lokatorer hos G7VRD (sidste kilde)",
  "c.g7_help": "Kun for kaldesignaler uden 6-tegns lokator i nogen anden kilde; kun 6-tegns lokatorer, der ikke er feltets midte (LL/MM), accepteres. Data indsamlet automatisk af api.g7vrd.co.uk, en hobbytjeneste: højst 40 opslag i minuttet, hvert kaldesignal én gang om dagen. Resultater i Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Anden kilde: S50CLX",
- "u.s50clx_help": "S50CLX (Slovenien), s50clx.infrax.si:41112, DX Spider. Tom login = kaldesignalet øverst. Adressen kan ændres.",
+ "u.s50clx_help": "S50CLX (Slovenien), s50clx.si:41112, DX Spider. Tom login = kaldesignalet øverst. Adressen kan ændres.",
  "close.q": "Vil du lukke LIVETROPOVHF?",
  "close.title": "Programmet lukkes",
  "close.thanks": "Tak, fordi du brugte mig: jeg håber, jeg har været til nytte.",

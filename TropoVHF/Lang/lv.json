@@ -245,7 +245,7 @@
  "c.g7": "Meklēt trūkstošos lokatorus G7VRD (pēdējais avots)",
  "c.g7_help": "Tikai izsaukuma signāliem bez 6 rakstzīmju lokatora nevienā citā avotā; pieņem tikai 6 rakstzīmju lokatorus, kas nav kvadrāta centrs (LL/MM). Datus automātiski vāc api.g7vrd.co.uk, hobija pakalpojums: ne vairāk kā 40 pieprasījumi minūtē, katrs izsaukuma signāls reizi dienā. Rezultāti failā Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Otrais avots: S50CLX",
- "u.s50clx_help": "S50CLX (Slovēnija), s50clx.infrax.si:41112, DX Spider. Tukšs lietotājs = izsaukuma signāls augšā. Adresi var mainīt.",
+ "u.s50clx_help": "S50CLX (Slovēnija), s50clx.si:41112, DX Spider. Tukšs lietotājs = izsaukuma signāls augšā. Adresi var mainīt.",
  "close.q": "Vai aizvērt LIVETROPOVHF?",
  "close.title": "Programmas aizvēršana",
  "close.thanks": "Paldies, ka mani lietojāt: ceru, ka biju noderīga.",

@@ -245,7 +245,7 @@
  "c.g7": "Leita að vantandi reitum hjá G7VRD (síðasta uppspretta)",
  "c.g7_help": "Aðeins fyrir kallmerki án 6 stafa reits í nokkurri annarri uppsprettu; aðeins 6 stafa reitir sem eru ekki miðja reitsins (LL/MM) eru samþykktir. Gögnum safnað sjálfkrafa af api.g7vrd.co.uk, áhugamannaþjónusta: í mesta lagi 40 fyrirspurnir á mínútu, hvert kallmerki einu sinni á dag. Niðurstöður í Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Önnur uppspretta: S50CLX",
- "u.s50clx_help": "S50CLX (Slóvenía), s50clx.infrax.si:41112, DX Spider. Tóm innskráning = kallmerkið efst. Hægt að breyta vistfangi.",
+ "u.s50clx_help": "S50CLX (Slóvenía), s50clx.si:41112, DX Spider. Tóm innskráning = kallmerkið efst. Hægt að breyta vistfangi.",
  "close.q": "Viltu loka LIVETROPOVHF?",
  "close.title": "Forritinu lokað",
  "close.thanks": "Takk fyrir að nota mig: ég vona að ég hafi komið þér að gagni.",

@@ -245,7 +245,7 @@
  "c.g7": "Procurar os locators em falta no G7VRD (última fonte)",
  "c.g7_help": "Só para indicativos sem locator de 6 caracteres em nenhuma outra fonte; só se aceitam locators de 6 caracteres que não sejam o centro do quadrado (LL/MM). Dados recolhidos automaticamente por api.g7vrd.co.uk, serviço amador: no máximo 40 pedidos por minuto, cada indicativo uma vez por dia. Resultados em Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Segunda fonte: S50CLX",
- "u.s50clx_help": "S50CLX (Eslovênia), s50clx.infrax.si:41112, DX Spider. Usuário vazio = o indicativo em cima. Endereço alterável.",
+ "u.s50clx_help": "S50CLX (Eslovênia), s50clx.si:41112, DX Spider. Usuário vazio = o indicativo em cima. Endereço alterável.",
  "close.q": "Deseja fechar o LIVETROPOVHF?",
  "close.title": "Fechamento do programa",
  "close.thanks": "Obrigado por me usar: espero ter sido útil.",

@@ -245,7 +245,7 @@
  "c.g7": "Eksik lokatörleri G7VRD'de ara (son kaynak)",
  "c.g7_help": "Yalnızca başka hiçbir kaynakta 6 karakterli lokatörü olmayan çağrı işaretleri için; yalnızca kare merkezi olmayan (LL/MM) 6 karakterli lokatörler kabul edilir. Veriler api.g7vrd.co.uk tarafından otomatik toplanır, hobi hizmetidir: dakikada en fazla 40 sorgu, her çağrı işareti günde bir kez. Sonuçlar Dati/CALL3-G7VRD.TXT dosyasında.",
  "u.3_second_dx_cluster": "3. İkinci kaynak: S50CLX",
- "u.s50clx_help": "S50CLX (Slovenya), s50clx.infrax.si:41112, DX Spider. Boş kullanıcı = yukarıdaki çağrı işareti. Adres değiştirilebilir.",
+ "u.s50clx_help": "S50CLX (Slovenya), s50clx.si:41112, DX Spider. Boş kullanıcı = yukarıdaki çağrı işareti. Adres değiştirilebilir.",
  "close.q": "LIVETROPOVHF'i kapatmak istiyor musun?",
  "close.title": "Programı kapatma",
  "close.thanks": "Beni kullandığın için teşekkürler: umarım işine yaramışımdır.",

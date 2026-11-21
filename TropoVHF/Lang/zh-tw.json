@@ -245,7 +245,7 @@
  "c.g7": "在 G7VRD 查找缺失的網格（最後來源）",
  "c.g7_help": "僅用於在其他所有來源中都沒有 6 位網格的呼號；只接受不是方格中心（LL/MM）的 6 位網格。資料由 api.g7vrd.co.uk 自動收集，屬業餘服務：每分鐘最多 40 次查詢，每個呼號每天一次。結果保存在 Dati/CALL3-G7VRD.TXT。",
  "u.3_second_dx_cluster": "3. 第二來源：S50CLX",
- "u.s50clx_help": "S50CLX（斯洛文尼亞），s50clx.infrax.si:41112，DX Spider。登錄名留空 = 頂部的呼號。地址可修改。",
+ "u.s50clx_help": "S50CLX（斯洛文尼亞），s50clx.si:41112，DX Spider。登錄名留空 = 頂部的呼號。地址可修改。",
  "close.q": "要關閉 LIVETROPOVHF 嗎？",
  "close.title": "關閉程式",
  "close.thanks": "感謝使用我：希望我對你有所幫助。",

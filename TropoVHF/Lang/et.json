@@ -245,7 +245,7 @@
  "c.g7": "Otsi puuduvaid lokaatoreid G7VRD-st (viimane allikas)",
  "c.g7_help": "Ainult kutsungitele, millel pole üheski teises allikas 6-märgilist lokaatorit; vastu võetakse ainult 6-märgilised lokaatorid, mis ei ole ruudu keskpunkt (LL/MM). Andmed kogub automaatselt api.g7vrd.co.uk, harrastusteenus: kuni 40 päringut minutis, iga kutsung kord päevas. Tulemused failis Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Teine allikas: S50CLX",
- "u.s50clx_help": "S50CLX (Sloveenia), s50clx.infrax.si:41112, DX Spider. Tühi kasutaja = üleval olev kutsung. Aadressi saab muuta.",
+ "u.s50clx_help": "S50CLX (Sloveenia), s50clx.si:41112, DX Spider. Tühi kasutaja = üleval olev kutsung. Aadressi saab muuta.",
  "close.q": "Kas soovid LIVETROPOVHF-i sulgeda?",
  "close.title": "Programmi sulgemine",
  "close.thanks": "Aitäh, et mind kasutasid: loodan, et olin sulle kasulik.",

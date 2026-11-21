@@ -245,7 +245,7 @@
  "c.g7": "Sök saknade lokatorer hos G7VRD (sista källan)",
  "c.g7_help": "Bara för anropssignaler utan 6-teckens lokator i någon annan källa; bara 6-teckens lokatorer som inte är rutans mitt (LL/MM) godtas. Data insamlad automatiskt av api.g7vrd.co.uk, en hobbytjänst: högst 40 förfrågningar per minut, varje anropssignal en gång per dag. Resultat i Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Andra källan: S50CLX",
- "u.s50clx_help": "S50CLX (Slovenien), s50clx.infrax.si:41112, DX Spider. Tom inloggning = anropssignalen överst. Adressen kan ändras.",
+ "u.s50clx_help": "S50CLX (Slovenien), s50clx.si:41112, DX Spider. Tom inloggning = anropssignalen överst. Adressen kan ändras.",
  "close.q": "Vill du stänga LIVETROPOVHF?",
  "close.title": "Stänger programmet",
  "close.thanks": "Tack för att du har använt mig: jag hoppas att jag har varit till nytta.",

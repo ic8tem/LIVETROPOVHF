@@ -98,12 +98,14 @@ public sealed class AppState
         // GB7RAU non è più una fonte: le sue impostazioni salvate (indirizzo, utente, password) si cancellano
         if (S.Get("dxc2_host", "").Contains("gb7rau", StringComparison.OrdinalIgnoreCase))
             foreach (var k in new[] { "host", "port", "login", "password", "cmds", "recon", "auto" }) S.Remove("dxc2_" + k);
+        // S50CLX ha cambiato dominio (s50clx.infrax.si non risolve più): si aggiorna l'indirizzo salvato
+        if (S.Get("dxc3_host", "").Trim().Equals("s50clx.infrax.si", StringComparison.OrdinalIgnoreCase)) S.Set("dxc3_host", "s50clx.si");
         Feeds = new[]
         {
             NewFeed("dxc", "DXC", "on0dxk.dyndns.org", 8000, "set/filter dxbm/pass 6", true),
             // seconda fonte: 9A0DXC (Zagabria) e S50CLX (Slovenia), login con il proprio nominativo
             NewFeed("dxc2", "DXC", "9a0dxc.hamradio.hr", 8000, "", true),
-            NewFeed("dxc3", "DXC", "s50clx.infrax.si", 41112, "", true),
+            NewFeed("dxc3", "DXC", "s50clx.si", 41112, "", true),
             NewFeed("rbn", "RBN", "telnet.reversebeacon.net", 7001, "", true),
             NewFeed("psk", "PSK", "dm4x.ddns.net", 8500, "", false),
         };

@@ -237,7 +237,7 @@
  "c.g7": "Hledat chybějící lokátory v G7VRD (poslední zdroj)",
  "c.g7_help": "Jen pro značky bez 6-znakového lokátoru v jakémkoli jiném zdroji; přijímají se jen 6-znakové lokátory, které nejsou středem čtverce (LL/MM). Data automaticky sbírá api.g7vrd.co.uk, hobby služba: nejvýše 40 dotazů za minutu, každá značka jednou denně. Výsledky v Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Druhý zdroj: S50CLX",
- "u.s50clx_help": "S50CLX (Slovinsko), s50clx.infrax.si:41112, DX Spider. Prázdný login = značka nahoře. Adresu lze změnit.",
+ "u.s50clx_help": "S50CLX (Slovinsko), s50clx.si:41112, DX Spider. Prázdný login = značka nahoře. Adresu lze změnit.",
  "close.q": "Chceš ukončit LIVETROPOVHF?",
  "close.title": "Ukončení programu",
  "close.thanks": "Děkuji, že jsi mě používal: doufám, že jsem ti byl užitečný.",

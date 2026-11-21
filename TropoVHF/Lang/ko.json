@@ -245,7 +245,7 @@
  "c.g7": "G7VRD에서 빠진 로케이터 찾기 (마지막 출처)",
  "c.g7_help": "다른 어떤 출처에도 6자리 로케이터가 없는 호출부호에만 해당; 격자 중심(LL/MM)이 아닌 6자리 로케이터만 받아들입니다. 데이터는 api.g7vrd.co.uk가 자동 수집하는 취미 서비스: 분당 최대 40회, 호출부호마다 하루 한 번. 결과는 Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. 두 번째 출처: S50CLX",
- "u.s50clx_help": "S50CLX(슬로베니아), s50clx.infrax.si:41112, DX Spider. 로그인 비움 = 위쪽의 호출부호. 주소 변경 가능.",
+ "u.s50clx_help": "S50CLX(슬로베니아), s50clx.si:41112, DX Spider. 로그인 비움 = 위쪽의 호출부호. 주소 변경 가능.",
  "close.q": "LIVETROPOVHF를 종료하시겠습니까?",
  "close.title": "프로그램 종료",
  "close.thanks": "사용해 주셔서 감사합니다: 도움이 되었기를 바랍니다.",

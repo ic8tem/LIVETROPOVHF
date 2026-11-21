@@ -245,7 +245,7 @@
  "c.g7": "Fehlende Locatoren bei G7VRD suchen (letzte Quelle)",
  "c.g7_help": "Nur für Rufzeichen ohne 6-stelligen Locator in allen anderen Quellen; angenommen werden nur 6-stellige Locatoren, die nicht die Feldmitte (LL/MM) sind. Daten automatisch gesammelt von api.g7vrd.co.uk, ein Hobbydienst: höchstens 40 Abfragen pro Minute, jedes Rufzeichen einmal am Tag. Ergebnisse in Dati/CALL3-G7VRD.TXT.",
  "u.3_second_dx_cluster": "3. Zweite Quelle: S50CLX",
- "u.s50clx_help": "S50CLX (Slowenien), s50clx.infrax.si:41112, DX Spider. Leeres Login = das Rufzeichen oben. Adresse änderbar.",
+ "u.s50clx_help": "S50CLX (Slowenien), s50clx.si:41112, DX Spider. Leeres Login = das Rufzeichen oben. Adresse änderbar.",
  "close.q": "Möchtest du LIVETROPOVHF beenden?",
  "close.title": "Programm beenden",
  "close.thanks": "Danke, dass du mich benutzt hast: ich hoffe, ich war dir nützlich.",
