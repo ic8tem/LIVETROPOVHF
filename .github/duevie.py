@@ -76,6 +76,47 @@ def two_way(htx_asl,ter_b,xs_b,ter_f,xs_f,hr_asl,phase,prop,dx):
     for i in range(1,len(xs_f)):
         v=step(v,prop,phase); v[:int(ter_f[i]/DZ)]=0
     return loss(v,xs_f[-1]*1000+xs_b[-1]*1000,hr_asl), loss(v,xs_f[-1]*1000,hr_asl)
+def launch(u,z1=20,z2=400):
+    m=(Z>=z1)&(Z<=z2); return 10*math.log10(np.mean(np.abs(u[m])**2)+1e-300)
+def two_way_field(htx_asl,ter_b,xs_b,ter_f,xs_f,phase,prop):
+    u=source(htx_asl); refl={}; igp=int(ter_b[0]/DZ)
+    for i in range(1,len(xs_b)):
+        u=step(u,prop,phase); ig=int(ter_b[i]/DZ)
+        if ig>igp: refl[i]=-u.copy()*(Z<ig*DZ)*(Z>=igp*DZ)
+        u[:ig]=0; igp=ig
+    v=np.zeros(NZ,complex)
+    for i in range(len(xs_b)-1,0,-1):
+        if i in refl: v=v+refl[i]
+        v=step(v,prop,phase); v[:int(ter_b[i-1]/DZ)]=0
+    for i in range(1,len(xs_f)):
+        v=step(v,prop,phase); v[:int(ter_f[i]/DZ)]=0
+    return v
+def main2():
+    out=[]; W=lambda s:(print(s),out.append(s))
+    W("Lancio nel condotto: potenza media del campo fra 20 e 400 m s.l.m. a 80 km dalla stazione, sulla tratta verso il corrispondente (dB relativi).")
+    W("Diretto = antenna verso il corrispondente; via monte = antenna verso il rilievo, riflessione sulle facce del terreno (Γ = −1), ritorno lungo la tratta.")
+    W("Atmosfera standard (conta il terreno vicino); 144,3 MHz; antenna 10 m dal suolo; passo 100 m.")
+    txs={'Capri centro':(40.5508,14.2426),'Capri Marina Grande':(40.5560,14.2370),'Anacapri':(40.5560,14.2160),'Capri Tragara':(40.5450,14.2500)}
+    peaks={'Vesuvio':(40.8213,14.4261),'Faito/Molare':(40.6560,14.5000),'Monte Solaro':(40.5530,14.2240)}
+    targets={'EA3':'JN11CK','EA5':'IM98PG','EA6':'JM29DV','I1 (mare)':'JN44ET'}
+    dx=100.0; prop=propagator(dx); phase=np.exp(1j*K*Mprof('standard')*1e-6*dx)*WIN
+    for tn,(tla,tlo) in txs.items():
+        g0=elev(tla,tlo); htx=g0+10
+        W(f"--- {tn} ({tla:.4f}, {tlo:.4f}), suolo {g0:.0f} m")
+        for name,l in targets.items():
+            rla,rlo=loc(l); d,az=dist_az(tla,tlo,rla,rlo)
+            xs,ter=profile(tla,tlo,az,80,dx/1000)
+            hz=max(math.degrees(math.atan((ter[i]-htx)/(xs[i]*1000))) for i in range(1,len(xs)))
+            ld=launch(run_oneway(source(htx),xs,ter,phase,prop,dx))
+            line=f"    {name} az {az:.0f}° (ostacolo più alto {hz:+.1f}°): diretto {ld:.1f}"
+            for pn,(pla,plo) in peaks.items():
+                dp,azp=dist_az(tla,tlo,pla,plo); off=abs(((azp-az+540)%360)-180)
+                if dp<0.5: continue
+                xb,tb=profile(tla,tlo,azp,min(40,dp+6),dx/1000)
+                lv=launch(two_way_field(htx,tb,xb,ter,xs,phase,prop))
+                line+=f"; via {pn} (az {azp:.0f}°, fuori asse {off:.0f}°{'' if off>=140 else ', fuori piano: solo indicativo'}) {lv:.1f} ({lv-ld:+.1f})"
+            W(line)
+    open('esito-monte.txt','w').write('\n'.join(out)+'\n')
 def main():
     out=[]; W=lambda s:(print(s),out.append(s))
     txs={'Capri centro':(40.5508,14.2426),'Capri Marina Grande':(40.5560,14.2370),'Anacapri':(40.5560,14.2160)}
@@ -107,4 +148,4 @@ def main():
                         line+=f"; {pn} fuori asse {abs(off):.0f}°: non in piano"
                 W(line)
     open('esito-monte.txt','w').write('\n'.join(out)+'\n')
-t0=time.time(); main(); print('tempo',time.time()-t0)
+t0=time.time(); main2(); print('tempo',time.time()-t0)
