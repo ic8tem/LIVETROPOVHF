@@ -442,11 +442,12 @@ public sealed partial class MainForm
                 var pp = Geo.GreatCircle(tx.Pos, rx.Pos, n - 1);
                 var prof = pp.Select(p => _own.At(p.Lat, p.Lon, opt.Utc)).ToList();
                 CalcLog.W($"percorso {d:0.0} km: {n} punti di previsione; dalla griglia già scaricata {prof.Count(p => p != null)}");
-                if (prof.Count(p => p != null) < prof.Count * 0.8)
+                if (prof.Count(p => p != null) < prof.Count * 0.8 || (_own.HasData && _own.Step > 1.0 && _own.Hist == null))
                 {
+                    if (_own.Step > 1.0) CalcLog.W($"la griglia ha passo {_own.Step:0.##}°, troppo largo per il percorso: scarico i profili dei {n} punti della tratta");
                     FcSetStatus(L("GFS: scarico i profili lungo il percorso…", "GFS: downloading profiles along the path…"));
                     fs = new FetchStats();
-                    var ser = await OwnForecast.FetchPoints(FcHttp, pp, FcSetStatus, ct, fs, _own.RunUtc, null, _own.Hist);
+                    var ser = await OwnForecast.FetchPoints(FcHttp, pp, FcSetStatus, ct, fs, _own.RunUtc, null, _own.Hist, null, 0.25, opt.Utc);
                     prof = ser.Select(s =>
                     {
                         int best = -1; double bd = double.MaxValue;

@@ -13,15 +13,21 @@ namespace TropoVHF.Forecast;
 public static class Nomads
 {
     public const string Filter = "https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p25_1hr.pl";
+    /// <summary>Risoluzione del ritaglio: 0,25° orario, oppure 0,5° o 1° ogni 3 ore per le griglie larghe (molti meno dati).</summary>
+    public enum Res { Q025, H050, D100 }
+    public static Res ResFor(double gridStep) => gridStep >= 1.0 ? Res.D100 : gridStep >= 0.5 ? Res.H050 : Res.Q025;
+    static string FilterOf(Res r) => r == Res.D100 ? "https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_1p00.pl"
+                                   : r == Res.H050 ? "https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p50.pl" : Filter;
+    static string FileOf(Res r) => r == Res.D100 ? "pgrb2.1p00" : r == Res.H050 ? "pgrb2full.0p50" : "pgrb2.0p25";
     const int DelayMs = 550;
 
     static string F(double v) => v.ToString("0.##", CultureInfo.InvariantCulture);
 
-    static string Url(DateTime run, int fh, double top, double bottom, double left, double right, bool upper)
+    static string Url(DateTime run, int fh, double top, double bottom, double left, double right, bool upper, Res res = Res.Q025)
     {
-        var sb = new StringBuilder(Filter);
+        var sb = new StringBuilder(FilterOf(res));
         sb.Append("?dir=%2Fgfs.").Append(run.ToString("yyyyMMdd", CultureInfo.InvariantCulture)).Append("%2F").Append(run.ToString("HH", CultureInfo.InvariantCulture)).Append("%2Fatmos");
-        sb.Append("&file=gfs.t").Append(run.ToString("HH", CultureInfo.InvariantCulture)).Append("z.pgrb2.0p25.f").Append(fh.ToString("000", CultureInfo.InvariantCulture));
+        sb.Append("&file=gfs.t").Append(run.ToString("HH", CultureInfo.InvariantCulture)).Append("z.").Append(FileOf(res)).Append(".f").Append(fh.ToString("000", CultureInfo.InvariantCulture));
         if (upper)
         {
             sb.Append("&var_TMP=on&var_RH=on&lev_2_m_above_ground=on");
@@ -73,24 +79,35 @@ public static class Nomads
     /// se non è presente si prova la corsa precedente. Restituisce il JSON (formato Open-Meteo) per ogni punto e la corsa usata.
     /// </summary>
     public static async Task<(string[] raw, DateTime run)> FetchPoints(HttpClient http, IList<LatLon> pts, int hours, DateTime runHint,
-                                                                      Action<string> progress, CancellationToken ct, FetchStats st)
+                                                                      Action<string> progress, CancellationToken ct, FetchStats st,
+                                                                      Res res = Res.Q025, DateTime? onlyUtc = null)
     {
+        int stepH = res == Res.Q025 ? 1 : 3;
         var raw = new string[pts.Count];
         if (pts.Count == 0) return (raw, runHint);
-        double top = pts.Max(p => p.Lat) + 0.25, bottom = pts.Min(p => p.Lat) - 0.25;
-        double left = pts.Min(p => p.Lon) - 0.25, right = pts.Max(p => p.Lon) + 0.25;
+        double pad = res == Res.D100 ? 1.0 : res == Res.H050 ? 0.5 : 0.25;
+        double top = pts.Max(p => p.Lat) + pad, bottom = pts.Min(p => p.Lat) - pad;
+        double left = pts.Min(p => p.Lon) - pad, right = pts.Max(p => p.Lon) + pad;
         var start = DateTime.UtcNow; start = new DateTime(start.Year, start.Month, start.Day, start.Hour, 0, 0, DateTimeKind.Utc);
         DateTime run = runHint != default ? runHint : Floor6(DateTime.UtcNow.AddHours(-4));
+        if (onlyUtc.HasValue) { start = new DateTime(onlyUtc.Value.Year, onlyUtc.Value.Month, onlyUtc.Value.Day, onlyUtc.Value.Hour, 0, 0, DateTimeKind.Utc); hours = 1; }
+        // ogni 3 ore: si parte dall'ora della corsa più vicina (i file esistono solo per fh multipli di 3)
+        if (stepH > 1)
+        {
+            int off = (int)Math.Round((start - run).TotalHours);
+            start = run.AddHours((int)Math.Round(off / 3.0) * 3);
+            if (!onlyUtc.HasValue) hours = (hours + 2) / 3;
+        }
         // corsa presente? si prova la prima ora utile
         byte[] first = null;
         for (int tries = 0; tries < 3 && first == null; tries++)
         {
             int fh0 = (int)Math.Round((start - run).TotalHours);
-            first = await Get(http, Url(run, Math.Max(0, fh0), top, bottom, left, right, true), ct, st);
+            first = await Get(http, Url(run, Math.Max(0, fh0), top, bottom, left, right, true, res), ct, st);
             if (first == null) { CalcLog.W($"NOMADS: corsa delle {run:dd/MM HH} UTC non presente, provo la precedente"); run = run.AddHours(-6); await Task.Delay(DelayMs, ct); }
         }
         if (first == null) throw new IOException("NOMADS: nessuna corsa GFS recente disponibile");
-        CalcLog.W($"NOMADS: corsa GFS delle {run:dd/MM HH} UTC, riquadro {F(bottom)}–{F(top)} N, {F(left)}–{F(right)} E, {hours} ore");
+        CalcLog.W($"NOMADS: corsa GFS delle {run:dd/MM HH} UTC, riquadro {F(bottom)}–{F(top)} N, {F(left)}–{F(right)} E, {hours} istanti ogni {stepH} h, griglia {(res == Res.D100 ? "1°" : res == Res.H050 ? "0,5°" : "0,25°")}");
 
         int np = pts.Count;
         var times = new List<DateTime>();
@@ -102,15 +119,15 @@ public static class Nomads
         for (int k = 0; k < hours; k++)
         {
             ct.ThrowIfCancellationRequested();
-            var valid = start.AddHours(k); times.Add(valid);
+            var valid = start.AddHours(k * stepH); times.Add(valid);
             int fh = (int)Math.Round((valid - run).TotalHours);
-            bool have = fh >= 0 && (fh <= 120 || fh % 3 == 0);
+            bool have = fh >= 0 && (stepH > 1 ? fh % 3 == 0 : (fh <= 120 || fh % 3 == 0));
             List<Grib2Field> up = null, lo = null;
             if (have)
             {
-                byte[] a = k == 0 ? first : await Get(http, Url(run, fh, top, bottom, left, right, true), ct, st);
+                byte[] a = k == 0 ? first : await Get(http, Url(run, fh, top, bottom, left, right, true, res), ct, st);
                 await Task.Delay(DelayMs, ct); st.WaitMs += DelayMs;
-                byte[] b = await Get(http, Url(run, fh, top, bottom, left, right, false), ct, st);
+                byte[] b = await Get(http, Url(run, fh, top, bottom, left, right, false, res), ct, st);
                 if (k + 1 < hours) { await Task.Delay(DelayMs, ct); st.WaitMs += DelayMs; }
                 sw.Restart();
                 up = a != null ? Grib2.Read(a) : null; lo = b != null ? Grib2.Read(b) : null;

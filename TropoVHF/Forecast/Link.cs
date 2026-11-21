@@ -255,7 +255,14 @@ public static class LinkCalc
         if (good.Count > 0) { k = KFromDn(good.Average(p => p.DN1km)); r.ForecastUsed = true; }
         r.K = k;
         CalcLog.W($"profili di previsione sul percorso: {good.Count} su {prof?.Count ?? 0}; ΔN medio primo km {(good.Count > 0 ? good.Average(p => p.DN1km).ToString("0.0") : "—")} N/km → k = 157/(157+ΔN) = {k:0.000} (limitato fra 0,6 e 4)");
-        if (prof != null) for (int i = 0; i < prof.Count; i++) CalcLog.Profile($"punto {i + 1}/{prof.Count} del percorso", prof[i]);
+        if (prof != null)
+            for (int i = 0; i < prof.Count; i++)
+            {
+                // con la griglia larga più punti cadono nella stessa cella: il profilo si scrive una volta sola
+                int same = -1; if (prof[i] != null) for (int j = 0; j < i; j++) if (ReferenceEquals(prof[j], prof[i])) { same = j; break; }
+                if (same >= 0) CalcLog.W($"punto {i + 1}/{prof.Count} del percorso: stessa cella della griglia del punto {same + 1}");
+                else CalcLog.Profile($"punto {i + 1}/{prof.Count} del percorso", prof[i]);
+            }
         double ae = k * Re, d = r.DistKm, lam = 299.792458 / o.FreqMHz, fGHz = o.FreqMHz / 1000;
         double ce = 1 / ae;
 
@@ -434,7 +441,7 @@ public static class LinkCalc
             if (r.DualN > 0)
                 CalcLog.W($"   doppio calcolo su {r.DualN} punti (condotti potenziali): A salto in 50 m → deficit medio {r.DeficitMeanA:0.0} M, λmax minima {r.LambdaMinA:0.00} m; " +
                           $"B spessore P.453 {r.ClimThickMean:0} m → {r.DeficitMeanB:0.0} M, {r.LambdaMinB:0.00} m; peggiore = B in {r.DualChosenB} punti su {r.DualN}; anomalia media {r.AnomalyMean:0.0}× la norma");
-            else CalcLog.W("strato fondante: nessuno strato con calo di N oltre il normale continuo su almeno un punto");
+            else if (best.key < 0) CalcLog.W("strato fondante: nessuno strato con calo di N oltre il normale continuo su almeno un punto");
 
             // guadagno: conta solo lo strato continuo, in proporzione al tratto che copre (Bean e Dutton: 10–25 dB per strato)
             double g = 0;

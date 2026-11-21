@@ -38,7 +38,9 @@ public static class CalcLog
         try { Line?.Invoke(line); } catch { }
     }
 
-    public static void Section(string title) => W("========== " + title + " ==========");
+    /// <summary>Intestazione di ogni calcolo, sempre con la versione del programma e le opzioni del modello.</summary>
+    public static void Section(string title) => W("========== " + title + " ==========  [LIVETROPOVHF " + Core.ErrorLog.Version +
+        (Refractivity.UseCorrections ? "" : ", correzioni meteo spente") + (Refractivity.UseSoftDuct ? "" : ", condotto morbido spento") + "]");
 
     public static string RecentText(int max = 1500)
     {

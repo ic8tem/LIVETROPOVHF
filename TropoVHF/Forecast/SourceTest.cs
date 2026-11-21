@@ -57,6 +57,17 @@ public static class SourceTest
                 Show("NOMADS", ser);
                 if (raw[0] != null) W("  JSON del primo punto (inizio): " + raw[0].Substring(0, Math.Min(500, raw[0].Length)));
             });
+            foreach (var res in new[] { Nomads.Res.H050, Nomads.Res.D100 })
+                await Try("NOMADS " + res, async () =>
+                {
+                    var st = new FetchStats();
+                    var (raw, run) = await Nomads.FetchPoints(http, pts, 9, default, null, CancellationToken.None, st, res);
+                    W($"NOMADS {res}: corsa {run:dd/MM HH} UTC, {st.Batches} file, {st.Bytes / 1024} kB, punti {raw.Count(x => x != null)}/{pts.Count}");
+                    var ser = new List<OwnForecast.PointSeries>();
+                    for (int i = 0; i < raw.Length; i++)
+                        if (raw[i] != null) { using var d = System.Text.Json.JsonDocument.Parse(raw[i]); var ps = OwnForecast.ParsePoint(d.RootElement, pts[i]); ps.From = "NOMADS " + res; ser.Add(ps); }
+                    Show("NOMADS " + res, ser);
+                });
             foreach (var src in new[] { WxSource.OpenMeteo, WxSource.IconEu, WxSource.Ecmwf })
                 await Try(src.ToString(), async () => Show(src.ToString(), await OwnForecast.FetchPoints(http, pts.Take(2).ToList(), null, CancellationToken.None, new FetchStats(), default, src)));
             await Try("archivio storico", async () => Show("archivio 2022-08-13", await OwnForecast.FetchPoints(http, new List<LatLon> { new LatLon(45, -95) }, null, CancellationToken.None, new FetchStats(), default, WxSource.OpenMeteo, HistCase.Known[0])));

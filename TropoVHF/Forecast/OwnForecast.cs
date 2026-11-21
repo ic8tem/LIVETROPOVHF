@@ -592,7 +592,8 @@ public sealed class OwnForecast
     /// si usa l'archivio delle previsioni di Open-Meteo, senza cache.
     /// </summary>
     public static async Task<List<PointSeries>> FetchPoints(HttpClient http, IList<LatLon> pts, Action<string> progress, CancellationToken ct, FetchStats st = null,
-                                                            DateTime run = default, WxSource? source = null, HistCase hist = null, Action<string> used = null)
+                                                            DateTime run = default, WxSource? source = null, HistCase hist = null, Action<string> used = null,
+                                                            double gridStep = 0.25, DateTime? onlyUtc = null)
     {
         st ??= new FetchStats();
         var src = source ?? Source;
@@ -637,8 +638,8 @@ public sealed class OwnForecast
         if ((src == WxSource.Nomads || src == WxSource.Auto) && missing.Count > 0 && hist == null)
         {
             var sub = missing.Select(i => pts[i]).ToList();
-            var (nr, nrun) = await Nomads.FetchPoints(http, sub, Hours, run, progress, ct, st);
-            bool sameRun = run == default || nrun == run;
+            var (nr, nrun) = await Nomads.FetchPoints(http, sub, Hours, run, progress, ct, st, Nomads.ResFor(gridStep), onlyUtc);
+            bool sameRun = (run == default || nrun == run) && !onlyUtc.HasValue;   // un'ora sola (percorso) non va nella cache
             for (int k = 0; k < sub.Count; k++)
             {
                 raw[missing[k]] = nr[k];
@@ -788,7 +789,7 @@ public sealed class OwnForecast
             tm.Lap("metadati della corsa");
             var fs = new FetchStats();
             string detail = "";
-            var series = await FetchPoints(http, pts, m => { Status = m; changed?.Invoke(); }, ct, fs, RunUtc, src, hist, d => detail = d);
+            var series = await FetchPoints(http, pts, m => { Status = m; changed?.Invoke(); }, ct, fs, RunUtc, src, hist, d => detail = d, step);
             tm.Lap("scaricamento e analisi");
             // ore: quelle della serie più lunga; ogni punto si colloca per ora (i punti della cache possono partire prima)
             var times = series.Where(s => s.Times != null).OrderByDescending(s => s.Times.Length).FirstOrDefault()?.Times ?? Array.Empty<DateTime>();
@@ -804,6 +805,15 @@ public sealed class OwnForecast
                 int r = i / cols, c = i % cols;
                 for (int k = 0; k < ser.Times.Length && k < ser.Profiles.Length; k++)
                     if (tix.TryGetValue(ser.Times[k], out int t)) grid[t][r, c] = ser.Profiles[k];
+                // serie ogni 3 ore (NOMADS a 0,5° o 1°) in una griglia oraria: le ore mancanti prendono il profilo più vicino entro 90 minuti
+                if (ser.Times.Length > 1 && (ser.Times[1] - ser.Times[0]).TotalHours > 1.5)
+                    for (int t = 0; t < times.Length; t++)
+                    {
+                        if (grid[t][r, c] != null) continue;
+                        int bk = -1; double bd = 91;
+                        for (int k = 0; k < ser.Times.Length && k < ser.Profiles.Length; k++) { double dm = Math.Abs((ser.Times[k] - times[t]).TotalMinutes); if (dm < bd && ser.Profiles[k] != null) { bd = dm; bk = k; } }
+                        if (bk >= 0) grid[t][r, c] = ser.Profiles[bk];
+                    }
             }
             UsedSource = src; UsedDetail = detail;
             lock (_lock)
