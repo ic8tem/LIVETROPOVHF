@@ -38,14 +38,19 @@ public static class SourceTest
         {
             CalcLog.Enabled = true;
             var srtm = new Srtm(new HttpClient { Timeout = TimeSpan.FromSeconds(300) });
-            foreach (var (rl, rn) in new[] { ("JN45ls27tg", "Lombardia 722 km"), ("JN33qs43wc", "Nizza 677 km"), ("IM98re20no", "Alicante 1300 km") })
+            foreach (var (rl, rn) in new[] { ("JN45ls27tg", "Lombardia 722 km"), ("JN33qs43wc", "Nizza 677 km"), ("IM98re20no", "Alicante 1300 km"), ("JN11cj39nl", "Barcellona 1016 km") })
             {
                 LocatorX.TryParse("JN70CN83CL", out var tp); LocatorX.TryParse(rl, out var rp);
                 var tx = new Station { Loc = "JN70CN83CL", Pos = tp, Precise = true, AglM = 8, PowerW = 400, BoomM = 9 };
                 var rx = new Station { Loc = rl, Pos = rp, Precise = true, AglM = 10, BoomM = 9 };
-                var lr = LinkCalc.Compute(tx, rx, new LinkCalc.Options { Utc = DateTime.UtcNow }, srtm, null, CancellationToken.None, sub: true).GetAwaiter().GetResult();
+                var lr = LinkCalc.Compute(tx, rx, new LinkCalc.Options { Utc = DateTime.UtcNow }, srtm, null, CancellationToken.None, sub: !rl.StartsWith("JN11")).GetAwaiter().GetResult();
                 W(string.Format(CultureInfo.InvariantCulture, "tratta JN70CN83CL → {0} ({1}): suolo TX {2:0} m, orizzonti TX {3:0.0} / RX {4:0.0} mrad, θ {5:0.0} mrad, P.452 senza tropo {6:0.0} dB, ITM 50% {7:0.0} dB",
                     rl, rn, tx.GroundM, lr.ThetaTx, lr.ThetaRx, lr.ThetaMrad, lr.LbaseDb, lr.ItmDb));
+                W(string.Format(CultureInfo.InvariantCulture, "  az {0:0.0}°, meccanismo {1}, Lpred {2:0.0} dB, ostacolo TX a {3:0.0} km, via monte {4}",
+                    lr.AzDeg, lr.Mechanism, lr.LpredDb, lr.NearTxKm, lr.Via.Count));
+                foreach (var v in lr.Via.OrderBy(v => v.TotalDb).Take(6))
+                    W(string.Format(CultureInfo.InvariantCulture, "    via az {0:0}° {1:0.0} km quota {2:0} m {3}: tratta1 {4:0.0} conv {5:0.0} tratta2 {6:0.0} ({7}) totale {8:0.0} dB",
+                        v.AzDeg, v.DistKm, v.HeightM, v.Loc10, v.L1Db, v.ConvDb, v.L2Db, v.Mechanism2, v.TotalDb));
             }
         }
         catch (Exception ex) { W("tratta di prova non riuscita: " + ex.Message); }
