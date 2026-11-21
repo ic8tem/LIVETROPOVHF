@@ -11,16 +11,31 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - name: Calcolo
+      - name: Fonti
         shell: bash
         run: |
-          pip install --quiet numpy
-          python3 .github/duevie.py 2>&1 | tail -200
+          set +e
+          sudo apt-get install -y -qq poppler-utils > /dev/null
+          mkdir -p fonti
+          g() { curl -sL --max-time 300 -A "Mozilla/5.0 (LIVETROPOVHF ricerca; IC8TEM)" -o "fonti/$1.pdf" "$2"; echo "$1: $(wc -c < fonti/$1.pdf) byte, $(head -c 5 fonti/$1.pdf)" >> fonti/elenco.txt; pdftotext -layout "fonti/$1.pdf" "fonti/$1.txt" 2>/dev/null; rm -f "fonti/$1.pdf"; }
+          g barsis-kirby-1961 "https://nvlpubs.nist.gov/nistpubs/Legacy/RPT/nbsreport6751.pdf"
+          g barsis-1963 "https://nvlpubs.nist.gov/nistpubs/Legacy/RPT/nbsreport7652.pdf"
+          g barsis-johnson-tn88 "https://nvlpubs.nist.gov/nistpubs/Legacy/TN/nbstechnicalnote88.pdf"
+          g norton-1959 "https://nvlpubs.nist.gov/nistpubs/jres/63D/jresv63Dn1p53_A1b.pdf"
+          g tn101-v1 "https://its.ntia.gov/publications/download/TN101v1.pdf"
+          g tn101-v2 "https://its.ntia.gov/publications/download/TN101v2.pdf"
+          g paulus-nosc-tr966 "https://apps.dtic.mil/sti/pdfs/ADA146528.pdf"
+          g paulus-adp005741 "https://apps.dtic.mil/sti/pdfs/ADP005741.pdf"
+          g p526-16 "https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.526-16-202511-I!!PDF-E.pdf"
+          g p1812-8 "https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.1812-8-202509-I!!PDF-E.pdf"
+          g p1812-7 "https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.1812-7-202308-S!!PDF-E.pdf"
+          cat fonti/elenco.txt; wc -l fonti/*.txt
       - name: Salva
         if: always()
         shell: bash
         run: |
           git init -q r && cd r && cp ../esito-monte.txt . 2>/dev/null || echo "nessun esito" > esito-monte.txt
+          cp -r ../fonti . 2>/dev/null
           git config user.name "IC8TEM"; git config user.email "ic8tem@users.noreply.github.com"
-          git checkout -q -b ci-monte && git add esito-monte.txt && git commit -qm "prova due vie"
+          git checkout -q -b ci-monte && git add esito-monte.txt fonti 2>/dev/null; git add esito-monte.txt && git commit -qm "prova due vie"
           git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-monte
