@@ -342,6 +342,7 @@ public sealed partial class MainForm
         OwnForecast.Source = WxSources.Parse(_st.S.Get("fc_source", "Auto"));
         Refractivity.UseCorrections = _st.S.GetBool("fc_corr", true);
         Refractivity.ViaIdeal = _st.S.GetBool("fc_via_ideal", false);
+        Refractivity.UseSeaAir = _st.S.GetBool("fc_seaair", true);
         var r1 = Row();
         var l1 = Lbl(L("Sorgente dei dati", "Data source"), 8.5f, _th.Muted); l1.AutoSize = false; l1.Width = 120; l1.Height = 28; l1.TextAlign = ContentAlignment.MiddleLeft;
         var src = Combo(WxSources.All.Select(WxSources.Name), Math.Max(0, Array.IndexOf(WxSources.All, OwnForecast.Source)), 320, i =>
@@ -390,6 +391,12 @@ public sealed partial class MainForm
         });
         _fcTips.SetToolTip(vi, L("Quando il corrispondente è chiuso da un rilievo vicino, il giro d'orizzonte cerca il punto migliore da cui rilanciare il segnale. Con questa casella la perdita fra la tua stazione e il punto è considerata nulla: è come portare la stazione sulla cima (antenna a 10 m, stessa potenza e antenna) e conta solo la tratta dal punto al corrispondente. Il punto è dato con il locatore a 10 caratteri. Limite ottimistico. Manuale delle previsioni, § 10 bis.", "When the other station is blocked by nearby terrain, the horizon sweep looks for the best point to relaunch the signal. With this box the loss between your station and the point is taken as zero: as if you moved the station to the summit (antenna 10 m, same power and antenna); only the leg from the point to the other station counts. The point is given with a 10-character locator. Optimistic bound. Forecast manual, § 10 bis."));
         Add(col, vi);
+        var sa = Chk(L("Contrasto aria-mare e memoria della temperatura del mare", "Air-sea contrast and sea temperature memory"), Refractivity.UseSeaAir, v =>
+        {
+            Refractivity.UseSeaAir = v; _st.S.SetBool("fc_seaair", v); _st.Dirty = true; _fcMap?.InvalidateVisual();
+        });
+        _fcTips.SetToolTip(sa, L("Sul mare confronta l'aria con la temperatura della superficie del mare (SST). Aria a 925 hPa più calda del mare (temperatura potenziale oltre la SST di 4 K: +1 dB; di 7 K: +2 dB; −0,5 dB con aria umida): inversione d'avvezione, condotto probabile. Mare raffreddato di 1,5 °C o più nelle 72 ore prima (dalle analisi Open-Meteo): +1 dB, tipico dei mari bassi come l'alto Adriatico dopo la bora. Mare più caldo dell'aria a 2 m di 2 °C: −1,5 dB; di 4 °C: −3 dB, perché l'aria si rimescola. Soglie provvisorie, da tarare con gli spot. Manuale delle previsioni, § 9 quater.", "Over the sea it compares the air with the sea surface temperature (SST). Air at 925 hPa warmer than the sea (potential temperature 4 K above SST: +1 dB; 7 K: +2 dB; −0.5 dB with humid air): advection inversion, duct likely. Sea cooled by 1.5 °C or more in the previous 72 hours (Open-Meteo analyses): +1 dB, typical of shallow seas such as the northern Adriatic after a bora. Sea warmer than the 2 m air by 2 °C: −1.5 dB; by 4 °C: −3 dB, because the air mixes. Provisional thresholds, to be tuned with spots. Forecast manual, § 9 quater."));
+        Add(col, sa);
         var nc = Chk(L("Previsione mediata dagli spot (corridoi di tratte parallele)", "Forecast blended with spots (parallel-path corridors)"), _st.NowcastOn, v =>
         {
             _st.NowcastOn = v; _st.S.SetBool("fc_nowcast", v); _st.Dirty = true; _fcMap?.InvalidateVisual();

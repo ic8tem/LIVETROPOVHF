@@ -69,6 +69,29 @@ public sealed class ProfileResult
     public bool Sea;                       // punto sul mare (quota del modello sotto 5 m)
     public int LowLevels;                  // livelli NOMADS vicini al suolo aggiunti (sul mare)
     public double Sst = double.NaN;        // temperatura della superficie del mare (°C)
+    // 1.3.2: contrasto aria-mare (sul mare): θ a 925 hPa − SST, T a 2 m − SST, umidità a 925 hPa, calo della SST nelle 72 ore prima
+    public double SeaAirC = double.NaN, SeaT2 = double.NaN, Rh925 = double.NaN, SstDrop = double.NaN;
+    /// <summary>
+    /// Correzione aria-mare (dB): aria in quota più calda del mare (inversione d'avvezione) +1 / +2 dB, −0,5 con aria umida,
+    /// +1 se il mare si è raffreddato di 1,5 °C o più nelle 72 ore prima (mari bassi dopo la bora); mare più caldo dell'aria
+    /// a 2 m di 2 °C o più (rimescolamento convettivo) −1,5 dB, di 4 °C o più −3 dB. Fra −3 e +3 dB. Ipotesi da tarare.
+    /// </summary>
+    public double SeaAirDb
+    {
+        get
+        {
+            if (!Refractivity.UseSeaAir || !Sea || double.IsNaN(Sst)) return 0;
+            double d = 0;
+            if (!double.IsNaN(SeaT2) && SeaT2 <= -2) d = SeaT2 <= -4 ? -3 : -1.5;
+            else if (!double.IsNaN(SeaAirC) && SeaAirC >= Refractivity.SeaAirMinK)
+            {
+                d = SeaAirC >= Refractivity.SeaAirStrongK ? 2 : 1;
+                if (Rh925 > 80) d -= 0.5;
+                if (SstDrop >= 1.5) d += 1;
+            }
+            return Math.Max(-3, Math.Min(3, d));
+        }
+    }
     public double EvapDuctM;               // altezza del condotto d'evaporazione (m), 0 = assente
     public double SunElev = double.NaN;    // altezza del sole (°)
     /// <summary>Giorno su terra con sole alto e strato limite alto o vento: i condotti al suolo sono rimescolati.</summary>
@@ -147,6 +170,7 @@ public sealed class ProfileResult
             g += VertDb;
         }
         g += HighPDb;
+        if (Refractivity.UseCorrections) g += SeaAirDb;
         // senza condotto il guadagno resta nel giallo: rosso e viola solo per i condotti (pieni o morbidi)
         if (bd == null && sf <= 0) g = Math.Min(g, Refractivity.NoDuctCapDb);
         return g;
@@ -182,6 +206,9 @@ public static class Refractivity
     public const double DuctCeilingM = 2500;
     /// <summary>1.3.2: bonus con alta pressione estesa e vento debole nei bassi strati.</summary>
     public static bool UseHighPressure = true;
+    /// <summary>1.3.2: contrasto aria-mare e memoria della temperatura del mare (§ 9 quater). Soglie in kelvin su θ925 − SST.</summary>
+    public static bool UseSeaAir = true;
+    public const double SeaAirMinK = 4, SeaAirStrongK = 7;
     public const double HighPDbBonus = 1.0, HighPHpa = 1020, HighPWind10 = 5, HighPWind850 = 8;
     /// <summary>1.3.2: peso del percorso su mare (μ1 di ITU-R P.452) sul guadagno degli strati, fra × 0,8 e × 1,2.</summary>
     public static bool UseSeaWeight = true;
@@ -462,6 +489,18 @@ public static class Refractivity
         // scirocco: vento da 100–200° a 850 hPa di almeno 7 m/s con aria calda (T850 ≥ 16 °C) sul Mediterraneo
         r.Scirocco = !double.IsNaN(r.Dir850) && r.Dir850 >= 100 && r.Dir850 <= 200 && r.Wind850 >= 7 && r.T850 >= 16 &&
                      r.Lat >= 28 && r.Lat <= 47 && r.Lon >= -10 && r.Lon <= 37;
+        // 1.3.2: contrasto aria-mare sul mare: temperatura potenziale a 925 hPa (o 950) contro la SST, e aria a 2 m contro la SST
+        if (r.Sea && !double.IsNaN(r.Sst))
+        {
+            r.SeaT2 = lev[0].T - r.Sst;
+            foreach (var pl in new[] { 925.0, 950.0 })
+            {
+                var l = lev.FirstOrDefault(x => Math.Abs(x.P - pl) < 0.5);
+                if (l == null) continue;
+                r.SeaAirC = (l.T + 273.15) * Math.Pow(1000 / l.P, 0.2857) - 273.15 - r.Sst;
+                r.Rh925 = l.RH; break;
+            }
+        }
     }
 
     /// <summary>Altezza del sole in gradi (formule NOAA semplificate, errore sotto 1°).</summary>
@@ -975,6 +1014,12 @@ public sealed class OwnForecast
                     }
             }
             MarkHighPressure(grid, rows, cols);
+            if (hist == null && Refractivity.UseSeaAir)
+            {
+                try { await SstMemory(http, grid, rows, cols, latMin, lonMin, step, ct); tm.Lap("memoria della temperatura del mare"); }
+                catch (OperationCanceledException) { throw; }
+                catch { }
+            }
             UsedSource = src; UsedDetail = detail;
             lock (_lock)
             {
@@ -1127,6 +1172,53 @@ public sealed class OwnForecast
     /// Alta pressione estesa: almeno 7 delle 9 celle (la cella e le vicine) con pressione ridotta al mare ≥ 1020 hPa,
     /// e vento debole nei bassi strati nella cella (10 m &lt; 5 m/s, 850 hPa &lt; 8 m/s). Anticiclone stabile: strati che durano.
     /// </summary>
+    /// <summary>
+    /// 1.3.2: memoria della temperatura del mare. I modelli tengono la SST quasi ferma durante la previsione, quindi il calo
+    /// recente si prende dalle analisi delle 72 ore prima (Open-Meteo, past_days=3, solo surface_temperature, solo celle di
+    /// mare): SstDrop = massimo delle 72 ore prima − valore attuale. Su un mare basso (alto Adriatico, golfo del Leone) una
+    /// bora o un maestrale lo raffreddano di alcuni gradi in pochi giorni. Se il servizio non risponde, nessuna correzione.
+    /// </summary>
+    static async Task SstMemory(HttpClient http, ProfileResult[][,] grid, int rows, int cols, double latMin, double lonMin, double step, CancellationToken ct)
+    {
+        if (grid.Length == 0) return;
+        var cells = new List<(int r, int c)>();
+        for (int r = 0; r < rows; r++)
+            for (int c = 0; c < cols; c++)
+            {
+                ProfileResult p = null;
+                foreach (var g in grid) { p = g[r, c]; if (p != null) break; }
+                if (p != null && p.Sea && !double.IsNaN(p.Sst)) cells.Add((r, c));
+            }
+        var now = DateTime.UtcNow;
+        for (int i = 0; i < cells.Count; i += 80)
+        {
+            var part = cells.Skip(i).Take(80).ToList();
+            var lat = string.Join(",", part.Select(x => (latMin + x.r * step).ToString("0.###", CultureInfo.InvariantCulture)));
+            var lon = string.Join(",", part.Select(x => (lonMin + x.c * step).ToString("0.###", CultureInfo.InvariantCulture)));
+            var url = $"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=surface_temperature&past_days=3&forecast_days=1&timezone=GMT";
+            using var resp = await http.GetAsync(url, ct);
+            if (!resp.IsSuccessStatusCode) return;
+            using var d = JsonDocument.Parse(await resp.Content.ReadAsStringAsync());
+            var arr = d.RootElement.ValueKind == JsonValueKind.Array ? d.RootElement.EnumerateArray().ToList() : new List<JsonElement> { d.RootElement };
+            for (int k = 0; k < arr.Count && k < part.Count; k++)
+            {
+                if (!arr[k].TryGetProperty("hourly", out var h) || !h.TryGetProperty("time", out var tj) || !h.TryGetProperty("surface_temperature", out var vj)) continue;
+                var ts = tj.EnumerateArray().Select(x => DateTime.SpecifyKind(DateTime.Parse(x.GetString() ?? "", CultureInfo.InvariantCulture), DateTimeKind.Utc)).ToList();
+                var vs = vj.EnumerateArray().Select(x => x.ValueKind == JsonValueKind.Number ? x.GetDouble() : double.NaN).ToList();
+                double cur = double.NaN, mx = double.NaN;
+                for (int j = 0; j < ts.Count && j < vs.Count; j++)
+                {
+                    if (double.IsNaN(vs[j]) || ts[j] > now) continue;
+                    if ((now - ts[j]).TotalHours <= 72) mx = double.IsNaN(mx) ? vs[j] : Math.Max(mx, vs[j]);
+                    cur = vs[j];
+                }
+                if (double.IsNaN(cur) || double.IsNaN(mx)) continue;
+                double drop = mx - cur;
+                foreach (var g in grid) { var p = g[part[k].r, part[k].c]; if (p != null) p.SstDrop = drop; }
+            }
+        }
+    }
+
     static void MarkHighPressure(ProfileResult[][,] grid, int rows, int cols)
     {
         foreach (var g in grid)

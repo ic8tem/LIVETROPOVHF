@@ -5,6 +5,7 @@ Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole 
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
 ## 1.3.2 — 21/11/2026
+- Contrasto aria-mare: sul mare la temperatura potenziale a 925 hPa e l'aria a 2 m si confrontano con la SST (da −3 a +3 dB), con la memoria del calo della SST nelle 72 ore prima dalle analisi Open-Meteo (mari bassi come l'alto Adriatico dopo la bora). Manuale § 9 quater sull'Adriatico.
 - Manuale delle previsioni: approfondimento su isole, Bocche di Bonifacio e discontinuità terra-mare (§ 10 quinquies), richiamato nei consigli.
 - Previsione mediata dagli spot: corridoi d'apertura da almeno 3 tratte parallele indipendenti (cluster, PSKReporter, QSO, decodifiche e salti APRS in 2 m e LoRa 433/868 MHz da APRS-IS, scartando le ritrasmissioni di digipeater non tracciate), con persistenza di 10 minuti; sotto il corridoio la previsione dell'ora attuale non scende sotto 10–16 dB. Curve di guadagno senza «gocce». Profilo a terra piatta con raggio curvo e fumetto sullo strato. Testi scalabili 80–150% accanto al tema.
 - Rilievi vicini alle stazioni (entro 20 km, criterio dell'autore): nel troposcatter costano al massimo 6 dB per lato invece degli 0,573 dB per mrad di P.452.

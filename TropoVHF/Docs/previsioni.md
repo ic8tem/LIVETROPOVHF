@@ -207,6 +207,35 @@ limitata fra 0 e 40 m. Per intrappolare 144 MHz servirebbero circa 180 m (Kerr),
 
 **Profilo normale CRPL (alternativa).** Invece di 40 N/km fissi il calo normale segue l'atmosfera di riferimento esponenziale CRPL: N(h) = Ns·e^(−c·h), con −ΔN nel primo km = 7,32·e^(0,005577·Ns) (Bean e Thayer 1959). Con aria umida (Ns alto) il normale è più ripido e serve un gradiente più forte per dare guadagno; in quota è più dolce. Spento per difetto finché la validazione non dice che aiuta.
 
+## 9 quater. Contrasto aria-mare e mari bassi: l'Adriatico (dalla 1.3.2)
+
+Le onde radio non sentono il fondale del mare: sentono il contrasto fra l'aria e la superficie dell'acqua. La profondità conta perché decide quanto in fretta la temperatura del mare segue quella dell'aria.
+
+**L'Adriatico è un mare basso.** La profondità media è circa 250 m, ma il bacino settentrionale raramente supera i 100 m e il golfo di Trieste resta sotto i 25 m; solo a sud si scende oltre i 1200 m. Uno strato d'acqua così sottile si scalda e si raffredda in pochi giorni, il Tirreno in settimane. Ne vengono tre situazioni tipiche:
+
+1. **Primavera e inizio estate, favorevole.** Il mare è ancora freddo, anche per l'acqua dolce dei fiumi alpini e del Po; arriva aria calda e secca dalla pianura o dai Balcani. Aria calda sopra acqua fredda forma un'inversione sul mare (condotto d'avvezione): è la condizione classica delle aperture fra Italia, Slovenia e Croazia.
+2. **Autunno e inverno con bora, sfavorevole.** Aria fredda sopra un mare più caldo: lo strato basso diventa instabile, si rimescola e il condotto si rompe.
+3. **Dopo una bora, occasione.** Proprio perché il mare è basso, una bora lo raffredda di alcuni gradi in pochi giorni. Se poi entra un anticiclone con aria calda, il contrasto aria-mare è forte e il condotto è più robusto del solito.
+
+L'Adriatico è anche un canale chiuso fra Appennini e Dinaridi, largo meno di 200 km: lo strato marino resta confinato, e le tratte lungo l'asse (Puglia–Venezia–Trieste, circa 700 km) restano tutte sul mare, la condizione migliore per un condotto lungo.
+
+**Cosa calcola il programma.** Sui punti di mare, con le correzioni meteo accese e la casella «Contrasto aria-mare»:
+
+| Condizione | Correzione |
+| --- | --- |
+| temperatura potenziale a 925 hPa (o 950) oltre la SST di 4 K | +1 dB |
+| oltre la SST di 7 K | +2 dB |
+| con aria umida a 925 hPa (oltre 80%) | −0,5 dB su questi bonus |
+| mare raffreddato di 1,5 °C o più nelle 72 ore prima, con contrasto favorevole | +1 dB |
+| mare più caldo dell'aria a 2 m di 2 °C (rimescolamento) | −1,5 dB |
+| mare più caldo di 4 °C | −3 dB |
+
+La correzione totale resta fra −3 e +3 dB e, senza condotto, il guadagno resta comunque sotto il tetto del giallo. Le soglie sono provvisorie: nell'atmosfera standard la temperatura potenziale a 925 hPa supera quella del mare di circa 2–3 K, quindi 4 K indica già un'inversione.
+
+**La memoria della SST.** I modelli tengono la temperatura del mare quasi ferma durante la previsione. Il calo recente si ricava dalle analisi dei tre giorni prima (Open-Meteo, solo temperatura della superficie, solo celle di mare): massimo delle 72 ore prima meno il valore attuale. Se il servizio non risponde, il bonus di memoria non si applica.
+
+**Limiti.** La SST dei modelli sotto costa e nell'alto Adriatico è grossolana; il pennacchio freddo del Po, per esempio, è risolto male. La batimetria non entra nel calcolo: le sorgenti danno sempre la SST, che riassume già l'effetto del fondale. Il contrasto aria-mare si sovrappone in parte al termine di stabilità di Misme (§ 9 bis); per questo i bonus sono piccoli. Le soglie andranno tarate con i corridoi di spot e i QSO attraverso l'Adriatico.
+
 ## 10. Condotto su tutta la tratta
 
 Se lo strato intrappola la banda su almeno l'80% della frazione usata e le stazioni non sono in vista, si calcola anche la perdita nel condotto: spazio libero, più l'accoppiamento delle antenne (3 dB se sono dentro il condotto, di più se sono sopra o sotto), più l'attenuazione residua γd = 5·10⁻⁵·ae·f^(1/3) dB/mrad di ITU-R P.452 eq. 49 [6]. Se è minore della perdita senza tropo diventa la perdita prevista.
