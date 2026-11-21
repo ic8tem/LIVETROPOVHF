@@ -1,0 +1,60 @@
+# Prova di accesso agli archivi (meteo e collegamenti). Non compila nulla: scrive i risultati nel ramo ci-dati.
+name: prova-dati
+on:
+  push:
+    branches: [ prova-dati ]
+permissions:
+  contents: write
+jobs:
+  dati:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prove
+        shell: bash
+        run: |
+          set +e
+          O=$PWD/esito.txt; : > $O
+          t() { local name="$1" url="$2"; local c s; c=$(curl -sL --max-time 90 -o body.bin -w "%{http_code} %{size_download}" "$url"); echo "== $name: HTTP $c" >> $O; head -c ${3:-400} body.bin | tr -d '\000' >> $O; echo >> $O; }
+          V="surface_pressure,temperature_2m,relative_humidity_2m,temperature_850hPa,relative_humidity_850hPa,temperature_975hPa,vertical_velocity_850hPa"
+          # 1. archivio delle previsioni Open-Meteo: da quando c'è ogni modello con i livelli di pressione
+          for d in 2017-01-15 2021-03-25 2021-07-01 2022-08-14 2024-06-01; do
+            for m in gfs_seamless icon_eu ecmwf_ifs025; do
+              t "storico previsioni $m $d" "https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=41&longitude=14&hourly=$V&models=$m&start_date=$d&end_date=$d&timezone=GMT"
+              python3 -c "import json;d=json.load(open('body.bin'));h=d.get('hourly',{});ks=[k for k in h if k!='time'];print('   non nulli:',{k:sum(1 for x in h[k] if x is not None) for k in ks})" >> $O 2>&1
+            done
+          done
+          # 2. rianalisi ERA5 via Open-Meteo (caso QST del 2000): livelli di pressione?
+          for m in era5 era5_land ecmwf_ifs; do
+            t "ERA5 archivio $m 2000-09-06" "https://archive-api.open-meteo.com/v1/archive?latitude=40&longitude=-75&start_date=2000-09-06&end_date=2000-09-06&hourly=$V&models=$m&timezone=GMT"
+            python3 -c "import json;d=json.load(open('body.bin'));h=d.get('hourly',{});print('   non nulli:',{k:sum(1 for x in h[k] if x is not None) for k in h if k!='time'})" >> $O 2>&1
+          done
+          # 3. GFS originale (GRIB2) archiviato da NOAA su AWS e su NCEI
+          t "GFS AWS 2021-03-01 indice" "https://noaa-gfs-bdp-pds.s3.amazonaws.com/gfs.20210301/00/atmos/gfs.t00z.pgrb2.0p25.f000.idx" 300
+          t "GFS AWS 2022-08-14 indice" "https://noaa-gfs-bdp-pds.s3.amazonaws.com/gfs.20220814/00/atmos/gfs.t00z.pgrb2.0p25.f000.idx" 300
+          t "GFS AWS elenco più vecchio" "https://noaa-gfs-bdp-pds.s3.amazonaws.com/?list-type=2&max-keys=3&delimiter=/" 600
+          t "NCEI GFS analisi storiche" "https://www.ncei.noaa.gov/data/global-forecast-system/access/historical/analysis/" 600
+          t "NCEI GFS 0.5 griglie" "https://www.ncei.noaa.gov/data/global-forecast-system/access/grid-004-0.5-degree/analysis/" 600
+          # 4. radiosondaggi osservati (rifrattività vera)
+          t "Wyoming sondaggio Brindisi 16320 14/08/2022 12Z" "https://weather.uwyo.edu/wsgi/sounding?datetime=2022-08-14%2012:00:00&id=16320&type=TEXT:LIST&src=UNKNOWN" 800
+          t "Wyoming vecchio CGI" "https://weather.uwyo.edu/cgi-bin/sounding?region=europe&TYPE=TEXT%3ALIST&YEAR=2022&MONTH=08&FROM=1412&TO=1412&STNM=16320" 800
+          t "IGRA2 elenco stazioni" "https://www.ncei.noaa.gov/data/integrated-global-radiosonde-archive/doc/igra2-station-list.txt" 300
+          curl -sL --max-time 120 -o igra.zip "https://www.ncei.noaa.gov/data/integrated-global-radiosonde-archive/access/data-y2d/ITM00016320-data-beg2021.txt.zip"; echo "== IGRA2 Brindisi dal 2021: $(wc -c < igra.zip) byte" >> $O
+          unzip -p igra.zip 2>/dev/null | head -5 >> $O
+          # 5. collegamenti: WSPR (wspr.live e archivio wsprnet), RBN, PSKReporter, cluster
+          t "wspr.live 2 m agosto 2022" "https://db1.wspr.live/?query=SELECT%20count()%2C%20max(distance)%20FROM%20wspr.rx%20WHERE%20band%3D144%20AND%20time%20BETWEEN%20'2022-08-13%2000:00:00'%20AND%20'2022-08-16%2000:00:00'%20FORMAT%20TSV" 300
+          t "wspr.live 70 cm 2025" "https://db1.wspr.live/?query=SELECT%20count()%2C%20max(distance)%20FROM%20wspr.rx%20WHERE%20band%3D432%20AND%20time%20%3E%20'2025-01-01'%20FORMAT%20TSV" 300
+          t "wspr.live 2 m Europa più lunghi" "https://db1.wspr.live/?query=SELECT%20time%2Ctx_sign%2Ctx_loc%2Crx_sign%2Crx_loc%2Cdistance%2Csnr%20FROM%20wspr.rx%20WHERE%20band%3D144%20AND%20time%20%3E%20'2025-06-01'%20AND%20rx_lat%20BETWEEN%2035%20AND%2060%20AND%20rx_lon%20BETWEEN%20-10%20AND%2030%20ORDER%20BY%20distance%20DESC%20LIMIT%205%20FORMAT%20TSV" 800
+          curl -sI --max-time 60 "https://wsprnet.org/archive/wsprspots-2022-08.csv.gz" | head -5 | sed 's/^/   /' > h.txt; echo "== archivio wsprnet 2022-08" >> $O; cat h.txt >> $O
+          curl -sI --max-time 60 "https://data.reversebeacon.net/rbn_history/20220814.zip" | head -5 | sed 's/^/   /' > h.txt; echo "== RBN storico 14/08/2022" >> $O; cat h.txt >> $O
+          t "PSKReporter ultime 24 ore 2 m" "https://retrieve.pskreporter.info/query?frange=144000000-146000000&flowStartSeconds=-3600&rronly=1&appcontact=ic8tem" 500
+          t "PSKReporter un mese fa" "https://retrieve.pskreporter.info/query?frange=144000000-146000000&flowStartSeconds=-2592000&rronly=1&appcontact=ic8tem" 500
+          t "HamQTH cluster recente" "https://www.hamqth.com/dxc_csv.php?limit=5&band=2m" 400
+          t "DXHeat/dxsummit storico 2 m" "http://www.dxsummit.fi/api/v1/spots?limit_spots=5&from_frequency=144000&to_frequency=146000" 500
+          cat $O
+      - name: Salva
+        shell: bash
+        run: |
+          git init -q r && cd r && cp ../esito.txt .
+          git config user.name "IC8TEM"; git config user.email "ic8tem@users.noreply.github.com"
+          git checkout -q -b ci-dati && git add esito.txt && git commit -qm "prova accesso archivi"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-dati
