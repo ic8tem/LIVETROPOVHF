@@ -628,6 +628,7 @@ public sealed partial class MainWindow : Window
         _tabContent["doc3"] = DocView.Build(DocView.LoadResource("tropo.md"), _th, "LIVETROPOVHF - Come si forma la tropo");
         _tabContent["doc4"] = DocView.Build(DocView.LoadResource("previsioni.md"), _th, "LIVETROPOVHF - Manuale delle previsioni");
         _tabContent["doc5"] = DocView.Build(DocView.LoadResource("consigli.md"), _th, "LIVETROPOVHF - Consigli per l'operatore");
+        _tabContent["doc6"] = DocView.Build(DocView.LoadResource("fonti.md"), _th, "LIVETROPOVHF - Fonti e formule");
         foreach (var kv in _tabContent) content.Children.Add(kv.Value);
         root.Children.Add(content);
 
@@ -705,7 +706,7 @@ public sealed partial class MainWindow : Window
         ("prev", new[] { "fc", "hepburn", "f5len" }),
         ("graves", new[] { "graves" }),
         ("data", new[] { "collect:dx", "collect:psk", "collect:rbn", "collect:udp", "collect:calls", "sus" }),
-        ("guide", new[] { "doc1", "doc2", "doc3", "doc4", "doc5" }),
+        ("guide", new[] { "doc1", "doc2", "doc3", "doc4", "doc5", "doc6" }),
     };
     readonly Dictionary<string, Button> _subTabButtons = new();
     StackPanel _subBarItems; Border _subBar; TextBox _guideSearch;
@@ -743,6 +744,7 @@ public sealed partial class MainWindow : Window
             "sus" => Lang.T("tab.sus"),
             "doc4" => it ? "Manuale previsioni" : "Forecast manual",
             "doc5" => it ? "Consigli all'operatore" : "Operator tips",
+            "doc6" => it ? "Fonti e formule" : "Sources and formulas",
             _ => Lang.T("tab." + item),
         };
     }
@@ -792,7 +794,7 @@ public sealed partial class MainWindow : Window
         return new StackPanel { Children = { band, _subBar } };
     }
 
-    static readonly Dictionary<string, string> _docFiles = new() { ["doc1"] = "funzionamento.md", ["doc2"] = "mappa.md", ["doc3"] = "tropo.md", ["doc4"] = "previsioni.md", ["doc5"] = "consigli.md" };
+    static readonly Dictionary<string, string> _docFiles = new() { ["doc1"] = "funzionamento.md", ["doc2"] = "mappa.md", ["doc3"] = "tropo.md", ["doc4"] = "previsioni.md", ["doc5"] = "consigli.md", ["doc6"] = "fonti.md" };
     readonly Dictionary<string, string> _docText = new();
 
     /// <summary>Ricerca nelle guide: ogni sotto-linguetta mostra quante volte compare il testo; Invio apre la prima che lo contiene.</summary>

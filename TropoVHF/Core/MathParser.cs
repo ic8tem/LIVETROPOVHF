@@ -20,10 +20,14 @@ public static class MathParser
         ["alpha"] = "α", ["beta"] = "β", ["gamma"] = "γ", ["delta"] = "δ", ["epsilon"] = "ε", ["theta"] = "θ",
         ["lambda"] = "λ", ["mu"] = "μ", ["pi"] = "π", ["rho"] = "ρ", ["sigma"] = "σ", ["tau"] = "τ",
         ["phi"] = "ϕ", ["varphi"] = "φ", ["omega"] = "ω", ["Delta"] = "Δ", ["Phi"] = "Φ", ["Omega"] = "Ω",
+        ["kappa"] = "κ", ["nu"] = "ν", ["eta"] = "η", ["xi"] = "ξ", ["chi"] = "χ", ["psi"] = "ψ", ["zeta"] = "ζ",
+        ["Gamma"] = "Γ", ["Lambda"] = "Λ", ["Sigma"] = "Σ", ["Theta"] = "Θ", ["Psi"] = "Ψ", ["infty"] = "∞", ["partial"] = "∂",
     };
     static readonly Dictionary<string, string> Operators = new()
     {
         ["cdot"] = "·", ["times"] = "×", ["approx"] = "≈", ["le"] = "≤", ["ge"] = "≥", ["ne"] = "≠", ["pm"] = "±", ["to"] = "→",
+        ["leq"] = "≤", ["geq"] = "≥", ["iff"] = "⟺", ["Leftrightarrow"] = "⇔", ["Rightarrow"] = "⇒", ["rightarrow"] = "→", ["propto"] = "∝",
+        ["sim"] = "∼", ["simeq"] = "≃", ["ll"] = "≪", ["gg"] = "≫", ["equiv"] = "≡", ["neq"] = "≠", ["sum"] = "∑", ["int"] = "∫", ["ldots"] = "…", ["cdots"] = "⋯",
     };
     static readonly HashSet<string> Functions = new() { "log", "ln", "sin", "cos", "tan", "exp", "arcsin", "arccos", "arctan", "max", "min" };
 
@@ -86,6 +90,22 @@ public static class MathParser
             var cmd = sb.ToString();
             switch (cmd)
             {
+                case "quad": return new MRun { Text = "  ", Kind = MKind.Space };
+                case "qquad": return new MRun { Text = "    ", Kind = MKind.Space };
+                case "big": case "Big": case "bigg": case "Bigg": case "notag": case "displaystyle": return null;
+                case "circ": return new MRun { Text = "°", Kind = MKind.Punct };
+                case "mathrm": case "text": case "textrm": case "operatorname":
+                {
+                    // testo in tondo: si prende così com'è fino alla graffa di chiusura
+                    while (i < s.Length && s[i] == ' ') i++;
+                    if (i >= s.Length || s[i] != '{') return null;
+                    int depth = 0, start = ++i;
+                    while (i < s.Length && (s[i] != '}' || depth > 0)) { if (s[i] == '{') depth++; else if (s[i] == '}') depth--; i++; }
+                    var txt = s.Substring(start, i - start).Replace("\\,", " ").Replace("\\ ", " ").Replace("\\%", "%");
+                    if (i < s.Length) i++;
+                    return new MRun { Text = txt, Kind = MKind.Func };
+                }
+                case "dfrac": case "tfrac":
                 case "frac":
                     return new MFrac { Num = ParseGroup(s, ref i), Den = ParseGroup(s, ref i) };
                 case "sqrt":

@@ -333,6 +333,23 @@ public sealed partial class MainForm
     /// Il manuale in RTF, costruito tutto in una volta (molto più veloce che scrivere a pezzi nel RichTextBox): titoli,
     /// elenchi, tabelle in carattere fisso, formule centrate, **grassetto**, *corsivo* e `codice`.
     /// </summary>
+    /// <summary>LaTeX reso leggibile come testo semplice (per il RichTextBox di Windows 7): simboli, frazioni a/b, pedici.</summary>
+    static string MathText(string tex)
+    {
+        var t = tex;
+        foreach (var (k, v) in new[] { ("\\left", ""), ("\\right", ""), ("\\cdot", "·"), ("\\times", "×"), ("\\approx", "≈"), ("\\leq", "≤"), ("\\geq", "≥"), ("\\le", "≤"), ("\\ge", "≥"), ("\\Delta", "Δ"), ("\\delta", "δ"),
+            ("\\theta", "θ"), ("\\lambda", "λ"), ("\\mu", "μ"), ("\\beta", "β"), ("\\gamma", "γ"), ("\\varphi", "φ"), ("\\alpha", "α"), ("\\sigma", "σ"), ("\\pi", "π"), ("\\omega", "ω"),
+            ("\\iff", "⟺"), ("\\Rightarrow", "⇒"), ("\\qquad", "    "), ("\\quad", "  "), ("\\,", " "), ("\\;", " "), ("\\ ", " "), ("\\notag", ""), ("\\circ", "°"), ("\\%", "%") })
+            t = t.Replace(k, v);
+        t = Regex.Replace(t, @"\\[dt]?frac\{([^{}]*)\}\{([^{}]*)\}", "($1)/($2)");
+        t = Regex.Replace(t, @"\\sqrt\{([^{}]*)\}", "√($1)");
+        t = Regex.Replace(t, @"\\(?:mathrm|text)\{([^{}]*)\}", "$1");
+        t = Regex.Replace(t, @"\\([a-zA-Z]+)", "$1");
+        t = Regex.Replace(t, @"_\{([^{}]*)\}", "_$1");
+        t = Regex.Replace(t, @"\^\{([^{}]*)\}", "^$1");
+        return t.Replace("{", "").Replace("}", "");
+    }
+
     static void RenderMarkdown(RichTextBox rtb, string md)
     {
         var sb = new System.Text.StringBuilder();
@@ -375,6 +392,7 @@ public sealed partial class MainForm
             sb.Append(@"\pard\sa").Append(after).Append(@"\li").Append(left).Append(extra).Append(' ').Append(body).Append(@"\par").Append('\n');
 
         bool code = false, math = false;
+        int eqNo = 0;
         var table = new List<string[]>();
         void FlushTable()
         {
@@ -407,7 +425,12 @@ public sealed partial class MainForm
             }
             if (code)
             {
-                if (math) Para(@"{\f2\fs26\i " + Esc(l.Trim()) + "}", 0, @"\qc", 60);
+                if (math && l.Trim().Length > 0)
+                {
+                    // formula al centro (in testo LaTeX leggibile) e numero a destra, come in LaTeX
+                    var f = l.Trim(); bool num = !f.Contains(@"\notag");
+                    Para(@"\tab{\f2\fs26\i " + Esc(MathText(f)) + "}" + (num ? @"\tab{\f2\fs22 (" + (++eqNo) + ")}" : ""), 0, @"\tqc\tx4800\tqr\tx9600", 60);
+                }
                 else Para(@"{\f1\fs19\cf3 " + Esc(l) + "}", 360, "", 0);
                 continue;
             }

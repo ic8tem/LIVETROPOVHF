@@ -441,6 +441,7 @@ public sealed partial class MainForm : Form
         _tabContent["doc3"] = BuildDoc("tropo.md", "LIVETROPOVHF - Come si forma la tropo");
         _tabContent["doc4"] = BuildDoc("previsioni.md", "LIVETROPOVHF - Manuale delle previsioni");
         _tabContent["doc5"] = BuildDoc("consigli.md", "LIVETROPOVHF - Consigli per l'operatore");
+        _tabContent["doc6"] = BuildDoc("fonti.md", "LIVETROPOVHF - Fonti e formule");
         foreach (var kv in _tabContent) { kv.Value.Dock = DockStyle.Fill; kv.Value.Visible = false; _content.Controls.Add(kv.Value); }
 
         Controls.Add(_content);
@@ -514,7 +515,7 @@ public sealed partial class MainForm : Form
         ("prev", new[] { "fc", "hepburn", "f5len" }),
         ("graves", new[] { "graves" }),
         ("data", new[] { "collect:dx", "collect:psk", "collect:rbn", "collect:udp", "collect:calls", "sus" }),
-        ("guide", new[] { "doc1", "doc2", "doc3", "doc4", "doc5" }),
+        ("guide", new[] { "doc1", "doc2", "doc3", "doc4", "doc5", "doc6" }),
     };
     readonly Dictionary<string, Button> _subTabButtons = new();
     FlowLayoutPanel _subBar;
@@ -552,6 +553,7 @@ public sealed partial class MainForm : Form
             case "sus": return Lang.T("tab.sus");
             case "doc4": return it ? "Manuale previsioni" : "Forecast manual";
             case "doc5": return it ? "Consigli all'operatore" : "Operator tips";
+            case "doc6": return it ? "Fonti e formule" : "Sources and formulas";
             default: return Lang.T("tab." + item);
         }
     }
