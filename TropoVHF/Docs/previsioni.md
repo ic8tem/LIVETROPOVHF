@@ -34,7 +34,7 @@ Le quote dei livelli si calcolano con la formula ipsometrica e la temperatura vi
 
 Il menu Sorgente dei dati sceglie da dove arrivano i profili:
 
-- Automatica (consigliata): GFS da Open-Meteo [2]. Al primo rifiuto per limite (al minuto, all'ora o al giorno) i punti che mancano si prendono da NOMADS [14], il servizio della NOAA che distribuisce lo stesso GFS: per ogni ora il programma chiede due ritagli della zona in formato GRIB2 e li legge da sé. Le due sorgenti danno lo stesso modello e la stessa corsa, quindi si possono mescolare nella stessa griglia.
+- Automatica (consigliata): GFS prima da NOMADS [14], il servizio della NOAA che distribuisce il modello: per ogni istante il programma chiede due ritagli della zona in formato GRIB2 e li legge da sé; NOMADS non ha un limite giornaliero, solo uno al minuto che il programma rispetta. Con le griglie larghe (passo da 0,5° in su) usa i file a 0,5° o 1° ogni 3 ore, molto più leggeri. I punti che NOMADS non dà, o tutti se NOMADS non risponde, si chiedono a Open-Meteo [2]. Le due sorgenti danno lo stesso modello e la stessa corsa, quindi si possono mescolare nella stessa griglia.
 - GFS da Open-Meteo: solo Open-Meteo, come nella 1.2 (al limite al minuto si attende).
 - GFS da NOAA NOMADS: solo NOMADS. Più lento da scaricare (due file per ora, mezzo secondo fra una richiesta e l'altra per non superare il limite della NOAA), ma non consuma il limite di Open-Meteo.
 - ICON-EU (DWD) ed ECMWF IFS 0,25°, da Open-Meteo: modelli diversi dal GFS, che valgono per tutta la griglia e per i percorsi. Non si mescolano con il GFS: confrontare due modelli sulla stessa ora è un modo semplice per vedere quanto la previsione è incerta. ICON-EU copre solo l'Europa; ECMWF non ha tutti i livelli di pressione del GFS (i livelli mancanti si saltano) e può non avere lo strato limite.
@@ -165,7 +165,7 @@ La riga Confronto P.452 applica il metodo ITU per condotti e riflessione su stra
 
 Ogni calcolo misura i propri tempi: profili GFS (rete, analisi, pause obbligate di 20 s fra i lotti per il limite di Open-Meteo), terreno SRTM1 (con lo scaricamento dei riquadri, 6–7 MB l'uno, solo la prima volta), calcolo. La riga Tempo di risposta li riassume; nel registro le righe cominciano con TEMPI. All'aggiornamento della griglia il registro riporta anche la corsa GFS usata, quando è diventata disponibile e quanto sono vecchi i dati.
 
-Le richieste a Open-Meteo hanno limiti al minuto, all'ora e al giorno per ogni indirizzo internet. I profili scaricati si salvano sul disco (Dati/cache-gfs) per ogni corsa e ogni modello: con la stessa corsa, che cambia ogni 6 ore, i punti già scaricati non si chiedono di nuovo. Con la sorgente automatica, se Open-Meteo rifiuta per un limite il programma continua con NOMADS; con la sola Open-Meteo, al limite orario o giornaliero si ferma subito e dice quando riprovare. I casi storici non si salvano nella cache.
+Le richieste a Open-Meteo hanno limiti al minuto, all'ora e al giorno per ogni indirizzo internet. I profili scaricati si salvano sul disco (Dati/cache-gfs) per ogni corsa e ogni modello: con la stessa corsa, che cambia ogni 6 ore, i punti già scaricati non si chiedono di nuovo. Con la sorgente automatica si parte da NOMADS e Open-Meteo serve solo per i punti mancanti; con la sola Open-Meteo, al limite orario o giornaliero si ferma subito e dice quando riprovare. I casi storici non si salvano nella cache.
 
 ## 14. Validare il modello
 

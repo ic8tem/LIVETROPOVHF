@@ -344,8 +344,8 @@ public sealed partial class MainForm
             _st.S.Set("fc_source", OwnForecast.Source.ToString()); _st.Dirty = true;
             FcSetStatus(L("Sorgente scelta: ", "Source: ") + WxSources.Name(OwnForecast.Source) + L(". Premi «Aggiorna previsione» per scaricare la griglia.", ". Press «Update forecast» to download the grid."));
         });
-        _fcTips.SetToolTip(src, L("Automatica: GFS da Open-Meteo; al primo rifiuto per limite i punti mancanti arrivano da NOMADS (NOAA), stesso GFS in GRIB2. ICON-EU (solo Europa) ed ECMWF valgono per tutta la griglia. Manuale delle previsioni, § 3 bis.",
-                                  "Automatic: GFS from Open-Meteo; at the first rate-limit refusal the missing points come from NOMADS (NOAA), same GFS as GRIB2. ICON-EU (Europe only) and ECMWF apply to the whole grid. Forecast manual, § 3 bis."));
+        _fcTips.SetToolTip(src, L("Automatica (consigliata): GFS prima da NOMADS (NOAA, file GRIB2 della zona, nessun limite giornaliero), poi da Open-Meteo per i punti che mancano: è lo stesso modello e la stessa corsa. ICON-EU (solo Europa) ed ECMWF valgono per tutta la griglia: modelli diversi non si mescolano. Manuale delle previsioni, § 3 bis.",
+                                  "Automatic (recommended): GFS first from NOMADS (NOAA, GRIB2 files of the area, no daily limit), then from Open-Meteo for any missing points: same model and run. ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis."));
         r1.Controls.Add(l1); r1.Controls.Add(src);
         Add(col, r1);
 

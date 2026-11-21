@@ -613,9 +613,9 @@ public sealed partial class MainWindow
             _st.S.Set("fc_source", OwnForecast.Source.ToString()); _st.Dirty = true;
             FcSetStatus(L("Sorgente scelta: ", "Source: ") + WxSources.Name(OwnForecast.Source) + L(". Premi «Aggiorna previsione» per scaricare la griglia.", ". Press «Update forecast» to download the grid."));
         };
-        ToolTip.SetTip(src, L("Automatica: GFS da Open-Meteo; al primo rifiuto per limite i punti mancanti arrivano da NOMADS (NOAA), che dà lo stesso GFS in file GRIB2. " +
+        ToolTip.SetTip(src, L("Automatica (consigliata): GFS prima da NOMADS (NOAA, file GRIB2 della zona, nessun limite giornaliero), poi da Open-Meteo per i punti che mancano: è lo stesso modello e la stessa corsa. ICON-EU (solo Europa) ed ECMWF valgono per tutta la griglia: modelli diversi non si mescolano. Manuale delle previsioni, § 3 bis." +
                               "ICON-EU (solo Europa) ed ECMWF valgono per tutta la griglia: modelli diversi non si mescolano. Manuale delle previsioni, § 3 bis.",
-                              "Automatic: GFS from Open-Meteo; at the first rate-limit refusal the missing points come from NOMADS (NOAA), the same GFS as GRIB2 files. " +
+                              "Automatic (recommended): GFS first from NOMADS (NOAA, GRIB2 files of the area, no daily limit), then from Open-Meteo for any missing points: same model and run. ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis." +
                               "ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis."));
         var sp1 = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         sp1.Children.Add(new TextBlock { Text = L("Sorgente dei dati", "Data source"), Width = 120, FontSize = 12, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });

@@ -444,7 +444,7 @@ public static class WxSources
     public static readonly WxSource[] All = { WxSource.Auto, WxSource.OpenMeteo, WxSource.Nomads, WxSource.IconEu, WxSource.Ecmwf };
     public static string Name(WxSource s) => s switch
     {
-        WxSource.Auto => "GFS (Open-Meteo, poi NOMADS se c'è il limite)",
+        WxSource.Auto => "GFS: prima NOMADS (NOAA), poi Open-Meteo",
         WxSource.OpenMeteo => "GFS da Open-Meteo",
         WxSource.Nomads => "GFS da NOMADS (NOAA)",
         WxSource.IconEu => "ICON-EU (DWD) da Open-Meteo",
@@ -621,21 +621,9 @@ public sealed class OwnForecast
             try { Directory.CreateDirectory(cdir); File.WriteAllText(Path.Combine(cdir, CacheKey(pts[i])), raw[i]); } catch { }
         }
 
-        if (src != WxSource.Nomads && missing.Count > 0)
-        {
-            try { await FromOpenMeteo(http, pts, missing, raw, origin, Save, progress, ct, st, src, hist, src == WxSource.Auto); }
-            catch (RateLimitException ex) when (src == WxSource.Auto)
-            {
-                CalcLog.W("Open-Meteo: " + ex.Message + " → i punti mancanti si prendono da NOMADS (stesso GFS)");
-                progress?.Invoke("Open-Meteo al limite: continuo con NOMADS…");
-            }
-            catch (HttpRequestException ex) when (src == WxSource.Auto)
-            {
-                CalcLog.W("Open-Meteo non raggiungibile (" + ex.Message + ") → continuo con NOMADS");
-            }
-            missing = Enumerable.Range(0, pts.Count).Where(i => raw[i] == null).ToList();
-        }
-        if ((src == WxSource.Nomads || src == WxSource.Auto) && missing.Count > 0 && hist == null)
+        // GFS: prima NOMADS (nessun limite giornaliero, ritagli GRIB2 della zona), poi Open-Meteo per i punti che mancano.
+        // Con l'archivio storico (hist) NOMADS non serve: tiene solo gli ultimi giorni.
+        async Task FromNomads()
         {
             var sub = missing.Select(i => pts[i]).ToList();
             var (nr, nrun) = await Nomads.FetchPoints(http, sub, Hours, run, progress, ct, st, Nomads.ResFor(gridStep), onlyUtc);
@@ -645,6 +633,26 @@ public sealed class OwnForecast
                 raw[missing[k]] = nr[k];
                 if (nr[k] != null) { origin[missing[k]] = "NOMADS"; if (sameRun) Save(missing[k]); }
             }
+            missing = Enumerable.Range(0, pts.Count).Where(i => raw[i] == null).ToList();
+        }
+        if ((src == WxSource.Nomads || src == WxSource.Auto) && missing.Count > 0 && hist == null)
+        {
+            if (src == WxSource.Nomads) await FromNomads();
+            else
+                try { await FromNomads(); }
+                catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
+                catch (Exception ex)
+                {
+                    CalcLog.W("NOMADS non disponibile (" + ex.Message + ") → i punti mancanti si prendono da Open-Meteo (stesso GFS)");
+                    progress?.Invoke("NOMADS non risponde: continuo con Open-Meteo…");
+                    missing = Enumerable.Range(0, pts.Count).Where(i => raw[i] == null).ToList();
+                }
+            if (src == WxSource.Auto && missing.Count > 0) CalcLog.W($"NOMADS: {missing.Count} punti mancanti, li chiedo a Open-Meteo");
+        }
+        if (src != WxSource.Nomads && missing.Count > 0)
+        {
+            await FromOpenMeteo(http, pts, missing, raw, origin, Save, progress, ct, st, src, hist, false);
+            missing = Enumerable.Range(0, pts.Count).Where(i => raw[i] == null).ToList();
         }
         // analisi dei profili (anche di quelli letti dal disco)
         sw.Restart();
@@ -849,7 +857,7 @@ public sealed class OwnForecast
         catch (RateLimitException ex)
         {
             Status = "Previsione propria: " + ex.Message + (WxSources.IsGfs(Source) && Source != WxSource.Auto && Hist == null
-                ? " — scegli «GFS (Open-Meteo, poi NOMADS…)» o «GFS da NOMADS» in Sorgente dei dati per continuare senza Open-Meteo" : "");
+                ? " — scegli «GFS: prima NOMADS, poi Open-Meteo» o «GFS da NOMADS» in Sorgente dei dati per continuare senza Open-Meteo" : "");
             CalcLog.W(Status); return false;
         }
         catch (Exception ex) { Status = "Previsione propria non riuscita: " + ex.Message; CalcLog.W("ERRORE: " + ex); Core.ErrorLog.Write(ex, "previsione propria (griglia)"); return false; }
