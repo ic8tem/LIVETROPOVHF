@@ -431,6 +431,7 @@ public static class LinkCalc
                     double corr = rng.Average(p => p.VertDb + (best.traps ? 0 : p.StabDb));
                     if (Math.Abs(corr) >= 0.05) CalcLog.W($"correzioni meteo sullo strato: {(best.traps ? "moto verticale" : "stabilità di Misme + moto verticale")} {corr:+0.0;-0.0} dB");
                     gl += corr;
+                    if (!best.traps) gl = Math.Min(gl, Refractivity.NoDuctCapDb);
                 }
                 // CSIRO 2026: sul mare il condotto c'è quasi sempre, la ricezione la decide il tratto su terra
                 bool landMatters = r.LandKm >= 0.1 * d && !double.IsNaN(r.LandCov);

@@ -15,7 +15,7 @@
     <Nullable>disable</Nullable>
     <AssemblyName>LIVETROPOVHF</AssemblyName>
     <RootNamespace>TropoVHF</RootNamespace>
-    <Version>1.3.0</Version>
+    <Version>1.3.1</Version>
     <Product>LIVETROPOVHF</Product>
     <Authors>IC8TEM</Authors>
     <Description>Previsione e osservazione in tempo reale della propagazione troposferica VHF/UHF (Windows 7)</Description>

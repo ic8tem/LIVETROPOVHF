@@ -131,7 +131,11 @@ Dalla 1.3.0 il profilo dà anche tre informazioni meteorologiche, che si vedono 
 - Subsidenza e aria in salita [19]. Moler e Holden trovarono rinforzi di 20 dB e oltre, per ore, sulle tratte VHF/UHF oltre l'orizzonte quando l'aria scende negli anticicloni, e affievolimenti profondi quando sale. Il GFS dà la velocità verticale a 850 e 700 hPa. Se a entrambi i livelli l'aria scende di più di 1 cm/s e c'è un'inversione o un forte calo dell'indice di rifrazione potenziale K (N riportato adiabaticamente a 1000 hPa, che mette in evidenza l'aria secca e calda scesa dall'alto [5]), si aggiungono 1,5 dB; se l'aria sale di più di 5 cm/s se ne tolgono 2. Sulla mappa: ↓ subsidenza, ↑ aria in salita.
 - Scirocco [20]. Aria calda e secca dal Sahara sopra aria marina più fresca dà inversioni fortissime dal Mediterraneo orientale a Gibilterra. Il segno S compare dove a 850 hPa il vento arriva da 100–200° con almeno 7 m/s e la temperatura è almeno 16 °C, sul Mediterraneo. È solo un'indicazione: il guadagno lo decidono gli strati del profilo.
 
+Senza un condotto che intrappola la banda il guadagno totale non supera 16 dB, la fine del giallo: le correzioni rendono più evidenti gli strati forti ma non li fanno passare per condotti (rosso e viola restano ai condotti).
+
 La casella Correzioni meteo spegne le prime due correzioni per vedere il modello della 1.2.
+
+Validazione (paragrafo 14): sui 593 collegamenti a 144 MHz fra il 29 dicembre 2021 e il 2 gennaio 2022, confrontati con le stesse tratte e ore due settimane dopo, l'indice di separazione (0,5 = nessuna, 1 = perfetta) vale 0,79 senza correzioni e 0,91 con le correzioni (prima del tetto a 16 dB). Lo stesso confronto mostra il limite principale: il condotto sul mare a bassa quota, che in quei giorni portava i segnali fra la Campania e la Liguria, non è visibile ai livelli del GFS.
 
 ## 10. Condotto su tutta la tratta
 

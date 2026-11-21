@@ -105,6 +105,8 @@ public sealed class ProfileResult
             // Moler e Holden 1960: la subsidenza mantiene gli strati, i moti ascendenti li rompono
             g += VertDb;
         }
+        // senza un condotto che intrappola la banda il guadagno resta nel giallo: rosso e viola solo per i condotti
+        if (bd == null) g = Math.Min(g, Refractivity.NoDuctCapDb);
         return g;
     }
 
@@ -121,6 +123,8 @@ public static class Refractivity
     /// <summary>Peso del termine di stabilità: dB per J/kg di ΔW oltre l'atmosfera standard (taratura provvisoria).</summary>
     public const double MismeDbPerJ = 0.07;
     public const double DeltaWStd = 56;      // ΔW dell'atmosfera standard (Δθ ≈ 3,3 K/km)
+    /// <summary>Tetto del guadagno senza condotto (fine del giallo, «strato forte, nessun condotto»): validazione 1.3.0.</summary>
+    public const double NoDuctCapDb = 16;
 
     /// <summary>Dati aggiuntivi di un'ora (NaN se la sorgente non li ha).</summary>
     public struct Extra

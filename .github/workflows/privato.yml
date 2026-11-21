@@ -27,9 +27,9 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          dotnet publish TropoVHF/TropoVHF.csproj -c Release -r win-x64 --self-contained true -p:Version=1.3.0 -p:Privato=true -p:DebugType=none -o publish/win-x64 -clp:NoSummary 2>&1 | tee build.log
+          dotnet publish TropoVHF/TropoVHF.csproj -c Release -r win-x64 --self-contained true -p:Version=1.3.1 -p:Privato=true -p:DebugType=none -o publish/win-x64 -clp:NoSummary 2>&1 | tee build.log
           # controllo: la versione per Windows 7 (.NET Framework 4.8) deve compilare con lo stesso motore
-          dotnet publish Win7/LIVETROPOVHF7.csproj -c Release -r win-x64 -p:Version=1.3.0 -p:DebugType=none -o publish/w7 -clp:NoSummary 2>&1 | tee -a build.log
+          dotnet publish Win7/LIVETROPOVHF7.csproj -c Release -r win-x64 -p:Version=1.3.1 -p:DebugType=none -o publish/w7 -clp:NoSummary 2>&1 | tee -a build.log
       - name: Errori di compilazione (ramo ci-log)
         if: failure()
         shell: bash
@@ -87,6 +87,10 @@ jobs:
           C=$(curl -s -o om.json -w "%{http_code}" "$U"); echo "Open-Meteo HTTP $C" >> dist/avvio.txt
           head -c 600 om.json >> dist/avvio.txt; echo >> dist/avvio.txt
           python -c "import json;d=json.load(open('om.json'));d=d if isinstance(d,list) else [d];h=d[0]['hourly'];print('elev',d[0].get('elevation'),'ore',len(h['time']),'nulli 975',sum(1 for x in h['temperature_975hPa'] if x is None),'blh',h['boundary_layer_height'][:3],'cape',h['cape'][:3])" >> dist/avvio.txt 2>&1 || echo "json non leggibile" >> dist/avvio.txt
+          # temperatura del mare per il condotto di evaporazione: GFS (surface_temperature) e API marina
+          C=$(curl -s -o sst.json -w "%{http_code}" "https://api.open-meteo.com/v1/forecast?latitude=40.5,43.5&longitude=13.5,9.5&hourly=surface_temperature,soil_temperature_0cm,temperature_2m,dew_point_2m&models=gfs_seamless&forecast_hours=6&timezone=GMT"); echo "SST GFS HTTP $C $(head -c 700 sst.json)" >> dist/avvio.txt
+          C=$(curl -s -o sst2.json -w "%{http_code}" "https://marine-api.open-meteo.com/v1/marine?latitude=40.5&longitude=13.5&hourly=sea_surface_temperature&forecast_hours=6&timezone=GMT"); echo "SST marina HTTP $C $(head -c 500 sst2.json)" >> dist/avvio.txt
+          C=$(curl -s -o sst3.json -w "%{http_code}" "https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=40.5&longitude=13.5&hourly=surface_temperature,temperature_2m&models=gfs_seamless&start_date=2022-01-01&end_date=2022-01-01&timezone=GMT"); echo "SST archivio 2022 HTTP $C $(head -c 600 sst3.json)" >> dist/avvio.txt
           C=$(curl -s -o t.gz -w "%{http_code}" https://s3.amazonaws.com/elevation-tiles-prod/skadi/N40/N40E014.hgt.gz); echo "SRTM1 HTTP $C gz $(wc -c < t.gz) hgt $(gunzip -c t.gz 2>/dev/null | wc -c)" >> dist/avvio.txt
           C=$(curl -s -o meta.json -w "%{http_code}" https://api.open-meteo.com/data/ncep_gfs025/static/meta.json); echo "meta GFS HTTP $C $(head -c 300 meta.json)" >> dist/avvio.txt
           C=$(curl -sL -o p453.zip -w "%{http_code}" https://www.itu.int/en/ITU-R/study-groups/rsg3/rwp3m/Documents/elevated_and_surface_duct.zip); echo "ITU P.453 HTTP $C $(wc -c < p453.zip) byte" >> dist/avvio.txt
@@ -96,12 +100,12 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          (cd publish/win-x64 && 7z a -tzip -mx=7 ../../dist/LIVETROPOVHF-1.3.0-privata-windows-x64.zip . > /dev/null)
+          (cd publish/win-x64 && 7z a -tzip -mx=7 ../../dist/LIVETROPOVHF-1.3.1-privata-windows-x64.zip . > /dev/null)
           # chiave come testo esadecimale: openssl su Windows legge -pass file: in modo testo e si ferma al byte 0x1A
           openssl rand -hex 32 | tr -d '\r\n' > dist/k.bin
-          openssl enc -aes-256-cbc -pbkdf2 -salt -in dist/LIVETROPOVHF-1.3.0-privata-windows-x64.zip -out dist/pacchetto.enc -pass file:dist/k.bin
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in dist/LIVETROPOVHF-1.3.1-privata-windows-x64.zip -out dist/pacchetto.enc -pass file:dist/k.bin
           openssl pkeyutl -encrypt -pubin -inkey .github/privato.pub.pem -pkeyopt rsa_padding_mode:oaep -in dist/k.bin -out dist/chiave.enc
-          rm dist/k.bin dist/LIVETROPOVHF-1.3.0-privata-windows-x64.zip
+          rm dist/k.bin dist/LIVETROPOVHF-1.3.1-privata-windows-x64.zip
           ls -la dist
       - name: Ramo ci-priv
         shell: bash

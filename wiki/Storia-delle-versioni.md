@@ -4,18 +4,24 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
+## 1.3.1 — 21/11/2026
+- Previsioni: senza un condotto che intrappola la banda il guadagno non supera più 16 dB (fine del giallo, «strato forte, nessun condotto»): il termine di stabilità di Misme e la subsidenza non portano più al rosso o al viola le zone senza condotto. Rosso e viola restano solo per i condotti.
+- Previsioni: il registro scrive all'inizio di ogni aggiornamento la sorgente dei dati usata; se la sorgente è fissata su Open-Meteo e arriva il limite, il messaggio suggerisce NOMADS.
+- Previsioni: nuovo caso storico 29 dicembre 2021 – 2 gennaio 2022 (Tirreno e Mediterraneo occidentale, 144 MHz).
+- Validazione del modello su 593 collegamenti reali di quei giorni (solo ore e locatori, dai rapporti MMMonVHF): il modello separa i giorni dell'apertura dagli stessi giorni due settimane dopo (indice 0,79 senza correzioni, 0,91 con Misme e subsidenza). Il condotto sul mare a bassa quota non è visibile ai livelli del GFS.
+- DX cluster S50CLX: nuovo indirizzo s50clx.si:41112; l'indirizzo vecchio salvato si corregge da solo.
+
 ## 1.3.0 — 21/11/2026
 Previsioni (sempre sperimentali):
 - Seconda sorgente dei dati: con la scelta automatica, quando Open-Meteo rifiuta per un limite, i punti mancanti arrivano da NOMADS (NOAA), lo stesso GFS in file GRIB2 letti dal programma. Si può anche scegliere solo Open-Meteo o solo NOMADS.
 - Altri modelli per tutta la griglia: ICON-EU (DWD) ed ECMWF IFS 0,25° da Open-Meteo, per confrontarli con il GFS. Cache separata per modello; la sorgente usata è scritta nei risultati.
-- Casi storici: si rivede un'apertura documentata con le previsioni d'archivio di Open-Meteo. Casi: 14–15 agosto 2022, Manitoba–Kansas/Missouri (QST novembre 2022), da 144 a 1296 MHz; 29 dicembre 2021 – 2 gennaio 2022, Tirreno e Mediterraneo occidentale a 144 MHz (rapporti IC8TEM).
+- Casi storici: si rivede un'apertura documentata con le previsioni d'archivio di Open-Meteo. Casi: 14–15 agosto 2022, Manitoba–Kansas/Missouri (QST novembre 2022), da 144 a 1296 MHz.
 - Correzioni meteo (si possono spegnere): termine di stabilità di Misme e moto verticale del GFS: +1,5 dB con subsidenza negli anticicloni, −2 dB con aria in salita (Moler e Holden 1960). Indice di rifrazione potenziale K nel registro.
 - Scirocco: segnalato sulla mappa e nei risultati quando a 850 hPa arriva aria calda da sud-est sul Mediterraneo.
 - Casella Segni meteo: S scirocco, ↓ subsidenza, ↑ aria in salita sulle celle della griglia.
 - Troposcatter con tre modelli affiancati: P.452, ITU-R P.617-5 con N0 e ΔN del GFS ora per ora, formula RSGB (DL2FZN); la differenza è mostrata come incertezza.
 - Modi digitali nei risultati: FT4, FT8, Q65 e JT65 con le soglie misurate; in troposcatter la soglia FT8 tiene conto dell'evanescenza (−18,6 dB).
 - Le ore della griglia ora combaciano anche quando alcuni punti vengono dalla cache scaricata un'ora prima.
-- DX cluster S50CLX: nuovo indirizzo s50clx.si:41112 (il vecchio s50clx.infrax.si non esiste più e dava «Host sconosciuto»); l'indirizzo salvato si corregge da solo.
 - Consigli per l'operatore: situazioni meteo (anticicloni, fronti, brezza di terra, foehn, scirocco) dall'ARRL Handbook. Fumetto delle Yagi con il confronto con le misure NBS.
 
 ## 1.2.3 — 20/11/2026
