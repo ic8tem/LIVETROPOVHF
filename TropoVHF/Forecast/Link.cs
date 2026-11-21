@@ -123,6 +123,8 @@ public sealed class LinkResult
     public double ExitKm = double.NaN, ExitHeightM = double.NaN, ItmTailDb = double.NaN, LexitDb = double.NaN;
     public string ItmTailMode = "";
     public double ThetaMrad, ThetaTx, ThetaRx;
+    // rilievi vicini alle stazioni con il tetto di attenuazione (criterio dell'autore)
+    public double NearTxMrad = double.NaN, NearTxKm, NearTxSavedDb, NearRxMrad = double.NaN, NearRxKm, NearRxSavedDb;
     public double DuctFrac;           // frazione del percorso con condotto utile alla banda
     public bool DuctCoupled;
     public string Mechanism = "";
@@ -400,6 +402,31 @@ public static class LinkCalc
         double thTd = (hrs - hts) / d - 1000 * d / (2 * ae), thRd = (hts - hrs) / d - 1000 * d / (2 * ae);
         if (r.Los || n < 3) { thT = thTd; thR = thRd; }
         else { thT = Math.Max(thT, thTd); thR = Math.Max(thR, thRd); }
+        // 1.3.2 (criterio dell'autore): i rilievi vicini a ciascuna stazione (entro NearKm) non possono costare più di
+        // NearCapDb nel troposcatter. L'angolo d'orizzonte dovuto a loro si limita a quello dei rilievi lontani più
+        // NearCapDb/0,573 mrad (P.452 eq. 45 conta 0,573 dB per mrad).
+        if (!r.Los && n >= 3 && Refractivity.NearCapDb > 0)
+        {
+            double farT = thTd, farR = thRd;
+            for (int i = 1; i < n - 1; i++)
+            {
+                if (dist[i] > Refractivity.NearKm) farT = Math.Max(farT, (h[i] - hts) / dist[i] - 1000 * dist[i] / (2 * ae));
+                if (d - dist[i] > Refractivity.NearKm) farR = Math.Max(farR, (h[i] - hrs) / (d - dist[i]) - 1000 * (d - dist[i]) / (2 * ae));
+            }
+            double capM = Refractivity.NearCapDb / 0.573;
+            if (dlt <= Refractivity.NearKm && thT > farT + capM)
+            {
+                r.NearTxMrad = thT; r.NearTxKm = dlt; r.NearTxSavedDb = 0.573 * (thT - farT - capM);
+                CalcLog.W($"rilievo vicino al TX a {dlt:0.0} km: orizzonte {thT:0.0} mrad, lontano {farT:0.0} mrad → contato {farT + capM:0.0} mrad (al massimo +{Refractivity.NearCapDb:0} dB, risparmio {r.NearTxSavedDb:0.0} dB)");
+                thT = farT + capM;
+            }
+            if (dlr <= Refractivity.NearKm && thR > farR + capM)
+            {
+                r.NearRxMrad = thR; r.NearRxKm = dlr; r.NearRxSavedDb = 0.573 * (thR - farR - capM);
+                CalcLog.W($"rilievo vicino all'RX a {dlr:0.0} km: orizzonte {thR:0.0} mrad, lontano {farR:0.0} mrad → contato {farR + capM:0.0} mrad (al massimo +{Refractivity.NearCapDb:0} dB, risparmio {r.NearRxSavedDb:0.0} dB)");
+                thR = farR + capM;
+            }
+        }
         r.ThetaTx = thT; r.ThetaRx = thR;
         r.ThetaMrad = 1000 * d / ae + thT + thR;
         r.GtxDbi = Dl6wu.GainDbi(tx.BoomM, o.FreqMHz); r.GrxDbi = Dl6wu.GainDbi(rx.BoomM, o.FreqMHz);

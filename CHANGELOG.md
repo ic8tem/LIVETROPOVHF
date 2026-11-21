@@ -5,6 +5,7 @@ Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole 
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
 ## 1.3.2 — 21/11/2026
+- Rilievi vicini alle stazioni (entro 20 km, criterio dell'autore): nel troposcatter costano al massimo 6 dB per lato invece degli 0,573 dB per mrad di P.452.
 - Terreno: nuova fonte Copernicus DEM GLO-30 (GeoTIFF letto dal programma). I riquadri Terrain Tiles usati prima avevano vicino alla costa rilievi fantasma di 80–100 m in mare, che davano orizzonti falsi alle stazioni costiere (a Capri +2,6° verso nord-ovest, circa 26 dB di troposcatter in più). I vecchi riquadri restano come riserva.
 - Accordo guadagno–pressione: se il livello delle isobare non è caricato si usa la pressione al mare della previsione propria (prima il registro dava «0 punti»).
 - Registro: niente più «-+0.0 cm/s»; se il sito dell'ITU non si raggiunge il messaggio dice perché (internet, DNS o firewall) invece di stampare l'errore tecnico; dimensione dei riquadri SRTM1 corretta (7–13 MB).

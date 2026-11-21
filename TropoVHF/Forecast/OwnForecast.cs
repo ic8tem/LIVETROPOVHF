@@ -193,6 +193,9 @@ public static class Refractivity
     public static bool UseItm = true;
     /// <summary>Via monte «senza perdita fino al monte»: la stazione è portata sul punto migliore (perdita nulla fra la stazione e il punto).</summary>
     public static bool ViaIdeal = false;
+    /// <summary>Criterio dell'autore: i rilievi entro NearKm da ciascuna stazione costano al massimo NearCapDb nel troposcatter (0 = spento).</summary>
+    public static double NearCapDb = 6;
+    public const double NearKm = 20;
     public static bool UseItmTail = true;
     public const double BlhRidgeDbBonus = 1.5;
     /// <summary>Calo normale nel primo km del profilo CRPL: −ΔN = 7,32·e^(0,005577·Ns) (NBS Monograph 4).</summary>
