@@ -1,0 +1,58 @@
+NOMADS: corsa 21/11 06 UTC, 9 file GRIB2, 376 kB, punti 4/4
+NOMADS: 4 serie
+  41,14 quota 21 m, ore 3 (21/11 11), profili validi 3 [NOMADS]
+    prima ora: Ns 330.2 ΔN -33.6 w850 0.020 m/s w700 0.009 vento850 8.3 m/s da 268 T850 5.0 ΔW -8 Misme -4.0 K 327 calo K 26 subs False salita False scirocco False strati 3 guadagno144 2.7
+  41,14.5 quota 236 m, ore 3 (21/11 11), profili validi 3 [NOMADS]
+    prima ora: Ns 318.5 ΔN -30.6 w850 0.066 m/s w700 -0.109 vento850 8.1 m/s da 253 T850 4.3 ΔW -17 Misme -4.0 K 320 calo K 24 subs False salita True scirocco False strati 1 guadagno144 -0.4
+  45.5,9 quota 145 m, ore 3 (21/11 11), profili validi 3 [NOMADS]
+    prima ora: Ns 301.1 ΔN -38.4 w850 -0.035 m/s w700 -0.005 vento850 3.7 m/s da 326 T850 6.5 ΔW 90 Misme +2.4 K 301 calo K 10 subs False salita False scirocco False strati 1 guadagno144 2.4
+  40,-5 quota 404 m, ore 3 (21/11 11), profili validi 3 [NOMADS]
+    prima ora: Ns 313.7 ΔN -39.9 w850 0.040 m/s w700 0.061 vento850 9.5 m/s da 218 T850 7.8 ΔW 72 Misme +1.1 K 320 calo K 21 subs False salita True scirocco False strati 3 guadagno144 -0.9
+  JSON del primo punto (inizio): {"latitude":41,"longitude":14,"elevation":20.5,"source":"nomads","hourly":{"time":["2026-11-21T11:00","2026-11-21T12:00","2026-11-21T13:00"],"surface_pressure":[1017.266,1016.78,1016.61],"temperature_2m":[17.992,17.934,18.01],"relative_humidity_2m":[65.1,66.4,65.8],"wind_speed_10m":[5.045,5.565,5.792],"boundary_layer_height":[1118.511,1019.391,1099.304],"cape":[41,56,57],"temperature_1000hPa":[16.069,16.051,16.291],"relative_humidity_1000hPa":[68.1,69.6,67.9],"temperature_975hPa":[14.062,14.031,
+  (NOMADS: 9.6 s)
+NOMADS H050: corsa 21/11 06 UTC, 9 file, 125 kB, punti 4/4
+NOMADS H050: 4 serie
+  41,14 quota 21 m, ore 3 (21/11 12), profili validi 3 [NOMADS H050]
+    prima ora: Ns 331.2 ΔN -35.3 w850 0.010 m/s w700 0.001 vento850 8.0 m/s da 266 T850 5.0 ΔW -5 Misme -4.0 K 328 calo K 31 subs False salita False scirocco False strati 2 guadagno144 5.8
+  41,14.5 quota 236 m, ore 3 (21/11 12), profili validi 3 [NOMADS H050]
+    prima ora: Ns 317.3 ΔN -29.1 w850 0.090 m/s w700 -0.096 vento850 7.9 m/s da 255 T850 4.7 ΔW -17 Misme -4.0 K 319 calo K 23 subs False salita True scirocco False strati 1 guadagno144 -1.3
+  45.5,9 quota 145 m, ore 3 (21/11 12), profili validi 3 [NOMADS H050]
+    prima ora: Ns 300.1 ΔN -38.5 w850 -0.008 m/s w700 -0.003 vento850 4.0 m/s da 332 T850 6.6 ΔW 66 Misme +0.7 K 301 calo K 9 subs False salita False scirocco False strati 3 guadagno144 0.7
+  40,-5 quota 404 m, ore 3 (21/11 12), profili validi 3 [NOMADS H050]
+    prima ora: Ns 313.1 ΔN -40.4 w850 0.072 m/s w700 0.064 vento850 11.2 m/s da 223 T850 8.4 ΔW 74 Misme +1.2 K 319 calo K 23 subs False salita True scirocco False strati 3 guadagno144 -0.8
+  (NOMADS H050: 6.5 s)
+NOMADS D100: corsa 21/11 06 UTC, 9 file, 52 kB, punti 4/4
+NOMADS D100: 4 serie
+  41,14 quota 21 m, ore 3 (21/11 12), profili validi 3 [NOMADS D100]
+    prima ora: Ns 331.2 ΔN -35.3 w850 0.010 m/s w700 0.001 vento850 8.0 m/s da 266 T850 5.0 ΔW -5 Misme -4.0 K 328 calo K 31 subs False salita False scirocco False strati 2 guadagno144 5.8
+  41,14.5 quota 21 m, ore 3 (21/11 12), profili validi 3 [NOMADS D100]
+    prima ora: Ns 331.2 ΔN -35.3 w850 0.010 m/s w700 0.001 vento850 8.0 m/s da 266 T850 5.0 ΔW -5 Misme -4.0 K 328 calo K 31 subs False salita False scirocco False strati 2 guadagno144 5.8
+  45.5,9 quota 130 m, ore 3 (21/11 12), profili validi 3 [NOMADS D100]
+    prima ora: Ns 305.9 ΔN -41.7 w850 0.016 m/s w700 -0.004 vento850 1.7 m/s da 329 T850 6.3 ΔW 62 Misme +0.4 K 306 calo K 10 subs False salita False scirocco False strati 2 guadagno144 0.4
+  40,-5 quota 404 m, ore 3 (21/11 12), profili validi 3 [NOMADS D100]
+    prima ora: Ns 313.2 ΔN -40.5 w850 0.072 m/s w700 0.065 vento850 11.2 m/s da 223 T850 8.4 ΔW 74 Misme +1.2 K 319 calo K 23 subs False salita True scirocco False strati 3 guadagno144 -0.8
+  (NOMADS D100: 5.6 s)
+OpenMeteo: 2 serie
+  41,14 quota 0 m, ore 78 (21/11 11), profili validi 78 [Open-Meteo]
+    prima ora: Ns 329.8 ΔN -32.1 w850 0.030 m/s w700 0.010 vento850 7.2 m/s da 257 T850 4.8 ΔW -4 Misme -4.0 K 326 calo K 24 subs False salita False scirocco False strati 3 guadagno144 1.1
+  41,14.5 quota 269 m, ore 78 (21/11 11), profili validi 78 [Open-Meteo]
+    prima ora: Ns 315.9 ΔN -29.0 w850 0.070 m/s w700 -0.100 vento850 7.6 m/s da 249 T850 4.6 ΔW -19 Misme -4.0 K 319 calo K 24 subs False salita True scirocco False strati 1 guadagno144 -0.2
+  (OpenMeteo: 0.2 s)
+IconEu: 2 serie
+  41,14 quota 0 m, ore 78 (21/11 11), profili validi 78 [Open-Meteo]
+    prima ora: Ns 331.3 ΔN -41.5 w850 NaN m/s w700 NaN vento850 7.0 m/s da 276 T850 6.9 ΔW -13 Misme -4.0 K 327 calo K 22 subs False salita False scirocco False strati 3 guadagno144 -2.6
+  41,14.5 quota 269 m, ore 78 (21/11 11), profili validi 78 [Open-Meteo]
+    prima ora: Ns 317.0 ΔN -41.6 w850 NaN m/s w700 NaN vento850 8.6 m/s da 266 T850 5.9 ΔW -16 Misme -4.0 K 320 calo K 16 subs False salita False scirocco False strati 3 guadagno144 -1.7
+  (IconEu: 0.0 s)
+Ecmwf: 2 serie
+  41,14 quota 0 m, ore 78 (21/11 11), profili validi 78 [Open-Meteo]
+    prima ora: Ns 334.4 ΔN -43.7 w850 0.000 m/s w700 0.030 vento850 8.7 m/s da 271 T850 6.2 ΔW 6 Misme -3.5 K 330 calo K 32 subs False salita False scirocco False strati 3 guadagno144 -3.5
+  41,14.5 quota 269 m, ore 78 (21/11 11), profili validi 78 [Open-Meteo]
+    prima ora: Ns 322.0 ΔN -44.8 w850 0.000 m/s w700 -0.090 vento850 9.2 m/s da 265 T850 6.0 ΔW 2 Misme -3.8 K 325 calo K 31 subs False salita False scirocco False strati 2 guadagno144 -3.8
+  (Ecmwf: 0.0 s)
+archivio 2022-08-13: 1 serie
+  45,-95 quota 339 m, ore 96 (13/08 00), profili validi 96 [Open-Meteo]
+    prima ora: Ns 351.5 ΔN -60.8 w850 0.000 m/s w700 0.000 vento850 16.3 m/s da 221 T850 20.9 ΔW 93 Misme +2.6 K 358 calo K 25 subs False salita False scirocco False strati 4 guadagno144 16.0
+  (archivio storico: 0.7 s)
+ESITO: tutte le sorgenti rispondono
+codice di uscita: 0

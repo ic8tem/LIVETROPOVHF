@@ -1,0 +1,29 @@
+in esecuzione dopo 20 s: True
+Open-Meteo HTTP 200
+[{"latitude":40.94371,"longitude":14.296875,"generationtime_ms":1.3238191604614258,"utc_offset_seconds":0,"timezone":"GMT","timezone_abbreviation":"GMT","elevation":69.0,"hourly_units":{"time":"iso8601","surface_pressure":"hPa","temperature_2m":"째C","relative_humidity_2m":"%","wind_speed_10m":"m/s","boundary_layer_height":"m","cape":"J/kg","temperature_1000hPa":"째C","relative_humidity_1000hPa":"%","temperature_975hPa":"째C","relative_humidity_975hPa":"%","temperature_950hPa":"째C","relative_humidity_950hPa":"%","temperature_925hPa":"째C","relative_humidity_925hPa":"%","temperature_900hPa":"�
+elev 69.0 ore 78 nulli 975 0 blh [1430.0, 1535.0, 1005.0] cape [60.0, 60.0, 60.0]
+SST GFS HTTP 200 [{"latitude":40.475113,"longitude":13.4765625,"generationtime_ms":84.64407920837402,"utc_offset_seconds":0,"timezone":"GMT","timezone_abbreviation":"GMT","elevation":0.0,"hourly_units":{"time":"iso8601","surface_temperature":"째C","soil_temperature_0cm":"undefined","temperature_2m":"째C","dew_point_2m":"째C"},"hourly":{"time":["2026-11-21T11:00","2026-11-21T12:00","2026-11-21T13:00","2026-11-21T14:00","2026-11-21T15:00","2026-11-21T16:00"],"surface_temperature":[18.8,18.8,18.8,18.8,18.8,18.8],"soil_temperature_0cm":[null,null,null,null,null,null],"temperature_2m":[17.9,17.9,17.9,18.0,18.0,18.1],"dew_point_2m":[11.9,11.9,11.9,11.7,11.6,11.2]}},{"latitude":43.52098,"longitude":9.4921875,"gener
+SST marina HTTP 200 {"latitude":40.541664,"longitude":13.4583435,"generationtime_ms":0.21696090698242188,"utc_offset_seconds":0,"timezone":"GMT","timezone_abbreviation":"GMT","elevation":0.0,"hourly_units":{"time":"iso8601","sea_surface_temperature":"째C"},"hourly":{"time":["2026-11-21T11:00","2026-11-21T12:00","2026-11-21T13:00","2026-11-21T14:00","2026-11-21T15:00","2026-11-21T16:00"],"sea_surface_temperature":[19.3,19.3,19.3,19.3,19.2,19.2]}}
+SST archivio 2022 HTTP 429 {"error":true,"reason":"Hourly API request limit exceeded. Please try again in the next hour."}
+SRTM1 HTTP 200 gz 6622170 hgt 25934402
+meta GFS HTTP 200 {"chunk_time_length":481,"crs_wkt":"GEOGCRS[\"WGS 84\",\n    DATUM[\"World Geodetic System 1984\",\n        ELLIPSOID[\"WGS 84\",6378137,298.257223563]],\n    CS[ellipsoidal,2],\n        AXIS[\"latitude\",north],\n        AXIS[\"longitude\",east],\n        ANGLEUNIT[\"degree\",0.0174532925199433]\n 
+ITU P.453 HTTP 200 8494499 byte
+E_BASE.PNG 458115
+E_base.TXT 233409
+E_MAX_m.PNG 457349
+E_MAX_m.TXT 233409
+E_OCCURRENCE.PNG 383450
+E_OCCURRENCE.TXT 204248
+E_STRENGTH.PNG 416996
+E_STRENGTH.TXT 204248
+E_THICKNESS.PNG 375989
+E_THICKNESS.TXT 204248
+LATITUDES.TXT 233409
+LONGITUDES.TXT 233409
+Readme_Duct_Parameters.docx 5965303
+S_OCCURRENCE.PNG 427123
+S_OCCURRENCE.TXT 204248
+S_STRENGTH.PNG 339623
+S_STRENGTH.TXT 204248
+S_THICKNESS.PNG 409802
+S_THICKNESS.TXT 204248
