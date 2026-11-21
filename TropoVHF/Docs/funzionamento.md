@@ -175,23 +175,17 @@ Regioni. Ogni fonte ha più regioni, ognuna con le sue immagini a nome fisso: He
 
 I due documenti hanno in alto il pulsante “Esporta in Word (.docx)”. Il file viene scritto nel formato Office Open XML; le formule diventano equazioni di Word (OMML), quindi restano modificabili con l'editor di equazioni [16]. Se la finestra di salvataggio non è disponibile il file finisce nella cartella Documenti accanto all'eseguibile.
 
-## 10. Controllo dell'orario (NTP)
-
-I modi digitali e l'orario degli spot richiedono un orologio preciso. Ogni 3 minuti il programma interroga 10 server NTP (SNTP su UDP 123): 0.pool.ntp.org, 1.pool.ntp.org, 2.pool.ntp.org, 3.pool.ntp.org, it.pool.ntp.org, ntp1.inrim.it, ntp2.inrim.it, ptbtime1.ptb.de, time.google.com, time.cloudflare.com [11]. L'elenco si può modificare.
-
-Per ogni risposta calcola lo scarto e il ritardo di andata e ritorno, scarta i valori anomali e prende la mediana, con il calcolo di scarto e ritardo previsto da SNTP [10]. Con almeno 3 risposte concordi l'orologio UTC del programma si allinea e accanto compare NTP:OK in verde; se le risposte non bastano compare NTP:FAILED in rosso e l'orologio resta quello del computer. L'orologio di sistema non viene toccato, perché servirebbero i permessi di amministratore; tutti gli orari interni del programma (spot, finestre di 5–60 minuti, decodifiche) usano l'ora allineata. Il controllo gira sempre in sottofondo: nell'interfaccia si vede soltanto l'esito accanto all'orologio; server, intervallo e risposte minime si cambiano in LIVETROPOVHF.ini (ntp_servers, ntp_minutes, ntp_min).
-
-## 11. Temi e lingue
-
-Temi: Chiaro, Nero, Notte, Arancio pastello, Indaco pastello, Rosa pastello. Nei temi Nero e Notte anche la mappa di base diventa scura. Lingue: le 28 del wiki di YA-MS [17] (English, Italiano, Deutsch, Nederlands, Français, Español, Português, Dansk, Norsk, Svenska, Íslenska, Eesti, Lietuvių, Latviešu, Русский, Українська, Türkçe, Afrikaans, العربية, עברית, اردو, हिन्दी, বাংলা, Bahasa Indonesia, Tagalog, 日本語, 한국어, 中文). Con arabo, ebraico e urdu tutta la finestra si specchia da destra a sinistra; la mappa resta com'è [12]. Le traduzioni riguardano l'interfaccia; i due documenti tecnici e i messaggi della barra di stato restano in italiano. I nomi dei giorni vengono dalle impostazioni internazionali di .NET per la lingua scelta.
-
-Tema e lingua si cambiano dai due menu in alto a destra, accanto all'orologio, e si applicano subito, senza riavviare il programma e senza interrompere la raccolta dei dati. La scelta viene salvata in LIVETROPOVHF.ini.
-
 ## 9 quater. Chi mi chiama
 
 Se sull'UDP locale passa un messaggio indirizzato a te (il primo nominativo è il tuo, per esempio IC8FAX IK3FHP JN55 oppure IC8FAX IK3FHP -12), il programma traccia dal tuo QTH alla stazione che ti chiama una linea nera tratteggiata e lampeggiante, con il nominativo e il locatore accanto. Il locatore viene da CALL3.TXT (comprese le voci a mano e i file aggiunti) o da quello del messaggio. La linea resta finché sull'UDP passa la chiusura del QSO con quella stazione (RR73, RRR o 73, in una delle due direzioni), al massimo 3 minuti dall'ultima chiamata; si disegna sopra tutto e non segue i criteri di esclusione, così una chiamata diretta non sfugge mai.
 
 PSKReporter, via MQTT, non trasmette il testo dei messaggi: dice solo chi ha ricevuto chi, con frequenza, modo e SNR. Per questo una chiamata diretta si riconosce solo dalle proprie decodifiche UDP.
+
+## 10. Controllo dell'orario (NTP)
+
+I modi digitali e l'orario degli spot richiedono un orologio preciso. Ogni 3 minuti il programma interroga 10 server NTP (SNTP su UDP 123): 0.pool.ntp.org, 1.pool.ntp.org, 2.pool.ntp.org, 3.pool.ntp.org, it.pool.ntp.org, ntp1.inrim.it, ntp2.inrim.it, ptbtime1.ptb.de, time.google.com, time.cloudflare.com [11]. L'elenco si può modificare.
+
+Per ogni risposta calcola lo scarto e il ritardo di andata e ritorno, scarta i valori anomali e prende la mediana, con il calcolo di scarto e ritardo previsto da SNTP [10]. Con almeno 3 risposte concordi l'orologio UTC del programma si allinea e accanto compare NTP:OK in verde; se le risposte non bastano compare NTP:FAILED in rosso e l'orologio resta quello del computer. L'orologio di sistema non viene toccato, perché servirebbero i permessi di amministratore; tutti gli orari interni del programma (spot, finestre di 5–60 minuti, decodifiche) usano l'ora allineata. Il controllo gira sempre in sottofondo: nell'interfaccia si vede soltanto l'esito accanto all'orologio; server, intervallo e risposte minime si cambiano in LIVETROPOVHF.ini (ntp_servers, ntp_minutes, ntp_min).
 
 ## 10 bis. Criteri di esclusione generale
 
@@ -201,6 +195,12 @@ Due caselle nella barra degli strati valgono per tutto ciò che si disegna (spot
 - Oltre 1000 km: solo quadrati. Attorno al tuo QTH (il locatore impostato all'avvio) c'è una corona di 1000 km in tutte le direzioni. Se anche una sola delle due stazioni di un collegamento sta fuori da questa corona, il collegamento non si disegna come linea: al suo posto si colorano in lilla, tratteggiati a 45°, i quadrati locator (4 caratteri) delle stazioni coinvolte. Lo stesso vale per le stazioni PSKReporter in ascolto oltre 1000 km, che compaiono come quadrato invece che come cerchio. Così il traffico lontano si vede senza riempire la mappa di linee. Senza un locatore valido conta la lunghezza del collegamento. Il quadrato del proprio QTH non si colora mai in lilla, anche quando ci ascolta una stazione oltre la corona: vale il locatore impostato, qualunque nominativo usi chi opera dalla stazione. Il raggio della corona si sceglie accanto alla casella: 1000, 700 o 500 km. La casella Corone 1000/700/500 km disegna le tre corone attorno al QTH, tratteggiate in lilla, con quella scelta più marcata e la distanza scritta a nord. Nell'elenco degli spot la distanza è seguita da ▦. All'avvio è accesa. Il criterio si applica dopo la quarantena: i collegamenti lunghi ancora trattenuti non compaiono nemmeno come quadrati.
 
 A che cosa servono i quadrati lilla tratteggiati a 45°. Il traffico lontano dal tuo QTH ti interessa per capire dove la propagazione è aperta, ma le sue linee, lunghe centinaia di km e spesso a decine, coprono la mappa e nascondono quello che conta per te: le aperture che puoi sfruttare dalla tua stazione. Per questo, oltre la corona scelta, il programma non disegna le linee ma colora i quadrati locator (2° × 1°) delle stazioni coinvolte. Il risultato è una mappa di «zone attive»: dove compaiono molti quadrati lilla vicini, lì in questo momento c'è un condotto o un'apertura, anche se non ti riguarda direttamente; se la zona si allarga verso di te, è il segnale per puntare l'antenna in quella direzione. Il tratteggio a 45° lascia vedere sotto l'indice tropo e la griglia, così si confrontano a colpo d'occhio la previsione (il colore di fondo) e il traffico reale (il lilla). Il quadrato del tuo QTH non si colora mai, perché è il punto di partenza e non una zona lontana. Si colorano solo i quadrati che stanno tutti oltre la corona: un quadrato attraversato dalla corona, o al suo interno, resta libero anche se ci sta una delle due stazioni. Per vedere comunque le linee basta spegnere la casella o scegliere una corona più ampia.
+
+## 11. Temi e lingue
+
+Temi: Chiaro, Nero, Notte, Arancio pastello, Indaco pastello, Rosa pastello. Nei temi Nero e Notte anche la mappa di base diventa scura. Lingue: le 28 del wiki di YA-MS [17] (English, Italiano, Deutsch, Nederlands, Français, Español, Português, Dansk, Norsk, Svenska, Íslenska, Eesti, Lietuvių, Latviešu, Русский, Українська, Türkçe, Afrikaans, العربية, עברית, اردو, हिन्दी, বাংলা, Bahasa Indonesia, Tagalog, 日本語, 한국어, 中文). Con arabo, ebraico e urdu tutta la finestra si specchia da destra a sinistra; la mappa resta com'è [12]. Le traduzioni riguardano l'interfaccia; i due documenti tecnici e i messaggi della barra di stato restano in italiano. I nomi dei giorni vengono dalle impostazioni internazionali di .NET per la lingua scelta.
+
+Tema e lingua si cambiano dai due menu in alto a destra, accanto all'orologio, e si applicano subito, senza riavviare il programma e senza interrompere la raccolta dei dati. La scelta viene salvata in LIVETROPOVHF.ini.
 
 ## 11 bis. Segnalazioni sospette e auto-apprendimento
 
@@ -269,12 +269,6 @@ Il programma è portabile: non scrive mai nella cartella AppData né nel registr
 
 Archivio degli spot (SQLite [14]). Ogni spot accettato e ogni rapporto di ascolto di PSKReporter viene salvato in LIVETROPOVHF.db, un database SQLite in un solo file. In memoria restano solo gli ultimi 60 minuti per l'elenco e la mappa; l'archivio conserva tutto e serve per lo storico e le statistiche (anche le decodifiche UDP), per esempio le aperture per banda e per giorno, le distanze massime, i quadrati raggiunti, e il confronto a posteriori tra l'indice previsto e gli spot reali. Le righe scartate dal filtro si contano ma non si archiviano.
 
-## 12 ter. Registro degli errori e barra di stato
-
-Ogni errore non previsto finisce in Dati/errori.log, anche con il registro dei calcoli spento: data e ora, versione, sistema, linguetta aperta, l'errore completo e le ultime righe di ciò che il programma stava facendo. Un errore dell'interfaccia non chiude più il programma: nella barra di stato compare «⚠ errore annotato» (clic: apre il registro). All'avvio successivo il programma chiede se inviare il rapporto: si apre il browser su una segnalazione GitHub già compilata, con nominativo, locatore e nome utente del PC tolti, che si controlla e si invia con un account GitHub gratuito. Nel registro finisce anche l'esito di ogni controllo degli aggiornamenti.
-
-Nella barra di stato i pallini delle fonti (DX cluster, RBN, PSKReporter, MQTT, UDP) si cliccano e portano alla fonte; il fumetto dice perché una fonte è spenta: porta rifiutata, nodo del cluster fermo dal lato del server, nessuna risposta, oppure UDP in ascolto ma senza pacchetti da WSJT-X, JTDX o MSHV. Un clic sul numero di versione controlla subito gli aggiornamenti.
-
 ## 12 bis. Installazione e aggiornamenti automatici
 
 Dalla versione 1.0 il programma si scarica già pronto dalla pagina Release di github.com/ic8tem/LIVETROPOVHF, negli stessi pacchetti di YA-MS: installatore per Windows (64 bit, 32 bit e ARM, installa in C:\LIVETROPOVHF senza diritti di amministratore) e zip portatile; per Windows 7 SP1 e 8.1 pacchetti a parte (-windows7-x64 e -windows7-x86): dalla 1.0.2 sono un programma scritto apposta per .NET Framework 4.8 con finestra WinForms, con lo stesso motore e la stessa mappa ma senza la lettura OCR degli assi e senza il banco di taratura manuale (le versioni recenti di .NET non partono su Windows 7); .deb, .rpm, Arch, Slackware, AppImage e tar.gz per Linux; pacchetti per Raspberry Pi (64 e 32 bit) e Alpine; .dmg e app.zip per il Mac (Apple Silicon e Intel). Con i pacchetti Linux il programma si copia al primo avvio in ~/LIVETROPOVHF, così impostazioni e dati restano accanto al programma; sul Mac i dati nascono accanto a LIVETROPOVHF.app.
@@ -282,6 +276,12 @@ Dalla versione 1.0 il programma si scarica già pronto dalla pagina Release di g
 Ogni 30 minuti (il primo controllo pochi secondi dopo l'avvio, subito se l'ultima volta il programma si era chiuso per un errore) il programma legge da solo, senza chiedere nulla, l'ultima Release. Se la versione è più nuova scarica il pacchetto portatile adatto al sistema e sostituisce i file del programma sul posto: quelli in uso vengono rinominati *.old-aggiornamento e cancellati al riavvio successivo. Impostazioni, archivio, cartella Dati e CALL3.TXT non vengono toccati. La nuova versione è attiva dal prossimo avvio: a installazione finita una finestra propone di riavviare subito; per le correzioni urgenti, segnate [obbligatorio] nella Release, il riavvio non si può rimandare. Lo stato del controllo e la versione in uso sono scritti in fondo alla barra di stato; per spegnere gli aggiornamenti si scrive updates=0 in LIVETROPOVHF.ini. Sul Mac l'app è firmata e non si modifica da sola: il programma segnala soltanto che c'è una versione nuova.
 
 All'avvio compare l'immagine di LIVETROPOVHF con il numero di versione; alla chiusura il programma chiede conferma e ringrazia per l'uso.
+
+## 12 ter. Registro degli errori e barra di stato
+
+Ogni errore non previsto finisce in Dati/errori.log, anche con il registro dei calcoli spento: data e ora, versione, sistema, linguetta aperta, l'errore completo e le ultime righe di ciò che il programma stava facendo. Un errore dell'interfaccia non chiude più il programma: nella barra di stato compare «⚠ errore annotato» (clic: apre il registro). All'avvio successivo il programma chiede se inviare il rapporto: si apre il browser su una segnalazione GitHub già compilata, con nominativo, locatore e nome utente del PC tolti, che si controlla e si invia con un account GitHub gratuito. Nel registro finisce anche l'esito di ogni controllo degli aggiornamenti.
+
+Nella barra di stato i pallini delle fonti (DX cluster, RBN, PSKReporter, MQTT, UDP) si cliccano e portano alla fonte; il fumetto dice perché una fonte è spenta: porta rifiutata, nodo del cluster fermo dal lato del server, nessuna risposta, oppure UDP in ascolto ma senza pacchetti da WSJT-X, JTDX o MSHV. Un clic sul numero di versione controlla subito gli aggiornamenti.
 
 ## 13. Piattaforme
 

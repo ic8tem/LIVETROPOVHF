@@ -187,6 +187,23 @@ Se lo strato intrappola la banda su almeno l'80% della frazione usata e le stazi
 
 Una banda resta nel condotto solo se la sua lunghezza d'onda non supera λmax = 2√2·(2/3)·√(ΔM·10⁻⁶)·d (Kerr, eq. 17 [11]). Per questo lo stesso strato può intrappolare i 23 cm e i 70 cm ma non i 2 m. Il limite però non è netto: Kerr avverte che anche onde parecchie volte più lunghe risentono molto del condotto, e Hepburn e il VHF/UHF DX Book parlano di bordi «sfocati» e di condotti «che perdono». Dalla 1.3.1 il programma usa quindi un condotto morbido: se λ è fra λmax e 3·λmax, il guadagno passa gradualmente da 15 dB (λ = 3·λmax) al guadagno del condotto pieno (λ = λmax), con il fattore s = (λmax/λ − 1/3)/(2/3). In quel caso sono ammessi i colori di condotto. Il registro e la riga Meteo lungo la tratta indicano i punti con condotto morbido.
 
+## 10 bis. Via monte
+
+Quando il corrispondente è chiuso dietro l'orizzonte, il programma cerca la direzione migliore in cui puntare le antenne: il versante illuminato diffonde il segnale come un bersaglio radar. Fa il giro dell'orizzonte ogni 5° (tranne ±15° attorno al corrispondente) e in ogni direzione prende il punto d'orizzonte illuminato, sopra 100 m e fra 1 e 60 km. Una stima rapida (spazio libero, conversione bistatica e 10 dB per ogni grado d'orizzonte dal diffusore verso il corrispondente) sceglie i 4 più promettenti, almeno 15° l'uno dall'altro; per ciascuno:
+
+- tratta 1, stazione → rilievo, nello spazio libero;
+- tratta 2, rilievo → corrispondente, calcolata come se il rilievo trasmettesse da 10 m sopra la cima, con la stessa previsione (senza equazione parabolica);
+- conversione con l'equazione del radar bistatico, con σ = σ0·A, σ0 = −15 dB (versante montuoso in VHF/UHF) e A l'area illuminata dal fascio a distanza R1 (al massimo 20 km²):
+
+```math
+L_{via} = L_{fs}(R_1) + L_2 + 10\log_{10}\frac{\lambda^2}{4\pi\,\sigma_0 A}
+```
+
+La riga «Puntamento consigliato» indica l'azimut della via migliore, se costa meno del diretto. A 144 MHz, con un rilievo a 20 km e una yagi da 15°, la via monte costa circa 45 dB più della tratta 2 da sola: conviene solo quando il diretto è chiuso da ostacoli vicini. La stima è grossolana (±10 dB), soprattutto per σ0.
+
+
+**Senza perdita fino al monte (opzione, dalla 1.3.2).** Con la casella «Via monte senza perdita fino al monte» l'abbattimento fra la stazione e il punto di diffrazione è considerato nullo: è come portare la stazione sulla cima (antenna a 10 m sopra il punto, stessa potenza, antenna e cavo). Il giro d'orizzonte sceglie allora il punto con l'orizzonte più libero verso il corrispondente (a parità, il più alto) e il risultato mostra la tratta dal punto al corrispondente, con segnale e S/N, accanto al totale con la diffusione. È un limite ottimistico: dice se la direzione si apre quando il monte rilancia bene il segnale, oppure dove andare in portatile. Ogni punto è dato con il locatore a 10 caratteri.
+
 ## 10 ter. Ingresso in un condotto lontano
 
 Se il condotto che intrappola la banda comincia lontano, oltre l'orizzonte della stazione, il segnale deve arrivarci. Il programma porta il segnale fino al punto d'inizio, a metà del condotto, per diffrazione: lungo il profilo SRTM1 cerca lo spigolo con il parametro di Fresnel ν più alto (ITU-R P.526), con il rigonfiamento della terra equivalente,
@@ -262,22 +279,6 @@ Prove con il prototipo (antenne a 10 m sul mare, guadagno sull'atmosfera standar
 
 Limiti: sopra la terra il profilo verticale resta quello dei livelli GFS, quindi i condotti sottili restano invisibili; il terreno a gradini è approssimato; il fascio resta entro 6°.
 
-## 10 bis. Via monte
-
-Quando il corrispondente è chiuso dietro l'orizzonte, il programma cerca la direzione migliore in cui puntare le antenne: il versante illuminato diffonde il segnale come un bersaglio radar. Fa il giro dell'orizzonte ogni 5° (tranne ±15° attorno al corrispondente) e in ogni direzione prende il punto d'orizzonte illuminato, sopra 100 m e fra 1 e 60 km. Una stima rapida (spazio libero, conversione bistatica e 10 dB per ogni grado d'orizzonte dal diffusore verso il corrispondente) sceglie i 4 più promettenti, almeno 15° l'uno dall'altro; per ciascuno:
-
-- tratta 1, stazione → rilievo, nello spazio libero;
-- tratta 2, rilievo → corrispondente, calcolata come se il rilievo trasmettesse da 10 m sopra la cima, con la stessa previsione (senza equazione parabolica);
-- conversione con l'equazione del radar bistatico, con σ = σ0·A, σ0 = −15 dB (versante montuoso in VHF/UHF) e A l'area illuminata dal fascio a distanza R1 (al massimo 20 km²):
-
-```math
-L_{via} = L_{fs}(R_1) + L_2 + 10\log_{10}\frac{\lambda^2}{4\pi\,\sigma_0 A}
-```
-
-La riga «Puntamento consigliato» indica l'azimut della via migliore, se costa meno del diretto. A 144 MHz, con un rilievo a 20 km e una yagi da 15°, la via monte costa circa 45 dB più della tratta 2 da sola: conviene solo quando il diretto è chiuso da ostacoli vicini. La stima è grossolana (±10 dB), soprattutto per σ0.
-
-
-**Senza perdita fino al monte (opzione, dalla 1.3.2).** Con la casella «Via monte senza perdita fino al monte» l'abbattimento fra la stazione e il punto di diffrazione è considerato nullo: è come portare la stazione sulla cima (antenna a 10 m sopra il punto, stessa potenza, antenna e cavo). Il giro d'orizzonte sceglie allora il punto con l'orizzonte più libero verso il corrispondente (a parità, il più alto) e il risultato mostra la tratta dal punto al corrispondente, con segnale e S/N, accanto al totale con la diffusione. È un limite ottimistico: dice se la direzione si apre quando il monte rilancia bene il segnale, oppure dove andare in portatile. Ogni punto è dato con il locatore a 10 caratteri.
 ## 12. Antenne, segnale e rumore
 
 - Yagi DL6WU: guadagno ≈ 8,6 + 8·log10(boom/λ) dBd, più 2,15 per i dBi [12].
