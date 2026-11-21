@@ -962,6 +962,9 @@ public static class LinkCalc
         int k = (int)Math.Round(r.CvKm / r.DistKm * (prof.Count - 1));
         var pr = prof[Math.Max(0, Math.Min(prof.Count - 1, k))];
         if (pr == null || pr.Sea || !(pr.SunElev > 15) || !(pr.Blh > 800)) return;
+        // neve lungo la tratta (almeno 10 cm dal modello): il suolo resta freddo e lo strato rimescolato non cresce davvero
+        double snow = prof.Where(p => p != null && !p.Sea && !double.IsNaN(p.SnowM)).Select(p => p.SnowM).DefaultIfEmpty(0).Max();
+        if (snow >= 0.10) { CalcLog.W($"troposcatter pomeridiano: neve lungo la tratta ({snow * 100:0} cm): sulla neve lo strato rimescolato non cresce, nessun rinforzo"); return; }
         double top = pr.Elev + pr.Blh, gap = Math.Abs(top - r.CvHeightM);
         double b = gap <= 500 ? Refractivity.MixScatterDb : gap <= 1000 ? Refractivity.MixScatterDb * (1000 - gap) / 500 : 0;
         r.MixTopM = top;
