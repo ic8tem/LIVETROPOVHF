@@ -238,6 +238,16 @@ public static class ForecastText
         return res;
     }
 
+    /// <summary>Righe della sintesi (sempre visibili); le altre compaiono con la casella «Tutte le righe del calcolo». Le note restano.</summary>
+    static readonly HashSet<string> SummaryLabels = new()
+    {
+        "Distanza / azimut", "Distance / azimuth", "Strato fondante", "Governing layer", "Guadagno tropo", "Tropo gain",
+        "Meteo lungo la tratta", "Weather along path", "Perdita prevista", "Predicted loss", "Segnale ricevuto", "Received signal",
+        "S/N SSB", "S/N CW", "S/N FT8", "Modi digitali", "Digital modes", "Probabilità per periodo", "Probability per period",
+        "Puntamento consigliato", "Recommended heading", "Dal monte, senza perdita", "From the peak, lossless"
+    };
+    public static bool IsSummary(string label) => label == "" || SummaryLabels.Contains(label);
+
     /// <summary>Fumetto per un'etichetta (o null).</summary>
     public static string Tip(string label) => TipsDict.FirstOrDefault(kv => label.TrimStart().StartsWith(kv.Key)).Value;
 }
@@ -651,6 +661,8 @@ public sealed class ForecastPainter
 public sealed class ProfileView : Control
 {
     public Palette Th;
+    /// <summary>Profilo a terra piatta (dalla 1.3.2, il raggio curva verso il basso) o a terra curva (il terreno sale con la curvatura, raggio dritto).</summary>
+    public static bool Flat = true;
     LinkResult _r;
     Point? _hover; int _hoverKey = -1;
     // elementi colorati del disegno, per il fumetto: (centro o punto del segmento, chiave)
@@ -720,7 +732,8 @@ public sealed class ProfileView : Control
                 ? new List<string> { L("— Raggio diretto verde: in vista ottica", "— Green direct ray: line of sight"), L("Il corrispondente si vede sopra il terreno", "The other station is visible above the terrain"), L("(terra equivalente con il k del GFS).", "(equivalent earth with the GFS k).") }
                 : new List<string> {
                     L("— Raggio diretto rosso: NON in vista ottica", "— Red direct ray: NOT line of sight"),
-                    L("Il raggio (curvo: il profilo è a terra piatta) passa", "The ray (curved: the profile is drawn on flat earth)"),
+                    Flat ? L("Il raggio (curvo: il profilo è a terra piatta) passa", "The ray (curved: the profile is drawn on flat earth)")
+                         : L("Il raggio (dritto: il terreno sale con la curvatura) passa", "The ray (straight: terrain rises with the curvature)"),
                     L("sotto il terreno o sotto l'orizzonte (terra equivalente k).", "goes under the terrain or the horizon (equivalent earth k)."),
                     L("Il segnale arriva per diffrazione, troposcatter o", "The signal arrives by diffraction, troposcatter or"),
                     L("strati e condotti: vedi «Perdita prevista».", "layers and ducts: see «Predicted loss».") ,
@@ -753,13 +766,16 @@ public sealed class ProfileView : Control
         int n = h.Length;
         // dalla 1.3.2 il profilo è disegnato a terra piatta (le montagne risaltano): è il raggio a curvare verso il basso,
         // di d1·d2/(2·ae) rispetto alla retta fra le antenne (terra equivalente con il k del GFS)
+        // con la casella «terra piatta» spenta si torna al disegno classico: terreno e strato sollevati dalla curvatura, raggio dritto
+        double Bulge(double dk) => dk * (D - dk) / (2 * ae) * 1000;
+        double Lift(double dk) => Flat ? 0 : Bulge(dk);
+        double Drop(double dk) => Flat ? Bulge(dk) : 0;
         var y = new double[n];
         double ymax = Math.Max(_r.HtxAsl, _r.HrxAsl);
-        for (int i = 0; i < n; i++) { y[i] = h[i]; ymax = Math.Max(ymax, y[i]); }
-        if (!double.IsNaN(_ductTop)) ymax = Math.Max(ymax, _ductTop);
+        for (int i = 0; i < n; i++) { y[i] = h[i] + Lift(dist[i]); ymax = Math.Max(ymax, y[i]); }
+        if (!double.IsNaN(_ductTop)) ymax = Math.Max(ymax, _ductTop + Lift(D / 2));
         ymax = ymax * 1.10 + 20;
-        double ymin = -0.12 * ymax;
-        double Bulge(double dk) => dk * (D - dk) / (2 * ae) * 1000;
+        double ymin = Flat ? -0.12 * ymax : 0;
         double X(double dk) => 8 + (W - 16) * dk / D;
         double Y(double m) => H - 14 - (H - 24) * (m - ymin) / (ymax - ymin);
         if (_r.RunDist.Length > 0)
@@ -770,12 +786,13 @@ public sealed class ProfileView : Control
             double x0 = Math.Max(0, _r.LayerFromKm), x1 = Math.Min(D, _r.LayerToKm);
             using (var c = band.Open())
             {
-                c.BeginFigure(new Point(X(x0), Y(_r.RunTop[0])), true);
-                for (int i = 0; i < _r.RunDist.Length; i++) c.LineTo(new Point(X(Math.Max(x0, Math.Min(x1, _r.RunDist[i]))), Y(_r.RunTop[i])));
-                c.LineTo(new Point(X(x1), Y(_r.RunTop[_r.RunTop.Length - 1])));
-                c.LineTo(new Point(X(x1), Y(Math.Max(0, _r.RunBase[_r.RunBase.Length - 1]))));
-                for (int i = _r.RunDist.Length - 1; i >= 0; i--) c.LineTo(new Point(X(Math.Max(x0, Math.Min(x1, _r.RunDist[i]))), Y(Math.Max(0, _r.RunBase[i]))));
-                c.LineTo(new Point(X(x0), Y(Math.Max(0, _r.RunBase[0]))));
+                double Rd(int i) => Math.Max(x0, Math.Min(x1, _r.RunDist[i]));
+                c.BeginFigure(new Point(X(x0), Y(_r.RunTop[0] + Lift(x0))), true);
+                for (int i = 0; i < _r.RunDist.Length; i++) c.LineTo(new Point(X(Rd(i)), Y(_r.RunTop[i] + Lift(Rd(i)))));
+                c.LineTo(new Point(X(x1), Y(_r.RunTop[_r.RunTop.Length - 1] + Lift(x1))));
+                c.LineTo(new Point(X(x1), Y(Math.Max(0, _r.RunBase[_r.RunBase.Length - 1]) + Lift(x1))));
+                for (int i = _r.RunDist.Length - 1; i >= 0; i--) c.LineTo(new Point(X(Rd(i)), Y(Math.Max(0, _r.RunBase[i]) + Lift(Rd(i)))));
+                c.LineTo(new Point(X(x0), Y(Math.Max(0, _r.RunBase[0]) + Lift(x0))));
                 c.EndFigure(true);
             }
             ctx.DrawGeometry(new SolidColorBrush(dc), new Pen(new SolidColorBrush(Color.FromRgb(230, 120, 0)), 1), band);
@@ -803,7 +820,7 @@ public sealed class ProfileView : Control
                 {
                     double d1 = dist[i], d2 = D - dist[i];
                     double f1 = d1 > 0 && d2 > 0 ? Math.Sqrt(lam * d1 * d2 * 1000 / D) : 0;
-                    c.LineTo(new Point(X(d1), Y(Math.Max(ymin, _r.HtxAsl + (_r.HrxAsl - _r.HtxAsl) * d1 / D - Bulge(d1) - f1))));
+                    c.LineTo(new Point(X(d1), Y(Math.Max(ymin, _r.HtxAsl + (_r.HrxAsl - _r.HtxAsl) * d1 / D - Drop(d1) - f1))));
                 }
                 c.LineTo(new Point(X(D), Y(_r.HrxAsl)));
                 c.EndFigure(false);
@@ -813,7 +830,7 @@ public sealed class ProfileView : Control
             for (int oi = 0; oi < _r.Obstacles.Count; oi++)
             {
                 var ob = _r.Obstacles[oi];
-                var cp = new Point(X(ob.km), Y(ob.hM));
+                var cp = new Point(X(ob.km), Y(ob.hM + Lift(ob.km)));
                 ctx.DrawEllipse(new SolidColorBrush(Color.Parse("#D64545")), null, cp, 3, 3);
                 _hits.Add((cp, oi));
             }
@@ -829,7 +846,7 @@ public sealed class ProfileView : Control
                 for (int j = 0; j <= k; j++)
                 {
                     double dk = D * j / k;
-                    var pt = new Point(X(dk), Y(Math.Max(ymin, _r.HtxAsl + (_r.HrxAsl - _r.HtxAsl) * dk / D - Bulge(dk))));
+                    var pt = new Point(X(dk), Y(Math.Max(ymin, _r.HtxAsl + (_r.HrxAsl - _r.HtxAsl) * dk / D - Drop(dk))));
                     if (j == 0) c.BeginFigure(pt, false); else c.LineTo(pt);
                     _ray.Add(pt);
                 }
@@ -841,7 +858,10 @@ public sealed class ProfileView : Control
         _band.Clear();
         if (_r.RunDist.Length > 0)
             for (int i = 0; i < _r.RunDist.Length; i++)
-                _band.Add((X(Math.Max(_r.LayerFromKm, Math.Min(_r.LayerToKm, _r.RunDist[i]))), Y(_r.RunTop[i]), Y(Math.Max(0, _r.RunBase[i]))));
+                {
+                    double bd = Math.Max(_r.LayerFromKm, Math.Min(_r.LayerToKm, _r.RunDist[i]));
+                    _band.Add((X(bd), Y(_r.RunTop[i] + Lift(bd)), Y(Math.Max(0, _r.RunBase[i]) + Lift(bd))));
+                }
         var ft = new FormattedText($"{_r.DistKm:0} km · k {_r.K:0.00}", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface.Default, 11, new SolidColorBrush(Th?.Ink ?? Colors.Black));
         ctx.DrawText(ft, new Point(10, 4));
         // fumetto dell'elemento sotto il mouse

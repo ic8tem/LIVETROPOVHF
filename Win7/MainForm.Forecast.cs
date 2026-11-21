@@ -109,6 +109,7 @@ public sealed partial class MainForm
         {
             var k = b;
             var bt = Btn(b + " MHz", () => { _st.S.Set("fc_band", k); FcBandLook(); FcRefreshGains(); _fcMap?.InvalidateVisual(); }, false);
+            _fcTips.SetToolTip(bt, L("Banda della previsione e del calcolo: cambia i colori della mappa (i condotti intrappolano meglio le frequenze alte), il guadagno delle yagi e il rumore.", "Band for the forecast and the computation: changes the map colours (ducts trap higher frequencies better), the yagi gain and the noise."));
             _fcBandBtns[b] = bt; bands.Controls.Add(bt);
         }
         Add(col, bands);
@@ -116,7 +117,9 @@ public sealed partial class MainForm
         _fcTime = Lbl("", 10f, _th.Text, true, true);
         Add(col, _fcTime);
         var sl = new TrackBar { Minimum = 0, Maximum = (OwnForecast.Hours - 6) / 3, Value = Math.Clamp(FcHours / 3, 0, (OwnForecast.Hours - 6) / 3), TickFrequency = 4, Width = 360, BackColor = C(_th.Page) };
-        sl.ValueChanged += (_, _) => { FcHours = sl.Value * 3; FcTimeLabel(); FcSyncOverlay(); _fcMap?.InvalidateVisual(); };
+        _fcSlider = sl; _fcHourSeen = FcNowHour();
+        _fcTips.SetToolTip(sl, L("Ora della previsione: da adesso fino a circa 3 giorni avanti, a passi di 3 ore. L'inizio segue l'orologio: allo scoccare dell'ora la mappa resta sull'ora che stavi guardando e il cursore si sposta.", "Forecast hour: from now up to about 3 days ahead, in 3-hour steps. The start follows the clock: when the hour turns, the map stays on the hour you were viewing and the slider moves."));
+        sl.ValueChanged += (_, _) => { if (_fcHourSync) return; FcHours = sl.Value * 3; FcTimeLabel(); FcSyncOverlay(); _fcMap?.InvalidateVisual(); };
         Add(col, sl);
         FcTimeLabel();
 
@@ -140,8 +143,8 @@ public sealed partial class MainForm
         Add(col, _fcCorr);
 
         var upd = Row();
-        upd.Controls.Add(Btn(L("Aggiorna previsione (zona visibile)", "Update forecast (visible area)"), FcUpdateGrid, true));
-        upd.Controls.Add(Btn("Stop", () => _fcCts?.Cancel(), false));
+        upd.Controls.Add(TipW(Btn(L("Aggiorna previsione (zona visibile)", "Update forecast (visible area)"), FcUpdateGrid, true), L("Scarica i profili verticali del modello scelto per la zona visibile della mappa e ricalcola i colori. Ci vuole da qualche secondo a un minuto.", "Downloads the vertical profiles of the chosen model for the visible map area and recomputes the colours. Takes from a few seconds to a minute.")));
+        upd.Controls.Add(TipW(Btn("Stop", () => _fcCts?.Cancel(), false), L("Interrompe lo scaricamento o il calcolo in corso.", "Stops the download or computation in progress.")));
         var auto = Chk(L("Aggiorna da sola", "Update by itself"), FcAuto, v => FcAuto = v);
         _fcTips.SetToolTip(auto, L("Scarica la previsione senza clic: all'apertura, a ogni nuova corsa GFS su NOMADS e quando la zona visibile esce dalla griglia. Mai con un caso storico.", "Downloads the forecast without clicking: at start, at each new GFS run on NOMADS and when the visible area leaves the grid. Never with a historical case."));
         upd.Controls.Add(auto);
@@ -209,9 +212,16 @@ public sealed partial class MainForm
         FcRefreshGains();
 
         var act = Row();
-        act.Controls.Add(Btn(L("Calcola il segnale", "Compute signal"), FcComputeLink, true));
-        act.Controls.Add(Btn(L("Copertura in ottica (DEM 30 m)", "Line-of-sight coverage (DEM 30 m)"), FcComputeLos, false));
+        act.Controls.Add(TipW(Btn(L("Calcola il segnale", "Compute signal"), FcComputeLink, true), L("Calcola il segnale fra la tua stazione e il corrispondente: profilo del terreno, strati lungo la tratta, perdita prevista, S/N per modo e puntamento consigliato. Manuale delle previsioni, § 7–12.", "Computes the signal between your station and the other one: terrain profile, layers along the path, predicted loss, S/N per mode and recommended heading. Forecast manual, § 7–12.")));
+        act.Controls.Add(TipW(Btn(L("Copertura in ottica (DEM 30 m)", "Line-of-sight coverage (DEM 30 m)"), FcComputeLos, false), L("Disegna in azzurro fino a dove la tua antenna si vede in ottica (prima ombra) e con la linea tratteggiata il punto visibile più lontano, sul terreno DEM 30 m.", "Draws in light blue how far your antenna is in line of sight (first shadow) and with a dashed line the farthest visible point, on 30 m DEM terrain.")));
         Add(col, act);
+        // cosa mostrare: i calcoli restano tutti, si sceglie solo cosa vedere
+        ProfileView.Flat = _st.S.GetBool("fc_flat", true);
+        var show = Row();
+        show.Controls.Add(TipW(Chk(L("Profilo a terra piatta", "Flat-earth profile"), ProfileView.Flat, v => { ProfileView.Flat = v; _st.S.SetBool("fc_flat", v); _st.Dirty = true; _fcProfile?.InvalidateVisual(); _fcProfileHost?.Invalidate(); }), L("Acceso: profilo a terra piatta, le montagne risaltano e il raggio diretto curva verso il basso. Spento: disegno classico, il terreno sale con la curvatura della terra e il raggio è dritto. Il calcolo è lo stesso.", "On: flat-earth profile, mountains stand out and the direct ray curves down. Off: classic drawing, terrain rises with the earth's curvature and the ray is straight. The computation is the same.")));
+        show.Controls.Add(TipW(Chk(L("Tutte le righe del calcolo", "All computation lines"), _st.S.GetBool("fc_full", false), v => { _st.S.SetBool("fc_full", v); _st.Dirty = true; if (_fcLast != null) FcShowResult(_fcLast); }), L("Spento: solo la sintesi (distanza, strato, guadagno, perdita, segnale, S/N, modi, probabilità, puntamento). Acceso: tutte le righe del calcolo fra i due locatori. I calcoli sono sempre completi.", "Off: summary only (distance, layer, gain, loss, signal, S/N, modes, probability, heading). On: every line of the computation between the two locators. The computations are always complete.")));
+        show.Controls.Add(TipW(Chk(L("Mostra il registro dei calcoli", "Show computation log"), _st.S.GetBool("fc_logshow", false), v => { _st.S.SetBool("fc_logshow", v); _st.Dirty = true; foreach (var c in _fcLogCtl) c.Visible = v; }), L("Mostra o nasconde la finestra del registro dei calcoli. Il registro continua a essere scritto nel file anche quando è nascosto.", "Shows or hides the computation log window. The log keeps being written to the file even when hidden.")));
+        Add(col, show);
         _fcProfile = new ProfileView { Th = _th };
         _fcProfileHost = new AC.ControlHost(_fcProfile) { Height = 190, BackColor = C(_th.MapSea), Margin = new Padding(3, 6, 3, 6) };
         Add(col, _fcProfileHost);
@@ -235,20 +245,24 @@ public sealed partial class MainForm
                            "Potential ducts: two calculations (A from GFS, B with ITU-R P.453 thickness, © ITU), the worst is used. Signal values are estimates."), 8.5f, _th.Muted));
 
         // registro dei calcoli (a capo automatico)
-        Add(col, Lbl(L("Registro dei calcoli", "Computation log"), 10f, _th.Text, true));
+        _fcLogCtl.Clear();
+        var logHead = Lbl(L("Registro dei calcoli", "Computation log"), 10f, _th.Text, true);
+        Add(col, logHead); _fcLogCtl.Add(logHead);
         CalcLog.Enabled = _st.S.GetBool("fc_log", true);
         var lr = Row();
-        lr.Controls.Add(Chk(L("Registro dettagliato attivo", "Verbose log enabled"), CalcLog.Enabled, v => { CalcLog.Enabled = v; _st.S.SetBool("fc_log", v); _st.Dirty = true; }));
-        lr.Controls.Add(Btn(L("Apri il file", "Open file"), () => { try { System.Diagnostics.Process.Start(CalcLog.FilePath); } catch (Exception ex) { FcSetStatus(ex.Message); } }, false));
-        lr.Controls.Add(Btn(L("Svuota la finestra", "Clear window"), () => { CalcLog.Clear(); _fcLogDirty = true; }, false));
-        Add(col, lr);
-        Add(col, WrapLbl(CalcLog.FilePath, 8f, _th.Muted));
+        lr.Controls.Add(TipW(Chk(L("Registro dettagliato attivo", "Verbose log enabled"), CalcLog.Enabled, v => { CalcLog.Enabled = v; _st.S.SetBool("fc_log", v); _st.Dirty = true; }), L("Scrive ogni passo dei calcoli nel registro e nel file. Spento, i calcoli sono identici ma non lasciano traccia.", "Writes every step of the computations to the log and the file. Off, the computations are identical but leave no trace.")));
+        lr.Controls.Add(TipW(Btn(L("Apri il file", "Open file"), () => { try { System.Diagnostics.Process.Start(CalcLog.FilePath); } catch (Exception ex) { FcSetStatus(ex.Message); } }, false), L("Apre il file del registro dei calcoli con il programma predefinito.", "Opens the computation log file with the default program.")));
+        lr.Controls.Add(TipW(Btn(L("Svuota la finestra", "Clear window"), () => { CalcLog.Clear(); _fcLogDirty = true; }, false), L("Svuota la finestra del registro; il file resta com'è.", "Clears the log window; the file is kept.")));
+        Add(col, lr); _fcLogCtl.Add(lr);
+        var logPath = WrapLbl(CalcLog.FilePath, 8f, _th.Muted);
+        Add(col, logPath); _fcLogCtl.Add(logPath);
         _fcLogBox = new TextBox
         {
             Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, WordWrap = true, Height = Math.Max(120, _st.S.GetInt("fc_log_h", 320)),
             Font = new Font(MonoFamily, 8.5f), BackColor = C(_th.CtlBg), ForeColor = C(_th.Text), BorderStyle = BorderStyle.FixedSingle, Text = CalcLog.RecentText()
         };
-        Add(col, _fcLogBox);
+        Add(col, _fcLogBox); _fcLogCtl.Add(_fcLogBox);
+        foreach (var c in _fcLogCtl) c.Visible = _st.S.GetBool("fc_logshow", false);
         CalcLog.Line -= FcOnLogLine; CalcLog.Line += FcOnLogLine;
         if (_fcLogTimer == null)
         {
@@ -414,8 +428,30 @@ public sealed partial class MainForm
     bool FcAuto { get => _st.S.GetBool("fc_auto", true); set => _st.S.SetBool("fc_auto", value); }
     int _fcAutoTick;
     /// <summary>Chiamata ogni secondo dal timer: ogni 30 s controlla se serve aggiornare la previsione (1.3.2).</summary>
+    TrackBar _fcSlider;
+    readonly List<Control> _fcLogCtl = new List<Control>();
+    DateTime _fcHourSeen; bool _fcHourSync;
+    T TipW<T>(T c, string tip) where T : Control { _fcTips.SetToolTip(c, tip); return c; }
+    static DateTime FcNowHour() { var n = Clock.UtcNow; return new DateTime(n.Year, n.Month, n.Day, n.Hour, 0, 0, DateTimeKind.Utc); }
+
+    /// <summary>L'inizio del cursore dell'ora è l'ora attuale: allo scoccare dell'ora la mappa resta sull'ora che si stava guardando.</summary>
+    void FcClockTick()
+    {
+        if (_own?.Hist != null || _fcSlider == null || _fcSlider.IsDisposed) return;
+        var h = FcNowHour();
+        if (_fcHourSeen == default(DateTime)) { _fcHourSeen = h; return; }
+        if (h == _fcHourSeen) return;
+        int passed = (int)Math.Round((h - _fcHourSeen).TotalHours);
+        _fcHourSeen = h;
+        FcHours = Math.Max(0, FcHours - Math.Max(0, passed));
+        _fcHourSync = true;
+        try { _fcSlider.Value = Math.Clamp(FcHours / 3, _fcSlider.Minimum, _fcSlider.Maximum); } finally { _fcHourSync = false; }
+        FcTimeLabel(); FcSyncOverlay(); _fcMap?.InvalidateVisual();
+    }
+
     void FcAutoCheck()
     {
+        FcClockTick();
         if (++_fcAutoTick % 30 != 0 || !FcAuto || _fcMap == null) return;
         var (la1, la2, lo1, lo2) = _fcMap.Box;
         if (la2 - la1 < 0.5 || lo2 - lo1 < 0.5) return;      // mappa non ancora disposta
@@ -535,8 +571,10 @@ public sealed partial class MainForm
         _fcResults.SuspendLayout();
         _fcResults.Controls.Clear(); _fcResults.RowStyles.Clear(); _fcResults.RowCount = 0;
         Add(_fcResults, Lbl(ForecastText.Header(r, FcTime), 11f, _th.Accent, true));
+        bool full = _st.S.GetBool("fc_full", false);
         foreach (var (label, value, tone, bold) in ForecastText.Lines(r, Num("fc_req_ssb", 6), Num("fc_req_cw", 0), Num("fc_req_ft8", -21), _own))
         {
+            if (!full && !ForecastText.IsSummary(label)) continue;
             var col = tone switch
             {
                 FcTone.Strong => _th.Text, FcTone.Accent => _th.Accent, FcTone.Ok => _th.Ok, FcTone.Bad => _th.Bad,
