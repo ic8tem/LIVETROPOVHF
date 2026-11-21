@@ -128,6 +128,8 @@ public sealed class LinkResult
     public double PeLossDb = double.NaN, PeStdDb = double.NaN, PeTotalDb = double.NaN;
     public double PeGainDb => PeStdDb - PeLossDb;
     public double PersistFrac = double.NaN;           // persistenza media lungo la tratta (0–1)
+    // 1.3.2: ingresso in un condotto che comincia lontano (diffrazione fino al suo inizio, poi percorso nel condotto)
+    public double EntryKm = double.NaN, EntryHeightM, EntryNu, EntryNuKm, EntryDiffDb, LentryDb = double.NaN;
     public List<ViaPeak> Via = new();                 // «via monte»: rilievi vicini su cui puntare le antenne
     // 1.3.2: stima aggressiva (soglia classica 79 N/km), μ1 di P.452 sul tratto di terra, aggancio delle stazioni al condotto, strato limite e creste
     public double AggrGainDb = double.NaN, LpredAggrDb = double.NaN;
@@ -578,6 +580,35 @@ public static class LinkCalc
                 if (r.LductDb < lpred) { lpred = r.LductDb; r.Mechanism = "condotto"; }
             }
             else if (best.key >= 0 && g >= 3 && !r.Los) r.Mechanism = best.traps ? "tropo (condotto parziale)" : "tropo (super-rifrazione)";
+            // 1.3.2: condotto che comincia lontano (oltre l'orizzonte della stazione): come ci si entra. Si porta il segnale fino
+            // al punto d'inizio, a metà del condotto, per diffrazione (spigolo principale con il parametro di Fresnel ν e terra
+            // sferica liscia, il peggiore dei due), poi si viaggia nel condotto fino al corrispondente (spazio libero + γd + RX).
+            if (best.traps && !r.Los && r.LayerFromKm >= 5 && r.LayerFromKm < d - 5)
+            {
+                double dE = r.LayerFromKm, hE = 0.5 * (TopAt(r, dE) + BaseAt(r, dE));
+                double numax = double.NegativeInfinity, kmNu = 0;
+                for (int i = 1; i < n && dist[i] < dE; i++)
+                {
+                    double d1 = dist[i] * 1000, d2 = (dE - dist[i]) * 1000;
+                    if (d2 < 100) break;
+                    double line = hts + (hE - hts) * dist[i] / dE;
+                    double bulge = d1 * d2 / (2 * ae * 1000);                     // rigonfiamento della terra equivalente (m)
+                    double nu = (h[i] + bulge - line) * Math.Sqrt(2 / lam * (1 / d1 + 1 / d2));
+                    if (nu > numax) { numax = nu; kmNu = dist[i]; }
+                }
+                double jT = double.IsNegativeInfinity(numax) ? 0 : J(numax);
+                double jS = SphericalLoss(dE, Math.Max(1, hts - h[0]), Math.Max(1, hE), ae, o.FreqMHz);
+                double entry = Math.Max(jT, jS);
+                double rxOff = Math.Max(0, Math.Max(hrs - TopAt(r, Math.Min(d, r.LayerToKm)), BaseAt(r, Math.Min(d, r.LayerToKm)) - hrs));
+                double rxC = Math.Min(40, 3 + rxOff / 10);
+                double gamD = 5e-5 * ae * Math.Pow(fGHz, 1.0 / 3);
+                double resid = gamD * (1000 * (d - dE) / ae);
+                r.EntryKm = dE; r.EntryHeightM = hE; r.EntryNu = numax; r.EntryNuKm = kmNu; r.EntryDiffDb = entry;
+                r.LentryDb = r.LfsDb + entry + rxC + resid;
+                CalcLog.W($"ingresso nel condotto: comincia a {dE:0} km, quota media {hE:0} m; diffrazione fino lì: spigolo principale a {kmNu:0.0} km con ν {numax:0.00} → {jT:0.0} dB, terra sferica {jS:0.0} dB → {entry:0.0} dB; " +
+                          $"poi nel condotto: γd {resid:0.0} dB, RX {(rxOff > 0 ? $"fuori di {rxOff:0} m" : "dentro")} {rxC:0.0} dB → Lingresso = Lfs {r.LfsDb:0.0} + {entry:0.0} + {rxC:0.0} + {resid:0.0} = {r.LentryDb:0.0} dB");
+                if (r.LentryDb < lpred) { lpred = r.LentryDb; r.Mechanism = "condotto (ingresso per diffrazione)"; }
+            }
             r.LpredDb = Math.Max(r.LfsDb, lpred);
             if (!double.IsNaN(r.AggrGainDb)) r.LpredAggrDb = Math.Max(r.LfsDb, Math.Min(r.LpredDb, r.LbaseDb - r.AggrGainDb));
             if (!double.IsNaN(r.LpredAggrDb)) CalcLog.W($"stima prudente (Bean e Dutton, 100 N/km) {r.LpredDb:0.00} dB; stima aggressiva (79 N/km, k ≈ 2) {r.LpredAggrDb:0.00} dB");

@@ -545,7 +545,7 @@ public static class WxSources
     public static readonly WxSource[] All = { WxSource.Auto, WxSource.OpenMeteo, WxSource.Nomads, WxSource.IconEu, WxSource.Ecmwf };
     public static string Name(WxSource s) => s switch
     {
-        WxSource.Auto => "GFS: prima NOMADS (NOAA), poi Open-Meteo",
+        WxSource.Auto => "GFS: NOMADS (NOAA); Open-Meteo solo se NOMADS non risponde",
         WxSource.OpenMeteo => "GFS da Open-Meteo",
         WxSource.Nomads => "GFS da NOMADS (NOAA)",
         WxSource.IconEu => "ICON-EU (DWD) da Open-Meteo",
@@ -632,6 +632,28 @@ public sealed class OwnForecast
         }
     }
     public bool Busy;
+    DateTime _autoLastTry;
+
+    /// <summary>
+    /// 1.3.2: aggiornamento senza clic. Vero se non c'è ancora una griglia, se su NOMADS è uscita una corsa più nuova
+    /// (circa 5 ore dopo l'ora della corsa) o se la zona visibile esce per più di un quarto dalla griglia scaricata.
+    /// Mai con un caso storico o durante uno scaricamento; al massimo un tentativo ogni 15 minuti.
+    /// </summary>
+    public bool NeedsAutoUpdate(double la1, double la2, double lo1, double lo2)
+    {
+        if (Busy || Hist != null || DateTime.UtcNow - _autoLastTry < TimeSpan.FromMinutes(15)) return false;
+        bool need;
+        if (Grid.Length == 0) need = true;
+        else if (WxSources.IsGfs(Source) && Nomads.Floor6(DateTime.UtcNow.AddHours(-5)) > RunUtc) need = true;
+        else
+        {
+            double ia = Math.Max(0, Math.Min(la2, LatMax) - Math.Max(la1, LatMin)) * Math.Max(0, Math.Min(lo2, LonMax) - Math.Max(lo1, LonMin));
+            double ba = Math.Max(1e-6, (la2 - la1) * (lo2 - lo1));
+            need = ia / ba < 0.75;
+        }
+        if (need) _autoLastTry = DateTime.UtcNow;
+        return need;
+    }
     readonly object _lock = new();
 
     public const int Hours = 78;
@@ -738,6 +760,7 @@ public sealed class OwnForecast
             }
             missing = Enumerable.Range(0, pts.Count).Where(i => raw[i] == null).ToList();
         }
+        bool nomadsDown = false;
         if ((src == WxSource.Nomads || src == WxSource.Auto) && missing.Count > 0 && hist == null)
         {
             if (src == WxSource.Nomads) await FromNomads();
@@ -748,11 +771,13 @@ public sealed class OwnForecast
                 {
                     CalcLog.W("NOMADS non disponibile (" + ex.Message + ") → i punti mancanti si prendono da Open-Meteo (stesso GFS)");
                     progress?.Invoke("NOMADS non risponde: continuo con Open-Meteo…");
+                    nomadsDown = true;
                     missing = Enumerable.Range(0, pts.Count).Where(i => raw[i] == null).ToList();
                 }
-            if (src == WxSource.Auto && missing.Count > 0) CalcLog.W($"NOMADS: {missing.Count} punti mancanti, li chiedo a Open-Meteo");
+            if (src == WxSource.Auto && missing.Count > 0 && !nomadsDown) CalcLog.W($"NOMADS: {missing.Count} punti mancanti (restano senza profilo: dalla 1.3.2 la sorgente automatica usa Open-Meteo solo se NOMADS non risponde)");
         }
-        if (src != WxSource.Nomads && missing.Count > 0)
+        // 1.3.2: con la sorgente automatica Open-Meteo serve solo se NOMADS non risponde, e per i casi storici
+        if (src != WxSource.Nomads && missing.Count > 0 && (src != WxSource.Auto || nomadsDown || hist != null))
         {
             await FromOpenMeteo(http, pts, missing, raw, origin, Save, progress, ct, st, src, hist, false);
             missing = Enumerable.Range(0, pts.Count).Where(i => raw[i] == null).ToList();
@@ -972,7 +997,7 @@ public sealed class OwnForecast
         catch (RateLimitException ex)
         {
             Status = "Previsione propria: " + ex.Message + (WxSources.IsGfs(Source) && Source != WxSource.Auto && Hist == null
-                ? " — scegli «GFS: prima NOMADS, poi Open-Meteo» o «GFS da NOMADS» in Sorgente dei dati per continuare senza Open-Meteo" : "");
+                ? " — scegli «GFS: NOMADS» o «GFS da NOMADS» in Sorgente dei dati per continuare senza Open-Meteo" : "");
             CalcLog.W(Status); return false;
         }
         catch (Exception ex) { Status = "Previsione propria non riuscita: " + ex.Message; CalcLog.W("ERRORE: " + ex); Core.ErrorLog.Write(ex, "previsione propria (griglia)"); return false; }

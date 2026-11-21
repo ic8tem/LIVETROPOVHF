@@ -140,6 +140,9 @@ public sealed partial class MainForm
         var upd = Row();
         upd.Controls.Add(Btn(L("Aggiorna previsione (zona visibile)", "Update forecast (visible area)"), FcUpdateGrid, true));
         upd.Controls.Add(Btn("Stop", () => _fcCts?.Cancel(), false));
+        var auto = Chk(L("Aggiorna da sola", "Update by itself"), FcAuto, v => FcAuto = v);
+        _fcTips.SetToolTip(auto, L("Scarica la previsione senza clic: all'apertura, a ogni nuova corsa GFS su NOMADS e quando la zona visibile esce dalla griglia. Mai con un caso storico.", "Downloads the forecast without clicking: at start, at each new GFS run on NOMADS and when the visible area leaves the grid. Never with a historical case."));
+        upd.Controls.Add(auto);
         Add(col, upd);
         _fcStatus = WrapLbl(_own.Status == "" ? L("Previsione propria non ancora scaricata.", "Own forecast not downloaded yet.") : _own.Status, 9f, _th.Sub);
         Add(col, _fcStatus);
@@ -378,6 +381,17 @@ public sealed partial class MainForm
         _fcTips.SetToolTip(corr, L("Termine di stabilità di Misme (solo senza condotto, da −4 a +6 dB, taratura provvisoria) e moto verticale: +1,5 dB con subsidenza, −2 dB con aria in salita. Manuale delle previsioni, § 9 bis.",
                                    "Misme stability term (only without a duct, −4 to +6 dB, provisional) and vertical motion: +1.5 dB with subsidence, −2 dB with rising air. Forecast manual, § 9 bis."));
         Add(col, corr);
+    }
+
+    bool FcAuto { get => _st.S.GetBool("fc_auto", true); set => _st.S.SetBool("fc_auto", value); }
+    int _fcAutoTick;
+    /// <summary>Chiamata ogni secondo dal timer: ogni 30 s controlla se serve aggiornare la previsione (1.3.2).</summary>
+    void FcAutoCheck()
+    {
+        if (++_fcAutoTick % 30 != 0 || !FcAuto || _fcMap == null) return;
+        var (la1, la2, lo1, lo2) = _fcMap.Box;
+        if (la2 - la1 < 0.5 || lo2 - lo1 < 0.5) return;      // mappa non ancora disposta
+        if (_own.NeedsAutoUpdate(la1, la2, lo1, lo2)) { CalcLog.W("aggiornamento automatico della previsione"); FcUpdateGrid(); }
     }
 
     void FcUpdateGrid()

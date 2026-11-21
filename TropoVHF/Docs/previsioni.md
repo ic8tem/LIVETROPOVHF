@@ -175,6 +175,16 @@ Se lo strato intrappola la banda su almeno l'80% della frazione usata e le stazi
 
 Una banda resta nel condotto solo se la sua lunghezza d'onda non supera λmax = 2√2·(2/3)·√(ΔM·10⁻⁶)·d (Kerr, eq. 17 [11]). Per questo lo stesso strato può intrappolare i 23 cm e i 70 cm ma non i 2 m. Il limite però non è netto: Kerr avverte che anche onde parecchie volte più lunghe risentono molto del condotto, e Hepburn e il VHF/UHF DX Book parlano di bordi «sfocati» e di condotti «che perdono». Dalla 1.3.1 il programma usa quindi un condotto morbido: se λ è fra λmax e 3·λmax, il guadagno passa gradualmente da 15 dB (λ = 3·λmax) al guadagno del condotto pieno (λ = λmax), con il fattore s = (λmax/λ − 1/3)/(2/3). In quel caso sono ammessi i colori di condotto. Il registro e la riga Meteo lungo la tratta indicano i punti con condotto morbido.
 
+## 10 ter. Ingresso in un condotto lontano
+
+Se il condotto che intrappola la banda comincia lontano, oltre l'orizzonte della stazione, il segnale deve arrivarci. Il programma porta il segnale fino al punto d'inizio, a metà del condotto, per diffrazione: lungo il profilo SRTM1 cerca lo spigolo con il parametro di Fresnel ν più alto (ITU-R P.526), con il rigonfiamento della terra equivalente,
+
+```math
+\nu = h\,\sqrt{\frac{2}{\lambda}\left(\frac{1}{d_1} + \frac{1}{d_2}\right)}, \qquad J(\nu) = 6,9 + 20\log_{10}\left(\sqrt{(\nu - 0,1)^2 + 1} + \nu - 0,1\right)
+```
+
+e la confronta con la diffrazione su terra sferica liscia; vale la peggiore. Poi il segnale viaggia nel condotto: spazio libero sull'intera tratta, attenuazione residua γd di P.452 sul tratto nel condotto e accoppiamento del corrispondente (3 dB dentro, 1 dB ogni 10 m fuori). Se questa perdita è più bassa della perdita prevista diventa il meccanismo («condotto (ingresso per diffrazione)»). È la premessa dell'autore sulla geografia italiana: con un ostacolo vicino ben sotto la linea, ν è negativo e l'ingresso costa poco; con una dorsale davanti costa 15–30 dB.
+
 ## 11. Confronto con ITU-R P.452
 
 La riga Confronto P.452 applica il metodo ITU per condotti e riflessione su strati (P.452-16 § 4.5 [6]) con il ΔN mediano del GFS al posto di quello climatologico e p = 20% come costante di calibrazione, come nello studio CSIRO [10]. Comprende la perdita d'accoppiamento empirica Alf sotto 0,5 GHz (circa 28 dB a 144 MHz, 3,5 dB a 432 MHz), la schermatura dei siti, l'accoppiamento sul mare e l'assorbimento dei gas. È solo un confronto: la perdita prevista resta quella del paragrafo 9.
@@ -247,6 +257,8 @@ P = \Phi\left(\frac{S/N - S/N_{soglia}}{\sigma}\right)
 ## 13. Tempi di risposta e dati
 
 Ogni calcolo misura i propri tempi: profili GFS (rete, analisi, pause obbligate di 20 s fra i lotti per il limite di Open-Meteo), terreno SRTM1 (con lo scaricamento dei riquadri, 6–7 MB l'uno, solo la prima volta), calcolo. La riga Tempo di risposta li riassume; nel registro le righe cominciano con TEMPI. All'aggiornamento della griglia il registro riporta anche la corsa GFS usata, quando è diventata disponibile e quanto sono vecchi i dati.
+
+Dalla 1.3.2 la sorgente automatica usa solo NOMADS; Open-Meteo serve se NOMADS non risponde e per i casi storici. Con la casella «Aggiorna da sola» (accesa per difetto) la previsione si scarica senza clic: all'apertura, a ogni nuova corsa GFS su NOMADS (circa 5 ore dopo l'ora della corsa) e quando la zona visibile esce per più di un quarto dalla griglia; al massimo un tentativo ogni 15 minuti, mai con un caso storico.
 
 Le richieste a Open-Meteo hanno limiti al minuto, all'ora e al giorno per ogni indirizzo internet. I profili scaricati si salvano sul disco (Dati/cache-gfs) per ogni corsa e ogni modello: con la stessa corsa, che cambia ogni 6 ore, i punti già scaricati non si chiedono di nuovo. Con la sorgente automatica si parte da NOMADS e Open-Meteo serve solo per i punti mancanti; con la sola Open-Meteo, al limite orario o giornaliero si ferma subito e dice quando riprovare. I casi storici non si salvano nella cache.
 

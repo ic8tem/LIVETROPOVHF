@@ -2112,6 +2112,7 @@ public sealed partial class MainWindow : Window
 
     void Tick()
     {
+        try { FcAutoCheck(); } catch { }
         var now = Clock.UtcNow;
         if (_clock != null) _clock.Text = now.ToString("dd/MM/yyyy HH:mm:ss") + " UTC";
         if (_ntp != null)

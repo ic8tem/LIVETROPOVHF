@@ -3,7 +3,16 @@
 Raccolta di lavoro delle fonti consultate per la previsione tropo propria di LIVETROPOVHF (20–21 novembre 2026): fisica di base, dati disponibili, indici pubblicati, formule, esperienze radioamatoriali, validazione e decisioni. Le formule sono numerate come in LaTeX, (1), (2), …, e nel testo si richiamano con il numero fra parentesi. Il Manuale delle previsioni descrive come il programma le usa.
 
 
-## 1. Scopo
+## 1. Premesse dell'autore
+
+Osservazioni di IC8TEM che fanno da cornice al lavoro, con i riscontri trovati nelle fonti.
+
+- **La geografia italiana chiede la diffrazione.** Con dorsali, promontori e isole a poche decine di km dalle stazioni, i contributi di diffrazione vanno calcolati con il parametro di Fresnel sullo spigolo principale, non solo con la terra liscia. Riscontro: in un confronto su terreno irregolare a 563 MHz (Rio de Janeiro, 27 punti fra 5 e 30 km), i metodi migliori sono stati P.526 con spigoli a lama, P.1812 e il cuneo diffrattivo, con errore medio fra −5 e +3 dB e dispersione di circa 9 dB; P.1546 è stato il più pessimista (da Costa, Rabanal Ramirez e Dias, IET Microwaves, Antennas & Propagation, 2018). Per i versanti ripidi vicini alla stazione PETOOL ricorda che servono propagatori ad angolo largo e il calcolo a due vie (onde riflesse dai rilievi).
+- **Per entrare in un condotto lontano serve Fresnel.** Se il condotto comincia oltre l'orizzonte, il segnale ci arriva per diffrazione sopra gli ostacoli fino al suo inizio; dalla 1.3.2 il programma lo calcola (Manuale delle previsioni, § 10 ter). Riscontro: Rohde & Schwarz (2023) nota che le stazioni lungo un condotto elevato spesso non riescono a entrarci, mentre quelle vicine alle estremità sì.
+- **Le condizioni cambiano in fretta.** Le teorie ci sono, ma le condizioni mutano in minuti, e nessun sistema di previsione prende i dati in tempo reale: il GFS esce ogni 6 ore, con passo orario e 0,25°, e una previsione può perdere valore nel giro di poco. Riscontro: Bray (QST, novembre 1961) misura oscillazioni delle mediane orarie di circa ±7 dB oltre 100 miglia; i condotti si spostano con il tempo atmosferico (Rohde & Schwarz); il nostro registro dei QSO del 29/12/2021–2/1/2022 mostra aperture che crescono e calano nel giro di ore.
+- **Il miglior now-casting resta la rete DX cluster–PSKReporter.** Per sapere che cosa succede adesso, gli spot dei cluster, di PSKReporter (e di WSPR) battono qualunque modello: sono misure. La previsione dice dove guardare e quanto può durare; gli spot dicono se c'è. Il programma per questo mette spot e previsione sulla stessa mappa.
+
+## 2. Scopo
 
 L'idea è un terzo indice, calcolato da LIVETROPOVHF stesso partendo dai profili verticali di un modello meteo, da affiancare a Hepburn e F5LEN invece di sostituirli. Oggi il programma legge le loro mappe già pronte: un indice proprio direbbe anche *perché* c'è apertura (quota e spessore del condotto, banda minima intrappolata) e si potrebbe verificare con gli spot che il programma raccoglie già.
 
@@ -11,7 +20,7 @@ L'idea è un terzo indice, calcolato da LIVETROPOVHF stesso partendo dai profili
 - Cosa non può dare: i condotti sottili (sotto qualche decina di metri) che i modelli globali a 0,25° non risolvono, e i condotti di evaporazione sul mare, che servono soprattutto dai GHz in su.
 - Primo obiettivo pratico: 144 e 432 MHz in Europa, con verifica sugli spot di DX cluster, PSKReporter e decodifiche locali.
 
-## 2. Fisica di base
+## 3. Fisica di base
 
 Tutto parte dalla rifrattività N calcolata a ogni livello del profilo: il condotto c'è dove la rifrattività modificata M diminuisce salendo, cioè dove dN/dh scende sotto −157 N/km ([ITU-R P.453-13](https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.453-13-201712-S!!PDF-E.pdf), [Lopez, ECMWF 2008](https://www.ecmwf.int/sites/default/files/elibrary/2008/10803-5-year-40km-resolution-global-climatology-super-refraction-ground-based-radar-meteorology.pdf)).
 
@@ -60,7 +69,7 @@ f_{min} \approx \frac{3,3\times10^{5}}{d^{3/2}} \ \mathrm{MHz} \quad\Rightarrow\
 
 In pratica: per i 2 m serve un condotto spesso almeno 170–180 m, per i 70 cm ne basta circa la metà. La formula che circola in rete, λmax = 0,014 · d^1,5, viene da Kerr (1951, cap. 1, eq. 18) e vale con **λ in centimetri e d in piedi**, per un condotto in cui M cala in modo lineare: con queste unità dà per i 2 m circa 180 m e per i 70 cm circa 89 m, cioè gli stessi valori della tabella di Hepburn, che ne deriva. Kerr avverte che non è un taglio netto: anche onde parecchie volte più lunghe risentono molto del condotto, e un modo che "perde" un po' può migliorare la ricezione anche con le stazioni fuori dal condotto. Uno studio su IEEE Access del 2019 conferma che i metodi classici (Kerr, Kukushkin) non descrivono il taglio reale ([Shi et al. 2019](https://doaj.org/article/d431fc16b2104524860927ac92dc1c53)): la soglia va usata come indicazione, non come muro.
 
-## 3. Dati disponibili gratis
+## 4. Dati disponibili gratis
 
 Il punto debole è la risoluzione verticale: tra 1000 e 850 hPa i modelli danno un livello ogni 25–50 hPa, cioè ogni 200–450 m, quindi vedono bene le inversioni a 500–2000 m ma non i condotti sottili vicino al suolo. LIVETROPOVHF usa già Open-Meteo per isobare, temperatura a 850 hPa e inversione: l'indice proprio può partire dalle stesse chiamate.
 
@@ -85,7 +94,7 @@ Il punto debole è la risoluzione verticale: tra 1000 e 850 hPa i modelli danno 
 
 Numeri e posizioni dall'[elenco stazioni CEDA](https://artefacts.ceda.ac.uk/badc_datadocs/radiosonde/countries/Italy.html). Il formato testo di Wyoming dà per ogni livello pressione, altezza, temperatura, punto di rugiada e umidità: basta per N e M. Wyoming non ha un'interfaccia ufficiale, si usano script come [RAOBget di NCAR](https://github.com/NCAR/RAOBget); il College of DuPage tiene copie in testo per stazione ([esempio, 14430 Zara](https://weather.cod.edu/cdata/raob/14430/text/14430.20250612.12.txt)).
 
-## 4. Indici e metodi pubblicati
+## 5. Indici e metodi pubblicati
 
 Hepburn e F5LEN partono dagli stessi ingredienti fisici ma non pubblicano l'algoritmo completo; gli studi scientifici del 2008–2026 invece descrivono il metodo passo per passo, ed è da lì che conviene copiare la ricetta.
 
@@ -112,7 +121,7 @@ Diario di osservazioni: [DJ5AR, categoria Tropo](https://dj5ar.de/?cat=174) (Mag
 
 In sintesi, la ricetta comune: profilo verticale → N e M per livello → strato con dM/dh negativo → base, cima, spessore e forza del condotto → indice. La parte "segreta" di Hepburn è la taratura empirica sugli eventi reali, che noi possiamo rifare con gli spot.
 
-## 5. Formule utili per il programma
+## 6. Formule utili per il programma
 
 Oltre a N e M (sezione Fisica di base), queste servono a passare dal profilo verticale a un numero per punto e poi per percorso. Le formule ITU sono ricostruite da un PDF letto in parte male: prima di metterle nel codice vanno ricontrollate sul documento ufficiale ([ITU-R P.452-18](https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.452-18-202310-I!!PDF-E.pdf)).
 
@@ -168,7 +177,7 @@ Il termine −0,15 · N0 fa capire perché l'aria umida aiuta anche senza condot
 L_{ba} = A_f + A_d(p) + A_g, \qquad \gamma_d = 5\times10^{-5}\,a_e\,f^{1/3}\ \ \mathrm{dB/mrad}
 ```
 
-## 6. Da Bean e Dutton (1966) e da Kerr (1951)
+## 7. Da Bean e Dutton (1966) e da Kerr (1951)
 
 I due testi classici danno tre cose che servono subito all'indice: soglie di gradiente già tarate **sugli stessi livelli di pressione di GFS**, quanto vale in dB un cambio di rifrattività, e quali situazioni meteo creano o distruggono i condotti. Le pagine citate sono quelle di *Radio Meteorology*, NBS Monograph 92.
 
@@ -212,7 +221,7 @@ Con Ns = 313 si ha ΔN circa −42 N/km, cioè il raggio equivalente 4/3. Il cri
 
 **6. Da Kerr.** Oltre alla formula della lunghezza d'onda massima (sezione Fisica di base), Kerr dà una formula approssimata per M dalla sola temperatura, vapore e quota (§ 3.9, con le vecchie costanti 79 e 4800 poi sostituite da 77,6 e 4810) e osserva che a un'inversione il taglio del vento può generare onde che fanno oscillare in quota il condotto, causa possibile delle evanescenze profonde (§ 3.26). Fonte italiana segnalata da Bean e Dutton e da cercare: L. Bonavoglia (dicembre 1958), "Correlazione fra fenomeni meteorologici e propagazione…".
 
-## 7. Da presentazioni radioamatoriali e rapporti tecnici (seconda serie)
+## 8. Da presentazioni radioamatoriali e rapporti tecnici (seconda serie)
 
 Sette documenti forniti dall'autore del programma. Tre servono direttamente all'indice: W3SZ per il "pavimento" di troposcatter, LA0BY per i casi che Hepburn non aveva previsto, Hepburn (traduzione LU7MC) per la classificazione meteo dei condotti.
 
@@ -262,7 +271,7 @@ Conclusione dell'autore: Hepburn e F5LEN non bastano, servono i profili in quota
 
 **6. Rapporto NASA** (E. Hirschmann, "Tropospheric and Ionospheric Effects upon Radio Frequency (VHF-SHF) Communication", Goddard X-731-67-89, 1967): riguarda gli errori di distanza verso i satelliti, non il DX. Riporta la stessa formula di N e il profilo esponenziale (esempio in Florida: Ns 370, ΔN −55, costante 0,161/km) e rimanda a due fonti NBS da cercare: Bean e Thayer, "CRPL Exponential Reference Atmosphere", Monograph 4 (1959), e Bean, Horn e Ozanich, "Climatic Charts and Data of Radio Refractive Index for the United States and the World", Monograph 22 (1960).
 
-## 8. Da The VHF/UHF DX Book, capitolo 2
+## 9. Da The VHF/UHF DX Book, capitolo 2
 
 I. White G3SEK (a cura di), *The VHF/UHF DX Book*, DIR Publishing 1995 (ISBN 0 9520468 0 6; replica digitale 2017), capitolo 2 "VHF/UHF Propagation", pp. 2-13, 2-22–2-29 e 4-11. È il testo più vicino all'esperienza radioamatoriale fra quelli raccolti; conferma le soglie già usate e aggiunge regole sinottiche nuove.
 
@@ -302,7 +311,7 @@ I. White G3SEK (a cura di), *The VHF/UHF DX Book*, DIR Publishing 1995 (ISBN 0 9
 
 Riferimenti citati da cercare: R. G. Flavell G3LTP, "Studies of an Extensive Anticyclonic Propagation Event…", *Radio Communication*, febbraio 1984, p. 128; J. Gannaway G3YGF, "Tropospheric Scatter Propagation", *Radio Communication*, settembre 1981, p. 710; P. W. Sollom G3BGL, "A Little Flutter on VHF", *RSGB Bulletin*, novembre e dicembre 1966; J. Priedigkeit W6ZGN, "Ray tracing and VHF/UHF Radio Propagation", *QST*, novembre 1986, p. 18.
 
-## 9. Un modello radioamatoriale verificato: Biancomano e Leyshon (1998)
+## 10. Un modello radioamatoriale verificato: Biancomano e Leyshon (1998)
 
 V. J. Biancomano, S. W. Leyshon, "Practical Tropospheric Model for VHF/UHF Propagation Prediction", *National Weather Digest* 22:2, giugno 1998, pp. 15–24, **gratis** in [PDF dalla National Weather Association](https://nwafiles.nwas.org/file/nwafiles/digest/papers/1998/Vol22No2/Pg15-Biancomano.pdf). È l'unico lavoro raccolto che costruisce un previsore per 144, 222 e 432 MHz e lo verifica contro i collegamenti reali.
 
@@ -321,7 +330,7 @@ Dal PDF completo (fornito dall'autore del programma) tre dettagli in più. La lo
 
 Altra fonte nello stesso pacchetto, di poco uso per noi: P. K. Rastogi, "Stratosphere and Troposphere (S-T) Studies at Millstone Hill", NASA 1984 (documento 19840019069): radar a 440 MHz che misura la turbolenza dell'aria limpida fra 4 e 25 km, con strati sottili legati a onde di gravità e taglio del vento. Conferma che la turbolenza che produce lo scatter è a strati, ma riguarda quote troppo alte per i condotti.
 
-## 10. Terzo giro di fonti (20 novembre)
+## 11. Terzo giro di fonti (20 novembre)
 
 **Casi storici di condotto elevato.** J. Macoun OK1VR, collegamenti in 2 m dalla vetta dello Sněžka (1602 m), autunno 1958, articolo del 1959 tradotto nel 2006 ([ok2kkw.com](https://www.ok2kkw.com/snezka/ok1vr_1_en.htm)). Il 27–28 ottobre 1958 primo collegamento Cecoslovacchia–Inghilterra sui 145 MHz (G5YV, 1220 km) e molti altri fra 1100 e 1250 km, con segnali stabili dopo le 23. L'autore lo attribuisce a due inversioni sovrapposte, la superiore verso 2200 m, con il segnale che tornava a terra solo dove lo strato inferiore si dissolveva; condizione favorita da un anticiclone lento dall'Atlantico verso il continente. Da casa (Praga) il suo massimo era 530 km: solo le stazioni in quota entravano nel condotto. È un altro caso di verifica (come LA0BY 2018) e conferma che l'indice deve cercare condotti **sopra i 2000 m** e confrontarli con la quota delle stazioni.
 
@@ -432,7 +441,7 @@ Già analizzati o di scarso contenuto: Hirschmann NASA X-731-67-89 (doppione), r
 
 **Undicesimo giro (21 novembre): atmosfera di riferimento, Longley-Rice, GEKO 69.** Bean e Thayer, "Models of the Atmospheric Radio Refractive Index", Proc. IRE maggio 1959 (pp. 740 e seguenti): il modello 4/3 ha la pendenza giusta nel primo km ma cala troppo più in alto; il 30% della curvatura di un raggio radente avviene nei primi 100 m e il 60% nel primo km; relazione media fra Ns e calo nel primo km: −ΔN = 7,32·e^(0,005577·Ns) (Ns = 313 → ΔN circa −42). Bean e Thayer, "C.R.P.L. Exponential Reference Atmosphere", J. Res. NBS 63D n. 3 (1959): N(h) = Ns·e^(−c·h) con c fissato da Ns tramite la stessa relazione; Ns medio USA 313; tabelle di tracciamento dei raggi (curvatura totale 15,2 mrad con il modello esponenziale contro 30,3 mrad con la Terra 4/3). MATLAB refractionexp: c = 0,143859 km⁻¹ per Ns = 313 (scala circa 6,95 km), valido sopra circa 1 km e 10 mrad. Uso per noi: il profilo "normale" di confronto può essere quello CRPL con l'Ns locale invece di M = 315 + 0,118·z fisso, e l'anomalia del calo nel primo km va misurata rispetto a −7,32·e^(0,005577·Ns) invece che rispetto a −40 fisso. NTIA Report 82-100 (Hufford, Longley, Kissick 1982), guida all'ITM in modalità area: climi e Ns suggeriti (equatoriale 360, continentale subtropicale 320, marittimo subtropicale 370, deserto 280, continentale temperato 301, marittimo temperato su terra 320, marittimo temperato su mare 350); Ns = N0·e^(−hs/9,46 km); si usa il minimo mensile di Ns perché meno influenzato da super-rifrazione e sub-rifrazione; Ns = 301 corrisponde a ae = 8497 km; sotto 100 km Ns conta poco. Rice, Longley e Norton, NBS TN 15 (1959), parte I: formula di previsione della distribuzione nel tempo per onda di terra e troposferica, base di TN 101. SoftWright, Wikipedia, Altair WinProp e MATLAB rfprop.LongleyRice: stesse informazioni (versione 1.2.2, 20 MHz–20 GHz o 40 GHz, 1–2000 km, Ns 301, sette climi, variabilità di tempo, luogo e situazione); nessuno modella i condotti, solo l'effetto statistico dei climi marittimi ("campi molto più alti per il 10% del tempo o meno"). GEKO Magazine n. 69 (IU3QEZ): orizzonte radio 4/3 di 130 km da 1000 m, 260 km sommando due stazioni; troposcatter con volume comune fra 1–3 km e 10 km; scatter da aerei a 10 km con +10–20 dB per decine di secondi o un paio di minuti; portate teoriche con 2×10 elementi per lato: SSB QRP circa 440 km, SSB 50 W circa 510 km, CW QRP circa 600 km, SSB 500 W circa 640 km (500 W in SSB rendono 40 km più di 5 W in CW); al 90–99% del tempo va tolto un margine di 10–20 dB; 5–10 dB per grado d'orizzonte sui tratti lunghi; la quota conta per liberare l'orizzonte, non per avvicinare il volume comune; Alpe Adria 2026: il 99% dei QSO via troposcatter, quasi nessuno via aerei nonostante AirScout.
 
-## 11. Tavola rotonda: fonti per validare il modello o correggerlo (21 novembre)
+## 12. Tavola rotonda: fonti per validare il modello o correggerlo (21 novembre)
 
 Riepilogo di tutti i giri di fonti, ordinato per uso. "Stato" dice se la fonte è già nel programma (1.3.1), se è in prova o se è da fare.
 
@@ -482,7 +491,7 @@ Condotto sul mare a bassa quota (100–200 m) che i livelli GFS non vedono (stud
 
 Senza contenuto utile per l'indice: *Communications Quarterly*, autunno 1991 (nessun articolo sulla tropo; l'articolo di Atkins sullo scatter è nel numero dell'inverno 1991).
 
-## 12. Dagli articoli di IK3XTV
+## 13. Dagli articoli di IK3XTV
 
 I due articoli di Flavio Egano IK3XTV (Radio Rivista: "Propagazione sui 2 metri" e "Propagazione VHF – celle convettive e onde gravitazionali") aggiungono due cose che i modelli di condotto non coprono: le aperture transalpine del pomeriggio dovute alla convezione, e regole pratiche su dove e quando si formano i condotti in Italia. Sono osservazioni da stazione, non misure: vanno trattate come ipotesi da verificare con gli spot.
 
@@ -505,7 +514,7 @@ Altri dati utili dagli stessi articoli:
 - Per l'E sporadico in 144 MHz l'autore riporta il lavoro di DF5AI e di Davis e Johnson (Nature 435, 2005) sul legame fra temporali e Es: fuori dalla tropo, ma un domani un indicatore separato potrebbe usare i dati dei fulmini.
 - Riflessione al suolo nel doppio salto Es: mare K = 81 e 5 S/m, campagna e boschi K = 13 e 0,006 S/m, aree urbane K = 3 e 0,001 S/m.
 
-## 13. Ipotesi di indice LIVETROPOVHF
+## 14. Ipotesi di indice LIVETROPOVHF
 
 Proposta di partenza, da discutere: un indice 0–10 sulla stessa scala di Hepburn, calcolato per ogni punto della griglia e ogni 3 ore da GFS (poi ECMWF e ICON per confronto), e un secondo numero per percorso che dice quanta parte del tragitto passa in un condotto utile alla banda scelta. I pesi qui sotto sono ipotesi mie, da tarare con gli spot.
 
@@ -552,7 +561,17 @@ Dal VHF/UHF DX Book, altre correzioni da provare: **giorni consecutivi di alta p
 - Casi storici di LA0BY (6–11/11/2003, 10/12/2004, 15/10/2011, 11/2/2015, 22/11/2018): l'indice ricalcolato su quei giorni deve vedere i condotti che Hepburn non mostrava.
 - Limiti da dichiarare nel manuale: condotti sotto 100–200 m quasi invisibili ai livelli di pressione GFS; previsione affidabile per 2–3 giorni, poi solo tendenza.
 
-## 14. Fonti
+## 15. Fonti del 21 novembre (seconda parte)
+
+- **ITU-R P.1812** (implementazione MATLAB/Octave di I. Stevanovic, OFCOM; GitHub eeveetza/p1812, Zenodo 10.5281/zenodo.6141558). Metodo punto-area VHF/UHF specifico della tratta, derivato da P.452: diffrazione «delta-Bullington», troposcatter, condotti e riflessione su strati, ingombri al suolo. Utile come terzo confronto accanto a P.452 nel calcolo punto-punto; i dati ΔN e N0 sono prodotti ITU integrali, quindi l'utente li scarica (come per P.453).
+- **da Costa, Rabanal Ramirez, Dias, IET MAP 2018 (doi 10.1049/iet-map.2017.0992).** 563 MHz, 27 punti fra 5 e 30 km su terreno irregolare con foresta: P.526 a spigoli con 12 m di vegetazione −4,3 dB e σ 8,8 dB; P.1812 con 10 m di ingombro +2,6 dB e σ 8,9 dB; cuneo dielettrico −4,8 dB e σ 9,2 dB; P.1546 +5,0 dB e σ 11,7 dB. Per il programma: l'errore residuo di un buon metodo di diffrazione è circa 9 dB, e l'altezza degli ingombri sulle creste (10–12 m) conta.
+- **PETOOL (Ozgun e altri, Computer Physics Communications 182, 2011).** Equazione parabolica split-step a una e due vie con propagatore ad angolo largo (angoli fino a 40–45°, contro 10–15° di quello stretto); fondo con perdite tramite la trasformata di Fourier mista; terreno a gradini. Conferma le scelte della 1.3.2 (angolo largo, coefficienti del suolo) e indica il calcolo a due vie per i rilievi ripidi.
+- **MathWorks.** `tropopl`: perdita dei gas e perdita di «lente» in un'atmosfera a strati (P.835, P.676, P.453), senza condotti: con gradienti sotto −157 N/km il modello a ottica geometrica non vale. L'esempio di propagazione radar usa per la rifrazione −ΔN = 7,32·e^(0,005577·Ns), la stessa relazione CRPL già nel programma. `propagationModel` Longley-Rice: valori predefiniti polarizzazione orizzontale, conducibilità 0,005 S/m, permittività 15, rifrattività 301, clima continentale temperato. Nessun modello MathWorks tratta i condotti.
+- **ITU-R, prodotti digitali del gruppo 3.** Dati e programmi di P.453, P.452, P.1812, P.2001, P.528, P.1546; i dati «integrali» sono parte delle raccomandazioni; nessuna licenza di ridistribuzione dichiarata: si continua a farli scaricare all'utente.
+- **ESA Navipedia, ritardo troposferico.** N = Nidrostatica + Numida; il ritardo zenitale secco è circa 2,3 m e quello umido decine di cm, che varia in fretta. Per noi: il ritardo umido stimato dalle stazioni GNSS è una misura indiretta dell'umidità integrata, possibile fonte futura di now-casting; oggi non è usabile.
+- **VK3FS (3fs.net.au).** Introduzione qualitativa: condotti elevati a 450–2000 m per le aperture più lunghe su terra; inversioni da irraggiamento di 300–600 m nelle notti serene e calme, che spariscono dopo l'alba; inversioni costiere più forti nel pomeriggio; 800–1300 km tipici, 1400–1600 km frequenti in condotto. Coerente con gli avvisi giorno/notte e con il soffitto di 2500 m.
+
+## 16. Fonti
 
 **Norme e formule**
 
