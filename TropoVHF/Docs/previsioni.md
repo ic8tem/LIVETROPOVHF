@@ -133,7 +133,9 @@ Dalla 1.3.0 il profilo dà anche tre informazioni meteorologiche, che si vedono 
 
 Senza un condotto che intrappola la banda il guadagno totale non supera 16 dB, la fine del giallo: le correzioni rendono più evidenti gli strati forti ma non li fanno passare per condotti (rosso e viola restano ai condotti).
 
-La casella Correzioni meteo spegne le prime due correzioni per vedere il modello della 1.2.
+- Persistenza (dalla 1.3.1). Le aperture maggiori arrivano dopo giorni di alta pressione già buoni (VHF/UHF DX Book; Biancomano e Leyshon 1998, regola delle 12 ore; i rapporti del 29/12/2021–2/1/2022 crescono dal primo al quarto giorno). Per ogni cella il programma conta le ore delle 24 precedenti con guadagno di almeno 13 dB e aggiunge fino a 2 dB in proporzione, solo dove il guadagno è già almeno 10 dB. Sul calcolo del segnale si usa la media lungo la tratta.
+
+La casella Correzioni meteo spegne queste correzioni per vedere il modello della 1.2.
 
 Validazione (paragrafo 14): sui 593 collegamenti a 144 MHz fra il 29 dicembre 2021 e il 2 gennaio 2022, confrontati con le stesse tratte e ore due settimane dopo, l'indice di separazione (0,5 = nessuna, 1 = perfetta) vale 0,79 senza correzioni e 0,91 con le correzioni (prima del tetto a 16 dB). Lo stesso confronto mostra il limite principale: il condotto sul mare a bassa quota, che in quei giorni portava i segnali fra la Campania e la Liguria, non è visibile ai livelli del GFS.
 
@@ -141,7 +143,7 @@ Validazione (paragrafo 14): sui 593 collegamenti a 144 MHz fra il 29 dicembre 20
 
 Se lo strato intrappola la banda su almeno l'80% della frazione usata e le stazioni non sono in vista, si calcola anche la perdita nel condotto: spazio libero, più l'accoppiamento delle antenne (3 dB se sono dentro il condotto, di più se sono sopra o sotto), più l'attenuazione residua γd = 5·10⁻⁵·ae·f^(1/3) dB/mrad di ITU-R P.452 eq. 49 [6]. Se è minore della perdita senza tropo diventa la perdita prevista.
 
-Una banda resta nel condotto solo se la sua lunghezza d'onda non supera λmax = 2√2·(2/3)·√(ΔM·10⁻⁶)·d (Kerr, eq. 17 [11]). Per questo lo stesso strato può intrappolare i 23 cm e i 70 cm ma non i 2 m.
+Una banda resta nel condotto solo se la sua lunghezza d'onda non supera λmax = 2√2·(2/3)·√(ΔM·10⁻⁶)·d (Kerr, eq. 17 [11]). Per questo lo stesso strato può intrappolare i 23 cm e i 70 cm ma non i 2 m. Il limite però non è netto: Kerr avverte che anche onde parecchie volte più lunghe risentono molto del condotto, e Hepburn e il VHF/UHF DX Book parlano di bordi «sfocati» e di condotti «che perdono». Dalla 1.3.1 il programma usa quindi un condotto morbido: se λ è fra λmax e 3·λmax, il guadagno passa gradualmente da 15 dB (λ = 3·λmax) al guadagno del condotto pieno (λ = λmax), con il fattore s = (λmax/λ − 1/3)/(2/3). In quel caso sono ammessi i colori di condotto. Il registro e la riga Meteo lungo la tratta indicano i punti con condotto morbido.
 
 ## 11. Confronto con ITU-R P.452
 

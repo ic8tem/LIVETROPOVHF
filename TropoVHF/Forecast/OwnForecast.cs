@@ -81,15 +81,42 @@ public sealed class ProfileResult
         return 0.3048 * Math.Pow(lamCm / 0.014, 2.0 / 3.0);
     }
 
+    /// <summary>
+    /// Condotto "morbido" (Kerr 1951; Hepburn; VHF/UHF DX Book): il limite λ ≤ λmax non è un taglio netto, anche onde
+    /// fino a circa 3 volte più lunghe sentono molto il condotto. Restituisce lo strato con il fattore migliore
+    /// s = (λmax/λ − 1/3)/(2/3) fra 0 e 1 (1 = intrappola davvero) e il fattore stesso.
+    /// </summary>
+    public (LayerDuct layer, double s) SoftDuct(double freqMHz)
+    {
+        if (!Refractivity.UseSoftDuct) return (null, 0);
+        double lam = 299.792458 / freqMHz;
+        LayerDuct best = null; double bs = 0;
+        foreach (var l in Layers)
+        {
+            if (l.Deficit <= 0 || l.LambdaMax <= 0) continue;
+            double s = Math.Max(0, Math.Min(1, (l.LambdaMax / lam - 1.0 / 3) / (2.0 / 3)));
+            if (s > bs || (s == bs && best != null && l.Deficit > best.Deficit)) { bs = s; best = l; }
+        }
+        return (best, bs);
+    }
+
+    /// <summary>Guadagno di un condotto che intrappola la banda: 20 dB più 1 dB ogni 5 unità M di deficit, al massimo 25.</summary>
+    public static double DuctGain(double deficit) => Math.Min(25, 20 + deficit / 5.0);
+
+    /// <summary>C'è un condotto (pieno o morbido) per la banda: sopra 16 dB i colori di condotto sono ammessi.</summary>
+    public bool DuctLike(double freqMHz) => BestDuct(freqMHz) != null || SoftDuct(freqMHz).s > 0;
+
     /// <summary>Guadagno stimato in dB rispetto al profilo normale, per una frequenza (con le correzioni semplici).</summary>
     public double GainDb(double freqMHz)
     {
         double g = LayerGainDb;
         var bd = BestDuct(freqMHz);
-        if (bd != null) g = Math.Max(g, Math.Min(25, 20 + bd.Deficit / 5.0));
+        var (sl, sf) = bd == null ? SoftDuct(freqMHz) : (null, 0.0);
+        if (bd != null) g = Math.Max(g, DuctGain(bd.Deficit));
+        else if (sf > 0) g = Math.Max(g, 15 + sf * (DuctGain(sl.Deficit) - 15));   // condotto morbido: da 15 verso 20–25 dB
         else if (Layers.Any(l => l.Deficit > 0)) g = Math.Max(g, 15);     // condotto troppo sottile per la banda
         // rimescolamento: vento forte al suolo o strato limite molto alto cancellano i condotti al suolo (Bean e Dutton § 4.4)
-        bool surf = bd != null ? bd.Surface : (HasDuct && SurfaceDuct);
+        bool surf = bd != null ? bd.Surface : sl != null ? sl.Surface : (HasDuct && SurfaceDuct);
         if (surf && g > 10)
         {
             if (Wind10 > 8) g = 10 + (g - 10) * 0.4;
@@ -100,13 +127,13 @@ public sealed class ProfileResult
         if (Cape > 1500) g -= 3; else if (Cape > 800) g -= 1.5;
         if (Refractivity.UseCorrections)
         {
-            // Misme: la stabilità termica conta quando non c'è un condotto che intrappola la banda
-            if (bd == null) g += StabDb;
+            // Misme: la stabilità termica conta quando non c'è un condotto che intrappola la banda (in proporzione col morbido)
+            if (bd == null) g += StabDb * (1 - sf);
             // Moler e Holden 1960: la subsidenza mantiene gli strati, i moti ascendenti li rompono
             g += VertDb;
         }
-        // senza un condotto che intrappola la banda il guadagno resta nel giallo: rosso e viola solo per i condotti
-        if (bd == null) g = Math.Min(g, Refractivity.NoDuctCapDb);
+        // senza condotto il guadagno resta nel giallo: rosso e viola solo per i condotti (pieni o morbidi)
+        if (bd == null && sf <= 0) g = Math.Min(g, Refractivity.NoDuctCapDb);
         return g;
     }
 
@@ -125,6 +152,12 @@ public static class Refractivity
     public const double DeltaWStd = 56;      // ΔW dell'atmosfera standard (Δθ ≈ 3,3 K/km)
     /// <summary>Tetto del guadagno senza condotto (fine del giallo, «strato forte, nessun condotto»): validazione 1.3.0.</summary>
     public const double NoDuctCapDb = 16;
+    /// <summary>Condotto morbido (λ fino a 3 volte λmax): 1.3.1, si spegne per confronto nella validazione.</summary>
+    public static bool UseSoftDuct = true;
+    /// <summary>Persistenza: bonus fino a 2 dB se nelle 24 ore precedenti la stessa cella era già sopra 13 dB.</summary>
+    public static bool UsePersistence = true;
+    public const double PersistMaxDb = 2, PersistThrDb = 13;
+    public const int PersistHours = 24;
 
     /// <summary>Dati aggiuntivi di un'ora (NaN se la sorgente non li ha).</summary>
     public struct Extra
@@ -776,7 +809,7 @@ public sealed class OwnForecast
             lock (_lock)
             {
                 LatMin = latMin; LonMin = lonMin; LatMax = latMin + (rows - 1) * step; LonMax = lonMin + (cols - 1) * step;
-                Step = step; Rows = rows; Cols = cols; Times = times; Grid = grid;
+                Step = step; Rows = rows; Cols = cols; Times = times; Grid = grid; _persist.Clear();
             }
             UpdatedUtc = DateTime.UtcNow;
             {
@@ -851,7 +884,9 @@ public sealed class OwnForecast
             {
                 var p = Grid[t][r, c];
                 if (p == null || w <= 0) return;
-                sum += w * p.Index(freqMHz); wsum += w;
+                double g = p.GainDb(freqMHz);
+                double pb = PersistBonus(t, r, c, freqMHz, g, p);
+                sum += w * Math.Max(0, Math.Min(10, (g + pb) / 2.5)); wsum += w;
             }
             Add(r0, c0, (1 - tr) * (1 - tc)); Add(r0, c0 + 1, (1 - tr) * tc); Add(r0 + 1, c0, tr * (1 - tc)); Add(r0 + 1, c0 + 1, tr * tc);
             return wsum < 0.25 ? double.NaN : sum / wsum;
@@ -859,6 +894,55 @@ public sealed class OwnForecast
     }
 
     public bool HasData { get { lock (_lock) return Rows > 0 && Times.Length > 0; } }
+
+    // persistenza: frazione delle 24 ore precedenti in cui la cella era sopra 13 dB (cache per ora e frequenza)
+    readonly Dictionary<(int t, double f, bool corr, bool soft), double[,]> _persist = new();
+
+    /// <summary>
+    /// Bonus di persistenza (VHF/UHF DX Book: le aperture maggiori arrivano dopo giorni di alta pressione; Biancomano e
+    /// Leyshon 1998: persistenza a 12 ore): fino a +2 dB in proporzione alle ore delle 24 precedenti con guadagno ≥ 13 dB,
+    /// solo se la cella è già sopra 10 dB. Senza condotto il totale resta entro 16 dB.
+    /// </summary>
+    double PersistBonus(int t, int r, int c, double f, double g, ProfileResult p)
+    {
+        if (!Refractivity.UsePersistence || !Refractivity.UseCorrections || g < 10 || t <= 0) return 0;
+        var key = (t, f, Refractivity.UseCorrections, Refractivity.UseSoftDuct);
+        if (!_persist.TryGetValue(key, out var arr))
+        {
+            arr = new double[Rows, Cols];
+            int t0 = Math.Max(0, t - Refractivity.PersistHours);
+            for (int rr = 0; rr < Rows; rr++)
+                for (int cc = 0; cc < Cols; cc++)
+                {
+                    int n = 0, hi = 0;
+                    for (int k = t0; k < t; k++)
+                    {
+                        var q = Grid[k][rr, cc]; if (q == null) continue;
+                        n++; if (q.GainDb(f) >= Refractivity.PersistThrDb) hi++;
+                    }
+                    arr[rr, cc] = n > 0 ? (double)hi / Math.Max(n, Math.Min(Refractivity.PersistHours, 12)) : 0;
+                }
+            if (_persist.Count > 400) _persist.Clear();
+            _persist[key] = arr;
+        }
+        double b = Refractivity.PersistMaxDb * arr[r, c];
+        if (!p.DuctLike(f)) b = Math.Max(0, Math.Min(b, Refractivity.NoDuctCapDb - g));
+        return b;
+    }
+
+    /// <summary>Persistenza della cella più vicina (frazione 0–1 delle 24 ore precedenti sopra 13 dB), per il calcolo sul percorso.</summary>
+    public double PersistAt(double lat, double lon, DateTime utc, double f)
+    {
+        lock (_lock)
+        {
+            int t = TimeIndex(utc);
+            if (t <= 0 || Rows == 0) return 0;
+            int r = (int)Math.Round((lat - LatMin) / Step), c = (int)Math.Round((lon - LonMin) / Step);
+            if (r < 0 || c < 0 || r >= Rows || c >= Cols || Grid[t][r, c] == null) return 0;
+            PersistBonus(t, r, c, f, 99, Grid[t][r, c]);
+            return _persist.TryGetValue((t, f, Refractivity.UseCorrections, Refractivity.UseSoftDuct), out var a) ? a[r, c] : 0;
+        }
+    }
 
     /// <summary>Celle della griglia all'ora più vicina (per i segni meteo sulla mappa).</summary>
     public List<(double lat, double lon, ProfileResult p)> Cells(DateTime utc)

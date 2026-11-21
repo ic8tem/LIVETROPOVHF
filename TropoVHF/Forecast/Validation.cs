@@ -77,11 +77,19 @@ public static class Validation
             return r;
         }
 
-        foreach (bool corr in new[] { true, false })
+        var configs = new (string name, bool soft, bool corr, bool pers, bool detail)[]
         {
-            Refractivity.UseCorrections = corr;
+            ("modello 1.2 (niente condotto morbido, niente correzioni)", false, false, false, false),
+            ("+ condotto morbido", true, false, false, false),
+            ("+ condotto morbido + Misme e subsidenza", true, true, false, false),
+            ("1.3.1 completo: + persistenza", true, true, true, true),
+        };
+        foreach (var cf in configs)
+        {
+            Refractivity.UseSoftDuct = cf.soft; Refractivity.UseCorrections = cf.corr; Refractivity.UsePersistence = cf.pers;
+            bool corr = cf.detail;
             W("");
-            W($"===== correzioni meteo (Misme, subsidenza) {(corr ? "ACCESE" : "SPENTE")} =====");
+            W($"===== {cf.name} =====");
             foreach (var cat in qs.Select(q => q.Cat).Distinct().OrderByDescending(c => c == "tropo"))
             {
                 var sel = qs.Where(q => q.Cat == cat).ToList();
@@ -92,7 +100,7 @@ public static class Validation
                 string Q(IEnumerable<double> v) { var a = v.OrderBy(x => x).ToArray(); if (a.Length == 0) return "—"; double P(double f) => a[(int)Math.Min(a.Length - 1, Math.Floor(f * a.Length))]; return string.Format(ci, "mediana {0:0.0}, 10° {1:0.0}, 90° {2:0.0}", P(0.5), P(0.1), P(0.9)); }
                 W($"   guadagno medio lungo la tratta (dB): evento {Q(e.Select(x => x.r.Mean))}; confronto {Q(c.Select(x => x.r.Mean))}");
                 W($"   guadagno massimo lungo la tratta (dB): evento {Q(e.Select(x => x.r.Max))}; confronto {Q(c.Select(x => x.r.Max))}");
-                foreach (var thr in new[] { 7.0, 10.0, 13.0 })
+                foreach (var thr in new[] { 7.0, 10.0, 13.0, 16.0 })
                     W(string.Format(ci, "   tratte con guadagno medio ≥ {0:0} dB: evento {1:0}% (presi), confronto {2:0}% (falsi allarmi)", thr,
                         100.0 * e.Count(x => x.r.Mean >= thr) / e.Count, c.Count > 0 ? 100.0 * c.Count(x => x.r.Mean >= thr) / c.Count : double.NaN));
                 W(string.Format(ci, "   frazione media della tratta sopra 10 dB: evento {0:0}%, confronto {1:0}%", 100 * e.Average(x => x.r.Frac10), c.Count > 0 ? 100 * c.Average(x => x.r.Frac10) : double.NaN));
@@ -126,7 +134,7 @@ public static class Validation
                     W(string.Format(ci, "      {0:dd/MM HH:mm} {1}–{2} {3:0} km: medio {4:0.0} dB, massimo {5:0.0} dB", x.q.Utc, x.q.LA, x.q.LB, x.q.Km, x.r.Mean, x.r.Max));
             }
         }
-        Refractivity.UseCorrections = true;
+        Refractivity.UseCorrections = true; Refractivity.UseSoftDuct = true; Refractivity.UsePersistence = true;
         try { File.WriteAllText(outFile, sb.ToString()); } catch { }
         return 0;
     }

@@ -111,6 +111,8 @@ public sealed class LinkResult
     public double P617Db = double.NaN, P617F, P617N0, P617DeltaN, RsgbDb = double.NaN, ScatSpreadDb;
     // situazione meteo lungo la tratta (frazione dei profili)
     public double SubsFrac, AscentFrac, SciroccoFrac, StabDbMean;
+    public int SoftN; public double SoftMax;          // punti con condotto morbido e fattore massimo
+    public double PersistFrac = double.NaN;           // persistenza media lungo la tratta (0–1)
     public string TxVsDuct = "", RxVsDuct = "";
     public double FresnelMinRatio = double.NaN;        // minimo di (spazio libero sopra il terreno) / raggio della 1ª zona di Fresnel
     public List<(double km, double hM, double ratio, double nu)> Obstacles = new();
@@ -208,6 +210,8 @@ public static class LinkCalc
         public double ReqSsb = 6, ReqCw = 0, ReqFt8 = -21;
         public string NoiseEnv = "quiet";      // ambiente del ricevitore (P.372)
         public double ManualTaK = 300;
+        /// <summary>Persistenza media lungo la tratta (frazione delle 24 ore precedenti sopra 13 dB), dalla griglia; NaN = non nota.</summary>
+        public double PersistFrac = double.NaN;
     }
 
     /// <summary>Calcolo completo; prof = profili di previsione lungo il percorso (o null se non c'è previsione).</summary>
@@ -351,6 +355,7 @@ public static class LinkCalc
             double cell = np > 1 ? d / (np - 1) : d;
             var keys = prof.Where(p => p != null).SelectMany(p => p.Layers).Select(l => l.Key).Distinct().ToList();
             (int key, int a, int b, bool traps, double score) best = (-1, 0, -1, false, 0);
+            var softPts = new List<double>();   // guadagno per punto con il condotto morbido (strato non intrappolante)
             foreach (bool wantTrap in new[] { true, false })
             {
                 foreach (var key in keys)
@@ -393,6 +398,19 @@ public static class LinkCalc
                     r.LambdaMinA = dual.Min(l => l.LambdaA); r.LambdaMinB = dual.Min(l => l.LambdaB);
                     r.ClimThickMean = dual.Average(l => l.ClimThick); r.AnomalyMean = dual.Average(l => l.Anomaly);
                 }
+                if (!best.traps && Refractivity.UseSoftDuct)
+                {
+                    double lam0 = 299.792458 / o.FreqMHz;
+                    for (int q = 0; q < run.Count; q++)
+                    {
+                        var l = run[q].l; var pr = prof[best.a + q];
+                        double sf = l.Deficit > 0 && l.LambdaMax > 0 ? Math.Max(0, Math.Min(1, (l.LambdaMax / lam0 - 1.0 / 3) / (2.0 / 3))) : 0;
+                        softPts.Add(sf > 0 ? Math.Max(pr.LayerGainDb, 15 + sf * (ProfileResult.DuctGain(l.Deficit) - 15)) : pr.LayerGainDb);
+                        if (sf > 0) r.SoftN++;
+                        r.SoftMax = Math.Max(r.SoftMax, sf);
+                    }
+                    if (r.SoftN > 0) CalcLog.W($"   condotto morbido (λ fino a 3 volte λmax, Kerr/Hepburn): {r.SoftN} punti su {run.Count}, fattore massimo {r.SoftMax:0.00}");
+                }
                 r.RunDist = run.Select(x => x.dist).ToArray(); r.RunTop = run.Select(x => top(x.l)).ToArray(); r.RunBase = run.Select(x => bas(x.l)).ToArray();
                 if (run.Count >= 2)
                 {
@@ -423,6 +441,7 @@ public static class LinkCalc
             if (best.key >= 0)
             {
                 double gl = best.traps ? Math.Min(25, 20 + r.DeficitMean / 5.0)
+                                       : softPts.Count > 0 ? softPts.Average()
                                        : Enumerable.Range(best.a, best.b - best.a + 1).Average(i => prof[i].LayerGainDb);
                 if (Refractivity.UseCorrections)
                 {
@@ -431,7 +450,14 @@ public static class LinkCalc
                     double corr = rng.Average(p => p.VertDb + (best.traps ? 0 : p.StabDb));
                     if (Math.Abs(corr) >= 0.05) CalcLog.W($"correzioni meteo sullo strato: {(best.traps ? "moto verticale" : "stabilità di Misme + moto verticale")} {corr:+0.0;-0.0} dB");
                     gl += corr;
-                    if (!best.traps) gl = Math.Min(gl, Refractivity.NoDuctCapDb);
+                    if (Refractivity.UsePersistence && !double.IsNaN(o.PersistFrac) && gl >= 10)
+                    {
+                        double pb = Refractivity.PersistMaxDb * o.PersistFrac;
+                        r.PersistFrac = o.PersistFrac;
+                        CalcLog.W($"persistenza: {o.PersistFrac * 100:0}% delle {Refractivity.PersistHours} ore precedenti sopra {Refractivity.PersistThrDb:0} dB lungo la tratta → +{pb:0.0} dB");
+                        gl += pb;
+                    }
+                    if (!best.traps && r.SoftN == 0) gl = Math.Min(gl, Refractivity.NoDuctCapDb);
                 }
                 // CSIRO 2026: sul mare il condotto c'è quasi sempre, la ricezione la decide il tratto su terra
                 bool landMatters = r.LandKm >= 0.1 * d && !double.IsNaN(r.LandCov);

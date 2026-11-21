@@ -6,6 +6,8 @@ Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
 ## 1.3.1 — 21/11/2026
 - Previsioni: senza un condotto che intrappola la banda il guadagno non supera più 16 dB (fine del giallo, «strato forte, nessun condotto»): il termine di stabilità di Misme e la subsidenza non portano più al rosso o al viola le zone senza condotto. Rosso e viola restano solo per i condotti.
+- Previsioni: condotto «morbido» (Kerr, Hepburn, VHF/UHF DX Book): uno strato che non intrappola del tutto la banda, con λ fino a 3 volte la lunghezza d'onda massima, dà un guadagno graduale fra 15 dB e quello del condotto pieno, invece di fermarsi a 15 dB.
+- Previsioni: persistenza: fino a +2 dB dove nelle 24 ore precedenti la stessa zona era già sopra 13 dB (le aperture crescono dopo giorni di alta pressione).
 - Previsioni: il registro scrive all'inizio di ogni aggiornamento la sorgente dei dati usata; se la sorgente è fissata su Open-Meteo e arriva il limite, il messaggio suggerisce NOMADS.
 - Previsioni: nuovo caso storico 29 dicembre 2021 – 2 gennaio 2022 (Tirreno e Mediterraneo occidentale, 144 MHz).
 - Validazione del modello su 593 collegamenti reali di quei giorni (solo ore e locatori, dai rapporti MMMonVHF): il modello separa i giorni dell'apertura dagli stessi giorni due settimane dopo (indice 0,79 senza correzioni, 0,91 con Misme e subsidenza). Il condotto sul mare a bassa quota non è visibile ai livelli del GFS.

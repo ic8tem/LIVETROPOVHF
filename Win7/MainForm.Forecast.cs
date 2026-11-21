@@ -371,7 +371,7 @@ public sealed partial class MainForm
         r2.Controls.Add(l2); r2.Controls.Add(hc);
         Add(col, r2);
 
-        var corr = Chk(L("Correzioni meteo: stabilità (Misme) e subsidenza", "Weather corrections: stability (Misme) and subsidence"), Refractivity.UseCorrections, v =>
+        var corr = Chk(L("Correzioni meteo: stabilità (Misme), subsidenza e persistenza", "Weather corrections: stability (Misme), subsidence and persistence"), Refractivity.UseCorrections, v =>
         {
             Refractivity.UseCorrections = v; _st.S.SetBool("fc_corr", v); _st.Dirty = true; _fcMap?.InvalidateVisual();
         });
@@ -455,6 +455,7 @@ public sealed partial class MainForm
                     }).ToList();
                 }
                 tm.Lap(fs != null ? "profili GFS scaricati" : "profili dalla griglia");
+                if (_own.HasData) opt.PersistFrac = pp.Average(p => _own.PersistAt(p.Lat, p.Lon, opt.Utc, opt.FreqMHz));
                 var r = await LinkCalc.Compute(tx, rx, opt, _srtm, prof, ct);
                 tm.Lap("calcolo sul percorso");
                 r.Times.Laps.Insert(0, tm.Laps[0]);

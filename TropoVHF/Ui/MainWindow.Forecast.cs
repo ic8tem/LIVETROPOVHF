@@ -543,6 +543,7 @@ public sealed partial class MainWindow
                     }).ToList();
                 }
                 tm.Lap(fs != null ? "profili GFS scaricati" : "profili dalla griglia");
+                if (_own.HasData) opt.PersistFrac = pp.Average(p => _own.PersistAt(p.Lat, p.Lon, opt.Utc, opt.FreqMHz));
                 var r = await LinkCalc.Compute(tx, rx, opt, _srtm, prof, ct);
                 tm.Lap("calcolo sul percorso");
                 r.Times.Laps.Insert(0, tm.Laps[0]);
@@ -645,7 +646,7 @@ public sealed partial class MainWindow
         sp2.Children.Add(hc);
         box.Children.Add(sp2);
 
-        var corr = new CheckBox { Content = L("Correzioni meteo: stabilità (Misme) e subsidenza", "Weather corrections: stability (Misme) and subsidence"), IsChecked = Refractivity.UseCorrections, FontSize = 12 };
+        var corr = new CheckBox { Content = L("Correzioni meteo: stabilità (Misme), subsidenza e persistenza", "Weather corrections: stability (Misme), subsidence and persistence"), IsChecked = Refractivity.UseCorrections, FontSize = 12 };
         corr.IsCheckedChanged += (_, _) =>
         {
             Refractivity.UseCorrections = corr.IsChecked == true; _st.S.SetBool("fc_corr", Refractivity.UseCorrections); _st.Dirty = true;
