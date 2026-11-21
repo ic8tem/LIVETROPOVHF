@@ -52,11 +52,11 @@ public static class ParabolicEq
         // 1.3.2: condotto d'evaporazione sul mare: profilo logaritmico M(z) = Ms + 0,125·[(z − zs) − δ·ln((z + z0)/(zs + z0))]
         if (p.Sea && p.EvapDuctM > 0.5)
         {
-            double zs = L[0].Z, ms = L[0].M, d = p.EvapDuctM, z0 = 1.5e-4;
-            double Mev(double z) => ms + 0.125 * ((z - zs) - d * Math.Log((z + z0) / (zs + z0)));
-            foreach (var z in new[] { 0.0, 0.5, 1, 1.5 }) if (z < zs) pts.Add((z, Mev(z)));
+            double zSea = L[0].Z, mSea = L[0].M, d = p.EvapDuctM, z0 = 1.5e-4;
+            double Mev(double z) => mSea + 0.125 * ((z - zSea) - d * Math.Log((z + z0) / (zSea + z0)));
+            foreach (var z in new[] { 0.0, 0.5, 1, 1.5 }) if (z < zSea) pts.Add((z, Mev(z)));
             double zTop = Math.Min(3 * d, L.Length > 1 ? L[1].Z - 5 : 3 * d);
-            foreach (var f in new[] { 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0 }) { double z = f * d; if (z > zs + 0.5 && z < zTop) pts.Add((z, Mev(z))); }
+            foreach (var f in new[] { 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0 }) { double z = f * d; if (z > zSea + 0.5 && z < zTop) pts.Add((z, Mev(z))); }
             // sopra il condotto si raccorda linearmente al primo livello del GFS
         }
         pts = pts.OrderBy(q => q.z).ToList();
