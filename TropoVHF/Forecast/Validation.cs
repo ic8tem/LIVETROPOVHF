@@ -149,6 +149,11 @@ public static class Validation
         }
         Refractivity.UseCorrections = true; Refractivity.UseSoftDuct = true; Refractivity.UsePersistence = true;
 
+        // ---- ITM (Longley-Rice, NTIA) sulle tratte reali, terreno da Open-Meteo (DEM Copernicus 90 m, 100 punti per tratta):
+        // quanti QSO si spiegano con una giornata normale, e se il guadagno previsto copre quello che manca
+        try { ItmSection(qs.Where(q => q.Cat == "tropo").ToList(), gEv, gCt, shift, W, ci, Path); }
+        catch (Exception ex) { W("ITM: sezione non riuscita: " + ex.Message); }
+
         // ---- equazione parabolica nel profilo M del GFS: guadagno rispetto all'atmosfera standard, evento contro confronto
         // (lenta: circa 10 minuti; si rilancia con LIVETROPOVHF_VALIDA_PE=1)
         if (Environment.GetEnvironmentVariable("LIVETROPOVHF_VALIDA_PE") == "1")
@@ -192,5 +197,88 @@ public static class Validation
 
         try { File.WriteAllText(outFile, sb.ToString()); } catch { }
         return 0;
+    }
+
+    /// <summary>Bilancio di riferimento per una stazione media in SSB: 100 W, cavo 2 dB per lato, antenne 14 dBi per lato,
+    /// rumore −174 + 10·log 2400 + NF 2 dB, rapporto segnale/rumore 3 dB → perdita massima circa 210 dB.</summary>
+    const double BudgetSsbDb = 50 - 2 + 14 + 14 - 2 - (-174 + 33.8 + 2 + 3);
+
+    static void ItmSection(List<Qso> tq, OwnForecast gEv, OwnForecast gCt, int shift, Action<string> W, CultureInfo ci, Func<OwnForecast, Qso, DateTime, Res> path)
+    {
+        W("");
+        W($"===== ITM (Longley-Rice, NTIA) sulle tratte reali: {tq.Count} QSO tropo, terreno Open-Meteo 90 m (100 punti), antenne a 10 m, 144 MHz =====");
+        W(string.Format(ci, "   bilancio di riferimento SSB (100 W, 2×14 dBi, cavi 2+2 dB, NF 2 dB, S/N 3 dB in 2,4 kHz): perdita massima {0:0} dB", BudgetSsbDb));
+        var cache = Path.Combine(Path.GetTempPath(), "livetropovhf-quote");
+        Directory.CreateDirectory(cache);
+        using var http = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+        http.DefaultRequestHeaders.UserAgent.ParseAdd("LIVETROPOVHF-validazione/1.3");
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var rows = new List<(Qso q, double l50, double l10, double l1, string mode, double gEv, double gCt)>();
+        int fail = 0, done = 0;
+        foreach (var q in tq)
+        {
+            var pts = Geo.GreatCircle(q.A, q.B, 99);
+            string key = string.Format(ci, "{0:0.000}_{1:0.000}_{2:0.000}_{3:0.000}.txt", q.A.Lat, q.A.Lon, q.B.Lat, q.B.Lon);
+            string fc = Path.Combine(cache, key);
+            double[] hh = null;
+            try
+            {
+                if (File.Exists(fc)) hh = File.ReadAllText(fc).Split(';').Select(x => double.Parse(x, ci)).ToArray();
+                else
+                {
+                    string url = "https://api.open-meteo.com/v1/elevation?latitude=" + string.Join(",", pts.Select(p => p.Lat.ToString("0.0000", ci))) +
+                                 "&longitude=" + string.Join(",", pts.Select(p => p.Lon.ToString("0.0000", ci)));
+                    for (int att = 0; att < 3 && hh == null; att++)
+                    {
+                        var resp = http.GetAsync(url).GetAwaiter().GetResult();
+                        if ((int)resp.StatusCode == 429) { Thread.Sleep(20000); continue; }
+                        if (!resp.IsSuccessStatusCode) break;
+                        var js = System.Text.Json.JsonDocument.Parse(resp.Content.ReadAsStringAsync().GetAwaiter().GetResult());
+                        hh = js.RootElement.GetProperty("elevation").EnumerateArray().Select(e => e.ValueKind == System.Text.Json.JsonValueKind.Number ? e.GetDouble() : 0).ToArray();
+                    }
+                    if (hh != null) File.WriteAllText(fc, string.Join(";", hh.Select(x => x.ToString("0.#", ci))));
+                    Thread.Sleep(150);
+                }
+            }
+            catch { hh = null; }
+            if (hh == null || hh.Length != pts.Count) { fail++; continue; }
+            int np = hh.Length - 1;
+            var pfl = new double[np + 3]; pfl[0] = np; pfl[1] = q.Km * 1000 / np;
+            int seaN = 0;
+            for (int i = 0; i <= np; i++) { pfl[i + 2] = Math.Max(0, hh[i]); if (hh[i] <= 0.5) seaN++; }
+            bool seaP = seaN >= 0.5 * (np + 1);
+            var cl = seaP ? Itm.Climate.MaritimeTemperateSea : Itm.Climate.MaritimeTemperateLand;
+            double n0 = seaP ? 350 : 320, eps = seaP ? 81 : 15, sig = seaP ? 5 : 0.005;
+            var a50 = Itm.P2P(10, 10, pfl, cl, n0, q.Freq, false, eps, sig, 13, 50, 50, 50);
+            if (a50.Error != 0) { fail++; continue; }
+            var a10 = Itm.P2P(10, 10, pfl, cl, n0, q.Freq, false, eps, sig, 13, 10, 50, 50);
+            var a01 = Itm.P2P(10, 10, pfl, cl, n0, q.Freq, false, eps, sig, 13, 1, 50, 50);
+            rows.Add((q, a50.AdB, a10.AdB, a01.AdB, a50.ModeName, path(gEv, q, q.Utc).Mean, gCt != null ? path(gCt, q, q.Utc.AddDays(shift)).Mean : double.NaN));
+            if (++done % 100 == 0) W($"   … {done} tratte ({sw.Elapsed.TotalSeconds:0} s)");
+        }
+        W($"   tratte calcolate {rows.Count}, senza terreno o fuori dai limiti {fail} ({sw.Elapsed.TotalSeconds:0} s)");
+        if (rows.Count == 0) return;
+        string Q(IEnumerable<double> v) { var a = v.Where(x => !double.IsNaN(x)).OrderBy(x => x).ToArray(); if (a.Length == 0) return "—"; double P(double f) => a[(int)Math.Min(a.Length - 1, Math.Floor(f * a.Length))]; return string.Format(ci, "mediana {0:0.0}, 10° {1:0.0}, 90° {2:0.0}", P(0.5), P(0.1), P(0.9)); }
+        W($"   perdita ITM al 50% del tempo (dB): {Q(rows.Select(x => x.l50))}; al 10%: {Q(rows.Select(x => x.l10))}; all'1%: {Q(rows.Select(x => x.l1))}");
+        foreach (var m in rows.GroupBy(x => x.mode)) W($"   meccanismo ITM «{m.Key}»: {m.Count()} tratte");
+        double B = BudgetSsbDb;
+        W(string.Format(ci, "   QSO spiegati da una giornata normale (perdita ≤ {0:0} dB): al 50% del tempo {1:0}%, nel 10% migliore {2:0}%, nell'1% migliore {3:0}%",
+            B, 100.0 * rows.Count(x => x.l50 <= B) / rows.Count, 100.0 * rows.Count(x => x.l10 <= B) / rows.Count, 100.0 * rows.Count(x => x.l1 <= B) / rows.Count));
+        var need = rows.Where(x => x.l50 > B).ToList();
+        if (need.Count > 0)
+        {
+            W($"   dB mancanti rispetto all'ITM al 50% (solo i {need.Count} QSO che non bastano): {Q(need.Select(x => x.l50 - B))}");
+            var ev = need.Where(x => !double.IsNaN(x.gEv)).ToList(); var ct = need.Where(x => !double.IsNaN(x.gCt)).ToList();
+            if (ev.Count > 0)
+                W(string.Format(ci, "   il guadagno medio previsto lungo la tratta copre i dB mancanti: evento {0:0}% ({1} QSO), stesse tratte 14 giorni dopo {2:0}% ({3}) — falsi allarmi",
+                    100.0 * ev.Count(x => x.gEv >= x.l50 - B) / ev.Count, ev.Count, ct.Count > 0 ? 100.0 * ct.Count(x => x.gCt >= x.l50 - B) / ct.Count : double.NaN, ct.Count));
+            foreach (var (lo, hi) in new[] { (0.0, 500.0), (500.0, 900.0), (900.0, 1300.0), (1300.0, 5000.0) })
+            {
+                var sel = rows.Where(x => x.q.Km >= lo && x.q.Km < hi).ToList();
+                if (sel.Count == 0) continue;
+                W(string.Format(ci, "      {0:0}–{1:0} km: {2} QSO, ITM 50% mediana {3:0}, spiegati al 50% {4:0}%, all'1% {5:0}%", lo, hi, sel.Count,
+                    sel.Select(x => x.l50).OrderBy(x => x).ElementAt(sel.Count / 2), 100.0 * sel.Count(x => x.l50 <= B) / sel.Count, 100.0 * sel.Count(x => x.l1 <= B) / sel.Count));
+            }
+        }
     }
 }

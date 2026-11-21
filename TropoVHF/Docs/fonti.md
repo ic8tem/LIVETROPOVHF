@@ -488,6 +488,7 @@ Condotto sul mare a bassa quota (100–200 m) che i livelli GFS non vedono (stud
 - Adottati: stima prudente (Bean e Dutton, 100 N/km) e aggressiva (ITU, 79 N/km) affiancate; condotti cercati solo sotto 2500 m (prima 1500 m, alzato dopo la validazione); bonus con alta pressione estesa e vento debole; peso del mare con il μ1 di P.452; quota delle stazioni rispetto al condotto anche su condotto parziale; strato limite sopra le creste (IT9GSF).
 - Adottato come alternativa, spento per difetto: profilo normale CRPL con Ns locale.
 - Equazione parabolica corretta numericamente: AUC da 0,12 a 0,54 (antenne a 30 m) e da 0,28 a 0,66 (300 m).
+- Adottato l'ITM 1.2.2 (NTIA/itm, pubblico dominio), tradotto in C#: secondo calcolo della linea di base in atmosfera normale accanto a P.452 e tratto finale dopo l'uscita da un condotto che finisce prima del corrispondente. Scartato il codice di qradiopredict perché sotto GPL v2.
 
 Senza contenuto utile per l'indice: *Communications Quarterly*, autunno 1991 (nessun articolo sulla tropo; l'articolo di Atkins sullo scatter è nel numero dell'inverno 1991).
 

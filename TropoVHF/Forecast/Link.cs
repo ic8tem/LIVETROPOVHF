@@ -93,6 +93,11 @@ public sealed class LinkResult
     public double DistKm, AzDeg, FreqMHz, K;
     public bool Los;
     public double LfsDb, LdiffDb, LbullDb, LscatDb, LbaseDb, TropoGainDb, LductDb, LpredDb;
+    // 1.3.2: ITM (Longley-Rice, NTIA) in atmosfera normale e tratto finale dopo l'uscita dal condotto
+    public double ItmDb = double.NaN, Itm10Db = double.NaN, Itm1Db = double.NaN, ItmDeltaH = double.NaN, ItmN0 = double.NaN;
+    public string ItmMode = "", ItmClimate = "", ItmErr = "";
+    public double ExitKm = double.NaN, ExitHeightM = double.NaN, ItmTailDb = double.NaN, LexitDb = double.NaN;
+    public string ItmTailMode = "";
     public double ThetaMrad, ThetaTx, ThetaRx;
     public double DuctFrac;           // frazione del percorso con condotto utile alla banda
     public bool DuctCoupled;
@@ -387,6 +392,32 @@ public static class LinkCalc
         r.LbaseDb = -10 * Math.Log10(Math.Pow(10, -r.LdiffDb / 10) + Math.Pow(10, -r.LscatDb / 10));
         r.LbaseDb = Math.Max(r.LbaseDb, r.LfsDb);
         CalcLog.W($"senza tropo (somma delle potenze di diffrazione e scatter, non sotto lo spazio libero): {r.LbaseDb:0.00} dB");
+        // ---- confronto: ITM (Longley-Rice, NTIA) sullo stesso profilo, atmosfera normale con clima e variabilità nel tempo
+        if (Refractivity.UseItm)
+        {
+            try
+            {
+                bool seaPath = r.SeaFrac >= 0.5;
+                var clim = seaPath ? Itm.Climate.MaritimeTemperateSea : Itm.Climate.MaritimeTemperateLand;
+                double n0 = seaPath ? 350 : 320;                       // NTIA 82-100: marittimo temperato su mare / su terra
+                double eps = seaPath ? 81 : 15, sig = seaPath ? 5 : 0.005;
+                var pfl = ItmProfile(h, 0, n - 1, d);
+                double hT = Math.Max(0.5, Math.Min(3000, hts - h[0])), hR = Math.Max(0.5, Math.Min(3000, hrs - h[n - 1]));
+                var i50 = Itm.P2P(hT, hR, pfl, clim, n0, o.FreqMHz, false, eps, sig, 13, 50, 50, 50);
+                if (i50.Error == 0)
+                {
+                    var i10 = Itm.P2P(hT, hR, pfl, clim, n0, o.FreqMHz, false, eps, sig, 13, 10, 50, 50);
+                    var i01 = Itm.P2P(hT, hR, pfl, clim, n0, o.FreqMHz, false, eps, sig, 13, 1, 50, 50);
+                    r.ItmDb = i50.AdB; r.Itm10Db = i10.AdB; r.Itm1Db = i01.AdB; r.ItmMode = i50.ModeName; r.ItmDeltaH = i50.DeltaH; r.ItmN0 = n0;
+                    r.ItmClimate = seaPath ? "marittimo temperato sul mare" : "marittimo temperato sulla terra";
+                    CalcLog.W($"ITM (Longley-Rice, NTIA): clima {r.ItmClimate}, N0 {n0:0}, suolo εr {eps:0} σ {sig:0.###} S/m, polarizzazione orizzontale, Δh {i50.DeltaH:0} m, " +
+                              $"antenne efficaci {i50.He[0]:0} / {i50.He[1]:0} m, meccanismo {i50.ModeName}: perdita {i50.AdB:0.0} dB al 50% del tempo, {i10.AdB:0.0} dB al 10%, {i01.AdB:0.0} dB all'1% " +
+                              $"(P.452 qui {r.LbaseDb:0.0} dB, differenza {r.LbaseDb - i50.AdB:+0.0;-0.0} dB)");
+                }
+                else { r.ItmErr = $"codice {i50.Error}"; CalcLog.W($"ITM: dati fuori dai limiti del modello (codice {i50.Error})"); }
+            }
+            catch (Exception ex) { r.ItmErr = ex.Message; CalcLog.W("ITM: calcolo non riuscito: " + ex.Message); }
+        }
 
         r.Times.Lap("orizzonti e troposcatter");
         // ---- strato fondante: continuità, quota e inclinazione dello strato lungo la tratta
@@ -636,6 +667,48 @@ public static class LinkCalc
                           $"poi nel condotto: γd {resid:0.0} dB, RX {(rxOff > 0 ? $"fuori di {rxOff:0} m" : "dentro")} {rxC:0.0} dB → Lingresso = Lfs {r.LfsDb:0.0} + {entry:0.0} + {rxC:0.0} + {resid:0.0} = {r.LentryDb:0.0} dB");
                 if (r.LentryDb < lpred) { lpred = r.LentryDb; r.Mechanism = "condotto (ingresso per diffrazione)"; }
             }
+            // 1.3.2: condotto che finisce prima del corrispondente: dall'uscita al RX il tratto è su terra (o mare) normale e lo
+            // calcola l'ITM (eccesso sopra lo spazio libero, al 50% del tempo), con un'antenna "virtuale" a metà del condotto
+            // nel punto d'uscita. Lato TX: aggancio dell'antenna se il condotto parte vicino, altrimenti la diffrazione d'ingresso.
+            if (Refractivity.UseItmTail && best.traps && !r.Los && r.LayerToKm > 5 && r.LayerToKm < d - 5)
+            {
+                try
+                {
+                    double dX = r.LayerToKm, hX = 0.5 * (TopAt(r, dX) + BaseAt(r, dX));
+                    int iX = 0; while (iX < n - 1 && dist[iX] < dX) iX++;
+                    if (n - 1 - iX >= 4)
+                    {
+                        var pflT = ItmProfile(h, iX, n - 1, d - dist[iX]);
+                        int seaPts = 0; for (int i = iX; i < n; i++) if (sea[i]) seaPts++;
+                        bool seaT = seaPts >= 0.5 * (n - iX);
+                        double hT = Math.Max(0.5, Math.Min(3000, hX - h[iX])), hR = Math.Max(0.5, Math.Min(3000, hrs - h[n - 1]));
+                        var it = Itm.P2P(hT, hR, pflT, seaT ? Itm.Climate.MaritimeTemperateSea : Itm.Climate.MaritimeTemperateLand, seaT ? 350 : 320,
+                            o.FreqMHz, false, seaT ? 81 : 15, seaT ? 5 : 0.005, 13, 50, 50, 50);
+                        if (it.Error == 0)
+                        {
+                            double tail = Math.Max(0, it.AdB - it.AfsDb);
+                            double txPart; string txWhy;
+                            if (r.LayerFromKm < 5)
+                            {
+                                double tp = TopAt(r, 0), bs = BaseAt(r, 0);
+                                double off = hts > tp ? hts - tp : hts < bs ? bs - hts : 0;
+                                txPart = Math.Min(40, 3 + off / 10); txWhy = off > 0 ? $"TX fuori di {off:0} m" : "TX dentro";
+                            }
+                            else if (!double.IsNaN(r.EntryDiffDb) && r.EntryDiffDb > 0) { txPart = r.EntryDiffDb; txWhy = "ingresso per diffrazione"; }
+                            else { txPart = 40; txWhy = "ingresso sconosciuto"; }
+                            double gamD = 5e-5 * ae * Math.Pow(fGHz, 1.0 / 3);
+                            double resid = gamD * (1000 * Math.Max(0, dX - r.LayerFromKm) / ae);
+                            r.ExitKm = dX; r.ExitHeightM = hX; r.ItmTailDb = tail; r.ItmTailMode = it.ModeName;
+                            r.LexitDb = r.LfsDb + txPart + resid + tail;
+                            CalcLog.W($"uscita dal condotto a {dX:0} km (quota media {hX:0} m, {hT:0} m sul suolo), poi {d - dist[iX]:0} km fino al RX: ITM {it.ModeName}, " +
+                                      $"eccesso sullo spazio libero {tail:0.0} dB; Luscita = Lfs {r.LfsDb:0.0} + {txWhy} {txPart:0.0} + γd {resid:0.0} + tratto finale {tail:0.0} = {r.LexitDb:0.0} dB");
+                            if (r.LexitDb < lpred) { lpred = r.LexitDb; r.Mechanism = "condotto (uscita e tratto finale ITM)"; }
+                        }
+                        else CalcLog.W($"uscita dal condotto a {dX:0} km: ITM fuori dai limiti (codice {it.Error})");
+                    }
+                }
+                catch (Exception ex) { CalcLog.W("uscita dal condotto: calcolo non riuscito: " + ex.Message); }
+            }
             r.LpredDb = Math.Max(r.LfsDb, lpred);
             if (!double.IsNaN(r.AggrGainDb)) r.LpredAggrDb = Math.Max(r.LfsDb, Math.Min(r.LpredDb, r.LbaseDb - r.AggrGainDb));
             if (!double.IsNaN(r.LpredAggrDb)) CalcLog.W($"stima prudente (Bean e Dutton, 100 N/km) {r.LpredDb:0.00} dB; stima aggressiva (79 N/km, k ≈ 2) {r.LpredAggrDb:0.00} dB");
@@ -767,6 +840,16 @@ public static class LinkCalc
     /// antenne alla stessa quota la base vale d²/(8·ae) (1,3 km a 300 km, 3,7 km a 500 km). Distanza equivalente di
     /// Bray (QST, novembre 1961): ogni grado d'orizzonte vale circa 111 km in più.
     /// </summary>
+    /// <summary>Profilo per l'ITM fra gli indici i0 e i1 (punti equidistanti): pfl[0] intervalli, pfl[1] passo in metri, poi le quote (mare a 0).</summary>
+    static double[] ItmProfile(double[] h, int i0, int i1, double lenKm)
+    {
+        int np = i1 - i0;
+        var p = new double[np + 3];
+        p[0] = np; p[1] = lenKm * 1000 / np;
+        for (int i = 0; i <= np; i++) p[i + 2] = Math.Max(0, h[i0 + i]);
+        return p;
+    }
+
     static void CommonVolume(LinkResult r, List<LatLon> pts, IList<ProfileResult> prof, double hts, double hrs, double ae)
     {
         double d = r.DistKm, th = r.ThetaMrad / 1000, tt = r.ThetaTx / 1000, tr = r.ThetaRx / 1000;

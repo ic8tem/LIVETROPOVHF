@@ -191,6 +191,26 @@ T(m, n) = 7,2\,m^{1/2} - (2 - 12,5\,n)\,m + 3,6\,m^{3/2} - 0,8\,m^2, \qquad m = 
 
 (per m·n > 4 vale la forma 34b della raccomandazione). Barsis (NBS, 1963) misurò su tre lunghi percorsi oltre un monte (Colorado, Alaska, Europa) perdite mediane 10–20 dB più alte dello spigolo ideale di Fresnel-Kirchhoff: l'arrotondamento ne spiega buona parte (Barsis e Kirby, 1961: Pikes Peak con raggio di circa 11,5 km). Il risultato si confronta con la diffrazione su terra sferica liscia; vale la peggiore. Poi il segnale viaggia nel condotto: spazio libero sull'intera tratta, attenuazione residua γd di P.452 sul tratto nel condotto e accoppiamento del corrispondente (3 dB dentro, 1 dB ogni 10 m fuori). Se questa perdita è più bassa della perdita prevista diventa il meccanismo («condotto (ingresso per diffrazione)»). È la premessa dell'autore sulla geografia italiana: con un ostacolo vicino ben sotto la linea, ν è negativo e l'ingresso costa poco; con una dorsale davanti costa 15–30 dB.
 
+## 10 quater. ITM (Longley-Rice) e uscita dal condotto
+
+Dalla 1.3.2 il programma contiene l'Irregular Terrain Model 1.2.2 dell'NTIA/ITS (Longley e Rice, ESSA ERL 79-ITS 67, 1968; Hufford, Longley e Kissick, NTIA 82-100, 1982), tradotto in C# dal codice ufficiale del governo USA, che è libero da diritti. La traduzione dà gli stessi numeri dell'originale: la compilazione automatica la confronta ogni volta con il codice C++ dell'NTIA su cinque casi di prova (scarto sotto 0,01 dB).
+
+L'ITM calcola la perdita in atmosfera normale sul profilo reale SRTM1: vista con la riflessione dal suolo, diffrazione (spigolo e terra sferica pesati sulla rugosità del terreno Δh, cioè la differenza fra il 10° e il 90° percentile delle quote attorno alla retta dei minimi quadrati) e troposcatter. La rifrattività al suolo si riduce alla quota media della tratta, $N_s = N_0\,e^{-h/9460}$, e dà la curvatura della terra equivalente,
+
+```math
+\gamma_e = 157\cdot10^{-9}\left(1 - 0,04665\,e^{N_s/179,3}ight)\ \mathrm{m}^{-1}
+```
+
+Il programma usa il clima marittimo temperato, con N0 320 sulla terra e 350 sul mare (suolo εr 15, σ 0,005 S/m; mare εr 81, σ 5 S/m), la polarizzazione orizzontale e la variabilità nel tempo senza quella di luogo (il profilo è noto). Mostra la perdita superata nel 50% del tempo e quella che si ha nel 10% e nell'1% del tempo migliore. L'ITM non modella i condotti: la sua variabilità nel tempo è statistica, per clima. Serve come secondo calcolo della linea di base accanto a P.452; la differenza fra i due dà un'idea dell'incertezza.
+
+Il secondo uso è il tratto finale dopo un condotto che finisce prima del corrispondente. Nel punto d'uscita si mette un'antenna virtuale a metà del condotto e l'ITM calcola il tratto fino al corrispondente, come eccesso sopra lo spazio libero al 50% del tempo. La perdita totale è
+
+```math
+L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,	heta_{condotto} + A_{ITM}(d_{uscita} 	o RX)
+```
+
+dove A_TX è l'accoppiamento dell'antenna (3 dB dentro, 1 dB ogni 10 m fuori) se il condotto parte vicino, altrimenti la diffrazione d'ingresso del § 10 ter. È il limite che l'autore si è dato: continuità dello strato più, al massimo, l'attenuazione residua. Se è più bassa della perdita prevista diventa il meccanismo («condotto (uscita e tratto finale ITM)»).
+
 ## 11. Confronto con ITU-R P.452
 
 La riga Confronto P.452 applica il metodo ITU per condotti e riflessione su strati (P.452-16 § 4.5 [6]) con il ΔN mediano del GFS al posto di quello climatologico e p = 20% come costante di calibrazione, come nello studio CSIRO [10]. Comprende la perdita d'accoppiamento empirica Alf sotto 0,5 GHz (circa 28 dB a 144 MHz, 3,5 dB a 432 MHz), la schermatura dei siti, l'accoppiamento sul mare e l'assorbimento dei gas. È solo un confronto: la perdita prevista resta quella del paragrafo 9.

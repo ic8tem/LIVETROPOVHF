@@ -16,6 +16,12 @@ public static class SourceTest
         var sb = new StringBuilder();
         void W(string s) { sb.AppendLine(s); Console.WriteLine(s); }
         int fails = 0;
+        // ITM (Longley-Rice) tradotto in C#: confronto con il codice NTIA originale, senza rete
+        var itmLines = new List<string>();
+        bool itmOk = Itm.SelfTest(itmLines);
+        W("ITM (NTIA) contro il codice originale: " + (itmOk ? "uguale" : "DIVERSO"));
+        foreach (var l in itmLines) W(l);
+        if (!itmOk) fails++;
         using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(120) };
         http.DefaultRequestHeaders.UserAgent.ParseAdd("LIVETROPOVHF-prova/1.3");
         var pts = new List<LatLon> { new LatLon(41.0, 14.0), new LatLon(41.0, 14.5), new LatLon(45.5, 9.0), new LatLon(40.0, -5.0) };
