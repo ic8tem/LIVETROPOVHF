@@ -4,6 +4,38 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
+## 1.3.2 — 21/11/2026
+- Rilievi vicini alle stazioni (entro 20 km, criterio dell'autore): nel troposcatter costano al massimo 6 dB per lato invece degli 0,573 dB per mrad di P.452.
+- Terreno: nuova fonte Copernicus DEM GLO-30 (GeoTIFF letto dal programma). I riquadri Terrain Tiles usati prima avevano vicino alla costa rilievi fantasma di 80–100 m in mare, che davano orizzonti falsi alle stazioni costiere (a Capri +2,6° verso nord-ovest, circa 26 dB di troposcatter in più). I vecchi riquadri restano come riserva.
+- Accordo guadagno–pressione: se il livello delle isobare non è caricato si usa la pressione al mare della previsione propria (prima il registro dava «0 punti»).
+- Registro: niente più «-+0.0 cm/s»; se il sito dell'ITU non si raggiunge il messaggio dice perché (internet, DNS o firewall) invece di stampare l'errore tecnico; dimensione dei riquadri SRTM1 corretta (7–13 MB).
+- Via monte: locatore a 10 caratteri per ogni punto e nuova casella «Via monte senza perdita fino al monte», che porta la stazione sul punto migliore e calcola solo la tratta dal punto al corrispondente (segnale e S/N).
+- Risultati: i valori lunghi vanno a capo invece di essere tagliati, spazio per la barra di scorrimento; perdite oltre 300 dB scritte «> 300 dB» con «direzione chiusa da un ostacolo vicino»; niente più «-+0,0»; la curvatura della terra sul mare non è più chiamata «ostacolo 0 m». Profilo: fumetto sul raggio diretto rosso/verde e sui punti rossi della zona di Fresnel.
+- Segni meteo sulla mappa grandi il doppio e colorati per effetto (↓ verde subsidenza favorevole, ↑ rosso aria in salita sfavorevole, S arancio scirocco), con un fumetto al passaggio del mouse; tabella nel manuale delle previsioni (§ 9 bis).
+- ITM (Longley-Rice) 1.2.2 dell'NTIA tradotto in C#: nella linguetta Previsioni c'è una riga con la perdita in atmosfera normale (50%, 10% e 1% del tempo) accanto a P.452, e una riga «Uscita dal condotto» quando il condotto finisce prima del corrispondente (tratto finale calcolato con l'ITM). La compilazione automatica controlla che i numeri siano uguali a quelli del codice originale.
+- Alla prima partenza la lingua si prende dal sistema operativo (Windows, Linux, macOS); se non è fra le 36 disponibili si parte in inglese. Prima si partiva sempre in italiano.
+- Nuova sorgente: ICON-2I Italia, 2 km (Agenzia ItaliaMeteo e Arpae) attraverso Open-Meteo; utile per coste, isole e condotto d'evaporazione. Le variabili che un modello non fornisce si tolgono da sole dalla richiesta.
+- Avvio: disclaimer sul calcolo semi-probabilistico dei condotti e sui puntamenti consigliati, completo nella finestra di nominativo e locatore al primo avvio, breve a ogni avvio successivo (si chiude da solo dopo 10 s, con il collegamento al manuale «Fonti e formule»); in tutte le 36 lingue. Il locatore accetta 10 caratteri anche su Windows 7.
+- Previsioni: due stime affiancate nel calcolo punto-punto, prudente (soglia di super-rifrazione di Bean e Dutton, 100 N/km nello strato basso) e aggressiva (soglia classica di super-rifrazione, 79 N/km). La mappa usa la prudente.
+- Previsioni: strati e condotti cercati solo fino a 2500 m sopra il suolo (con 1500 m la validazione perdeva le inversioni invernali da subsidenza).
+- Previsioni: +1 dB con alta pressione estesa (almeno 7 celle su 9 a 1020 hPa o più) e vento debole nei bassi strati (10 m sotto 5 m/s, 850 hPa sotto 8 m/s).
+- Calcolo punto-punto: peso del percorso su mare con il μ1 di ITU-R P.452 (× 0,8–1,2); quota delle due stazioni confrontata con base e cima del condotto anche quando copre solo parte della tratta; +1,5 dB al massimo quando la cima dello strato limite del GFS supera le creste lungo la tratta (osservazione di IT9GSF).
+- Alternativa (spenta per difetto): profilo normale CRPL con l'Ns del punto (−ΔN = 7,32·e^(0,005577·Ns), Bean e Thayer 1959) al posto di 40 N/km fissi, anche come riferimento dell'equazione parabolica.
+- Equazione parabolica: dominio di almeno 8 km, assorbitore sulla metà alta, fascio di al massimo 6°. Prima il campo oltre l'orizzonte era rumore numerico.
+- Validazione: le novità si provano una alla volta sui 593 collegamenti del 29/12/2021–2/1/2022.
+- Le voci a mano che il programma inseriva da sé (IV3/HB9CAT, IC8JHY, I8/IZ3CGC, IU5SPA, IZ6FLS, SWL1RUCAS, IZ1ERR, IK0SRL) ora stanno solo nel CALL3.TXT del pacchetto; alla prima apertura si tolgono dal file delle voci a mano, se non sono state cambiate.
+- Le caselle (per esempio «Connetti all'avvio») si salvano subito in LIVETROPOVHF.ini, non solo alla chiusura del programma.
+- Nuovo manuale «Fonti e formule»: tutte le fonti consultate, le formule e le decisioni del lavoro sulla previsione propria.
+- Manuali: formule numerate come in LaTeX, (1), (2), …, con il numero a destra, anche nell'esportazione in Word; titoli con grazie; **grassetto**, *corsivo* e collegamenti resi nel testo; titoli di terzo livello.
+- Calcolo punto-punto: «Ingresso nel condotto». Se il condotto comincia oltre l'orizzonte, perdita per arrivarci per diffrazione (spigolo principale con il parametro di Fresnel, oppure terra sferica) più il percorso nel condotto; se conviene diventa il meccanismo.
+- Previsione: la sorgente automatica usa solo NOMADS (Open-Meteo se NOMADS non risponde e per i casi storici); casella «Aggiorna da sola» per scaricare la previsione senza clic all'apertura, a ogni nuova corsa GFS e quando la zona visibile esce dalla griglia.
+- Manuale «Fonti e formule»: premesse dell'autore e fonti del 21 novembre (P.1812, IET 2018, PETOOL, MathWorks, ITU, Navipedia, VK3FS).
+- Calcolo punto-punto: «Puntamento consigliato» e «Via monte». Con il corrispondente chiuso, fa il giro dell'orizzonte ogni 5° e indica dove puntare: i 4 diffusori più promettenti entro 60 km (spazio libero fino al rilievo, tratta dal rilievo con la stessa previsione, equazione del radar bistatico).
+- Condotto sul mare a bassa quota: con NOMADS si scaricano SST, temperatura e umidità a 80 m e nello strato 30–0 hPa sopra il suolo; sui punti di mare si aggiungono al profilo. Condotto d'evaporazione stimato da SST, temperatura e umidità a 2 m (profilo logaritmico neutro), usato nell'equazione parabolica.
+- Equazione parabolica: propagatore ad angolo largo; fondo con il coefficiente di Fresnel in polarizzazione orizzontale (mare εr 81 e 5 S/m, campagna 13 e 0,006 S/m) e la rugosità del mare di Miller-Brown dal vento.
+- Avvisi per l'ora del giorno: rimescolamento diurno su terra e possibili condotti notturni da irraggiamento.
+- Calcolo punto-punto: riga «Probabilità per periodo» per SSB, CW, FT4, FT8, Q65 e JT65, con l'evanescenza entro l'ora come distribuzione normale (σ 3,4 dB oltre 160 km, dall'articolo originale di Bray, QST novembre 1961: 13,5 dB di ampiezza, ±7 dB).
+
 ## 1.3.1 — 21/11/2026
 - Previsioni: senza un condotto che intrappola la banda il guadagno non supera più 16 dB (fine del giallo, «strato forte, nessun condotto»): il termine di stabilità di Misme e la subsidenza non portano più al rosso o al viola le zone senza condotto. Rosso e viola restano solo per i condotti.
 - Previsioni: condotto «morbido» (Kerr, Hepburn, VHF/UHF DX Book): uno strato che non intrappola del tutto la banda, con λ fino a 3 volte la lunghezza d'onda massima, dà un guadagno graduale fra 15 dB e quello del condotto pieno, invece di fermarsi a 15 dB.
