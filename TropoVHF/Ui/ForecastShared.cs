@@ -214,11 +214,11 @@ public static class ForecastText
             {
                 // stazione portata sul punto: perdita nulla fino al monte, conta la tratta dal monte al corrispondente
                 double gain = r.LpredDb - bestVia.IdealDb;
-                double prx = r.PrxDbm + gain, ssb = r.SnrSsb + gain, cw = r.SnrCw + gain, ft8 = r.SnrFt8 + gain;
+                double prx = r.PrxDbm + gain, vSsb = r.SnrSsb + gain, vCw = r.SnrCw + gain, vFt8 = r.SnrFt8 + gain;
                 Line(L("Dal monte, senza perdita", "From the peak, lossless"),
-                    L($"{bestVia.Loc10} ({bestVia.HeightM:0} m): {Db(bestVia.IdealDb)} dB · {bestVia.Mechanism2} · {(prx < -230 ? "< −230" : prx.ToString("0.0"))} dBm · S/N SSB {Sg(ssb):+0.0;-0.0}, CW {Sg(cw):+0.0;-0.0}, FT8 {Sg(ft8):+0.0;-0.0} dB",
-                      $"{bestVia.Loc10} ({bestVia.HeightM:0} m): {Db(bestVia.IdealDb)} dB · {bestVia.Mechanism2} · {(prx < -230 ? "< −230" : prx.ToString("0.0"))} dBm · S/N SSB {Sg(ssb):+0.0;-0.0}, CW {Sg(cw):+0.0;-0.0}, FT8 {Sg(ft8):+0.0;-0.0} dB"),
-                    V(ssb, reqSsb), true);
+                    L($"{bestVia.Loc10} ({bestVia.HeightM:0} m): {Db(bestVia.IdealDb)} dB · {bestVia.Mechanism2} · {(prx < -230 ? "< −230" : prx.ToString("0.0"))} dBm · S/N SSB {Sg(vSsb):+0.0;-0.0}, CW {Sg(vCw):+0.0;-0.0}, FT8 {Sg(vFt8):+0.0;-0.0} dB",
+                      $"{bestVia.Loc10} ({bestVia.HeightM:0} m): {Db(bestVia.IdealDb)} dB · {bestVia.Mechanism2} · {(prx < -230 ? "< −230" : prx.ToString("0.0"))} dBm · S/N SSB {Sg(vSsb):+0.0;-0.0}, CW {Sg(vCw):+0.0;-0.0}, FT8 {Sg(vFt8):+0.0;-0.0} dB"),
+                    V(vSsb, reqSsb), true);
             }
             foreach (var v in r.Via.OrderBy(v => v.RankDb))
                 Line(L("Via monte", "Via mountain"), ideal
