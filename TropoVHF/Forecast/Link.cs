@@ -112,6 +112,10 @@ public sealed class LinkResult
     // situazione meteo lungo la tratta (frazione dei profili)
     public double SubsFrac, AscentFrac, SciroccoFrac, StabDbMean;
     public int SoftN; public double SoftMax;          // punti con condotto morbido e fattore massimo
+    // volume comune: dove si incrociano i raggi radenti delle due stazioni (base del volume di scatter)
+    public double CvKm = double.NaN, CvHeightM = double.NaN, CvLat = double.NaN, CvLon = double.NaN, DeqKm = double.NaN;
+    public double CvGrad = double.NaN, CvRH = double.NaN, CvN = double.NaN;   // aria alla base del volume (dal profilo più vicino)
+    public string CvLayer = "";
     public double PersistFrac = double.NaN;           // persistenza media lungo la tratta (0–1)
     public string TxVsDuct = "", RxVsDuct = "";
     public double FresnelMinRatio = double.NaN;        // minimo di (spazio libero sopra il terreno) / raggio della 1ª zona di Fresnel
@@ -344,6 +348,7 @@ public static class LinkCalc
         CalcLog.W($"angoli d'orizzonte: TX {thT:0.00} mrad, RX {thR:0.00} mrad; θ = 1000 d/ae + θt + θr = {r.ThetaMrad:0.00} mrad");
         CalcLog.W($"troposcatter P.452 eq. 45 (p = 50%): Lf {lf:0.00}, N0 {n0:0.0}, Lc = 0,051·e^(0,055(Gt+Gr)) {lc:0.00} → Lbs = {r.LscatDb:0.00} dB (Gt {r.GtxDbi:0.0} dBi, Gr {r.GrxDbi:0.0} dBi, DL6WU)");
         Scatter3(r, h, good, o.FreqMHz);
+        CommonVolume(r, pts, prof, hts, hrs, ae);
 
         // ---- combinazione (somma delle potenze) senza tropo
         r.LbaseDb = -10 * Math.Log10(Math.Pow(10, -r.LdiffDb / 10) + Math.Pow(10, -r.LscatDb / 10));
@@ -573,6 +578,55 @@ public static class LinkCalc
             r.StabDbMean = good.Average(p => p.StabDb);
             CalcLog.W($"meteo lungo la tratta: subsidenza {r.SubsFrac * 100:0}% dei profili, aria in salita {r.AscentFrac * 100:0}%, scirocco {r.SciroccoFrac * 100:0}%; termine di stabilità medio {r.StabDbMean:+0.0;-0.0} dB");
         }
+    }
+
+    /// <summary>
+    /// Volume comune: punto in cui si incrociano i raggi radenti delle due stazioni, ciascuno con il suo angolo
+    /// d'orizzonte, su una Terra di raggio equivalente ae. Raggio dal TX: z = hts + x·θt + x²/(2ae); dal RX lo stesso
+    /// con d − x; uguagliando: x = (hrs − hts + d·θr + d²/(2ae)) / θ, con θ = d/ae + θt + θr. Con orizzonti piatti e
+    /// antenne alla stessa quota la base vale d²/(8·ae) (1,3 km a 300 km, 3,7 km a 500 km). Distanza equivalente di
+    /// Bray (QST, novembre 1961): ogni grado d'orizzonte vale circa 111 km in più.
+    /// </summary>
+    static void CommonVolume(LinkResult r, List<LatLon> pts, IList<ProfileResult> prof, double hts, double hrs, double ae)
+    {
+        double d = r.DistKm, th = r.ThetaMrad / 1000, tt = r.ThetaTx / 1000, tr = r.ThetaRx / 1000;
+        if (th <= 1e-6 || r.Los) { CalcLog.W("volume comune: stazioni in vista, nessun volume di scatter"); return; }
+        double htk = hts / 1000, hrk = hrs / 1000;
+        double x = (hrk - htk + d * tr + d * d / (2 * ae)) / th;
+        x = Math.Max(0, Math.Min(d, x));
+        double z = htk + x * tt + x * x / (2 * ae);
+        r.CvKm = x; r.CvHeightM = z * 1000;
+        r.DeqKm = d + 111.0 * (r.ThetaTx + r.ThetaRx) * 180 / Math.PI / 1000;
+        if (pts != null && pts.Count > 1)
+        {
+            int i = (int)Math.Round(x / d * (pts.Count - 1));
+            var p = pts[Math.Max(0, Math.Min(pts.Count - 1, i))];
+            r.CvLat = p.Lat; r.CvLon = p.Lon;
+        }
+        // aria alla base del volume comune: profilo di previsione più vicino lungo la tratta, strato che contiene la quota
+        if (prof != null && prof.Count > 0)
+        {
+            int k = (int)Math.Round(x / d * (prof.Count - 1));
+            var pr = prof[Math.Max(0, Math.Min(prof.Count - 1, k))];
+            if (pr != null && pr.Levels.Length > 1)
+            {
+                var L = pr.Levels;
+                for (int j = 1; j < L.Length; j++)
+                    if (L[j].Z >= r.CvHeightM || j == L.Length - 1)
+                    {
+                        double dz = (L[j].Z - L[j - 1].Z) / 1000;
+                        if (dz > 0.01) r.CvGrad = -(L[j].N - L[j - 1].N) / dz;
+                        double f = Math.Max(0, Math.Min(1, (r.CvHeightM - L[j - 1].Z) / Math.Max(1, L[j].Z - L[j - 1].Z)));
+                        r.CvN = L[j - 1].N + f * (L[j].N - L[j - 1].N);
+                        r.CvRH = L[j - 1].RH + f * (L[j].RH - L[j - 1].RH);
+                        r.CvLayer = L[j - 1].P.ToString("0") + "–" + L[j].P.ToString("0") + " hPa";
+                        break;
+                    }
+            }
+        }
+        CalcLog.W($"volume comune: base a {r.CvHeightM:0} m s.l.m., a {r.CvKm:0} km dal TX ({r.CvLat:0.00}, {r.CvLon:0.00}); " +
+                  $"con orizzonti piatti sarebbe d²/(8·ae) = {d * d / (8 * ae) * 1000:0} m; distanza equivalente di Bray {r.DeqKm:0} km" +
+                  (double.IsNaN(r.CvGrad) ? "" : $"; aria alla base ({r.CvLayer}): N {r.CvN:0}, −dN/dh {r.CvGrad:0} N/km, UR {r.CvRH:0}%"));
     }
 
     /// <summary>Spessore minimo di uno strato per contare come corridoio continuo (CSIRO 2026: strati sotto 40 m scartati).</summary>
