@@ -367,6 +367,7 @@ public sealed class ForecastPainter
         if (nr * nc > 40000) return;
         var t = Time(); double f = Freq();
         var placed = new List<Point>();
+        Confirmed = (la, lo) => St.NowcastOn && Math.Abs((t - Clock.UtcNow).TotalMinutes) <= 90 && St.Corridors.At(AppState.BandOf(f), Clock.UtcNow, la, lo) != null;
         if (St.S.GetBool("fc_ov_curves", false) && Own.HasData)
         {
             var g = Sample((la, lo) => { double v = Own.Index(la, lo, t, f); return double.IsNaN(v) ? double.NaN : v * 2.5; }, lat0, lon0, step, nr, nc, double.NaN);
@@ -384,6 +385,7 @@ public sealed class ForecastPainter
                 Contour(ctx, g, lat0, lon0, step, lv, new Pen(new SolidColorBrush(col), lv >= 5 ? 2.0 : 1.4, new DashStyle(new double[] { 5, 3 }, 0)), $"+{lv:0} °C", col, placed);
         }
         if (St.S.GetBool("fc_ov_wx", false) && Own.HasData) DrawWeatherMarks(ctx, t);
+        if (St.NowcastOn) DrawCorridors(ctx, f);
         Correlation(lat0, lon0, step, nr, nc, t, f);
     }
 
@@ -433,6 +435,35 @@ public sealed class ForecastPainter
     }
 
     readonly List<(Rect rc, int kind, ProfileResult pr)> _marks = new();
+
+    /// <summary>Corridoi d'apertura confermati dagli spot: fascia viola tratteggiata con il numero di tratte indipendenti.</summary>
+    void DrawCorridors(DrawingContext ctx, double f)
+    {
+        var list = St.Corridors.Active(AppState.BandOf(f), Clock.UtcNow);
+        if (list.Count == 0) return;
+        var col = Color.Parse("#7D3C98");
+        var pen = new Pen(new SolidColorBrush(col), 2, new DashStyle(new double[] { 6, 4 }, 0));
+        var fill = new SolidColorBrush(Color.FromArgb(40, 125, 60, 152));
+        var tf = new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.Bold);
+        foreach (var c in list)
+        {
+            var poly = Corridors.Polygon(c);
+            var pts = new List<Point>();
+            foreach (var p in poly) { Map.Screen(p, out var sp); pts.Add(sp); }
+            var g = new StreamGeometry();
+            using (var gc = g.Open()) { gc.BeginFigure(pts[0], true); for (int i = 1; i < pts.Count; i++) gc.LineTo(pts[i]); gc.EndFigure(true); }
+            ctx.DrawGeometry(fill, pen, g);
+            // tratte che lo compongono, sottili
+            var thin = new Pen(new SolidColorBrush(Color.FromArgb(150, 125, 60, 152)), 1);
+            foreach (var o in c.Members.Take(40)) { Map.Screen(o.PA, out var a); Map.Screen(o.PB, out var b); ctx.DrawLine(thin, a, b); }
+            Map.Screen(c.Mid, out var mp);
+            var txt = L($"corridoio · {c.Paths} tratte · {c.MeanKm:0} km · ≥ {c.FloorDb:0} dB", $"corridor · {c.Paths} paths · {c.MeanKm:0} km · ≥ {c.FloorDb:0} dB");
+            var ft = new FormattedText(txt, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, tf, 11, new SolidColorBrush(col));
+            var rc = new Rect(mp.X - ft.Width / 2 - 4, mp.Y - ft.Height / 2 - 1, ft.Width + 8, ft.Height + 2);
+            ctx.DrawRectangle(new SolidColorBrush(Th.Panel), new Pen(new SolidColorBrush(col), 1), rc, 4, 4);
+            ctx.DrawText(ft, new Point(rc.X + 4, rc.Y + 1));
+        }
+    }
 
     int HitMark(Point p)
     {

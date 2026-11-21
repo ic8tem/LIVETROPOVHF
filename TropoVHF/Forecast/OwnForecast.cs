@@ -1059,11 +1059,19 @@ public sealed class OwnForecast
                 sum += w * Math.Max(0, Math.Min(10, (g + pb) / 2.5)); wsum += w;
             }
             Add(r0, c0, (1 - tr) * (1 - tc)); Add(r0, c0 + 1, (1 - tr) * tc); Add(r0 + 1, c0, tr * (1 - tc)); Add(r0 + 1, c0 + 1, tr * tc);
-            return wsum < 0.25 ? double.NaN : sum / wsum;
+            if (wsum < 0.25) return double.NaN;
+            double idx = sum / wsum;
+            // previsione mediata dagli spot: sotto un corridoio confermato (tratte parallele indipendenti) il guadagno
+            // non scende sotto il minimo del corridoio, solo vicino all'ora attuale
+            if (Nowcast != null) { double fl = Nowcast(lat, lon, utc, freqMHz); if (!double.IsNaN(fl)) idx = Math.Max(idx, Math.Min(10, fl / 2.5)); }
+            return idx;
         }
     }
 
     public bool HasData { get { lock (_lock) return Rows > 0 && Times.Length > 0; } }
+
+    /// <summary>Correzione dagli spot (corridoi): guadagno minimo in dB nel punto, o NaN. Impostata da AppState.</summary>
+    public static Func<double, double, DateTime, double, double> Nowcast;
 
     // persistenza: frazione delle 24 ore precedenti in cui la cella era sopra 13 dB (cache per ora e frequenza)
     readonly Dictionary<(int t, double f, bool corr, bool soft), double[,]> _persist = new();

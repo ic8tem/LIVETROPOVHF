@@ -68,6 +68,21 @@ I colori sono opachi all'82%, così lo sfondo del tema li cambia appena. La grig
 
 La mappa giudica ogni punto da solo. Il calcolo del segnale invece controlla che lo strato sia continuo lungo la tratta (paragrafo 9): una tratta che attraversa molto giallo può dare meno di quanto la mappa faccia pensare.
 
+## 4 bis. Previsione mediata dagli spot: i corridoi (dalla 1.3.2)
+
+Criterio dell'autore: un collegamento da solo non deve mai disegnare un condotto. Una ricezione isolata e breve può essere lo scatter di un aereo in transito (il pacchetto APRS è brevissimo), un'apertura di pochi minuti o un errore, e darebbe «condotti a goccia» che ingannano. Il programma riconosce invece un **corridoio** quando, nella stessa banda:
+
+- almeno **3 coppie di stazioni indipendenti** (nessuna stazione in comune) lavorano su tratte di almeno **300 km**;
+- le tratte sono **parallele**: azimut entro ±15°, punti medi entro 150 km dall'asse comune;
+- tutto negli ultimi **30 minuti**, con il fascio che si ripete a distanza di almeno **10 minuti** (persistenza);
+- per l'APRS, un salto conta solo se lo stesso salto si ripete.
+
+Fonti: spot dei cluster (non quelli marcati AS/ACS), PSKReporter via MQTT, i propri QSO e le decodifiche di WSJT-X/JTDX/MSHV, e i salti APRS in 2 m.
+
+**APRS in 2 m.** Il programma legge APRS-IS in sola lettura (rotate.aprs2.net, filtro sull'Europa) e ricava i salti radio fra stazioni di posizione nota (sorgente → digipeater → IGate), come la mappa VHF di DXView e APRS PropView (RF-YVY, Apache 2.0). Tiene solo i 144–145 MHz: scarta le stazioni LoRa (433 MHz) riconosciute dal tocall (elenco aprs-deviceid) o dal commento, chi dichiara 70 cm, HF o altre frequenze, i pacchetti non radio (qAC, qAX, TCPIP), i salti attraverso digipeater sconosciuti (WIDE senza nominativo), le stazioni in quota oltre 1500 m (palloni, aerei) e i salti oltre 1500 km.
+
+**Effetto sulla mappa.** Il corridoio si disegna come fascia viola tratteggiata con le tratte che lo compongono e un'etichetta (tratte, distanza media, guadagno minimo). Sotto il corridoio, e solo vicino all'ora attuale (±90 minuti), la previsione non scende sotto un minimo che va da 10 dB (tratte di 300 km) a 16 dB (900 km e oltre). Le curve di guadagno non disegnano più «gocce»: le isole più piccole di 220 km in tutte e due le direzioni restano colorate ma senza curva chiusa, a meno che un corridoio le confermi. Si spegne con la casella «Previsione mediata dagli spot».
+
 ## 5. Linee opzionali e confronto con pressione e inversione
 
 Curve di guadagno: linee a 7, 10, 13, 16, 18,5 e 21 dB, i bordi della scala, tracciate sul campo levigato con il metodo dei quadrati marcianti, con l'etichetta in dB.

@@ -5,6 +5,7 @@ Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole 
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
 ## 1.3.2 — 21/11/2026
+- Previsione mediata dagli spot: corridoi d'apertura da almeno 3 tratte parallele indipendenti (cluster, PSKReporter, QSO, decodifiche e salti APRS in 2 m da APRS-IS), con persistenza di 10 minuti; sotto il corridoio la previsione dell'ora attuale non scende sotto 10–16 dB. Curve di guadagno senza «gocce». Profilo a terra piatta con raggio curvo e fumetto sullo strato. Testi scalabili 80–150% accanto al tema.
 - Rilievi vicini alle stazioni (entro 20 km, criterio dell'autore): nel troposcatter costano al massimo 6 dB per lato invece degli 0,573 dB per mrad di P.452.
 - Terreno: nuova fonte Copernicus DEM GLO-30 (GeoTIFF letto dal programma). I riquadri Terrain Tiles usati prima avevano vicino alla costa rilievi fantasma di 80–100 m in mare, che davano orizzonti falsi alle stazioni costiere (a Capri +2,6° verso nord-ovest, circa 26 dB di troposcatter in più). I vecchi riquadri restano come riserva.
 - Accordo guadagno–pressione: se il livello delle isobare non è caricato si usa la pressione al mare della previsione propria (prima il registro dava «0 punti»).
