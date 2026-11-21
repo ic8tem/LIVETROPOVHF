@@ -177,9 +177,9 @@ public static class Refractivity
     public static bool UseCrplNormal = false;
     /// <summary>1.3.2: mappa con la stima aggressiva (soglia ITU di super-rifrazione 79 N/km nello strato basso) invece della prudente (Bean e Dutton, 100 N/km).</summary>
     public static bool UseItuSuper = false;
-    /// <summary>1.3.2: strati e condotti cercati solo fino a 1500 m sopra il suolo.</summary>
+    /// <summary>1.3.2: strati e condotti cercati solo fino a 2500 m sopra il suolo (1500 m toglieva le inversioni invernali da subsidenza).</summary>
     public static bool UseDuctCeiling = true;
-    public const double DuctCeilingM = 1500;
+    public const double DuctCeilingM = 2500;
     /// <summary>1.3.2: bonus con alta pressione estesa e vento debole nei bassi strati.</summary>
     public static bool UseHighPressure = true;
     public const double HighPDbBonus = 1.0, HighPHpa = 1020, HighPWind10 = 5, HighPWind850 = 8;
