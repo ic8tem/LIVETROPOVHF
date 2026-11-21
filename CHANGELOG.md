@@ -5,6 +5,7 @@ Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole 
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
 ## 1.3.2 — 21/11/2026
+- Alla prima partenza la lingua si prende dal sistema operativo (Windows, Linux, macOS); se non è fra le 36 disponibili si parte in inglese. Prima si partiva sempre in italiano.
 - Nuova sorgente: ICON-2I Italia, 2 km (Agenzia ItaliaMeteo e Arpae) attraverso Open-Meteo; utile per coste, isole e condotto d'evaporazione. Le variabili che un modello non fornisce si tolgono da sole dalla richiesta.
 - Avvio: disclaimer sul calcolo semi-probabilistico dei condotti e sui puntamenti consigliati, completo nella finestra di nominativo e locatore al primo avvio, breve a ogni avvio successivo (si chiude da solo dopo 10 s, con il collegamento al manuale «Fonti e formule»); in tutte le 36 lingue. Il locatore accetta 10 caratteri anche su Windows 7.
 - Previsioni: due stime affiancate nel calcolo punto-punto, prudente (soglia di super-rifrazione di Bean e Dutton, 100 N/km nello strato basso) e aggressiva (soglia classica di super-rifrazione, 79 N/km). La mappa usa la prudente.

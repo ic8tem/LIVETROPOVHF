@@ -83,7 +83,8 @@ public sealed class AppState
         Call = S.Get("call", "");
         Loc = S.Get("loc", "");
         ThemeKey = S.Get("theme", "chiaro");
-        LangCode = S.Get("lang", "it");
+        LangCode = S.Get("lang", "");
+        if (string.IsNullOrEmpty(LangCode)) LangCode = TropoVHF.Ui.Lang.SystemDefault();   // prima partenza: lingua del sistema, altrimenti inglese
         Band = S.Get("band", "144");
         if (!Bands.All.Contains(Band)) Band = "144";     // 50 e 70 MHz non ci sono più
         WindowMin = S.GetInt("window", 15);
