@@ -116,6 +116,9 @@ public sealed class LinkResult
     public double CvKm = double.NaN, CvHeightM = double.NaN, CvLat = double.NaN, CvLon = double.NaN, DeqKm = double.NaN;
     public double CvGrad = double.NaN, CvRH = double.NaN, CvN = double.NaN;   // aria alla base del volume (dal profilo più vicino)
     public string CvLayer = "";
+    // equazione parabolica nel profilo M del GFS (solo confronto): perdita, stessa tratta con atmosfera standard, guadagno
+    public double PeLossDb = double.NaN, PeStdDb = double.NaN, PeTotalDb = double.NaN;
+    public double PeGainDb => PeStdDb - PeLossDb;
     public double PersistFrac = double.NaN;           // persistenza media lungo la tratta (0–1)
     public string TxVsDuct = "", RxVsDuct = "";
     public double FresnelMinRatio = double.NaN;        // minimo di (spazio libero sopra il terreno) / raggio della 1ª zona di Fresnel
@@ -520,6 +523,23 @@ public static class LinkCalc
         }
 
         r.Times.Lap("confronto P.452");
+        // ---- quarto calcolo, solo da confrontare: equazione parabolica nel profilo M del GFS lungo la tratta
+        if (good.Count > 0 && Refractivity.UseParabolic)
+        {
+            try
+            {
+                double bw = Math.Min(30, Math.Sqrt(29000 / Math.Pow(10, r.GtxDbi / 10)));   // apertura approssimata dal guadagno
+                var pe = ParabolicEq.Run(o.FreqMHz, d, hts, hrs, h, dist, prof, bw, ct);
+                r.PeLossDb = pe.LossDb; r.PeStdDb = pe.StdLossDb;
+                r.PeTotalDb = -10 * Math.Log10(Math.Pow(10, -pe.LossDb / 10) + Math.Pow(10, -r.LscatDb / 10));
+                CalcLog.W($"equazione parabolica (split-step, {pe.Nz} punti in quota fino a {pe.Hmax:0} m, passo {pe.Dz:0.00} m e {pe.Dx:0} m, fascio {bw:0}°): " +
+                          $"perdita {pe.LossDb:0.0} dB nel profilo GFS, {pe.StdLossDb:0.0} dB con atmosfera standard → guadagno {pe.StdLossDb - pe.LossDb:+0.0;-0.0} dB; " +
+                          $"con il troposcatter (somma delle potenze) {r.PeTotalDb:0.0} dB (solo confronto)");
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception ex) { CalcLog.W("equazione parabolica: calcolo non riuscito: " + ex.Message); }
+        }
+        r.Times.Lap("equazione parabolica");
         // ---- livello e rapporto segnale/rumore
         r.EirpDbm = 10 * Math.Log10(Math.Max(0.001, tx.PowerW) * 1000) - tx.CableDb + r.GtxDbi;
         // tutto riportato ai morsetti dell'antenna ricevente: il cavo attenua il segnale e aggiunge rumore

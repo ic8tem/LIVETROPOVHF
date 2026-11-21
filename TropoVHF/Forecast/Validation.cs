@@ -135,6 +135,42 @@ public static class Validation
             }
         }
         Refractivity.UseCorrections = true; Refractivity.UseSoftDuct = true; Refractivity.UsePersistence = true;
+
+        // ---- equazione parabolica nel profilo M del GFS: guadagno rispetto all'atmosfera standard, evento contro confronto
+        {
+            var tq = qs.Where(q => q.Cat == "tropo").ToList();
+            int every = Math.Max(1, tq.Count / 150);
+            var sample = tq.Where((q, i) => i % every == 0).ToList();
+            W("");
+            W($"===== equazione parabolica (campione di {sample.Count} collegamenti, terreno piatto, antenne a 30 m, 144 MHz) =====");
+            var ge = new List<double>(); var gc = new List<double>();
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            foreach (var q in sample)
+            {
+                int n = Math.Max(3, (int)Math.Ceiling(q.Km / 25) + 1);
+                var pts = Geo.GreatCircle(q.A, q.B, n - 1);
+                var pe1 = pts.Select(p => gEv.At(p.Lat, p.Lon, q.Utc)).ToList();
+                if (pe1.Count(p => p != null) < 0.6 * pe1.Count) continue;
+                var std = ParabolicEq.Run(q.Freq, q.Km, 30, 30, null, null, null, 20, CancellationToken.None, false).LossDb;
+                var le = ParabolicEq.Run(q.Freq, q.Km, 30, 30, null, null, pe1, 20, CancellationToken.None, false).LossDb;
+                ge.Add(std - le);
+                if (gCt != null)
+                {
+                    var pc = pts.Select(p => gCt.At(p.Lat, p.Lon, q.Utc.AddDays(shift))).ToList();
+                    if (pc.Count(p => p != null) >= 0.6 * pc.Count)
+                        gc.Add(std - ParabolicEq.Run(q.Freq, q.Km, 30, 30, null, null, pc, 20, CancellationToken.None, false).LossDb);
+                }
+            }
+            string Qp(List<double> v) { if (v.Count == 0) return "—"; var a2 = v.OrderBy(x => x).ToArray(); return string.Format(ci, "mediana {0:0.0}, 10° {1:0.0}, 90° {2:0.0}", a2[a2.Length / 2], a2[a2.Length / 10], a2[Math.Min(a2.Length - 1, a2.Length * 9 / 10)]); }
+            W($"   guadagno del profilo (dB): evento {Qp(ge)}; confronto {Qp(gc)}  ({sw.Elapsed.TotalSeconds:0} s)");
+            foreach (var thr in new[] { 10.0, 20.0, 30.0 })
+                W(string.Format(ci, "   tratte con guadagno ≥ {0:0} dB: evento {1:0}%, confronto {2:0}%", thr, ge.Count > 0 ? 100.0 * ge.Count(x => x >= thr) / ge.Count : double.NaN, gc.Count > 0 ? 100.0 * gc.Count(x => x >= thr) / gc.Count : double.NaN));
+            if (ge.Count > 0 && gc.Count > 0)
+            {
+                double wins = 0; foreach (var x in ge) foreach (var y in gc) wins += x > y ? 1 : x == y ? 0.5 : 0;
+                W(string.Format(ci, "   separazione evento/confronto (AUC): {0:0.00}", wins / ((double)ge.Count * gc.Count)));
+            }
+        }
         try { File.WriteAllText(outFile, sb.ToString()); } catch { }
         return 0;
     }

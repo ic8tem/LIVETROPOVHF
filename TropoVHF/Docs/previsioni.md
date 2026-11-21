@@ -151,6 +151,12 @@ Una banda resta nel condotto solo se la sua lunghezza d'onda non supera λmax = 
 
 La riga Confronto P.452 applica il metodo ITU per condotti e riflessione su strati (P.452-16 § 4.5 [6]) con il ΔN mediano del GFS al posto di quello climatologico e p = 20% come costante di calibrazione, come nello studio CSIRO [10]. Comprende la perdita d'accoppiamento empirica Alf sotto 0,5 GHz (circa 28 dB a 144 MHz, 3,5 dB a 432 MHz), la schermatura dei siti, l'accoppiamento sul mare e l'assorbimento dei gas. È solo un confronto: la perdita prevista resta quella del paragrafo 9.
 
+## 11 bis. Equazione parabolica (dalla 1.3.1)
+
+La riga Equazione parabolica è un quarto calcolo, solo di confronto, fatto come i programmi professionali per i condotti (PETOOL; il framework wave-propagation di M. Lytaev, licenza MIT): invece di stimare il guadagno dagli strati, si fa avanzare l'onda lungo la tratta con il metodo split-step di Fourier dentro il profilo di rifrattività modificata M del GFS, preso dal punto di previsione più vicino a ogni distanza. Ai livelli del GFS si aggiungono i salti stimati dei condotti potenziali (calcolo A, 50 m a metà strato). Il terreno SRTM1 entra a gradini (sotto il suolo il campo è nullo), il suolo è conduttore e il fascio dell'antenna è una gaussiana con l'apertura stimata dal guadagno. Il calcolo vede da sé i condotti, quelli che perdono, la diffrazione e l'accoppiamento delle antenne; non vede il troposcatter, che si somma a parte. Accanto si mostra il «guadagno del profilo»: la stessa tratta con atmosfera standard meno quella con il profilo previsto.
+
+Limiti: il profilo verticale resta quello dei livelli GFS, quindi i condotti sottili restano invisibili; il terreno a gradini è approssimato; il metodo ad angolo stretto vale per angoli di pochi gradi.
+
 ## 12. Antenne, segnale e rumore
 
 - Yagi DL6WU: guadagno ≈ 8,6 + 8·log10(boom/λ) dBd, più 2,15 per i dBi [12].

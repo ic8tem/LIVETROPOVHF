@@ -156,6 +156,8 @@ public static class Refractivity
     public static bool UseSoftDuct = true;
     /// <summary>Persistenza: bonus fino a 2 dB se nelle 24 ore precedenti la stessa cella era già sopra 13 dB.</summary>
     public static bool UsePersistence = true;
+    /// <summary>Equazione parabolica nel calcolo del segnale (solo confronto).</summary>
+    public static bool UseParabolic = true;
     public const double PersistMaxDb = 2, PersistThrDb = 13;
     public const int PersistHours = 24;
 

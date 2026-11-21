@@ -12,6 +12,7 @@ Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 - Previsioni: con griglie larghe (passo da 0,5° in su) NOMADS scarica i file GFS a 0,5° o 1° ogni 3 ore invece di quelli a 0,25° orari: molti meno dati (prima una griglia a passo 3° chiedeva circa 117 MB). Le ore intermedie prendono il profilo più vicino.
 - Previsioni: con la griglia a passo oltre 1° il calcolo del segnale scarica i profili dei punti della tratta (con NOMADS solo l'ora richiesta) invece di usare celle larghe centinaia di km; nel registro un profilo uguale per più punti si scrive una volta sola.
 - Calcolo del segnale: volume comune (quota e posizione della base del volume di scatter, aria del GFS a quella quota) e distanza equivalente di Bray.
+- Calcolo del segnale: equazione parabolica (split-step di Fourier) nel profilo M del GFS lungo la tratta, sul terreno SRTM1, solo come confronto; nella validazione il guadagno del profilo è confrontato fra i giorni dell'apertura e i giorni normali.
 - Registro dei calcoli: ogni calcolo riporta nell'intestazione la versione del programma e le opzioni del modello spente.
 - Previsioni: il registro scrive all'inizio di ogni aggiornamento la sorgente dei dati usata; se la sorgente è fissata su Open-Meteo e arriva il limite, il messaggio suggerisce NOMADS.
 - Previsioni: nuovo caso storico 29 dicembre 2021 – 2 gennaio 2022 (Tirreno e Mediterraneo occidentale, 144 MHz).
