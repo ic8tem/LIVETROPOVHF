@@ -12,6 +12,8 @@ Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 - Alternativa (spenta per difetto): profilo normale CRPL con l'Ns del punto (−ΔN = 7,32·e^(0,005577·Ns), Bean e Thayer 1959) al posto di 40 N/km fissi, anche come riferimento dell'equazione parabolica.
 - Equazione parabolica: dominio di almeno 8 km, assorbitore sulla metà alta, fascio di al massimo 6°. Prima il campo oltre l'orizzonte era rumore numerico.
 - Validazione: le novità si provano una alla volta sui 593 collegamenti del 29/12/2021–2/1/2022.
+- Le voci a mano che il programma inseriva da sé (IV3/HB9CAT, IC8JHY, I8/IZ3CGC, IU5SPA, IZ6FLS, SWL1RUCAS, IZ1ERR, IK0SRL) ora stanno solo nel CALL3.TXT del pacchetto; alla prima apertura si tolgono dal file delle voci a mano, se non sono state cambiate.
+- Le caselle (per esempio «Connetti all'avvio») si salvano subito in LIVETROPOVHF.ini, non solo alla chiusura del programma.
 
 ## 1.3.1 — 21/11/2026
 - Previsioni: senza un condotto che intrappola la banda il guadagno non supera più 16 dB (fine del giallo, «strato forte, nessun condotto»): il termine di stabilità di Misme e la subsidenza non portano più al rosso o al viola le zone senza condotto. Rosso e viola restano solo per i condotti.

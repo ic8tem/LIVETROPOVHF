@@ -91,15 +91,15 @@ public sealed class CallDb
     public int OverlayCount { get { lock (_lock) return _overlay.Count; } }
 
     /// <summary>
-    /// Voci iniziali. Quelle mancanti si aggiungono una volta sola per ogni versione dell'elenco (riga "// seed N" nel
-    /// file), così una voce tolta dall'utente non ricompare.
+    /// Fino alla 1.3.1 il programma inseriva da sé alcune voci a mano (riga "// seed N" nel file). Dalla 1.3.2 quelle voci
+    /// stanno nel CALL3.TXT del pacchetto: alla prima lettura si tolgono dal file manuale solo se sono ancora identiche
+    /// (stesso nominativo e stesso locatore), così le voci scritte o cambiate dall'utente restano.
     /// </summary>
-    static readonly (string call, string loc)[] Seed =
+    static readonly (string call, string loc)[] OldSeed =
     {
         ("IV3/HB9CAT", "JN65UQ"), ("IC8JHY", "JN60WR"), ("I8/IZ3CGC", "JN71DB"), ("IU5SPA", "JN53GU"), ("IZ6FLS", "JN62XS"),
         ("SWL1RUCAS", "JN34OS"), ("IZ1ERR", "JN35UI"), ("IK0SRL", "JN61IT"),
     };
-    const int SeedVersion = 4;
 
     static IEnumerable<(string call, string loc)> ReadFile(string path)
     {
@@ -132,17 +132,14 @@ public sealed class CallDb
         var man = new Dictionary<string, string>(StringComparer.Ordinal);
         try
         {
-            int seen = 0;
             if (File.Exists(ManualPath))
             {
                 foreach (var (c, l) in ReadFile(ManualPath)) man[c] = l;
-                foreach (var line in File.ReadLines(ManualPath))
-                    if (line.StartsWith("// seed ") && int.TryParse(line[8..].Trim(), out var v)) seen = Math.Max(seen, v);
-            }
-            if (seen < SeedVersion)
-            {
-                foreach (var (c, l) in Seed) man.TryAdd(c, l);
-                SaveManual(man);
+                if (File.ReadLines(ManualPath).Any(line => line.StartsWith("// seed ")))
+                {
+                    foreach (var (c, l) in OldSeed) if (man.TryGetValue(c, out var cur) && cur == l) man.Remove(c);
+                    SaveManual(man);
+                }
             }
         }
         catch { }
@@ -241,7 +238,7 @@ public sealed class CallDb
     {
         try
         {
-            var lines = new List<string> { "// TropoVHF: nominativi inseriti a mano. Valgono più di CALL3.TXT e dei locatori ricevuti. Formato CALL,LOCATORE", $"// seed {SeedVersion}" };
+            var lines = new List<string> { "// LIVETROPOVHF: nominativi inseriti a mano. Valgono più di CALL3.TXT e dei locatori ricevuti. Formato CALL,LOCATORE" };
             lines.AddRange(m.OrderBy(kv => kv.Key).Select(kv => $"{kv.Key},{kv.Value}"));
             File.WriteAllLines(ManualPath + ".tmp", lines);
             Compat.MoveOver(ManualPath + ".tmp", ManualPath);

@@ -595,7 +595,8 @@ public sealed partial class MainWindow : Window
     CheckBox Check(string text, bool value, Action<bool> changed)
     {
         var c = new CheckBox { Content = text, IsChecked = value, Foreground = B(_th.Text), VerticalAlignment = VerticalAlignment.Center };
-        c.Click += (_, _) => changed(c.IsChecked == true);
+        // la scelta si salva subito: se il programma non si chiude in modo ordinato (riavvio per aggiornamento, spegnimento) non va persa
+        c.Click += (_, _) => { changed(c.IsChecked == true); try { _st.Save(); } catch { } };
         return c;
     }
 

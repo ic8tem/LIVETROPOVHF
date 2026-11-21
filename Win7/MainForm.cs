@@ -305,7 +305,7 @@ public sealed partial class MainForm : Form
     CheckBox Chk(string text, bool value, Action<bool> changed)
     {
         var c = new CheckBox { Text = text, Checked = value, AutoSize = true, ForeColor = C(_th.Text), BackColor = Color.Transparent, Margin = new Padding(3, 4, 10, 3) };
-        c.CheckedChanged += (_, _) => changed(c.Checked);
+        c.CheckedChanged += (_, _) => { changed(c.Checked); try { _st.Save(); } catch { } };
         return c;
     }
 
