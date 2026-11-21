@@ -22,6 +22,17 @@ public static class SourceTest
         W("ITM (NTIA) contro il codice originale: " + (itmOk ? "uguale" : "DIVERSO"));
         foreach (var l in itmLines) W(l);
         if (!itmOk) fails++;
+        // terreno Copernicus GLO-30: lettore GeoTIFF e quote note attorno a Capri (il mare deve valere 0)
+        try
+        {
+            var cu = "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N40_00_E014_00_DEM/Copernicus_DSM_COG_10_N40_00_E014_00_DEM.tif";
+            using var hc = new HttpClient { Timeout = TimeSpan.FromSeconds(300) };
+            var tif = hc.GetByteArrayAsync(cu).GetAwaiter().GetResult();
+            W("Copernicus GLO-30 N40E014: " + tif.Length / 1024 + " kB");
+            W(Srtm.SelfTest(tif, new[] { ("JN70CN83CL (circa 60 m)", 40.55616, 14.23420), ("mare a NO di Marina Grande (0)", 40.5617, 14.2290),
+                ("mare a N della stazione (0)", 40.5650, 14.2342), ("Monte Solaro (589 m)", 40.5486, 14.2208), ("Vesuvio (circa 1280 m)", 40.8213, 14.4261) }).TrimEnd());
+        }
+        catch (Exception ex) { W("Copernicus: prova non riuscita: " + ex.Message); fails++; }
         using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(120) };
         http.DefaultRequestHeaders.UserAgent.ParseAdd("LIVETROPOVHF-prova/1.3");
         var pts = new List<LatLon> { new LatLon(41.0, 14.0), new LatLon(41.0, 14.5), new LatLon(45.5, 9.0), new LatLon(40.0, -5.0) };

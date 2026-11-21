@@ -12,13 +12,13 @@ namespace TropoVHF.Ui;
 
 /// <summary>
 /// Linguetta Previsioni (sperimentale): indice tropo proprio calcolato dai profili GFS, quadretti dove manca la
-/// previsione propria ma Hepburn o F5LEN sono alti, copertura in ottica dal terreno SRTM1 e stima del segnale sul
+/// previsione propria ma Hepburn o F5LEN sono alti, copertura in ottica dal terreno DEM 30 m e stima del segnale sul
 /// percorso verso un corrispondente con antenne yagi DL6WU.
 /// </summary>
 public sealed partial class MainWindow
 {
     readonly OwnForecast _own = new();
-    // client dedicato: i riquadri SRTM1 sono di 7–13 MB e su linee lente superano i 40 s del client generale
+    // client dedicato: i riquadri DEM 30 m sono di 15–30 MB e su linee lente superano i 40 s del client generale
     static readonly HttpClient FcHttp = new() { Timeout = TimeSpan.FromMinutes(10) };
     TextBlock _fcProgress;
     TextBlock _fcCorr;
@@ -229,7 +229,7 @@ public sealed partial class MainWindow
             try { if (_locBox != null && (_locBox.Text ?? "").Trim().ToUpperInvariant() != v) _locBox.Text = v; } finally { _fcSyncing = false; }
             _fcMap?.InvalidateVisual(); _map.InvalidateVisual();
         };
-        me.Children.Add(Row(L("Locatore (4–10 caratteri; 8–10 = punto preciso su SRTM1)", "Locator (4–10 chars; 8–10 = exact point on SRTM1)"), _fcTxLoc));
+        me.Children.Add(Row(L("Locatore (4–10 caratteri; 8–10 = punto preciso su DEM 30 m)", "Locator (4–10 chars; 8–10 = exact point on DEM 30 m)"), _fcTxLoc));
         me.Children.Add(Row(L("Antenna dal suolo, m (locatore 8–10)", "Antenna above ground, m (8–10 locator)"), Field("fc_tx_agl", "10")));
         me.Children.Add(Row(L("Antenna sul mare, m (locatore 4–6: fondamentale)", "Antenna above sea, m (4–6 locator: required)"), Field("fc_tx_asl", "0")));
         me.Children.Add(Row(L("Potenza, W", "Power, W"), Field("fc_tx_w", "100")));
@@ -271,7 +271,7 @@ public sealed partial class MainWindow
             {
                 PrimaryButton(L("Calcola il segnale", "Compute signal"), FcComputeLink),
                 new Border { Width = 8 },
-                OutlineButton(L("Copertura in ottica (SRTM1)", "Line-of-sight coverage (SRTM1)"), FcComputeLos)
+                OutlineButton(L("Copertura in ottica (DEM 30 m)", "Line-of-sight coverage (DEM 30 m)"), FcComputeLos)
             }
         });
         _fcProfile = new ProfileView { Height = 190, Th = _th };
@@ -538,8 +538,8 @@ public sealed partial class MainWindow
         _fcResults.Children.Add(TB(L("Calcolo in corso…", "Computing…"), 12, _th.Muted, true));
         _fcProgress = TB(L("preparo il percorso", "preparing the path"), 12, _th.Sub); _fcProgress.TextWrapping = TextWrapping.Wrap;
         _fcResults.Children.Add(_fcProgress);
-        var hint = TB(L("La prima volta si scaricano i riquadri SRTM1 del percorso (7–13 MB l'uno) e i profili GFS: può volerci qualche minuto. L'avanzamento è anche nel registro qui sotto.",
-                        "The first time the path's SRTM1 tiles (7–13 MB each) and GFS profiles are downloaded: it can take a few minutes. Progress is also in the log below."), 11, _th.Muted);
+        var hint = TB(L("La prima volta si scaricano i riquadri DEM 30 m del percorso (15–30 MB l'uno) e i profili GFS: può volerci qualche minuto. L'avanzamento è anche nel registro qui sotto.",
+                        "The first time the path's DEM 30 m tiles (15–30 MB each) and GFS profiles are downloaded: it can take a few minutes. Progress is also in the log below."), 11, _th.Muted);
         hint.TextWrapping = TextWrapping.Wrap;
         _fcResults.Children.Add(hint);
         Task.Run(async () =>
@@ -579,7 +579,7 @@ public sealed partial class MainWindow
                                                              $"other antenna height estimated: SRTM ground at the centre of {rx.Loc} + {rx.AglM:0} m"));
                 CalcLog.W($"TEMPI dal clic al risultato: {CalcLog.Dur(tm.TotalMs)} (profili {CalcLog.Dur(tm.Laps[0].Ms)}" + (fs != null ? $": {fs.Summary()}" : "") + $", percorso {CalcLog.Dur(tm.Laps[1].Ms)})");
                 _fcLast = r;
-                FcSetStatus(L("Calcolo completato.", "Done.") + (r.TilesMissing > 0 ? " " + L("Riquadri SRTM1 mancanti: ", "Missing SRTM1 tiles: ") + r.TilesMissing : ""));
+                FcSetStatus(L("Calcolo completato.", "Done.") + (r.TilesMissing > 0 ? " " + L("Riquadri DEM 30 m mancanti: ", "Missing DEM 30 m tiles: ") + r.TilesMissing : ""));
                 Dispatcher.UIThread.Post(() =>
                 {
                     FcShowResult(r);

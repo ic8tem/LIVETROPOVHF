@@ -4,7 +4,7 @@ Indicazioni pratiche per usare la linguetta Previsioni nel lavoro di stazione. N
 
 ## Prima di cominciare
 
-1. Scrivere il proprio locatore a 8 o 10 caratteri: così la quota del suolo viene da SRTM1 e basta l'altezza dell'antenna dal suolo. Con 4 o 6 caratteri è indispensabile la quota dell'antenna sul mare.
+1. Scrivere il proprio locatore a 8 o 10 caratteri: così la quota del suolo viene dal modello del terreno Copernicus GLO-30 e basta l'altezza dell'antenna dal suolo. Con 4 o 6 caratteri è indispensabile la quota dell'antenna sul mare.
 2. Misurare la lunghezza reale del boom e la perdita del cavo alla frequenza usata: due dB di cavo valgono quanto un'antenna più corta.
 3. Scegliere l'ambiente del ricevitore (città, residenziale, rurale, rurale tranquillo). In città il rumore artificiale a 144 MHz può superare di molto quello del ricevitore: è spesso il primo limite.
 4. Lasciare acceso il registro dei calcoli: se un risultato sembra strano, lì c'è il motivo.

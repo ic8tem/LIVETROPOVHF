@@ -4,7 +4,7 @@ La linguetta Previsioni calcola da sé la propagazione troposferica: una mappa d
 
 ## 1. Cosa fa e cosa non fa
 
-La previsione propria parte dai profili verticali di temperatura e umidità del modello GFS [1, 2], ne ricava la rifrattività dell'aria strato per strato e stima quanto il segnale guadagna rispetto a un'atmosfera normale. Sul percorso aggiunge il terreno reale (SRTM1 [3]), la diffrazione, il troposcatter, i condotti e il rumore del ricevitore.
+La previsione propria parte dai profili verticali di temperatura e umidità del modello GFS [1, 2], ne ricava la rifrattività dell'aria strato per strato e stima quanto il segnale guadagna rispetto a un'atmosfera normale. Sul percorso aggiunge il terreno reale (Copernicus GLO-30 [3]), la diffrazione, il troposcatter, i condotti e il rumore del ricevitore.
 
 Non è una misura: è una stima fatta su un modello meteorologico con livelli distanti centinaia di metri. Serve a confrontare situazioni (oggi meglio di ieri, 70 cm meglio di 2 m, questa tratta meglio di quella), non a garantire un collegamento. Il paragrafo 14 spiega come raccogliere le prove per validarla.
 
@@ -91,11 +91,13 @@ I dati di ITU-R P.453 sono © ITU e si possono usare per scopi personali e non c
 
 ## 7. Stazioni e locatori
 
-Il locatore può avere 4, 6, 8 o 10 caratteri. Con 8 o 10 caratteri la posizione è precisa e la quota del suolo viene da SRTM1: basta l'altezza dell'antenna dal suolo. Con 4 o 6 caratteri il quadrato è troppo grande: conviene scrivere la quota dell'antenna sul mare; se resta 0 il programma la stima con il suolo SRTM al centro del quadrato più l'altezza dal suolo e lo segnala nei risultati. Per il corrispondente l'altezza predefinita è 3 m dal suolo; con quota sul mare 0 si usa il suolo SRTM più l'altezza.
+Il locatore può avere 4, 6, 8 o 10 caratteri. Con 8 o 10 caratteri la posizione è precisa e la quota del suolo viene da Copernicus GLO-30: basta l'altezza dell'antenna dal suolo. Con 4 o 6 caratteri il quadrato è troppo grande: conviene scrivere la quota dell'antenna sul mare; se resta 0 il programma la stima con il suolo SRTM al centro del quadrato più l'altezza dal suolo e lo segnala nei risultati. Per il corrispondente l'altezza predefinita è 3 m dal suolo; con quota sul mare 0 si usa il suolo SRTM più l'altezza.
 
 ## 8. Terreno, diffrazione e troposcatter
 
-Il profilo della tratta si campiona su SRTM1 ogni 30 m (più largo oltre 120 km). Il raggio terrestre equivalente vale k = 157/(157 + ΔN), con ΔN il calo di N nel primo km dai profili GFS lungo la tratta [6, 7].
+Il profilo della tratta si campiona su Copernicus GLO-30 ogni 30 m (più largo oltre 120 km). Il raggio terrestre equivalente vale k = 157/(157 + ΔN), con ΔN il calo di N nel primo km dai profili GFS lungo la tratta [6, 7].
+
+**Fonte del terreno (dalla 1.3.2).** Le quote vengono da Copernicus DEM GLO-30 [3]: 1 secondo d'arco, il mare vale 0 e la costa è netta. Fino alla 1.3.1 il programma usava i riquadri Terrain Tiles «skadi» di AWS. Vicino alla costa quei riquadri mescolano l'SRTM con dati del fondale a bassa risoluzione e spalmano la quota dell'isola sul mare: attorno a Capri creano un anello fantasma di 80–100 m fra 0,5 e 1 km dalla riva. Il 21 novembre 2026 IC8TEM ha segnalato un orizzonte inesistente verso nord-ovest; il confronto punto per punto con Copernicus l'ha confermato (94 m in mare a nord-ovest di Marina Grande contro 0). Quell'orizzonte falso, di +2,6°, costava circa 26 dB di troposcatter alle stazioni costiere. I riquadri skadi restano solo come riserva quando Copernicus non risponde. I riquadri Copernicus pesano 15–30 MB e si scaricano una volta sola; quelli di solo mare non esistono e valgono 0.
 
 - Spazio libero: Lfs = 92,44 + 20 log f(GHz) + 20 log d(km) [8].
 - Diffrazione: metodo di Bullington sul profilo reale più la correzione di terra sferica delta-Bullington di ITU-R P.452-16 § 4.2 [6], con la perdita sferica di ITU-R P.526 [9].
@@ -206,13 +208,13 @@ La riga «Puntamento consigliato» indica l'azimut della via migliore, se costa 
 
 ## 10 ter. Ingresso in un condotto lontano
 
-Se il condotto che intrappola la banda comincia lontano, oltre l'orizzonte della stazione, il segnale deve arrivarci. Il programma porta il segnale fino al punto d'inizio, a metà del condotto, per diffrazione: lungo il profilo SRTM1 cerca lo spigolo con il parametro di Fresnel ν più alto (ITU-R P.526), con il rigonfiamento della terra equivalente,
+Se il condotto che intrappola la banda comincia lontano, oltre l'orizzonte della stazione, il segnale deve arrivarci. Il programma porta il segnale fino al punto d'inizio, a metà del condotto, per diffrazione: lungo il profilo Copernicus GLO-30 cerca lo spigolo con il parametro di Fresnel ν più alto (ITU-R P.526), con il rigonfiamento della terra equivalente,
 
 ```math
 \nu = h\,\sqrt{\frac{2}{\lambda}\left(\frac{1}{d_1} + \frac{1}{d_2}\right)}, \qquad J(\nu) = 6,9 + 20\log_{10}\left(\sqrt{(\nu - 0,1)^2 + 1} + \nu - 0,1\right)
 ```
 
-più l'attenuazione dovuta alla curvatura della cima (ostacolo arrotondato, P.526-16 § 4.2), con il raggio R stimato dal terreno SRTM1 a ±1 km dallo spigolo,
+più l'attenuazione dovuta alla curvatura della cima (ostacolo arrotondato, P.526-16 § 4.2), con il raggio R stimato dal terreno Copernicus GLO-30 a ±1 km dallo spigolo,
 
 ```math
 T(m, n) = 7,2\,m^{1/2} - (2 - 12,5\,n)\,m + 3,6\,m^{3/2} - 0,8\,m^2, \qquad m = R\,\frac{d_1 + d_2}{d_1 d_2}\left(\frac{\pi R}{\lambda}\right)^{-1/3}, \qquad n = h\,\frac{(\pi R/\lambda)^{2/3}}{R}
@@ -224,7 +226,7 @@ T(m, n) = 7,2\,m^{1/2} - (2 - 12,5\,n)\,m + 3,6\,m^{3/2} - 0,8\,m^2, \qquad m = 
 
 Dalla 1.3.2 il programma contiene l'Irregular Terrain Model 1.2.2 dell'NTIA/ITS (Longley e Rice, ESSA ERL 79-ITS 67, 1968; Hufford, Longley e Kissick, NTIA 82-100, 1982), tradotto in C# dal codice ufficiale del governo USA, che è libero da diritti. La traduzione dà gli stessi numeri dell'originale: la compilazione automatica la confronta ogni volta con il codice C++ dell'NTIA su cinque casi di prova (scarto sotto 0,01 dB).
 
-L'ITM calcola la perdita in atmosfera normale sul profilo reale SRTM1: vista con la riflessione dal suolo, diffrazione (spigolo e terra sferica pesati sulla rugosità del terreno Δh, cioè la differenza fra il 10° e il 90° percentile delle quote attorno alla retta dei minimi quadrati) e troposcatter. La rifrattività al suolo si riduce alla quota media della tratta, $N_s = N_0\,e^{-h/9460}$, e dà la curvatura della terra equivalente,
+L'ITM calcola la perdita in atmosfera normale sul profilo reale Copernicus GLO-30: vista con la riflessione dal suolo, diffrazione (spigolo e terra sferica pesati sulla rugosità del terreno Δh, cioè la differenza fra il 10° e il 90° percentile delle quote attorno alla retta dei minimi quadrati) e troposcatter. La rifrattività al suolo si riduce alla quota media della tratta, $N_s = N_0\,e^{-h/9460}$, e dà la curvatura della terra equivalente,
 
 ```math
 \gamma_e = 157\cdot10^{-9}\left(1 - 0,04665\,e^{N_s/179,3}
@@ -247,7 +249,7 @@ La riga Confronto P.452 applica il metodo ITU per condotti e riflessione su stra
 
 ## 11 bis. Equazione parabolica (dalla 1.3.1)
 
-La riga Equazione parabolica è un quarto calcolo, solo di confronto, fatto come i programmi professionali per i condotti (PETOOL; il framework wave-propagation di M. Lytaev, licenza MIT): invece di stimare il guadagno dagli strati, si fa avanzare l'onda lungo la tratta con il metodo split-step di Fourier dentro il profilo di rifrattività modificata M del GFS, preso dal punto di previsione più vicino a ogni distanza. Ai livelli del GFS si aggiungono i salti stimati dei condotti potenziali (calcolo A, 50 m a metà strato). Il terreno SRTM1 entra a gradini (sotto il suolo il campo è nullo), il suolo è conduttore e il fascio dell'antenna è una gaussiana con l'apertura stimata dal guadagno. Il calcolo vede da sé i condotti, quelli che perdono, la diffrazione e l'accoppiamento delle antenne; non vede il troposcatter, che si somma a parte. Accanto si mostra il «guadagno del profilo»: la stessa tratta con atmosfera standard meno quella con il profilo previsto.
+La riga Equazione parabolica è un quarto calcolo, solo di confronto, fatto come i programmi professionali per i condotti (PETOOL; il framework wave-propagation di M. Lytaev, licenza MIT): invece di stimare il guadagno dagli strati, si fa avanzare l'onda lungo la tratta con il metodo split-step di Fourier dentro il profilo di rifrattività modificata M del GFS, preso dal punto di previsione più vicino a ogni distanza. Ai livelli del GFS si aggiungono i salti stimati dei condotti potenziali (calcolo A, 50 m a metà strato). Il terreno Copernicus GLO-30 entra a gradini (sotto il suolo il campo è nullo), il suolo è conduttore e il fascio dell'antenna è una gaussiana con l'apertura stimata dal guadagno. Il calcolo vede da sé i condotti, quelli che perdono, la diffrazione e l'accoppiamento delle antenne; non vede il troposcatter, che si somma a parte. Accanto si mostra il «guadagno del profilo»: la stessa tratta con atmosfera standard meno quella con il profilo previsto.
 
 Dalla 1.3.2:
 
@@ -298,7 +300,7 @@ P = \Phi\left(\frac{S/N - S/N_{soglia}}{\sigma}\right)
 
 ## 13. Tempi di risposta e dati
 
-Ogni calcolo misura i propri tempi: profili GFS (rete, analisi, pause obbligate di 20 s fra i lotti per il limite di Open-Meteo), terreno SRTM1 (con lo scaricamento dei riquadri, 6–7 MB l'uno, solo la prima volta), calcolo. La riga Tempo di risposta li riassume; nel registro le righe cominciano con TEMPI. All'aggiornamento della griglia il registro riporta anche la corsa GFS usata, quando è diventata disponibile e quanto sono vecchi i dati.
+Ogni calcolo misura i propri tempi: profili GFS (rete, analisi, pause obbligate di 20 s fra i lotti per il limite di Open-Meteo), terreno Copernicus GLO-30 (con lo scaricamento dei riquadri, 15–30 MB l'uno, solo la prima volta), calcolo. La riga Tempo di risposta li riassume; nel registro le righe cominciano con TEMPI. All'aggiornamento della griglia il registro riporta anche la corsa GFS usata, quando è diventata disponibile e quanto sono vecchi i dati.
 
 Dalla 1.3.2 si può scegliere anche ICON-2I, il modello dell'Agenzia ItaliaMeteo e di Arpae sull'Italia a circa 2,2 km, attraverso Open-Meteo (modello italia_meteo_arpae_icon_2i, due corse al giorno, 3 giorni). Copre solo l'Italia e i mari vicini e ha meno livelli bassi del GFS (1000, 925, 850, 700, 500 hPa): per i condotti in quota non è meglio del GFS, ma la griglia fine descrive bene coste, isole e mare a 2 m, cioè il condotto d'evaporazione. Le variabili che un modello non ha (strato limite, temperatura della superficie…) si tolgono da sole dalla richiesta. Dalla 1.3.2 la sorgente automatica usa solo NOMADS; Open-Meteo serve se NOMADS non risponde e per i casi storici. Con la casella «Aggiorna da sola» (accesa per difetto) la previsione si scarica senza clic: all'apertura, a ogni nuova corsa GFS su NOMADS (circa 5 ore dopo l'ora della corsa) e quando la zona visibile esce per più di un quarto dalla griglia; al massimo un tentativo ogni 15 minuti, mai con un caso storico.
 
@@ -312,7 +314,7 @@ La previsione va confrontata con i collegamenti reali. Il registro dei calcoli c
 
 1. NOAA/NCEP, Global Forecast System (GFS), modello globale a 0,25°, quattro corse al giorno.
 2. Open-Meteo, API di previsione (open-meteo.com), modello gfs_seamless, variabili ai livelli di pressione e metadati delle corse.
-3. NASA/USGS, Shuttle Radar Topography Mission, 1 secondo d'arco (SRTM1), riquadri skadi su Amazon Web Services.
+3. Copernicus DEM GLO-30 (ESA; WorldDEM © DLR e.V. 2010–2014 e © Airbus Defence and Space GmbH 2014–2018, fornito nell'ambito di Copernicus da Unione europea ed ESA), 1 secondo d'arco, riquadri GeoTIFF sul registro aperto di Amazon Web Services. Riserva: NASA/USGS Copernicus GLO-30 nei riquadri Terrain Tiles «skadi» di AWS.
 4. ITU-R P.453, The radio refractive index: its formula and refractivity data, con le mappe digitali dei condotti (Study Group 3, © ITU, uso personale e non commerciale).
 5. B. R. Bean, E. J. Dutton, Radio Meteorology, NBS Monograph 92, 1966: tabella 6.5 e § 4.4.
 6. ITU-R P.452-16, Prediction procedure for the evaluation of interference between stations on the surface of the Earth at frequencies above about 0.1 GHz: § 4.2 (diffrazione), eq. 45 (troposcatter), § 4.5 ed eq. 49 (condotti).

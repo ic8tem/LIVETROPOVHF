@@ -488,6 +488,7 @@ Condotto sul mare a bassa quota (100–200 m) che i livelli GFS non vedono (stud
 - Adottati: stima prudente (Bean e Dutton, 100 N/km) e aggressiva (ITU, 79 N/km) affiancate; condotti cercati solo sotto 2500 m (prima 1500 m, alzato dopo la validazione); bonus con alta pressione estesa e vento debole; peso del mare con il μ1 di P.452; quota delle stazioni rispetto al condotto anche su condotto parziale; strato limite sopra le creste (IT9GSF).
 - Adottato come alternativa, spento per difetto: profilo normale CRPL con Ns locale.
 - Equazione parabolica corretta numericamente: AUC da 0,12 a 0,54 (antenne a 30 m) e da 0,28 a 0,66 (300 m).
+- Terreno: Copernicus DEM GLO-30 al posto dei riquadri Terrain Tiles «skadi», che vicino alla costa hanno rilievi fantasma di 80–100 m in mare (segnalazione di IC8TEM, verificata punto per punto a Capri); skadi resta come riserva.
 - Segni meteo sulla mappa con il loro effetto: ↓ subsidenza favorevole (Moler e Holden 1960, rinforzi di 20 dB e oltre per ore negli anticicloni; +1,5 dB), ↑ aria in salita sfavorevole (affievolimenti profondi; −2 dB), S scirocco indizio favorevole (ARRL Handbook § 19.4, inversioni fortissime sul Mediterraneo; nessuna correzione). Simbolo raddoppiato, colori verde/rosso/arancio e fumetto sulla mappa.
 - Adottato l'ITM 1.2.2 (NTIA/itm, pubblico dominio), tradotto in C#: secondo calcolo della linea di base in atmosfera normale accanto a P.452 e tratto finale dopo l'uscita da un condotto che finisce prima del corrispondente. Scartato il codice di qradiopredict perché sotto GPL v2.
 

@@ -74,7 +74,7 @@ public sealed class Station
 {
     public string Loc = "";
     public LatLon Pos;
-    public bool Precise;          // locatore a 8 o 10 caratteri: suolo dal profilo SRTM1
+    public bool Precise;          // locatore a 8 o 10 caratteri: suolo dal profilo DEM 30 m
     public double AglM = 10;      // altezza dell'antenna dal suolo (con locatore preciso)
     public double AslM = 0;       // quota dell'antenna sul mare (con locatore a 4 o 6 caratteri)
     public double BoomM = 2;      // lunghezza del boom della yagi DL6WU (m)
@@ -188,7 +188,7 @@ public sealed class LinkResult
 }
 
 /// <summary>
-/// Calcolo del segnale su un percorso: profilo del terreno (SRTM1), raggio terrestre equivalente dalla previsione,
+/// Calcolo del segnale su un percorso: profilo del terreno (DEM 30 m), raggio terrestre equivalente dalla previsione,
 /// diffrazione con il metodo di Bullington (ITU-R P.452, § 4.2.1), troposcatter (ITU-R P.452 eq. 45 al 50% del tempo),
 /// guadagno tropo della previsione propria e stima del condotto. Ricevitore: rumore termico con la cifra di rumore.
 /// </summary>
@@ -284,11 +284,11 @@ public static class LinkCalc
         var pts = PathPoints(tx.Pos, rx.Pos, step, out var dist);
         r.Times.Lap("preparazione");
         var (h, ok) = await srtm.Heights(pts, ct);
-        r.Times.Lap("terreno SRTM1");
+        r.Times.Lap("terreno DEM 30 m");
         r.TilesMissing = srtm.Missing;
         {
             int imax = 0; for (int i = 1; i < h.Length; i++) if (h[i] > h[imax]) imax = i;
-            CalcLog.W($"profilo SRTM1: {pts.Count} punti ogni {step * 1000:0} m; suolo TX {h[0]:0.0} m, suolo RX {h[h.Length - 1]:0.0} m; quota massima {h[imax]:0} m a {dist[imax]:0.0} km; punti senza riquadro {ok.Count(x => !x)}");
+            CalcLog.W($"profilo DEM 30 m: {pts.Count} punti ogni {step * 1000:0} m; suolo TX {h[0]:0.0} m, suolo RX {h[h.Length - 1]:0.0} m; quota massima {h[imax]:0} m a {dist[imax]:0.0} km; punti senza riquadro {ok.Count(x => !x)}");
         }
         r.DistAlong = dist; r.Terrain = h;
         tx.GroundM = h[0]; rx.GroundM = h[h.Length - 1];
@@ -786,7 +786,7 @@ public static class LinkCalc
             : $"rumore esterno (ITU-R P.372, ambiente {o.NoiseEnv}): galattico {tg:0} K (Fa {10 * Math.Log10(tg / 290):0.0} dB) + artificiale {tm:0} K (Fa {10 * Math.Log10(Math.Max(1e-9, tm) / 290):0.0} dB) = Ta {ta:0} K" + (o.FreqMHz > 250 ? " (curve del rumore artificiale prolungate oltre 250 MHz)" : ""));
         CalcLog.W($"Tsys = Ta + 290(Lc−1) + 290(F−1)Lc = {ta:0} + {290 * (Math.Pow(10, rx.CableDb / 10) - 1):0} + {290 * (Math.Pow(10, rx.NfDb / 10) - 1) * Math.Pow(10, rx.CableDb / 10):0} = {r.TsysK:0} K");
         CalcLog.W($"rumore kTsysB: SSB {o.BwSsb:0} Hz {r.NoiseSsbDbm:0.00} dBm → S/N {r.SnrSsb:0.0} dB (soglia {o.ReqSsb:0}); CW {o.BwCw:0} Hz → S/N {r.SnrCw:0.0} dB (soglia {o.ReqCw:0}); FT8 {o.BwFt8:0} Hz → S/N {r.SnrFt8:0.0} dB (soglia {o.ReqFt8:0})");
-        if (r.TilesMissing > 0) r.Notes.Add($"{r.TilesMissing} riquadri SRTM1 non disponibili: lì il terreno vale 0 m");
+        if (r.TilesMissing > 0) r.Notes.Add($"{r.TilesMissing} riquadri DEM 30 m non disponibili: lì il terreno vale 0 m");
         r.Times.Lap("bilancio e rumore");
         if (!sub && !r.Los && Refractivity.UseViaMountain)
         {
@@ -1072,7 +1072,7 @@ public static class LinkCalc
     /// <summary>
     /// Copertura in ottica dalla stazione: per ogni azimut (passo 2°) la distanza fino alla quale un'antenna a hRx metri
     /// dal suolo vede ancora l'antenna trasmittente senza ostacoli (prima ombra) e il punto visibile più lontano,
-    /// con il raggio equivalente k. Il terreno viene da SRTM1 (passo 150 m).
+    /// con il raggio equivalente k. Il terreno viene da DEM 30 m (passo 150 m).
     /// </summary>
     /// <summary>
     /// «Via monte»: con il corrispondente chiuso, si puntano le antenne su un rilievo vicino ben visibile. Il versante
@@ -1169,7 +1169,7 @@ public static class LinkCalc
         tx.GroundM = h[0];
         double hts = tx.AntennaAsl, ae = k * Re;
         CalcLog.Section($"Copertura in ottica da {tx.Loc}");
-        CalcLog.W($"suolo SRTM1 {tx.GroundM:0.0} m, antenna {hts:0.0} m s.l.m., ricevente {hRx:0.0} m dal suolo, k {k:0.000} (ae {ae:0} km), raggio {maxKm:0} km, {naz} azimut, passo {stepKm * 1000:0} m, {pts.Count} punti");
+        CalcLog.W($"suolo DEM 30 m {tx.GroundM:0.0} m, antenna {hts:0.0} m s.l.m., ricevente {hRx:0.0} m dal suolo, k {k:0.000} (ae {ae:0} km), raggio {maxKm:0} km, {naz} azimut, passo {stepKm * 1000:0} m, {pts.Count} punti");
         var az = new double[naz]; var first = new double[naz]; var far = new double[naz];
         for (int a = 0; a < naz; a++)
         {
