@@ -4,6 +4,13 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
+## 1.3.3 — 21/11/2026
+- Seconda fonte di cluster: DXMAPS (dxmaps.com:7300, con gli spot dello skimmer RBN) al posto di 9A0DXC, che non risponde più; l'indirizzo salvato si aggiorna da solo. Cluster PSKReporter (dm4x) connesso all'avvio e CALL3.TXT aggiornato da solo ogni giorno, di default.
+- Linguetta Previsioni: caselle per il profilo a terra piatta, tutte le righe del calcolo (di default solo la sintesi) e il registro dei calcoli (di default nascosto); fumetti su tutti i bottoni; il cursore dell'ora segue l'orologio.
+- Contrasto aria-mare: sul mare la temperatura potenziale a 925 hPa e l'aria a 2 m si confrontano con la SST (da −3 a +3 dB), con la memoria del calo della SST nelle 72 ore prima dalle analisi Open-Meteo (mari bassi come l'alto Adriatico dopo la bora). Manuale § 9 quater sull'Adriatico.
+- Manuale delle previsioni: approfondimento su isole, Bocche di Bonifacio e discontinuità terra-mare (§ 10 quinquies), richiamato nei consigli.
+- Previsione mediata dagli spot: corridoi d'apertura da almeno 3 tratte parallele indipendenti (cluster, PSKReporter, QSO, decodifiche e salti APRS in 2 m e LoRa 433/868 MHz da APRS-IS, scartando le ritrasmissioni di digipeater non tracciate), con persistenza di 10 minuti; sotto il corridoio la previsione dell'ora attuale non scende sotto 10–16 dB. Curve di guadagno senza «gocce». Profilo a terra piatta con raggio curvo e fumetto sullo strato. Testi scalabili 80–150% accanto al tema.
+
 ## 1.3.2 — 21/11/2026
 - Rilievi vicini alle stazioni (entro 20 km, criterio dell'autore): nel troposcatter costano al massimo 6 dB per lato invece degli 0,573 dB per mrad di P.452.
 - Terreno: nuova fonte Copernicus DEM GLO-30 (GeoTIFF letto dal programma). I riquadri Terrain Tiles usati prima avevano vicino alla costa rilievi fantasma di 80–100 m in mare, che davano orizzonti falsi alle stazioni costiere (a Capri +2,6° verso nord-ovest, circa 26 dB di troposcatter in più). I vecchi riquadri restano come riserva.

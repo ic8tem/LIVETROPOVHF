@@ -149,7 +149,7 @@ public sealed class LinkResult
     // 1.3.0: troposcatter con tre modelli affiancati (come TropoLink) e loro dispersione come incertezza
     public double P617Db = double.NaN, P617F, P617N0, P617DeltaN, RsgbDb = double.NaN, ScatSpreadDb;
     // situazione meteo lungo la tratta (frazione dei profili)
-    public double SubsFrac, AscentFrac, SciroccoFrac, StabDbMean;
+    public double SubsFrac, AscentFrac, SciroccoFrac, StabDbMean, SeaAirDbMean;
     public int SoftN; public double SoftMax;          // punti con condotto morbido e fattore massimo
     // volume comune: dove si incrociano i raggi radenti delle due stazioni (base del volume di scatter)
     public double CvKm = double.NaN, CvHeightM = double.NaN, CvLat = double.NaN, CvLon = double.NaN, DeqKm = double.NaN;
@@ -574,7 +574,9 @@ public static class LinkCalc
                 {
                     // 1.3.0: stabilità di Misme (solo senza condotto) e moto verticale lungo il tratto dello strato
                     var rng = Enumerable.Range(best.a, best.b - best.a + 1).Select(i => prof[i]).ToList();
-                    double corr = rng.Average(p => p.VertDb + p.HighPDb + (best.traps ? 0 : p.StabDb));
+                    double corr = rng.Average(p => p.VertDb + p.HighPDb + p.SeaAirDb + (best.traps ? 0 : p.StabDb));
+                    r.SeaAirDbMean = rng.Average(p => p.SeaAirDb);
+                    if (Math.Abs(r.SeaAirDbMean) >= 0.05) CalcLog.W($"contrasto aria-mare sullo strato (θ925 − SST, T2m − SST, calo della SST nelle 72 ore): {r.SeaAirDbMean:+0.0;-0.0} dB");
                     r.HighPFrac = rng.Count(p => p.HighPDb > 0) / (double)rng.Count;
                     if (r.HighPFrac > 0) CalcLog.W($"alta pressione estesa e vento debole su {r.HighPFrac * 100:0}% dello strato: +{Refractivity.HighPDbBonus * r.HighPFrac:0.0} dB");
                     if (Math.Abs(corr) >= 0.05) CalcLog.W($"correzioni meteo sullo strato: {(best.traps ? "moto verticale" : "stabilità di Misme + moto verticale")} {corr:+0.0;-0.0} dB");

@@ -18,6 +18,11 @@ public sealed class AppState
     public readonly Archive Archive;
     public readonly TelnetFeed[] Feeds;
     public readonly PskMqtt Mqtt = new();
+    /// <summary>Corridoi d'apertura da tratte parallele indipendenti (spot, PSKReporter, QSO, decodifiche, APRS).</summary>
+    public readonly Corridors Corridors = new();
+    /// <summary>APRS-IS in sola lettura: salti radio in 2 m per i corridoi.</summary>
+    public readonly AprsIs Aprs = new();
+    public bool AprsOn = true, NowcastOn = true;
     public readonly WsjtxUdp Udp = new();
     public readonly NtpChecker Ntp = new();
     public readonly MapData Map = new();
@@ -83,6 +88,7 @@ public sealed class AppState
         Call = S.Get("call", "");
         Loc = S.Get("loc", "");
         ThemeKey = S.Get("theme", "chiaro");
+        TropoVHF.Ui.UiScale.Percent = S.GetInt("ui_scale", 100);
         LangCode = S.Get("lang", "");
         if (string.IsNullOrEmpty(LangCode)) LangCode = TropoVHF.Ui.Lang.SystemDefault();   // prima partenza: lingua del sistema, altrimenti inglese
         Band = S.Get("band", "144");
@@ -101,14 +107,20 @@ public sealed class AppState
             foreach (var k in new[] { "host", "port", "login", "password", "cmds", "recon", "auto" }) S.Remove("dxc2_" + k);
         // S50CLX ha cambiato dominio (s50clx.infrax.si non risolve più): si aggiorna l'indirizzo salvato
         if (S.Get("dxc3_host", "").Trim().Equals("s50clx.infrax.si", StringComparison.OrdinalIgnoreCase)) S.Set("dxc3_host", "s50clx.si");
+        // 9A0DXC non risponde più (il nodo dietro il server è fermo): la seconda fonte passa a DXMAPS (EA6VQ), con gli spot RBN
+        if (S.Get("dxc2_host", "").Trim().Equals("9a0dxc.hamradio.hr", StringComparison.OrdinalIgnoreCase))
+        {
+            S.Set("dxc2_host", "dxmaps.com"); S.SetInt("dxc2_port", 7300);
+            if (S.Get("dxc2_cmds", "").Trim() == "") S.Set("dxc2_cmds", "set/skimmer");
+        }
         Feeds = new[]
         {
             NewFeed("dxc", "DXC", "on0dxk.dyndns.org", 8000, "set/filter dxbm/pass 6", true),
-            // seconda fonte: 9A0DXC (Zagabria) e S50CLX (Slovenia), login con il proprio nominativo
-            NewFeed("dxc2", "DXC", "9a0dxc.hamradio.hr", 8000, "", true),
+            // seconda fonte: DXMAPS (EA6VQ, spot VHF e skimmer RBN con set/skimmer) e S50CLX (Slovenia), login con il proprio nominativo
+            NewFeed("dxc2", "DXC", "dxmaps.com", 7300, "set/skimmer", true),
             NewFeed("dxc3", "DXC", "s50clx.si", 41112, "", true),
             NewFeed("rbn", "RBN", "telnet.reversebeacon.net", 7001, "", true),
-            NewFeed("psk", "PSK", "dm4x.ddns.net", 8500, "", false),
+            NewFeed("psk", "PSK", "dm4x.ddns.net", 8500, "", true),
         };
 
         Mqtt.Host = S.Get("mqtt_host", "mqtt.pskreporter.info");
@@ -159,7 +171,7 @@ public sealed class AppState
             // Q65/JT65 via Luna: escluso come il meteor scatter (vedi Segnalazioni sospette)
             if (pos && EmeExclude(r.Band, r.Mode, "", r.TxCall, ptx, r.RxCall, prx, r.Time)) { lock (_excluded) _excluded.Add((Clock.UtcNow, r.Band)); return; }
             Listeners.Add(r);
-            if (pos) Gate.Add(r.Band, r.RxCall, prx, r.TxCall, ptx, r.Time);
+            if (pos) { Gate.Add(r.Band, r.RxCall, prx, r.TxCall, ptx, r.Time); Corridors.Add(r.Band, r.RxCall, prx, r.TxCall, ptx, r.Time, "PSK"); }
             Archive.AddListen(r);
             Dirty = true;
             if (Interlocked.Read(ref Mqtt.Reports) % 25 == 0)
@@ -192,11 +204,11 @@ public sealed class AppState
                 string G(string c) => Refine(c, Decodes.GridOf(c));
                 var qso = new Qso { Time = d.Time, Band = d.Band, A = qa, GridA = G(qa), B = qb, GridB = G(qb) };
                 Qsos.Add(qso);
-                if (TryPos(qa, qso.GridA, out var pqa) && TryPos(qb, qso.GridB, out var pqb)) Gate.Add(qso.Band, qa, pqa, qb, pqb, qso.Time);
+                if (TryPos(qa, qso.GridA, out var pqa) && TryPos(qb, qso.GridB, out var pqb)) { Gate.Add(qso.Band, qa, pqa, qb, pqb, qso.Time); Corridors.Add(qso.Band, qa, pqa, qb, pqb, qso.Time, "QSO"); }
             }
             Decodes.Add(d);
             // le proprie decodifiche sono certe: sempre visibili, e confermano i collegamenti lunghi simili
-            if (TryQth(out var pme) && TryPos(d.Call, d.Grid, out var pdc)) Gate.Add(d.Band, LoginOrCall == "" ? "QTH" : LoginOrCall, pme, d.Call, pdc, d.Time, true);
+            if (TryQth(out var pme) && TryPos(d.Call, d.Grid, out var pdc)) { Gate.Add(d.Band, LoginOrCall == "" ? "QTH" : LoginOrCall, pme, d.Call, pdc, d.Time, true); Corridors.Add(d.Band, LoginOrCall == "" ? "QTH" : LoginOrCall, pme, d.Call, pdc, d.Time, "UDP"); }
             Archive.AddDecode(d);
             Dirty = true;
         };
@@ -260,7 +272,7 @@ public sealed class AppState
             // MSK144/FSK441/JTMS: accettati solo entro 250 km, altrimenti esclusi come meteor scatter
             if (s.ShortMs && (!pos || Geo.DistKm(pde, pdx) > SpotParser.ShortMsKm)) { lock (_excluded) _excluded.Add((Clock.UtcNow, s.Band)); return; }
             if (pos && EmeExclude(s.Band, s.Mode, s.Comment, s.Dx, pdx, s.Spotter, pde, s.Recv)) { lock (_excluded) _excluded.Add((Clock.UtcNow, s.Band)); return; }
-            if (pos) Gate.Add(s.Band, s.Spotter, pde, s.Dx, pdx, s.Recv);
+            if (pos) { Gate.Add(s.Band, s.Spotter, pde, s.Dx, pdx, s.Recv); if (!s.Airscatter) Corridors.Add(s.Band, s.Spotter, pde, s.Dx, pdx, s.Recv, s.Src); }
             Spots.Add(s);
             Archive.AddSpot(s);
             Dirty = true;
@@ -532,8 +544,8 @@ public sealed class AppState
     // ------------------------------------------------ aggiornamento di CALL3.TXT da MMMonVHF
 
     public static readonly string Call3Url = string.Join("  ·  ", Call3Sources.Sources.Select(x => x.Name));
-    public bool Call3Auto { get => S.GetBool("call3_auto", false); set { S.Set("call3_auto", value ? "1" : "0"); Dirty = true; } }
-    public int Call3AutoDays = 14;
+    public bool Call3Auto { get => S.GetBool("call3_auto", true); set { S.Set("call3_auto", value ? "1" : "0"); Dirty = true; } }
+    public int Call3AutoDays = 1;
     public DateTime Call3Last
     {
         get => DateTime.TryParse(S.Get("call3_last", ""), System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal, out var d) ? d : DateTime.MinValue;
@@ -613,6 +625,16 @@ public sealed class AppState
         _ = Updater.RunAsync();
         StartFeeds();                       // solo con un nominativo valido
         if (Mqtt.AutoStart) Mqtt.Connect();
+        AprsOn = S.GetBool("aprs_on", true); NowcastOn = S.GetBool("fc_nowcast", true);
+        Aprs.Call = Call;
+        Aprs.Hop += (t, band, a, pa, b, pb) => Corridors.Add(band, a, pa, b, pb, t, "APRS");
+        if (AprsOn) Aprs.Start();
+        TropoVHF.Forecast.OwnForecast.Nowcast = (la, lo, t, f) =>
+        {
+            if (!NowcastOn || Math.Abs((t - Clock.UtcNow).TotalMinutes) > 90) return double.NaN;
+            var c = Corridors.At(BandOf(f), Clock.UtcNow, la, lo);
+            return c == null ? double.NaN : c.FloorDb;
+        };
         if (Udp.AutoStart) Udp.Start();
         Ntp.Start();
         Task.Run(() => Map.LoadOrDownloadAsync(Http));   // fuori dal thread della finestra: i file 1:10M sono grandi
@@ -703,4 +725,6 @@ public sealed class AppState
         Ntp.Stop();
         Archive.Dispose();
     }
+
+    public static string BandOf(double fMHz) => fMHz < 200 ? "144" : fMHz < 600 ? "432" : "1296";
 }

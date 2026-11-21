@@ -52,7 +52,7 @@ public static class Validation
             return ok ? own : null;
         }
         // base 1.3.1: le novità della 1.3.2 spente, si accendono una alla volta più sotto
-        Refractivity.UseDuctCeiling = false; Refractivity.UseHighPressure = false; Refractivity.UseCrplNormal = false; Refractivity.UseItuSuper = false;
+        Refractivity.UseDuctCeiling = false; Refractivity.UseHighPressure = false; Refractivity.UseSeaAir = false; Refractivity.UseCrplNormal = false; Refractivity.UseItuSuper = false;
         var gEv = Load(ev); var gCt = Load(ct);
         if (gEv == null) { File.WriteAllText(outFile, sb.ToString()); return 2; }
 
@@ -95,7 +95,7 @@ public static class Validation
         foreach (var cf in configs)
         {
             Refractivity.UseSoftDuct = cf.soft; Refractivity.UseCorrections = cf.corr; Refractivity.UsePersistence = cf.pers;
-            Refractivity.UseHighPressure = cf.v132 >= 1;
+            Refractivity.UseHighPressure = cf.v132 >= 1; Refractivity.UseSeaAir = cf.v132 >= 1;
             Refractivity.UseDuctCeiling = cf.v132 >= 2;
             Refractivity.UseCrplNormal = cf.v132 == 3;
             Refractivity.UseItuSuper = cf.v132 == 4;

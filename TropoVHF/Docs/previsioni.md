@@ -68,6 +68,28 @@ I colori sono opachi all'82%, così lo sfondo del tema li cambia appena. La grig
 
 La mappa giudica ogni punto da solo. Il calcolo del segnale invece controlla che lo strato sia continuo lungo la tratta (paragrafo 9): una tratta che attraversa molto giallo può dare meno di quanto la mappa faccia pensare.
 
+## 4 bis. Previsione mediata dagli spot: i corridoi (dalla 1.3.3)
+
+Criterio dell'autore: un collegamento da solo non deve mai disegnare un condotto. Una ricezione isolata e breve può essere lo scatter di un aereo in transito (il pacchetto APRS è brevissimo), un'apertura di pochi minuti o un errore, e darebbe «condotti a goccia» che ingannano. Il programma riconosce invece un **corridoio** quando, nella stessa banda:
+
+- almeno **3 coppie di stazioni indipendenti** (nessuna stazione in comune) lavorano su tratte di almeno **300 km**;
+- le tratte sono **parallele**: azimut entro ±15°, punti medi entro 150 km dall'asse comune;
+- tutto negli ultimi **30 minuti**, con il fascio che si ripete a distanza di almeno **10 minuti** (persistenza);
+- per l'APRS, un salto conta solo se lo stesso salto si ripete.
+
+Fonti: spot dei cluster (non quelli marcati AS/ACS), PSKReporter via MQTT, i propri QSO e le decodifiche di WSJT-X/JTDX/MSHV, e i salti APRS in 2 m e LoRa 433/868 MHz.
+
+**APRS: 2 m e LoRa.** Il programma legge APRS-IS in sola lettura (rotate.aprs2.net, filtro sull'Europa) e ricava i salti radio fra stazioni di posizione nota (sorgente → digipeater → IGate), come la mappa VHF di DXView e APRS PropView (RF-YVY, Apache 2.0). Valgono tre bande: 2 m, LoRa 433 MHz (corridoi della banda 432) e LoRa 868 MHz (corridoi che contano per i 1296: un condotto che porta gli 868 MHz porta di regola anche le frequenze più alte). La banda viene dal tocall LoRa (elenco aprs-deviceid) e dalle frequenze o diciture nel commento; un salto vale solo fra due stazioni della stessa banda.
+
+Il punto delicato sono i ripetitori attivi: un segnale ricevuto a 500 km può essere arrivato con due o tre ritrasmissioni di digipeater. Un salto conta quindi solo se è fra due trasmettitori veri e consecutivi:
+
+- il percorso deve essere tracciato: ogni digipeater che ha ritrasmesso ha messo il suo nominativo, e il salto si misura fra uno e il successivo; un alias usato senza nominativo (WIDE1*, WIDE2*, alias regionali) spezza la catena e quel tratto non conta;
+- ritrasmissioni nascoste: il programma ricorda il percorso che ogni sorgente chiede di solito (per esempio WIDE2-2). Se un pacchetto arriva con un salto in meno (WIDE2-1) e nessun nominativo lo spiega, un digipeater l'ha ritrasmesso senza tracciare e il pacchetto si scarta; le sorgenti mai viste prima non contano;
+- digipeater a metà strada: se fra le due stazioni, più o meno sulla via, c'è un digipeater della stessa banda attivo nelle ultime tre ore, il salto si scarta, perché potrebbe averlo ritrasmesso (vale soprattutto per i digipeater LoRa che ritrasmettono senza modificare il percorso);
+- si scartano i pacchetti non radio (qAC, qAX, TCPIP), quelli rigirati da internet in radio da un IGate (terze parti), HF e frequenze diverse, le stazioni in quota oltre 1500 m (palloni, aerei) e i salti oltre 1500 km.
+
+**Effetto sulla mappa.** Il corridoio si disegna come fascia viola tratteggiata con le tratte che lo compongono e un'etichetta (tratte, distanza media, guadagno minimo). Sotto il corridoio, e solo vicino all'ora attuale (±90 minuti), la previsione non scende sotto un minimo che va da 10 dB (tratte di 300 km) a 16 dB (900 km e oltre). Le curve di guadagno non disegnano più «gocce»: le isole più piccole di 220 km in tutte e due le direzioni restano colorate ma senza curva chiusa, a meno che un corridoio le confermi. Si spegne con la casella «Previsione mediata dagli spot».
+
 ## 5. Linee opzionali e confronto con pressione e inversione
 
 Curve di guadagno: linee a 7, 10, 13, 16, 18,5 e 21 dB, i bordi della scala, tracciate sul campo levigato con il metodo dei quadrati marcianti, con l'etichetta in dB.
@@ -185,6 +207,35 @@ limitata fra 0 e 40 m. Per intrappolare 144 MHz servirebbero circa 180 m (Kerr),
 
 **Profilo normale CRPL (alternativa).** Invece di 40 N/km fissi il calo normale segue l'atmosfera di riferimento esponenziale CRPL: N(h) = Ns·e^(−c·h), con −ΔN nel primo km = 7,32·e^(0,005577·Ns) (Bean e Thayer 1959). Con aria umida (Ns alto) il normale è più ripido e serve un gradiente più forte per dare guadagno; in quota è più dolce. Spento per difetto finché la validazione non dice che aiuta.
 
+## 9 quater. Contrasto aria-mare e mari bassi: l'Adriatico (dalla 1.3.3)
+
+Le onde radio non sentono il fondale del mare: sentono il contrasto fra l'aria e la superficie dell'acqua. La profondità conta perché decide quanto in fretta la temperatura del mare segue quella dell'aria.
+
+**L'Adriatico è un mare basso.** La profondità media è circa 250 m, ma il bacino settentrionale raramente supera i 100 m e il golfo di Trieste resta sotto i 25 m; solo a sud si scende oltre i 1200 m. Uno strato d'acqua così sottile si scalda e si raffredda in pochi giorni, il Tirreno in settimane. Ne vengono tre situazioni tipiche:
+
+1. **Primavera e inizio estate, favorevole.** Il mare è ancora freddo, anche per l'acqua dolce dei fiumi alpini e del Po; arriva aria calda e secca dalla pianura o dai Balcani. Aria calda sopra acqua fredda forma un'inversione sul mare (condotto d'avvezione): è la condizione classica delle aperture fra Italia, Slovenia e Croazia.
+2. **Autunno e inverno con bora, sfavorevole.** Aria fredda sopra un mare più caldo: lo strato basso diventa instabile, si rimescola e il condotto si rompe.
+3. **Dopo una bora, occasione.** Proprio perché il mare è basso, una bora lo raffredda di alcuni gradi in pochi giorni. Se poi entra un anticiclone con aria calda, il contrasto aria-mare è forte e il condotto è più robusto del solito.
+
+L'Adriatico è anche un canale chiuso fra Appennini e Dinaridi, largo meno di 200 km: lo strato marino resta confinato, e le tratte lungo l'asse (Puglia–Venezia–Trieste, circa 700 km) restano tutte sul mare, la condizione migliore per un condotto lungo.
+
+**Cosa calcola il programma.** Sui punti di mare, con le correzioni meteo accese e la casella «Contrasto aria-mare»:
+
+| Condizione | Correzione |
+| --- | --- |
+| temperatura potenziale a 925 hPa (o 950) oltre la SST di 4 K | +1 dB |
+| oltre la SST di 7 K | +2 dB |
+| con aria umida a 925 hPa (oltre 80%) | −0,5 dB su questi bonus |
+| mare raffreddato di 1,5 °C o più nelle 72 ore prima, con contrasto favorevole | +1 dB |
+| mare più caldo dell'aria a 2 m di 2 °C (rimescolamento) | −1,5 dB |
+| mare più caldo di 4 °C | −3 dB |
+
+La correzione totale resta fra −3 e +3 dB e, senza condotto, il guadagno resta comunque sotto il tetto del giallo. Le soglie sono provvisorie: nell'atmosfera standard la temperatura potenziale a 925 hPa supera quella del mare di circa 2–3 K, quindi 4 K indica già un'inversione.
+
+**La memoria della SST.** I modelli tengono la temperatura del mare quasi ferma durante la previsione. Il calo recente si ricava dalle analisi dei tre giorni prima (Open-Meteo, solo temperatura della superficie, solo celle di mare): massimo delle 72 ore prima meno il valore attuale. Se il servizio non risponde, il bonus di memoria non si applica.
+
+**Limiti.** La SST dei modelli sotto costa e nell'alto Adriatico è grossolana; il pennacchio freddo del Po, per esempio, è risolto male. La batimetria non entra nel calcolo: le sorgenti danno sempre la SST, che riassume già l'effetto del fondale. Il contrasto aria-mare si sovrappone in parte al termine di stabilità di Misme (§ 9 bis); per questo i bonus sono piccoli. Le soglie andranno tarate con i corridoi di spot e i QSO attraverso l'Adriatico.
+
 ## 10. Condotto su tutta la tratta
 
 Se lo strato intrappola la banda su almeno l'80% della frazione usata e le stazioni non sono in vista, si calcola anche la perdita nel condotto: spazio libero, più l'accoppiamento delle antenne (3 dB se sono dentro il condotto, di più se sono sopra o sotto), più l'attenuazione residua γd = 5·10⁻⁵·ae·f^(1/3) dB/mrad di ITU-R P.452 eq. 49 [6]. Se è minore della perdita senza tropo diventa la perdita prevista.
@@ -244,6 +295,25 @@ L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,	heta_{condotto} + A_{ITM}(d_{uscita
 ```
 
 dove A_TX è l'accoppiamento dell'antenna (3 dB dentro, 1 dB ogni 10 m fuori) se il condotto parte vicino, altrimenti la diffrazione d'ingresso del § 10 ter. È il limite che l'autore si è dato: continuità dello strato più, al massimo, l'attenuazione residua. Se è più bassa della perdita prevista diventa il meccanismo («condotto (uscita e tratto finale ITM)»).
+
+## 10 quinquies. Approfondimento: isole, strettoie e discontinuità terra-mare
+
+Un esempio dal golfo di Napoli (Anacapri, JN70CN) verso il Mediterraneo occidentale mostra dove le tratte attraversano le isole:
+
+| Destinazione | Azimut | Dove attraversa le isole | Ostacolo |
+| --- | --- | --- | --- |
+| Barcellona | 279° | nord della Sardegna (Gallura) a 41,05° N, fra 420 e 490 km | circa 30 km a sud delle Bocche di Bonifacio; il Limbara (1359 m) a una ventina di km dalla linea |
+| Bocche di Bonifacio | 282° | lo stretto a 41,3° N | varco di circa 11 km |
+| Marsiglia | 296° | Corsica centrale a 42,2° N | montagne fino a 2700 m: un condotto sotto i 2 km lì si interrompe |
+| Valencia, Baleari | 260–265° | Sardegna centrale | rilievi interni |
+
+Per Barcellona basta puntare a 282° invece di 279° perché l'asse passi dalle Bocche: 3°, dentro il fascio di una normale yagi.
+
+**Le Bocche sono una strettoia?** Per i condotti bassi, sotto qualche centinaio di metri, sì: le isole fanno da muro, e sopra la terra, di giorno, il riscaldamento rompe l'inversione. Lo stretto di per sé è largo abbastanza: circa 11 km, contro una prima zona di Fresnel larga meno di un chilometro a metà di una tratta di 1000 km in 144 MHz. Il problema è meteorologico. Le Bocche sono un imbuto per il vento: ponente e maestrale accelerano e rimescolano lo strato basso. Spesso il varco è aperto come geometria ma disturbato come atmosfera. Con un anticiclone fermo e poco vento può invece essere il passaggio buono.
+
+**Discontinuità terra-mare.** Contano. Un condotto formato sul Tirreno si interrompe sulla costa sarda: il segnale esce dal condotto (il tratto dopo l'uscita, § 10 quater) e deve rientrare in un altro condotto sul mare delle Baleari, pagando di nuovo l'accoppiamento. I condotti in quota, sopra i 1500 m, passano sopra la Gallura senza accorgersene; per la Corsica centrale non vale.
+
+In pratica: se il percorso attraversa un'isola montuosa, prova qualche grado di correzione verso il tratto di mare libero, ma non contare sul varco con vento forte nello stretto.
 
 ## 11. Confronto con ITU-R P.452
 

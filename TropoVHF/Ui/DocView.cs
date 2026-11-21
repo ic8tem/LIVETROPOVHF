@@ -56,14 +56,14 @@ public static class DocView
                     {
                         var src = eq.Trim();
                         bool numbered = !src.Contains("\\notag");
-                        var m = MathView.Build(src, 19, Body);
+                        var m = MathView.Build(src, 19 * UiScale.F, Body);
                         m.HorizontalAlignment = HorizontalAlignment.Center;
                         // formula al centro, numero a destra fra parentesi (stile LaTeX)
                         var row = new Grid { ColumnDefinitions = new ColumnDefinitions("56,*,56") };
                         Grid.SetColumn(m, 1); row.Children.Add(m);
                         if (numbered)
                         {
-                            var num = new TextBlock { Text = $"({++eqNo})", FontFamily = MathNum, FontSize = 16, Foreground = Body, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
+                            var num = new TextBlock { Text = $"({++eqNo})", FontFamily = MathNum, FontSize = (16) * UiScale.F, Foreground = Body, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
                             Grid.SetColumn(num, 2); row.Children.Add(num);
                         }
                         eqs.Children.Add(row);
@@ -77,7 +77,7 @@ public static class DocView
                     {
                         Background = CodeBg, BorderBrush = Rule, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(4),
                         Padding = new Thickness(14, 10),
-                        Child = new TextBlock { Text = string.Join("\n", codeLines), FontFamily = Mono, FontSize = 13, Foreground = Body, TextWrapping = TextWrapping.Wrap, LineHeight = 22 }
+                        Child = new TextBlock { Text = string.Join("\n", codeLines), FontFamily = Mono, FontSize = (13) * UiScale.F, Foreground = Body, TextWrapping = TextWrapping.Wrap, LineHeight = (22) * UiScale.F }
                     });
                     codeLines.Clear();
                 }
@@ -103,7 +103,7 @@ public static class DocView
                     {
                         BorderBrush = new SolidColorBrush(Color.Parse("#D4DCE8")), BorderThickness = new Thickness(1),
                         Background = tableRow == 0 ? TableHead : Brushes.White, Padding = new Thickness(8, 5),
-                        Child = Rich(new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 13, Foreground = tableRow == 0 ? Blue : Body, FontWeight = tableRow == 0 ? FontWeight.SemiBold : FontWeight.Normal, MaxWidth = i == cells.Length - 1 ? double.PositiveInfinity : 260 }, cells[i])
+                        Child = Rich(new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = (13) * UiScale.F, Foreground = tableRow == 0 ? Blue : Body, FontWeight = tableRow == 0 ? FontWeight.SemiBold : FontWeight.Normal, MaxWidth = i == cells.Length - 1 ? double.PositiveInfinity : 260 }, cells[i])
                     };
                     Grid.SetRow(b, tableRow); Grid.SetColumn(b, i);
                     table.Children.Add(b);
@@ -116,19 +116,19 @@ public static class DocView
             if (l.Length == 0) continue;
             if (l.StartsWith("# "))
             {
-                sheet.Children.Add(new TextBlock { Text = l.Substring(2), FontFamily = Serif, FontSize = 32, FontWeight = FontWeight.Normal, Foreground = Blue, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 0) });
+                sheet.Children.Add(new TextBlock { Text = l.Substring(2), FontFamily = Serif, FontSize = (32) * UiScale.F, FontWeight = FontWeight.Normal, Foreground = Blue, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 0) });
             }
             else if (l.StartsWith("## "))
             {
                 sheet.Children.Add(new Border
                 {
                     BorderBrush = Rule, BorderThickness = new Thickness(0, 0, 0, 1), Padding = new Thickness(0, 0, 0, 6), Margin = new Thickness(0, 18, 0, 2),
-                    Child = new TextBlock { Text = l.Substring(3), FontFamily = Serif, FontSize = 23, FontWeight = FontWeight.Normal, Foreground = Blue, TextWrapping = TextWrapping.Wrap }
+                    Child = new TextBlock { Text = l.Substring(3), FontFamily = Serif, FontSize = (23) * UiScale.F, FontWeight = FontWeight.Normal, Foreground = Blue, TextWrapping = TextWrapping.Wrap }
                 });
             }
             else if (l.StartsWith("### "))
             {
-                sheet.Children.Add(new TextBlock { Text = l.Substring(4), FontFamily = Serif, FontSize = 18, FontWeight = FontWeight.SemiBold, Foreground = Blue, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 10, 0, 0) });
+                sheet.Children.Add(new TextBlock { Text = l.Substring(4), FontFamily = Serif, FontSize = (18) * UiScale.F, FontWeight = FontWeight.SemiBold, Foreground = Blue, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 10, 0, 0) });
             }
             else if (l.StartsWith("- "))
             {
@@ -144,7 +144,7 @@ public static class DocView
                 bool kicker = sheet.Children.Count == 0;
                 sheet.Children.Add(Rich(new TextBlock
                 {
-                    TextWrapping = TextWrapping.Wrap, FontSize = kicker ? 12 : 14, LineHeight = kicker ? 16 : 23,
+                    TextWrapping = TextWrapping.Wrap, FontSize = (kicker ? 12 : 14) * UiScale.F, LineHeight = (kicker ? 16 : 23) * UiScale.F,
                     Foreground = kicker ? Grey : Body, FontWeight = kicker ? FontWeight.SemiBold : FontWeight.Normal
                 }, l));
             }
@@ -209,8 +209,8 @@ public static class DocView
     static Control Item(string bullet, string text)
     {
         var g = new Grid { ColumnDefinitions = new ColumnDefinitions("30,*") };
-        var b = new TextBlock { Text = bullet, FontWeight = FontWeight.Bold, Foreground = new SolidColorBrush(Color.Parse("#1F2A3A")), FontSize = 14 };
-        var t = Rich(new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 14, LineHeight = 23, Foreground = Body }, text);
+        var b = new TextBlock { Text = bullet, FontWeight = FontWeight.Bold, Foreground = new SolidColorBrush(Color.Parse("#1F2A3A")), FontSize = (14) * UiScale.F };
+        var t = Rich(new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = (14) * UiScale.F, LineHeight = (23) * UiScale.F, Foreground = Body }, text);
         Grid.SetColumn(t, 1);
         g.Children.Add(b); g.Children.Add(t);
         return g;

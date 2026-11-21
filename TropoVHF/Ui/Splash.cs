@@ -57,7 +57,7 @@ public sealed class Splash : Window
         {
             Text = "v" + ver,
             Foreground = Brushes.White,
-            FontSize = 44, FontWeight = FontWeight.Bold,
+            FontSize = (44) * UiScale.F, FontWeight = FontWeight.Bold,
             HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(84, 162, 0, 0),
             Effect = new DropShadowEffect { BlurRadius = 6, OffsetX = 0, OffsetY = 1, Color = Color.Parse("#80000000") },

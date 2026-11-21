@@ -70,7 +70,7 @@ public sealed partial class MainWindow
         var g = new Grid { ColumnDefinitions = new ColumnDefinitions($"{panelW.ToString(CultureInfo.InvariantCulture)},6,*") };
         var col = new StackPanel { Spacing = 8, Margin = new Thickness(14) };
 
-        col.Children.Add(new TextBlock { Text = L("Previsione propria", "Own forecast"), FontSize = 18, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent) });
+        col.Children.Add(new TextBlock { Text = L("Previsione propria", "Own forecast"), FontSize = (18) * UiScale.F, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent) });
         var exp = TB(L("SPERIMENTALE: i calcoli sono in fase di verifica. Usare i risultati per confrontare situazioni, non come garanzia di un collegamento. " +
                        "Il manuale delle previsioni spiega ogni dato; i rapporti dei collegamenti reali servono a validare il modello.",
                        "EXPERIMENTAL: the calculations are being validated. Use the results to compare situations, not as a guarantee of a contact. " +
@@ -131,6 +131,7 @@ public sealed partial class MainWindow
         foreach (var b in new[] { "144", "432", "1296" })
         {
             var tb = new ToggleButton { Content = b + " MHz", IsChecked = _st.S.Get("fc_band", "144") == b, Padding = new Thickness(14, 4), CornerRadius = new CornerRadius(0) };
+            ToolTip.SetTip(tb, L("Banda della previsione e del calcolo: cambia i colori della mappa (i condotti intrappolano meglio le frequenze alte), il guadagno delle yagi e il rumore.", "Band for the forecast and the computation: changes the map colours (ducts trap higher frequencies better), the yagi gain and the noise."));
             tb.Click += (_, _) => { _st.S.Set("fc_band", b); foreach (var x in _fcBandBtns) x.IsChecked = (string)x.Content == b + " MHz"; FcRefreshGains(); _fcMap?.InvalidateVisual(); };
             _fcBandBtns.Add(tb); bands.Children.Add(tb);
         }
@@ -139,7 +140,9 @@ public sealed partial class MainWindow
         // ora
         _fcTime = TB("", 13, _th.Text, true, true);
         var sl = new Slider { Minimum = 0, Maximum = OwnForecast.Hours - 6, TickFrequency = 3, IsSnapToTickEnabled = true, Value = FcHours };
-        sl.PropertyChanged += (_, e) => { if (e.Property == RangeBase.ValueProperty) { FcHours = (int)Math.Round(sl.Value); FcTimeLabel(); FcSyncOverlay(); _fcMap?.InvalidateVisual(); } };
+        _fcSlider = sl; _fcHourSeen = FcNowHour();
+        ToolTip.SetTip(sl, L("Ora della previsione: da adesso fino a circa 3 giorni avanti, a passi di 3 ore. L'inizio segue l'orologio: allo scoccare dell'ora la mappa resta sull'ora che stavi guardando e il cursore si sposta.", "Forecast hour: from now up to about 3 days ahead, in 3-hour steps. The start follows the clock: when the hour turns, the map stays on the hour you were viewing and the slider moves."));
+        sl.PropertyChanged += (_, e) => { if (e.Property == RangeBase.ValueProperty && !_fcHourSync) { FcHours = (int)Math.Round(sl.Value); FcTimeLabel(); FcSyncOverlay(); _fcMap?.InvalidateVisual(); } };
         FcTimeLabel();
         col.Children.Add(_fcTime);
         col.Children.Add(sl);
@@ -147,7 +150,7 @@ public sealed partial class MainWindow
         // linee opzionali sopra i colori (i colori restano sempre)
         CheckBox Ov(string key, string it, string en, string tipIt, string tipEn)
         {
-            var cb = new CheckBox { Content = L(it, en), IsChecked = _st.S.GetBool(key, false), FontSize = 12 };
+            var cb = new CheckBox { Content = L(it, en), IsChecked = _st.S.GetBool(key, false), FontSize = (12) * UiScale.F };
             cb.IsCheckedChanged += (_, _) => { _st.S.SetBool(key, cb.IsChecked == true); _st.Dirty = true; FcSyncOverlay(); _fcMap?.InvalidateVisual(); };
             ToolTip.SetTip(cb, L(tipIt, tipEn));
             return cb;
@@ -189,9 +192,9 @@ public sealed partial class MainWindow
         {
             Children =
             {
-                PrimaryButton(L("Aggiorna previsione (zona visibile)", "Update forecast (visible area)"), FcUpdateGrid),
+                Tip(PrimaryButton(L("Aggiorna previsione (zona visibile)", "Update forecast (visible area)"), FcUpdateGrid), L("Scarica i profili verticali del modello scelto per la zona visibile della mappa e ricalcola i colori. Ci vuole da qualche secondo a un minuto.", "Downloads the vertical profiles of the chosen model for the visible map area and recomputes the colours. Takes from a few seconds to a minute.")),
                 new Border { Width = 8 },
-                OutlineButton(L("Stop", "Stop"), () => _fcCts?.Cancel()),
+                Tip(OutlineButton(L("Stop", "Stop"), () => _fcCts?.Cancel()), L("Interrompe lo scaricamento o il calcolo in corso.", "Stops the download or computation in progress.")),
                 new Border { Width = 12 },
                 FcAutoBox()
             }
@@ -209,7 +212,7 @@ public sealed partial class MainWindow
         Control Row(string label, Control c, Control extra = null)
         {
             var sp = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-            sp.Children.Add(new Border { Width = 190, Child = new TextBlock { Text = label, FontSize = 12, Foreground = B(_th.Muted), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center } });
+            sp.Children.Add(new Border { Width = 190, Child = new TextBlock { Text = label, FontSize = (12) * UiScale.F, Foreground = B(_th.Muted), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center } });
             sp.Children.Add(c);
             if (extra != null) sp.Children.Add(extra);
             return sp;
@@ -269,18 +272,26 @@ public sealed partial class MainWindow
         {
             Children =
             {
-                PrimaryButton(L("Calcola il segnale", "Compute signal"), FcComputeLink),
+                Tip(PrimaryButton(L("Calcola il segnale", "Compute signal"), FcComputeLink), L("Calcola il segnale fra la tua stazione e il corrispondente: profilo del terreno, strati lungo la tratta, perdita prevista, S/N per modo e puntamento consigliato. Manuale delle previsioni, § 7–12.", "Computes the signal between your station and the other one: terrain profile, layers along the path, predicted loss, S/N per mode and recommended heading. Forecast manual, § 7–12.")),
                 new Border { Width = 8 },
-                OutlineButton(L("Copertura in ottica (DEM 30 m)", "Line-of-sight coverage (DEM 30 m)"), FcComputeLos)
+                Tip(OutlineButton(L("Copertura in ottica (DEM 30 m)", "Line-of-sight coverage (DEM 30 m)"), FcComputeLos), L("Disegna in azzurro fino a dove la tua antenna si vede in ottica (prima ombra) e con la linea tratteggiata il punto visibile più lontano, sul terreno DEM 30 m.", "Draws in light blue how far your antenna is in line of sight (first shadow) and with a dashed line the farthest visible point, on 30 m DEM terrain."))
             }
         });
+        // cosa mostrare: i calcoli restano tutti, si sceglie solo cosa vedere
+        ProfileView.Flat = _st.S.GetBool("fc_flat", true);
+        var flat = Tip(Check(L("Profilo a terra piatta", "Flat-earth profile"), ProfileView.Flat, v => { ProfileView.Flat = v; _st.S.SetBool("fc_flat", v); _st.Dirty = true; _fcProfile?.InvalidateVisual(); }), L("Acceso: profilo a terra piatta, le montagne risaltano e il raggio diretto curva verso il basso. Spento: disegno classico, il terreno sale con la curvatura della terra e il raggio è dritto. Il calcolo è lo stesso.", "On: flat-earth profile, mountains stand out and the direct ray curves down. Off: classic drawing, terrain rises with the earth's curvature and the ray is straight. The computation is the same."));
+        var full = Tip(Check(L("Tutte le righe del calcolo", "All computation lines"), _st.S.GetBool("fc_full", false), v => { _st.S.SetBool("fc_full", v); _st.Dirty = true; if (_fcLast != null) FcShowResult(_fcLast); }), L("Spento: solo la sintesi (distanza, strato, guadagno, perdita, segnale, S/N, modi, probabilità, puntamento). Acceso: tutte le righe del calcolo fra i due locatori. I calcoli sono sempre completi.", "Off: summary only (distance, layer, gain, loss, signal, S/N, modes, probability, heading). On: every line of the computation between the two locators. The computations are always complete."));
+        var logShow = Tip(Check(L("Mostra il registro dei calcoli", "Show computation log"), _st.S.GetBool("fc_logshow", false), v => { _st.S.SetBool("fc_logshow", v); _st.Dirty = true; if (_fcLogPanel != null) _fcLogPanel.IsVisible = v; }), L("Mostra o nasconde la finestra del registro dei calcoli. Il registro continua a essere scritto nel file anche quando è nascosto.", "Shows or hides the computation log window. The log keeps being written to the file even when hidden."));
+        col.Children.Add(new WrapPanel { Children = { flat, new Border { Width = 12 }, full, new Border { Width = 12 }, logShow } });
         _fcProfile = new ProfileView { Height = 190, Th = _th };
         col.Children.Add(new Border { BorderBrush = B(_th.Line), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), ClipToBounds = true, Child = _fcProfile });
         _fcResults = new StackPanel { Spacing = 3, Margin = new Thickness(0, 0, 16, 10) };   // spazio per la barra di scorrimento
         col.Children.Add(_fcResults);
         if (_fcLast != null) FcShowResult(_fcLast); else _fcResults.Children.Add(TB(L("Nessun calcolo ancora.", "No computation yet."), 12, _th.Muted));
         col.Children.Add(FcLegend());
-        col.Children.Add(FcLogPanel());
+        _fcLogPanel = FcLogPanel();
+        _fcLogPanel.IsVisible = _st.S.GetBool("fc_logshow", false);
+        col.Children.Add(_fcLogPanel);
 
         g.Children.Add(new Border { Background = B(_th.Panel), BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 0, 1, 0), Child = new ScrollViewer { Content = col } });
 
@@ -356,19 +367,20 @@ public sealed partial class MainWindow
         var sp = new StackPanel { Spacing = 6, Margin = new Thickness(0, 10, 0, 0) };
         sp.Children.Add(TB(L("Registro dei calcoli", "Computation log"), 13, _th.Text, true));
         CalcLog.Enabled = _st.S.GetBool("fc_log", true);
-        var chk = Check(L("Registro dettagliato attivo", "Verbose log enabled"), CalcLog.Enabled, v => { CalcLog.Enabled = v; _st.S.SetBool("fc_log", v); _st.Dirty = true; });
+        var chk = Tip(Check(L("Registro dettagliato attivo", "Verbose log enabled"), CalcLog.Enabled, v => { CalcLog.Enabled = v; _st.S.SetBool("fc_log", v); _st.Dirty = true; }), L("Scrive ogni passo dei calcoli nel registro e nel file. Spento, i calcoli sono identici ma non lasciano traccia.", "Writes every step of the computations to the log and the file. Off, the computations are identical but leave no trace."));
         var open = OutlineButton(L("Apri il file", "Open file"), () =>
         {
             try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(CalcLog.FilePath) { UseShellExecute = true }); }
             catch (Exception ex) { FcSetStatus(ex.Message); }
         });
-        var clear = OutlineButton(L("Svuota la finestra", "Clear window"), () => { CalcLog.Clear(); _fcLogDirty = true; });
+        ToolTip.SetTip(open, L("Apre il file del registro dei calcoli con il programma predefinito.", "Opens the computation log file with the default program."));
+        var clear = Tip(OutlineButton(L("Svuota la finestra", "Clear window"), () => { CalcLog.Clear(); _fcLogDirty = true; }), L("Svuota la finestra del registro; il file resta com'è.", "Clears the log window; the file is kept."));
         sp.Children.Add(new WrapPanel { Children = { chk, new Border { Width = 8 }, open, new Border { Width = 8 }, clear } });
         var path = TB(CalcLog.FilePath, 11, _th.Muted); path.TextWrapping = TextWrapping.Wrap;
         sp.Children.Add(path);
         _fcLogBox = new TextBox
         {
-            IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, FontSize = 11,
+            IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, FontSize = (11) * UiScale.F,
             FontFamily = new FontFamily("Consolas, Menlo, DejaVu Sans Mono, monospace"), Text = CalcLog.RecentText()
         };
         ScrollViewer.SetHorizontalScrollBarVisibility(_fcLogBox, ScrollBarVisibility.Disabled);   // a capo automatico
@@ -484,8 +496,32 @@ public sealed partial class MainWindow
 
     int _fcAutoTick;
     /// <summary>Chiamata ogni secondo dal timer della finestra: ogni 30 s controlla se serve aggiornare la previsione.</summary>
+    Slider _fcSlider; Control _fcLogPanel;
+    DateTime _fcHourSeen; bool _fcHourSync;
+    static T Tip<T>(T c, string tip) where T : Control { ToolTip.SetTip(c, tip); return c; }
+    static DateTime FcNowHour() { var n = Clock.UtcNow; return new DateTime(n.Year, n.Month, n.Day, n.Hour, 0, 0, DateTimeKind.Utc); }
+
+    /// <summary>
+    /// L'inizio del cursore dell'ora è l'ora attuale: quando l'ora scatta, la mappa resta sull'ora che si stava guardando
+    /// (lo scostamento cala di quanto è passato) e l'etichetta si aggiorna; a «+0 h» segue l'ora attuale.
+    /// </summary>
+    void FcClockTick()
+    {
+        if (_own?.Hist != null || _fcSlider == null) return;
+        var h = FcNowHour();
+        if (_fcHourSeen == default) { _fcHourSeen = h; return; }
+        if (h == _fcHourSeen) return;
+        int passed = (int)Math.Round((h - _fcHourSeen).TotalHours);
+        _fcHourSeen = h;
+        FcHours = Math.Max(0, FcHours - Math.Max(0, passed));
+        _fcHourSync = true;
+        try { _fcSlider.Value = FcHours; } finally { _fcHourSync = false; }
+        FcTimeLabel(); FcSyncOverlay(); _fcMap?.InvalidateVisual();
+    }
+
     void FcAutoCheck()
     {
+        FcClockTick();
         if (++_fcAutoTick % 30 != 0 || !FcAuto || _fcMap == null) return;
         var (la1, la2, lo1, lo2) = _fcMap.Box;
         if (la2 - la1 < 0.5 || lo2 - lo1 < 0.5) return;      // mappa non ancora disposta
@@ -604,8 +640,10 @@ public sealed partial class MainWindow
         _fcProgress = null;
         _fcResults.Children.Clear();
         _fcResults.Children.Add(TB(ForecastText.Header(r, FcTime), 14, _th.Accent, true));
+        bool full = _st.S.GetBool("fc_full", false);
         foreach (var (label, value, tone, bold) in ForecastText.Lines(r, Num("fc_req_ssb", 6), Num("fc_req_cw", 0), Num("fc_req_ft8", -21), _own))
         {
+            if (!full && !ForecastText.IsSummary(label)) continue;
             var col = tone switch
             {
                 FcTone.Strong => _th.Text, FcTone.Accent => _th.Accent, FcTone.Ok => _th.Ok, FcTone.Bad => _th.Bad,
@@ -630,6 +668,7 @@ public sealed partial class MainWindow
         OwnForecast.Source = WxSources.Parse(_st.S.Get("fc_source", "Auto"));
         Refractivity.UseCorrections = _st.S.GetBool("fc_corr", true);
         Refractivity.ViaIdeal = _st.S.GetBool("fc_via_ideal", false);
+        Refractivity.UseSeaAir = _st.S.GetBool("fc_seaair", true);
         var box = new StackPanel { Spacing = 6 };
         var src = new ComboBox { Width = 330, ItemsSource = WxSources.All.Select(WxSources.Name).ToList(), SelectedIndex = Array.IndexOf(WxSources.All, OwnForecast.Source) };
         src.SelectionChanged += (_, _) =>
@@ -644,7 +683,7 @@ public sealed partial class MainWindow
                               "Automatic (recommended): GFS first from NOMADS (NOAA, GRIB2 files of the area, no daily limit), then from Open-Meteo for any missing points: same model and run. ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis." +
                               "ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis."));
         var sp1 = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-        sp1.Children.Add(new TextBlock { Text = L("Sorgente dei dati", "Data source"), Width = 120, FontSize = 12, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
+        sp1.Children.Add(new TextBlock { Text = L("Sorgente dei dati", "Data source"), Width = 120, FontSize = (12) * UiScale.F, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
         sp1.Children.Add(src);
         box.Children.Add(sp1);
 
@@ -669,11 +708,11 @@ public sealed partial class MainWindow
         ToolTip.SetTip(hc, L("Rivede un'apertura documentata (QST, «The World Above 50 MHz») con le previsioni GFS d'archivio di Open-Meteo, per confrontare il modello con quello che è successo. L'ora parte dal primo giorno del caso. Manuale delle previsioni, § 3 ter.",
                              "Replays a documented opening (QST, «The World Above 50 MHz») with Open-Meteo archived GFS forecasts, to compare the model with what happened. Time starts at the first day of the case. Forecast manual, § 3 ter."));
         var sp2 = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-        sp2.Children.Add(new TextBlock { Text = L("Caso storico", "Historical case"), Width = 120, FontSize = 12, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
+        sp2.Children.Add(new TextBlock { Text = L("Caso storico", "Historical case"), Width = 120, FontSize = (12) * UiScale.F, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
         sp2.Children.Add(hc);
         box.Children.Add(sp2);
 
-        var corr = new CheckBox { Content = L("Correzioni meteo: stabilità (Misme), subsidenza e persistenza", "Weather corrections: stability (Misme), subsidence and persistence"), IsChecked = Refractivity.UseCorrections, FontSize = 12 };
+        var corr = new CheckBox { Content = L("Correzioni meteo: stabilità (Misme), subsidenza e persistenza", "Weather corrections: stability (Misme), subsidence and persistence"), IsChecked = Refractivity.UseCorrections, FontSize = (12) * UiScale.F };
         corr.IsCheckedChanged += (_, _) =>
         {
             Refractivity.UseCorrections = corr.IsChecked == true; _st.S.SetBool("fc_corr", Refractivity.UseCorrections); _st.Dirty = true;
@@ -682,10 +721,22 @@ public sealed partial class MainWindow
         ToolTip.SetTip(corr, L("Aggiunge al guadagno il termine di stabilità di Misme (solo senza condotto, da −4 a +6 dB, taratura provvisoria) e la correzione per il moto verticale: +1,5 dB con subsidenza, −2 dB con aria in salita. Toglila per vedere il modello della 1.2. Manuale delle previsioni, § 9 bis.",
                                "Adds Misme's stability term (only without a duct, −4 to +6 dB, provisional calibration) and the vertical-motion correction: +1.5 dB with subsidence, −2 dB with rising air. Untick to see the 1.2 model. Forecast manual, § 9 bis."));
         box.Children.Add(corr);
-        var vi = new CheckBox { Content = L("Via monte senza perdita fino al monte (stazione portata sul punto)", "Via mountain lossless to the peak (station moved to the point)"), IsChecked = Refractivity.ViaIdeal, FontSize = 12 };
+        var vi = new CheckBox { Content = L("Via monte senza perdita fino al monte (stazione portata sul punto)", "Via mountain lossless to the peak (station moved to the point)"), IsChecked = Refractivity.ViaIdeal, FontSize = (12) * UiScale.F };
         vi.IsCheckedChanged += (_, _) => { Refractivity.ViaIdeal = vi.IsChecked == true; _st.S.SetBool("fc_via_ideal", Refractivity.ViaIdeal); _st.Dirty = true; };
         ToolTip.SetTip(vi, L("Quando il corrispondente è chiuso da un rilievo vicino, il giro d'orizzonte cerca il punto migliore da cui rilanciare il segnale. Con questa casella la perdita fra la tua stazione e il punto è considerata nulla: è come portare la stazione sulla cima (antenna a 10 m, stessa potenza e antenna) e conta solo la tratta dal punto al corrispondente. Il punto è dato con il locatore a 10 caratteri. Limite ottimistico. Manuale delle previsioni, § 10 bis.", "When the other station is blocked by nearby terrain, the horizon sweep looks for the best point to relaunch the signal. With this box the loss between your station and the point is taken as zero: as if you moved the station to the summit (antenna 10 m, same power and antenna); only the leg from the point to the other station counts. The point is given with a 10-character locator. Optimistic bound. Forecast manual, § 10 bis."));
         box.Children.Add(vi);
+        var sa = new CheckBox { Content = L("Contrasto aria-mare e memoria della temperatura del mare", "Air-sea contrast and sea temperature memory"), IsChecked = Refractivity.UseSeaAir, FontSize = (12) * UiScale.F };
+        sa.IsCheckedChanged += (_, _) => { Refractivity.UseSeaAir = sa.IsChecked == true; _st.S.SetBool("fc_seaair", Refractivity.UseSeaAir); _st.Dirty = true; _fcMap?.InvalidateVisual(); };
+        ToolTip.SetTip(sa, L("Sul mare confronta l'aria con la temperatura della superficie del mare (SST). Aria a 925 hPa più calda del mare (temperatura potenziale oltre la SST di 4 K: +1 dB; di 7 K: +2 dB; −0,5 dB con aria umida): inversione d'avvezione, condotto probabile. Mare raffreddato di 1,5 °C o più nelle 72 ore prima (dalle analisi Open-Meteo): +1 dB, tipico dei mari bassi come l'alto Adriatico dopo la bora. Mare più caldo dell'aria a 2 m di 2 °C: −1,5 dB; di 4 °C: −3 dB, perché l'aria si rimescola. Soglie provvisorie, da tarare con gli spot. Manuale delle previsioni, § 9 quater.", "Over the sea it compares the air with the sea surface temperature (SST). Air at 925 hPa warmer than the sea (potential temperature 4 K above SST: +1 dB; 7 K: +2 dB; −0.5 dB with humid air): advection inversion, duct likely. Sea cooled by 1.5 °C or more in the previous 72 hours (Open-Meteo analyses): +1 dB, typical of shallow seas such as the northern Adriatic after a bora. Sea warmer than the 2 m air by 2 °C: −1.5 dB; by 4 °C: −3 dB, because the air mixes. Provisional thresholds, to be tuned with spots. Forecast manual, § 9 quater."));
+        box.Children.Add(sa);
+        var nc = new CheckBox { Content = L("Previsione mediata dagli spot (corridoi di tratte parallele)", "Forecast blended with spots (parallel-path corridors)"), IsChecked = _st.NowcastOn, FontSize = (12) * UiScale.F };
+        nc.IsCheckedChanged += (_, _) => { _st.NowcastOn = nc.IsChecked == true; _st.S.SetBool("fc_nowcast", _st.NowcastOn); _st.Dirty = true; _fcMap?.InvalidateVisual(); };
+        ToolTip.SetTip(nc, L("Corridoi d'apertura: almeno 3 coppie di stazioni indipendenti su tratte parallele (±15°, entro 150 km dall'asse) di almeno 300 km negli ultimi 30 minuti, ripetute a distanza di 10 minuti (un collegamento isolato può essere un aereo). Fonti: cluster, PSKReporter, QSO e decodifiche, salti APRS in 2 m. Sotto il corridoio la previsione dell'ora attuale non scende sotto 10–16 dB (secondo la lunghezza delle tratte) e le curve non fanno gocce. Manuale delle previsioni, § 4 bis.", "Opening corridors: at least 3 independent station pairs on parallel paths (±15°, within 150 km of the axis) of at least 300 km in the last 30 minutes, repeated 10 minutes apart (a single contact may be an aircraft). Sources: clusters, PSKReporter, QSOs and decodes, APRS 2 m hops. Under the corridor the current-hour forecast does not drop below 10–16 dB (depending on path length) and contours make no drops. Forecast manual, § 4 bis."));
+        box.Children.Add(nc);
+        var ap = new CheckBox { Content = L("Salti APRS: 2 m e LoRa 433/868 MHz (APRS-IS)", "APRS hops: 2 m and LoRa 433/868 MHz (APRS-IS)"), IsChecked = _st.AprsOn, FontSize = (12) * UiScale.F };
+        ap.IsCheckedChanged += (_, _) => { _st.AprsOn = ap.IsChecked == true; _st.S.SetBool("aprs_on", _st.AprsOn); _st.Dirty = true; if (_st.AprsOn) _st.Aprs.Start(); else _st.Aprs.Stop(); };
+        ToolTip.SetTip(ap, L("APRS-IS in sola lettura (rotate.aprs2.net, filtro sull'Europa): salti radio di almeno 300 km fra stazioni di posizione nota, in 2 m, LoRa 433 MHz (banda 432) e LoRa 868 MHz (conta per i 1296), sempre fra stazioni della stessa banda. Ogni salto è fra due trasmettitori veri: si scartano i salti attraverso digipeater che non mettono il nominativo, i pacchetti con il percorso consumato rispetto al solito (ritrasmessi di nascosto), i salti con un digipeater attivo a metà strada, i pacchetti rigirati da internet, HF e stazioni in quota. Un salto conta solo se si ripete. Idea dalla mappa VHF di DXView e da APRS PropView (RF-YVY).", "Read-only APRS-IS (rotate.aprs2.net, Europe filter): radio hops of at least 300 km between stations of known position, on 2 m, LoRa 433 MHz (432 band) and LoRa 868 MHz (counts for 1296), always between stations on the same band. Each hop is between two real transmitters: hops through digipeaters that don't insert their call, packets whose path was consumed compared to usual (hidden retransmission), hops with an active digipeater halfway, packets gated from the internet, HF and airborne stations are discarded. A hop counts only if it repeats. Idea from the DXView VHF map and APRS PropView (RF-YVY)."));
+        box.Children.Add(ap);
         return box;
     }
 
