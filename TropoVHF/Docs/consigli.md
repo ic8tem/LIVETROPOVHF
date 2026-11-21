@@ -48,6 +48,10 @@ Dall'esperienza raccolta nell'ARRL Handbook (§ 19.4.3) e negli studi del NBS:
 
 ## Limiti da tenere presenti
 
+> «La propagazione non può essere generalizzata, ma studiata in relazione alla morfologia locale.» — DF5AI, riportato da IK3XTV
+
+La mappa dice dove le condizioni sono favorevoli; per la propria tratta conta il calcolo punto-punto sul terreno vero.
+
 - Il GFS ha livelli distanti centinaia di metri: le inversioni sottili sono stimate, non viste (doppio calcolo A e B). Su terra il GFS vede circa la metà dei condotti di un modello più fine.
 - La previsione è più affidabile nelle prime 24–48 ore; oltre è un'indicazione di tendenza.
 - I valori del segnale servono a confrontare situazioni. Uno scarto di 5–10 dB rispetto al reale è normale.

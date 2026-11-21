@@ -8,6 +8,12 @@ La previsione propria parte dai profili verticali di temperatura e umidità del 
 
 Non è una misura: è una stima fatta su un modello meteorologico con livelli distanti centinaia di metri. Serve a confrontare situazioni (oggi meglio di ieri, 70 cm meglio di 2 m, questa tratta meglio di quella), non a garantire un collegamento. Il paragrafo 14 spiega come raccogliere le prove per validarla.
 
+
+> «La propagazione non può essere generalizzata, ma studiata in relazione alla morfologia locale.»
+> — Volker Grassmann, DF5AI, riportato da Flavio Egano, IK3XTV («Propagazione sui 2 metri»)
+
+È il principio che guida il calcolo punto-punto: ogni tratta si calcola sul suo terreno, con i suoi orizzonti, il suo mare e i suoi rilievi; la mappa dà il quadro generale, la tratta la risposta.
+
 ## 2. Comandi della linguetta
 
 - Banda: 144, 432 o 1296 MHz. Mappa e calcolo usano la banda scelta.

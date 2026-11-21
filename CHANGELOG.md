@@ -5,6 +5,7 @@ Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole 
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
 ## In preparazione
+- Manuali: citazione di DF5AI (riportata da IK3XTV) sulla tropo da studiare tratta per tratta, nel manuale delle previsioni (§ 1) e nei consigli.
 - Manuale delle previsioni: § 8 ter sul troposcatter pomeridiano oltre i rilievi (interpretazione adottata delle osservazioni di IK3XTV), richiamato nei consigli e nelle fonti.
 
 ## 1.3.3 — 21/11/2026
