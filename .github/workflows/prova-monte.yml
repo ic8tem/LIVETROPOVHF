@@ -2,7 +2,7 @@
 name: prova-monte
 on:
   push:
-    branches: [ prova-monte ]
+    branches: [ prova-monte, sonde ]
 permissions:
   contents: write
 jobs:
@@ -14,8 +14,8 @@ jobs:
       - name: Orizzonte
         shell: bash
         run: |
-          pip install -q rasterio
-          python3 .github/confronto_dem.py
+          true
+          python3 .github/sonde.py
       - name: Salva
         if: always()
         shell: bash
