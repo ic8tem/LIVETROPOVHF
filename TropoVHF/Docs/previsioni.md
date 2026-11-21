@@ -68,7 +68,7 @@ I colori sono opachi all'82%, così lo sfondo del tema li cambia appena. La grig
 
 La mappa giudica ogni punto da solo. Il calcolo del segnale invece controlla che lo strato sia continuo lungo la tratta (paragrafo 9): una tratta che attraversa molto giallo può dare meno di quanto la mappa faccia pensare.
 
-## 4 bis. Previsione mediata dagli spot: i corridoi (dalla 1.3.2)
+## 4 bis. Previsione mediata dagli spot: i corridoi (dalla 1.3.3)
 
 Criterio dell'autore: un collegamento da solo non deve mai disegnare un condotto. Una ricezione isolata e breve può essere lo scatter di un aereo in transito (il pacchetto APRS è brevissimo), un'apertura di pochi minuti o un errore, e darebbe «condotti a goccia» che ingannano. Il programma riconosce invece un **corridoio** quando, nella stessa banda:
 
@@ -207,7 +207,7 @@ limitata fra 0 e 40 m. Per intrappolare 144 MHz servirebbero circa 180 m (Kerr),
 
 **Profilo normale CRPL (alternativa).** Invece di 40 N/km fissi il calo normale segue l'atmosfera di riferimento esponenziale CRPL: N(h) = Ns·e^(−c·h), con −ΔN nel primo km = 7,32·e^(0,005577·Ns) (Bean e Thayer 1959). Con aria umida (Ns alto) il normale è più ripido e serve un gradiente più forte per dare guadagno; in quota è più dolce. Spento per difetto finché la validazione non dice che aiuta.
 
-## 9 quater. Contrasto aria-mare e mari bassi: l'Adriatico (dalla 1.3.2)
+## 9 quater. Contrasto aria-mare e mari bassi: l'Adriatico (dalla 1.3.3)
 
 Le onde radio non sentono il fondale del mare: sentono il contrasto fra l'aria e la superficie dell'acqua. La profondità conta perché decide quanto in fretta la temperatura del mare segue quella dell'aria.
 
