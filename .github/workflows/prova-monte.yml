@@ -1,0 +1,26 @@
+# Prova del calcolo a due vie per la «via monte» (prototipo Python con terreno SRTM1). Non compila nulla: risultati nel ramo ci-monte.
+name: prova-monte
+on:
+  push:
+    branches: [ prova-monte ]
+permissions:
+  contents: write
+jobs:
+  monte:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Calcolo
+        shell: bash
+        run: |
+          pip install --quiet numpy
+          python3 .github/duevie.py 2>&1 | tail -200
+      - name: Salva
+        if: always()
+        shell: bash
+        run: |
+          git init -q r && cd r && cp ../esito-monte.txt . 2>/dev/null || echo "nessun esito" > esito-monte.txt
+          git config user.name "IC8TEM"; git config user.email "ic8tem@users.noreply.github.com"
+          git checkout -q -b ci-monte && git add esito-monte.txt && git commit -qm "prova due vie"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-monte
