@@ -231,7 +231,7 @@ Limiti: sopra la terra il profilo verticale resta quello dei livelli GFS, quindi
 
 ## 10 bis. Via monte
 
-Quando il corrispondente è chiuso dietro l'orizzonte, il programma prova a puntare le antenne su un rilievo vicino ben visibile: il versante illuminato diffonde il segnale come un bersaglio radar. Si cercano, in azimut fino a ±120° dal corrispondente e fino a 60 km, i punti d'orizzonte sopra i 300 m; si provano i tre più alti (almeno 20° l'uno dall'altro). Per ciascuno:
+Quando il corrispondente è chiuso dietro l'orizzonte, il programma cerca la direzione migliore in cui puntare le antenne: il versante illuminato diffonde il segnale come un bersaglio radar. Fa il giro dell'orizzonte ogni 5° (tranne ±15° attorno al corrispondente) e in ogni direzione prende il punto d'orizzonte illuminato, sopra 100 m e fra 1 e 60 km. Una stima rapida (spazio libero, conversione bistatica e 10 dB per ogni grado d'orizzonte dal diffusore verso il corrispondente) sceglie i 4 più promettenti, almeno 15° l'uno dall'altro; per ciascuno:
 
 - tratta 1, stazione → rilievo, nello spazio libero;
 - tratta 2, rilievo → corrispondente, calcolata come se il rilievo trasmettesse da 10 m sopra la cima, con la stessa previsione (senza equazione parabolica);
@@ -241,7 +241,7 @@ Quando il corrispondente è chiuso dietro l'orizzonte, il programma prova a punt
 L_{via} = L_{fs}(R_1) + L_2 + 10\log_{10}\frac{\lambda^2}{4\pi\,\sigma_0 A}
 ```
 
-A 144 MHz, con un rilievo a 20 km e una yagi da 15°, la via monte costa circa 45 dB più della tratta 2 da sola: conviene solo quando il diretto è chiuso da ostacoli vicini. La stima è grossolana (±10 dB), soprattutto per σ0.
+La riga «Puntamento consigliato» indica l'azimut della via migliore, se costa meno del diretto. A 144 MHz, con un rilievo a 20 km e una yagi da 15°, la via monte costa circa 45 dB più della tratta 2 da sola: conviene solo quando il diretto è chiuso da ostacoli vicini. La stima è grossolana (±10 dB), soprattutto per σ0.
 
 ## 12. Antenne, segnale e rumore
 

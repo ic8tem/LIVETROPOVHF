@@ -131,6 +131,7 @@ public sealed class LinkResult
     // 1.3.2: ingresso in un condotto che comincia lontano (diffrazione fino al suo inizio, poi percorso nel condotto)
     public double EntryKm = double.NaN, EntryHeightM, EntryNu, EntryNuKm, EntryDiffDb, LentryDb = double.NaN;
     public List<ViaPeak> Via = new();                 // «via monte»: rilievi vicini su cui puntare le antenne
+    public double BestPointAz = double.NaN;           // puntamento consigliato (azimut), diretto se nessun diffusore conviene
     // 1.3.2: stima aggressiva (soglia classica 79 N/km), μ1 di P.452 sul tratto di terra, aggancio delle stazioni al condotto, strato limite e creste
     public double AggrGainDb = double.NaN, LpredAggrDb = double.NaN;
     public double Mu1 = double.NaN, SeaWeight = 1, DtmKm;
@@ -975,13 +976,18 @@ public static class LinkCalc
     /// </summary>
     static async Task ViaMountain(LinkResult r, Station tx, Station rx, Options o, Srtm srtm, IList<ProfileResult> prof, CancellationToken ct)
     {
-        const double maxKm = 60, stepKm = 0.3, sigma0Db = -15;
+        // 1.3.2: giro completo d'orizzonte ogni 5° (tranne ±15° attorno al corrispondente): per ogni direzione il punto
+        // d'orizzonte illuminato (sopra 100 m, fra 1 e 60 km) è un possibile diffusore. Stima rapida per tutti, calcolo
+        // completo della tratta dal diffusore al corrispondente per i 4 migliori: si ottiene il puntamento consigliato.
+        const double maxKm = 60, stepKm = 0.3, sigma0Db = -15, backKm = 30;
         int ns = (int)(maxKm / stepKm);
-        var azs = Enumerable.Range(-12, 25).Select(i => (r.AzDeg + i * 10 + 360) % 360).ToArray();
+        var azs = Enumerable.Range(0, 72).Select(i => i * 5.0).Where(a => Math.Abs(((a - r.AzDeg + 540) % 360) - 180) > 15).ToArray();
         var pts = new List<LatLon>(azs.Length * ns);
         foreach (var a in azs) for (int sIdx = 1; sIdx <= ns; sIdx++) pts.Add(Geo.Destination(tx.Pos, a, sIdx * stepKm));
         var (h, _) = await srtm.Heights(pts, ct);
         double hts = r.HtxAsl, ae = 4.0 / 3 * Re;
+        double lam = 299.792458 / o.FreqMHz;
+        double bw = Math.Min(60, Math.Sqrt(29000 / Math.Pow(10, r.GtxDbi / 10))) * Math.PI / 180;
         var cands = new List<(double az, double km, double hM, LatLon pos)>();
         for (int ai = 0; ai < azs.Length; ai++)
         {
@@ -994,28 +1000,53 @@ public static class LinkCalc
             }
             if (bi < 0) continue;
             double hk = h[ai * ns + bi - 1], km = bi * stepKm;
-            if (hk >= 300 && km >= 3 && best > 0) cands.Add((azs[ai], km, hk, pts[ai * ns + bi - 1]));
+            if (hk >= 100 && km >= 1 && best > 0) cands.Add((azs[ai], km, hk, pts[ai * ns + bi - 1]));
         }
-        var pick = new List<(double az, double km, double hM, LatLon pos)>();
-        foreach (var c in cands.OrderByDescending(c => c.hM))
+        // stima rapida: spazio libero fino al diffusore + conversione bistatica + 10 dB per grado d'orizzonte dal diffusore
+        // verso il corrispondente (G3YGF; Bray: 1° = 111 km)
+        int nb = (int)(backKm / stepKm);
+        var bpts = new List<LatLon>(cands.Count * nb);
+        foreach (var c in cands) { double az2 = Geo.Azimuth(c.pos, rx.Pos); for (int sIdx = 1; sIdx <= nb; sIdx++) bpts.Add(Geo.Destination(c.pos, az2, sIdx * stepKm)); }
+        var (hb, _) = cands.Count > 0 ? await srtm.Heights(bpts, ct) : (new double[0], 0);
+        double Conv(double r1) => 10 * Math.Log10(lam * lam / (4 * Math.PI * Math.Pow(10, sigma0Db / 10) * Math.Min(2e7, Math.Pow(r1 * bw, 2))));
+        var scored = new List<(double az, double km, double hM, LatLon pos, double quick, double horDeg)>();
+        for (int ci = 0; ci < cands.Count; ci++)
         {
-            if (pick.Any(p => Math.Abs(((c.az - p.az + 540) % 360) - 180) < 20)) continue;
-            pick.Add(c); if (pick.Count == 3) break;
+            var c = cands[ci]; double hp = c.hM + 10, hor = double.MinValue;
+            for (int sIdx = 1; sIdx <= nb; sIdx++)
+            {
+                double dk = sIdx * stepKm, hg = hb[ci * nb + sIdx - 1];
+                hor = Math.Max(hor, Math.Atan((hg - dk * dk / (2 * ae) * 1000 - hp) / (dk * 1000)) * 180 / Math.PI);
+            }
+            double r1 = c.km * 1000;
+            double quick = 20 * Math.Log10(4 * Math.PI * r1 / lam) + Conv(r1) + 10 * Math.Max(0, hor);
+            scored.Add((c.az, c.km, c.hM, c.pos, quick, hor));
         }
-        CalcLog.Section($"Via monte da {tx.Loc}: {cands.Count} rilievi visibili oltre 300 m entro {maxKm:0} km, provo i {pick.Count} più alti");
-        double lam = 299.792458 / o.FreqMHz;
-        double bw = Math.Min(60, Math.Sqrt(29000 / Math.Pow(10, r.GtxDbi / 10))) * Math.PI / 180;
+        var pick = new List<(double az, double km, double hM, LatLon pos, double quick, double horDeg)>();
+        foreach (var c in scored.OrderBy(c => c.quick))
+        {
+            if (pick.Any(p => Math.Abs(((c.az - p.az + 540) % 360) - 180) < 15)) continue;
+            pick.Add(c); if (pick.Count == 4) break;
+        }
+        CalcLog.Section($"Puntamento migliore da {tx.Loc} verso {rx.Loc}: giro d'orizzonte ogni 5°, {cands.Count} punti d'orizzonte illuminati sopra 100 m, calcolo completo per i {pick.Count} più promettenti");
+        foreach (var c in scored.OrderBy(c => c.quick).Take(12))
+            CalcLog.W($"   stima rapida: azimut {c.az:0}°, {c.km:0.0} km, {c.hM:0} m, orizzonte dal diffusore verso il corrispondente {c.horDeg:+0.0;-0.0}° → {c.quick:0.0} dB + tratta");
         foreach (var c in pick)
         {
             var peak = new Station { Loc = Locator.FromLatLon(c.pos.Lat, c.pos.Lon), Pos = c.pos, Precise = true, AglM = 10, BoomM = tx.BoomM, PowerW = tx.PowerW };
             var leg = await Compute(peak, rx, o, srtm, prof, ct, sub: true);
             double r1 = c.km * 1000;
             double lfs1 = 20 * Math.Log10(4 * Math.PI * r1 / lam);
-            double area = Math.Min(2e7, Math.Pow(r1 * bw, 2));
-            double conv = 10 * Math.Log10(lam * lam / (4 * Math.PI * Math.Pow(10, sigma0Db / 10) * area));
+            double conv = Conv(r1);
             double tot = lfs1 + leg.LpredDb + conv;
             r.Via.Add(new ViaPeak { AzDeg = c.az, DistKm = c.km, HeightM = c.hM, Pos = c.pos, L1Db = lfs1, L2Db = leg.LpredDb, ConvDb = conv, TotalDb = tot, Mechanism2 = leg.Mechanism });
-            CalcLog.W($"via monte: azimut {c.az:0}°, {c.km:0.0} km, quota {c.hM:0} m → Lfs1 {lfs1:0.0} dB + tratta dal rilievo {leg.LpredDb:0.0} dB ({leg.Mechanism}) + conversione bistatica {conv:+0.0;-0.0} dB (σ0 {sigma0Db} dB, area {area / 1e6:0.0} km²) = {tot:0.0} dB; diretto {r.LpredDb:0.0} dB");
+            CalcLog.W($"via azimut {c.az:0}°: diffusore a {c.km:0.0} km, quota {c.hM:0} m → Lfs1 {lfs1:0.0} dB + tratta dal diffusore {leg.LpredDb:0.0} dB ({leg.Mechanism}) + conversione bistatica {conv:+0.0;-0.0} dB (σ0 {sigma0Db} dB) = {tot:0.0} dB; diretto {r.LpredDb:0.0} dB");
+        }
+        if (r.Via.Count > 0)
+        {
+            var b = r.Via.OrderBy(v => v.TotalDb).First();
+            r.BestPointAz = b.TotalDb < r.LpredDb ? b.AzDeg : r.AzDeg;
+            CalcLog.W($"puntamento consigliato: {(b.TotalDb < r.LpredDb ? $"azimut {b.AzDeg:0}° (diffusore a {b.DistKm:0.0} km, {b.HeightM:0} m), {r.LpredDb - b.TotalDb:0.0} dB meglio del diretto" : $"diretto, azimut {r.AzDeg:0}°")}");
         }
     }
 
