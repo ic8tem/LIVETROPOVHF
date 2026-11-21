@@ -66,6 +66,15 @@ jobs:
           if (Test-Path "$d\fonti.txt") { Copy-Item "$d\fonti.txt" dist\fonti.txt }
           "codice di uscita: $($p.ExitCode)" | Add-Content dist\fonti.txt
           Get-Content dist\fonti.txt
+      - name: Validazione su collegamenti reali (29/12/2021 – 2/1/2022)
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $d = "$env:RUNNER_TEMP\prova"
+          $p = Start-Process "$d\LIVETROPOVHF.exe" -ArgumentList "--valida","$d\Tarature\validazione-2021-12-29.txt","$d\validazione.txt" -PassThru
+          if (-not $p.WaitForExit(900000)) { Stop-Process -Id $p.Id -Force; "tempo scaduto" | Set-Content dist\validazione.txt }
+          if (Test-Path "$d\validazione.txt") { Copy-Item "$d\validazione.txt" dist\validazione.txt }
+          Get-Content dist\validazione.txt
       - name: Prova delle fonti dati (Open-Meteo GFS e SRTM1)
         shell: bash
         continue-on-error: true
@@ -102,6 +111,7 @@ jobs:
           git rm -rf --cached . > /dev/null
           git add -f dist/pacchetto.enc dist/chiave.enc dist/avvio.txt
           [ -f dist/fonti.txt ] && git add -f dist/fonti.txt || true
+          [ -f dist/validazione.txt ] && git add -f dist/validazione.txt || true
           [ -f dist/errore-avvio.txt ] && git add -f dist/errore-avvio.txt || true
           git commit -m "versione privata cifrata ($GITHUB_SHA)"
           git push -f origin ci-priv
