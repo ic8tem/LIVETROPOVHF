@@ -68,7 +68,7 @@ public static class SourceTest
                         if (raw[i] != null) { using var d = System.Text.Json.JsonDocument.Parse(raw[i]); var ps = OwnForecast.ParsePoint(d.RootElement, pts[i]); ps.From = "NOMADS " + res; ser.Add(ps); }
                     Show("NOMADS " + res, ser);
                 });
-            foreach (var src in new[] { WxSource.OpenMeteo, WxSource.IconEu, WxSource.Ecmwf })
+            foreach (var src in new[] { WxSource.OpenMeteo, WxSource.IconEu, WxSource.Ecmwf, WxSource.IconItalia })
                 await Try(src.ToString(), async () => Show(src.ToString(), await OwnForecast.FetchPoints(http, pts.Take(2).ToList(), null, CancellationToken.None, new FetchStats(), default, src)));
             await Try("archivio storico", async () => Show("archivio 2022-08-13", await OwnForecast.FetchPoints(http, new List<LatLon> { new LatLon(45, -95) }, null, CancellationToken.None, new FetchStats(), default, WxSource.OpenMeteo, HistCase.Known[0])));
         }).GetAwaiter().GetResult();

@@ -538,11 +538,11 @@ public static class Refractivity
 }
 
 /// <summary>Sorgente dei profili: GFS da Open-Meteo e/o NOMADS (stesso modello), oppure ICON-EU o ECMWF per tutta la griglia.</summary>
-public enum WxSource { Auto, OpenMeteo, Nomads, IconEu, Ecmwf }
+public enum WxSource { Auto, OpenMeteo, Nomads, IconEu, Ecmwf, IconItalia }
 
 public static class WxSources
 {
-    public static readonly WxSource[] All = { WxSource.Auto, WxSource.OpenMeteo, WxSource.Nomads, WxSource.IconEu, WxSource.Ecmwf };
+    public static readonly WxSource[] All = { WxSource.Auto, WxSource.OpenMeteo, WxSource.Nomads, WxSource.IconEu, WxSource.Ecmwf, WxSource.IconItalia };
     public static string Name(WxSource s) => s switch
     {
         WxSource.Auto => "GFS: NOMADS (NOAA); Open-Meteo solo se NOMADS non risponde",
@@ -550,16 +550,17 @@ public static class WxSources
         WxSource.Nomads => "GFS da NOMADS (NOAA)",
         WxSource.IconEu => "ICON-EU (DWD) da Open-Meteo",
         WxSource.Ecmwf => "ECMWF IFS 0,25° da Open-Meteo",
+        WxSource.IconItalia => "ICON-2I Italia 2 km (ItaliaMeteo-ARPAE) da Open-Meteo",
         _ => s.ToString()
     };
-    public static string Short(WxSource s) => s switch { WxSource.IconEu => "ICON-EU", WxSource.Ecmwf => "ECMWF", _ => "GFS" };
+    public static string Short(WxSource s) => s switch { WxSource.IconEu => "ICON-EU", WxSource.Ecmwf => "ECMWF", WxSource.IconItalia => "ICON-2I", _ => "GFS" };
     public static bool IsGfs(WxSource s) => s == WxSource.Auto || s == WxSource.OpenMeteo || s == WxSource.Nomads;
     /// <summary>Parametro models= di Open-Meteo.</summary>
-    public static string OmModel(WxSource s) => s == WxSource.IconEu ? "icon_eu" : s == WxSource.Ecmwf ? "ecmwf_ifs025" : "gfs_seamless";
+    public static string OmModel(WxSource s) => s == WxSource.IconEu ? "icon_eu" : s == WxSource.Ecmwf ? "ecmwf_ifs025" : s == WxSource.IconItalia ? "italia_meteo_arpae_icon_2i" : "gfs_seamless";
     /// <summary>Metadati della corsa su Open-Meteo.</summary>
     public static string MetaUrl(WxSource s) => "https://api.open-meteo.com/data/" +
-        (s == WxSource.IconEu ? "dwd_icon_eu" : s == WxSource.Ecmwf ? "ecmwf_ifs025" : "ncep_gfs025") + "/static/meta.json";
-    public static string CacheName(WxSource s) => s == WxSource.IconEu ? "iconeu" : s == WxSource.Ecmwf ? "ecmwf" : "gfs";
+        (s == WxSource.IconEu ? "dwd_icon_eu" : s == WxSource.Ecmwf ? "ecmwf_ifs025" : s == WxSource.IconItalia ? "italia_meteo_arpae_icon_2i" : "ncep_gfs025") + "/static/meta.json";
+    public static string CacheName(WxSource s) => s == WxSource.IconEu ? "iconeu" : s == WxSource.Ecmwf ? "ecmwf" : s == WxSource.IconItalia ? "icon2i" : "gfs";
     public static WxSource Parse(string v) => Enum.TryParse<WxSource>(v ?? "", out var r) ? r : WxSource.Auto;
 }
 
@@ -805,7 +806,7 @@ public sealed class OwnForecast
         var sw = new System.Diagnostics.Stopwatch();
         const int batch = 60;
         var vars = HourlyVars();
-        bool sstDropped = false;
+        bool sstDropped = false; int dropped = 0;
         string tail = hist == null
             ? $"&forecast_hours={Hours}"
             : $"&start_date={hist.StartUtc:yyyy-MM-dd}&end_date={hist.StartUtc.AddDays(hist.Days - 1):yyyy-MM-dd}";
@@ -848,11 +849,14 @@ public sealed class OwnForecast
                 if ((int)resp.StatusCode == 400)
                 {
                     string body = ""; try { body = await Compat.ReadString(resp.Content, ct); } catch { }
-                    // la temperatura della superficie (SST) non c'è per tutti i modelli: si riprova senza
-                    if (!sstDropped && vars.Contains(",surface_temperature"))
+                    // non tutti i modelli hanno tutte le variabili (SST, strato limite…): si toglie quella rifiutata e si riprova
+                    var bad = vars.Split(',').FirstOrDefault(v => v.Length > 0 && body.Contains(v));
+                    if (bad == null && !sstDropped && vars.Contains(",surface_temperature")) bad = "surface_temperature";
+                    if (bad != null && dropped < 8)
                     {
-                        sstDropped = true; vars = vars.Replace(",surface_temperature", ""); url = Url(); attempt--;
-                        CalcLog.W($"Open-Meteo {model}: niente temperatura della superficie per questo modello, richiesta ripetuta senza");
+                        dropped++; if (bad == "surface_temperature") sstDropped = true;
+                        vars = string.Join(",", vars.Split(',').Where(v => v != bad)); url = Url(); attempt--;
+                        CalcLog.W($"Open-Meteo {model}: la variabile {bad} non c'è per questo modello, richiesta ripetuta senza");
                         continue;
                     }
                     throw new HttpRequestException("Open-Meteo ha rifiutato la richiesta (400): " + (body.Length > 300 ? body.Substring(0, 300) : body));
