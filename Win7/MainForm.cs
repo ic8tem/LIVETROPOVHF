@@ -311,7 +311,7 @@ public sealed partial class MainForm : Form
     }
 
     Font F(float size, bool bold = false, bool mono = false, bool italic = false) =>
-        new Font(mono ? MonoFamily : Font.FontFamily, size, (bold ? FontStyle.Bold : FontStyle.Regular) | (italic ? FontStyle.Italic : FontStyle.Regular));
+        new Font(mono ? MonoFamily : Font.FontFamily, (float)(size * UiScale.F), (bold ? FontStyle.Bold : FontStyle.Regular) | (italic ? FontStyle.Italic : FontStyle.Regular));
 
     Label Lbl(string text, float size = 9f, AM.Color? col = null, bool bold = false, bool mono = false) => new()
     {
@@ -543,6 +543,21 @@ public sealed partial class MainForm : Form
         });
         themeBox.Margin = new Padding(3, 10, 8, 0);
         right.Controls.Add(themeBox);
+        // scala dei testi 80–150% (passi di 10): si applica quando il cursore si ferma
+        var scLbl = Lbl($"{UiScale.Percent}%", 8.5f, _th.Muted); scLbl.Margin = new Padding(0, 12, 6, 0);
+        var sc = new TrackBar { Minimum = 8, Maximum = 15, Value = Math.Max(8, Math.Min(15, UiScale.Percent / 10)), TickStyle = TickStyle.None, Width = 100, AutoSize = false, Height = 26, BackColor = C(_th.Panel), Margin = new Padding(3, 8, 0, 0) };
+        var scTimer = new System.Windows.Forms.Timer { Interval = 700 };
+        scTimer.Tick += (_, _) =>
+        {
+            scTimer.Stop();
+            int v = sc.Value * 10;
+            if (v == UiScale.Percent) return;
+            UiScale.Percent = v; _st.S.SetInt("ui_scale", v); _st.Dirty = true;
+            BeginInvoke(new Action(BuildUi));
+        };
+        sc.ValueChanged += (_, _) => { scLbl.Text = $"{sc.Value * 10}%"; scTimer.Stop(); scTimer.Start(); };
+        new ToolTip().SetToolTip(sc, L("Dimensione dei testi (80–150%)", "Text size (80–150%)"));
+        right.Controls.Add(sc); right.Controls.Add(scLbl);
         var langBox = Combo(Lang.All.Select(x => x.name), Array.FindIndex(Lang.All, x => x.code == _st.LangCode), 150, i =>
         {
             var code = Lang.All[i].code;

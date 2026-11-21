@@ -77,3 +77,11 @@ public sealed class Palette
     public static readonly Color ListenerViolet = Color.Parse("#B0125B");   // rosa scuro: stazioni in ascolto (MQTT)
     public static readonly Color ListenerLine = Color.Parse("#EC4899");     // rosa: ciò che ascoltano e rimandano in rete
 }
+
+/// <summary>Scala dei testi dell'interfaccia (80–150%), scelta con il cursore accanto al tema; vale per le due versioni.</summary>
+public static class UiScale
+{
+    public static double F = 1.0;
+    public static int Percent { get => (int)Math.Round(F * 100); set => F = Math.Max(0.8, Math.Min(1.5, value / 100.0)); }
+}
+

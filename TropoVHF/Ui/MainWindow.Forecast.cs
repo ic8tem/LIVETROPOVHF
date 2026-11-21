@@ -70,7 +70,7 @@ public sealed partial class MainWindow
         var g = new Grid { ColumnDefinitions = new ColumnDefinitions($"{panelW.ToString(CultureInfo.InvariantCulture)},6,*") };
         var col = new StackPanel { Spacing = 8, Margin = new Thickness(14) };
 
-        col.Children.Add(new TextBlock { Text = L("Previsione propria", "Own forecast"), FontSize = 18, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent) });
+        col.Children.Add(new TextBlock { Text = L("Previsione propria", "Own forecast"), FontSize = (18) * UiScale.F, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent) });
         var exp = TB(L("SPERIMENTALE: i calcoli sono in fase di verifica. Usare i risultati per confrontare situazioni, non come garanzia di un collegamento. " +
                        "Il manuale delle previsioni spiega ogni dato; i rapporti dei collegamenti reali servono a validare il modello.",
                        "EXPERIMENTAL: the calculations are being validated. Use the results to compare situations, not as a guarantee of a contact. " +
@@ -147,7 +147,7 @@ public sealed partial class MainWindow
         // linee opzionali sopra i colori (i colori restano sempre)
         CheckBox Ov(string key, string it, string en, string tipIt, string tipEn)
         {
-            var cb = new CheckBox { Content = L(it, en), IsChecked = _st.S.GetBool(key, false), FontSize = 12 };
+            var cb = new CheckBox { Content = L(it, en), IsChecked = _st.S.GetBool(key, false), FontSize = (12) * UiScale.F };
             cb.IsCheckedChanged += (_, _) => { _st.S.SetBool(key, cb.IsChecked == true); _st.Dirty = true; FcSyncOverlay(); _fcMap?.InvalidateVisual(); };
             ToolTip.SetTip(cb, L(tipIt, tipEn));
             return cb;
@@ -209,7 +209,7 @@ public sealed partial class MainWindow
         Control Row(string label, Control c, Control extra = null)
         {
             var sp = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-            sp.Children.Add(new Border { Width = 190, Child = new TextBlock { Text = label, FontSize = 12, Foreground = B(_th.Muted), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center } });
+            sp.Children.Add(new Border { Width = 190, Child = new TextBlock { Text = label, FontSize = (12) * UiScale.F, Foreground = B(_th.Muted), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center } });
             sp.Children.Add(c);
             if (extra != null) sp.Children.Add(extra);
             return sp;
@@ -368,7 +368,7 @@ public sealed partial class MainWindow
         sp.Children.Add(path);
         _fcLogBox = new TextBox
         {
-            IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, FontSize = 11,
+            IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, FontSize = (11) * UiScale.F,
             FontFamily = new FontFamily("Consolas, Menlo, DejaVu Sans Mono, monospace"), Text = CalcLog.RecentText()
         };
         ScrollViewer.SetHorizontalScrollBarVisibility(_fcLogBox, ScrollBarVisibility.Disabled);   // a capo automatico
@@ -644,7 +644,7 @@ public sealed partial class MainWindow
                               "Automatic (recommended): GFS first from NOMADS (NOAA, GRIB2 files of the area, no daily limit), then from Open-Meteo for any missing points: same model and run. ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis." +
                               "ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis."));
         var sp1 = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-        sp1.Children.Add(new TextBlock { Text = L("Sorgente dei dati", "Data source"), Width = 120, FontSize = 12, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
+        sp1.Children.Add(new TextBlock { Text = L("Sorgente dei dati", "Data source"), Width = 120, FontSize = (12) * UiScale.F, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
         sp1.Children.Add(src);
         box.Children.Add(sp1);
 
@@ -669,11 +669,11 @@ public sealed partial class MainWindow
         ToolTip.SetTip(hc, L("Rivede un'apertura documentata (QST, «The World Above 50 MHz») con le previsioni GFS d'archivio di Open-Meteo, per confrontare il modello con quello che è successo. L'ora parte dal primo giorno del caso. Manuale delle previsioni, § 3 ter.",
                              "Replays a documented opening (QST, «The World Above 50 MHz») with Open-Meteo archived GFS forecasts, to compare the model with what happened. Time starts at the first day of the case. Forecast manual, § 3 ter."));
         var sp2 = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-        sp2.Children.Add(new TextBlock { Text = L("Caso storico", "Historical case"), Width = 120, FontSize = 12, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
+        sp2.Children.Add(new TextBlock { Text = L("Caso storico", "Historical case"), Width = 120, FontSize = (12) * UiScale.F, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
         sp2.Children.Add(hc);
         box.Children.Add(sp2);
 
-        var corr = new CheckBox { Content = L("Correzioni meteo: stabilità (Misme), subsidenza e persistenza", "Weather corrections: stability (Misme), subsidence and persistence"), IsChecked = Refractivity.UseCorrections, FontSize = 12 };
+        var corr = new CheckBox { Content = L("Correzioni meteo: stabilità (Misme), subsidenza e persistenza", "Weather corrections: stability (Misme), subsidence and persistence"), IsChecked = Refractivity.UseCorrections, FontSize = (12) * UiScale.F };
         corr.IsCheckedChanged += (_, _) =>
         {
             Refractivity.UseCorrections = corr.IsChecked == true; _st.S.SetBool("fc_corr", Refractivity.UseCorrections); _st.Dirty = true;
@@ -682,7 +682,7 @@ public sealed partial class MainWindow
         ToolTip.SetTip(corr, L("Aggiunge al guadagno il termine di stabilità di Misme (solo senza condotto, da −4 a +6 dB, taratura provvisoria) e la correzione per il moto verticale: +1,5 dB con subsidenza, −2 dB con aria in salita. Toglila per vedere il modello della 1.2. Manuale delle previsioni, § 9 bis.",
                                "Adds Misme's stability term (only without a duct, −4 to +6 dB, provisional calibration) and the vertical-motion correction: +1.5 dB with subsidence, −2 dB with rising air. Untick to see the 1.2 model. Forecast manual, § 9 bis."));
         box.Children.Add(corr);
-        var vi = new CheckBox { Content = L("Via monte senza perdita fino al monte (stazione portata sul punto)", "Via mountain lossless to the peak (station moved to the point)"), IsChecked = Refractivity.ViaIdeal, FontSize = 12 };
+        var vi = new CheckBox { Content = L("Via monte senza perdita fino al monte (stazione portata sul punto)", "Via mountain lossless to the peak (station moved to the point)"), IsChecked = Refractivity.ViaIdeal, FontSize = (12) * UiScale.F };
         vi.IsCheckedChanged += (_, _) => { Refractivity.ViaIdeal = vi.IsChecked == true; _st.S.SetBool("fc_via_ideal", Refractivity.ViaIdeal); _st.Dirty = true; };
         ToolTip.SetTip(vi, L("Quando il corrispondente è chiuso da un rilievo vicino, il giro d'orizzonte cerca il punto migliore da cui rilanciare il segnale. Con questa casella la perdita fra la tua stazione e il punto è considerata nulla: è come portare la stazione sulla cima (antenna a 10 m, stessa potenza e antenna) e conta solo la tratta dal punto al corrispondente. Il punto è dato con il locatore a 10 caratteri. Limite ottimistico. Manuale delle previsioni, § 10 bis.", "When the other station is blocked by nearby terrain, the horizon sweep looks for the best point to relaunch the signal. With this box the loss between your station and the point is taken as zero: as if you moved the station to the summit (antenna 10 m, same power and antenna); only the leg from the point to the other station counts. The point is given with a 10-character locator. Optimistic bound. Forecast manual, § 10 bis."));
         box.Children.Add(vi);

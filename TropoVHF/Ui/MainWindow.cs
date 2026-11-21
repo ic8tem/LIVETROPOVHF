@@ -180,8 +180,8 @@ public sealed partial class MainWindow : Window
             DockPanel.SetDock(pic, Dock.Left);
             top.Children.Add(pic);
         }
-        var q = new TextBlock { Text = Lang.T("close.q"), FontSize = 17, FontWeight = FontWeight.Bold, Foreground = B(_th.Text), TextWrapping = TextWrapping.Wrap };
-        var thanks = new TextBlock { Text = Lang.T("close.thanks"), FontSize = 14, FontStyle = FontStyle.Italic, Foreground = B(_th.Sub), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 0) };
+        var q = new TextBlock { Text = Lang.T("close.q"), FontSize = (17) * UiScale.F, FontWeight = FontWeight.Bold, Foreground = B(_th.Text), TextWrapping = TextWrapping.Wrap };
+        var thanks = new TextBlock { Text = Lang.T("close.thanks"), FontSize = (14) * UiScale.F, FontStyle = FontStyle.Italic, Foreground = B(_th.Sub), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 0) };
         top.Children.Add(new StackPanel { Children = { q, thanks }, VerticalAlignment = VerticalAlignment.Center });
         var yes = PrimaryButton(Lang.T("yes"), () => { result = true; dlg.Close(); });
         var no = OutlineButton(Lang.T("no"), () => dlg.Close());
@@ -207,7 +207,7 @@ public sealed partial class MainWindow : Window
             Icon = Splash.AppIcon(), FlowDirection = Lang.IsRtl(Lang.Current) ? FlowDirection.RightToLeft : FlowDirection.LeftToRight
         };
         bool result = false;
-        var body = new TextBlock { Text = text, FontSize = 13, Foreground = B(_th.Text), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(20, 18, 20, 16) };
+        var body = new TextBlock { Text = text, FontSize = (13) * UiScale.F, Foreground = B(_th.Text), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(20, 18, 20, 16) };
         var yes = PrimaryButton(yesText, () => { result = true; dlg.Close(); });
         var no = OutlineButton(noText, () => dlg.Close());
         yes.MinWidth = 90; no.MinWidth = 90;
@@ -265,7 +265,7 @@ public sealed partial class MainWindow : Window
             Margin = new Thickness(20), Spacing = 10,
             Children =
             {
-                new TextBlock { Text = "LIVETROPOVHF", FontFamily = DiscSerif, FontSize = 24, Foreground = B(_th.Text) },
+                new TextBlock { Text = "LIVETROPOVHF", FontFamily = DiscSerif, FontSize = (24) * UiScale.F, Foreground = B(_th.Text) },
                 TB($"{_st.Call} · {_st.Loc} · " + string.Format(Lang.T("u.disc_version"), AppVersion), 12, _th.Muted),
                 DisclaimerBox(false),
                 bar
@@ -310,7 +310,7 @@ public sealed partial class MainWindow : Window
             Margin = new Thickness(20), Spacing = 10,
             Children =
             {
-                new TextBlock { Text = Lang.T("u.disc_welcome"), FontFamily = DiscSerif, FontSize = 24, Foreground = B(_th.Text), TextWrapping = TextWrapping.Wrap },
+                new TextBlock { Text = Lang.T("u.disc_welcome"), FontFamily = DiscSerif, FontSize = (24) * UiScale.F, Foreground = B(_th.Text), TextWrapping = TextWrapping.Wrap },
                 TB(string.Format(Lang.T("u.disc_version"), AppVersion), 12, _th.Muted),
                 DisclaimerBox(true),
                 TB(Lang.T("u.ask_call_title"), 15, _th.Accent, true),
@@ -341,13 +341,13 @@ public sealed partial class MainWindow : Window
     {
         var g = new Grid { ColumnDefinitions = new ColumnDefinitions("420,*") };
         var list = new StackPanel { Spacing = 10, Margin = new Thickness(14) };
-        list.Children.Add(new TextBlock { Text = "GRAVES · 143,050 MHz CW", FontSize = 20, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent) });
+        list.Children.Add(new TextBlock { Text = "GRAVES · 143,050 MHz CW", FontSize = (20) * UiScale.F, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent) });
         var sub = TB(Lang.T("g.sub"), 12, _th.Muted); sub.TextWrapping = TextWrapping.Wrap; list.Children.Add(sub);
 
         TextBlock Big(out TextBlock small, Control parent, string title, Color accent)
         {
             var t = TB(title, 11, accent, true);
-            var big = new TextBlock { FontSize = 20, FontWeight = FontWeight.Bold, Foreground = B(accent), TextWrapping = TextWrapping.Wrap };
+            var big = new TextBlock { FontSize = (20) * UiScale.F, FontWeight = FontWeight.Bold, Foreground = B(accent), TextWrapping = TextWrapping.Wrap };
             small = TB("", 12, _th.Text); small.TextWrapping = TextWrapping.Wrap;
             var sp = new StackPanel { Spacing = 2, Children = { t, big, small } };
             ((StackPanel)parent).Children.Add(new Border { Background = B(_th.Chip), CornerRadius = new CornerRadius(8), Padding = new Thickness(12, 8), BorderBrush = B(accent), BorderThickness = new Thickness(4, 0, 0, 0), Child = sp });
@@ -424,7 +424,7 @@ public sealed partial class MainWindow : Window
     {
         var g = new Grid { ColumnDefinitions = new ColumnDefinitions("440,*") };
         var left = new StackPanel { Spacing = 8, Margin = new Thickness(14) };
-        left.Children.Add(new TextBlock { Text = Lang.T("tab.sus"), FontSize = 20, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent) });
+        left.Children.Add(new TextBlock { Text = Lang.T("tab.sus"), FontSize = (20) * UiScale.F, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent) });
         var intro = TB(Lang.T("s.intro"), 12, _th.Text); intro.TextWrapping = TextWrapping.Wrap; left.Children.Add(intro);
         foreach (var k in SuspectStore.Kinds)
         {
@@ -452,7 +452,7 @@ public sealed partial class MainWindow : Window
             var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6 };
             foreach (var (txt, v) in new[] { ("✓ " + Lang.T("s.good"), 1), ("✗ " + Lang.T("s.drop"), -1), ("↺ " + Lang.T("s.reset"), 0) })
             {
-                var b = new Button { Content = txt, FontSize = 11, Padding = new Thickness(10, 2), CornerRadius = new CornerRadius(10), Background = B(_th.CtlBg), Foreground = B(_th.Text2) };
+                var b = new Button { Content = txt, FontSize = (11) * UiScale.F, Padding = new Thickness(10, 2), CornerRadius = new CornerRadius(10), Background = B(_th.CtlBg), Foreground = B(_th.Text2) };
                 b.Click += (_, _) => { _st.Suspects.SetUser(kind, call, v); _st.Dirty = true; };
                 row.Children.Add(b);
             }
@@ -471,7 +471,7 @@ public sealed partial class MainWindow : Window
             {
                 var line = new DockPanel();
                 var bt = Buttons(r.Kind, r.Call); DockPanel.SetDock(bt, Dock.Right); line.Children.Add(bt);
-                line.Children.Add(new TextBlock { Text = $"{Lang.T("s.k." + r.Kind)} · {r.Call}  {VText(r.Verdict, r.User)}  ({r.Pos}+ {r.Neg}−)", FontSize = 11, Foreground = B(VCol(r.Verdict)), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center });
+                line.Children.Add(new TextBlock { Text = $"{Lang.T("s.k." + r.Kind)} · {r.Call}  {VText(r.Verdict, r.User)}  ({r.Pos}+ {r.Neg}−)", FontSize = (11) * UiScale.F, Foreground = B(VCol(r.Verdict)), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center });
                 rules.Children.Add(line);
             }
 
@@ -513,7 +513,7 @@ public sealed partial class MainWindow : Window
 
     TextBlock TB(string text, double size = 13, Color? col = null, bool bold = false, bool mono = false) => new()
     {
-        Text = text, FontSize = size, Foreground = B(col ?? _th.Text),
+        Text = text, FontSize = (size) * UiScale.F, Foreground = B(col ?? _th.Text),
         FontWeight = bold ? FontWeight.SemiBold : FontWeight.Normal,
         FontFamily = mono ? Mono : FontFamily.Default,
         VerticalAlignment = VerticalAlignment.Center
@@ -664,6 +664,7 @@ public sealed partial class MainWindow : Window
     {
         if (Application.Current != null) Application.Current.RequestedThemeVariant = _th.Dark ? ThemeVariant.Dark : ThemeVariant.Light;
         Background = B(_th.Page);
+        FontSize = 14 * UiScale.F;     // controlli senza dimensione propria (caselle, menu, pulsanti)
         (_map.Parent as Panel)?.Children.Remove(_map);
         _map.Th = _th;
         _sections.Clear(); _tabContent.Clear(); _tabButtons.Clear(); _tropoTabs.Clear();
@@ -726,7 +727,7 @@ public sealed partial class MainWindow : Window
         var right = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, Margin = new Thickness(10, 0), VerticalAlignment = VerticalAlignment.Center };
         _clock = TB("", 30, _th.Clock, true, true);
         _ntp = TB("NTP", 30, _th.Muted, true, true);
-        _clock.LineHeight = 40; _ntp.LineHeight = 40;
+        _clock.LineHeight = 40 * UiScale.F; _ntp.LineHeight = 40 * UiScale.F;
         right.Children.Add(_clock);
         right.Children.Add(_ntp);
         var theme = new ComboBox { Width = 180, VerticalAlignment = VerticalAlignment.Center };
@@ -741,6 +742,28 @@ public sealed partial class MainWindow : Window
             Dispatcher.UIThread.Post(BuildUi);   // nessun riavvio: si ridisegna la finestra
         };
         right.Children.Add(theme);
+        // scala dei testi 80–150%, a passi di 10: si applica rilasciando il cursore (la finestra si ridisegna)
+        var scLbl = TB($"{UiScale.Percent}%", 12, _th.Muted);
+        var sc = new Slider { Minimum = 80, Maximum = 150, TickFrequency = 10, IsSnapToTickEnabled = true, Value = UiScale.Percent, Width = 110, VerticalAlignment = VerticalAlignment.Center };
+        ToolTip.SetTip(sc, Lang.Current == "it" ? "Dimensione dei testi (80–150%)" : "Text size (80–150%)");
+        DispatcherTimer scTimer = null;
+        sc.PropertyChanged += (_, e) =>
+        {
+            if (e.Property != RangeBase.ValueProperty) return;
+            int v = (int)Math.Round(sc.Value);
+            scLbl.Text = $"{v}%";
+            scTimer?.Stop();
+            scTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
+            scTimer.Tick += (_, _) =>
+            {
+                scTimer.Stop();
+                if (v == UiScale.Percent) return;
+                UiScale.Percent = v; _st.S.SetInt("ui_scale", v); _st.Dirty = true;
+                Dispatcher.UIThread.Post(BuildUi);
+            };
+            scTimer.Start();
+        };
+        right.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4, VerticalAlignment = VerticalAlignment.Center, Children = { TB("A", 11, _th.Muted), sc, TB("A", 17, _th.Muted), scLbl } });
         var lang = new ComboBox { Width = 160, VerticalAlignment = VerticalAlignment.Center };
         foreach (var (_, name) in Lang.All) lang.Items.Add(name);
         lang.SelectedIndex = Math.Max(0, Array.FindIndex(Lang.All, x => x.code == _st.LangCode));
@@ -829,7 +852,7 @@ public sealed partial class MainWindow : Window
         var sp = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Bottom };
         foreach (var (g, items) in Groups)
         {
-            var b = new Button { Content = GroupLabel(g), Height = 40, Padding = new Thickness(18, 0), CornerRadius = new CornerRadius(8, 8, 0, 0), FontSize = 14, VerticalContentAlignment = VerticalAlignment.Center };
+            var b = new Button { Content = GroupLabel(g), Height = 40, Padding = new Thickness(18, 0), CornerRadius = new CornerRadius(8, 8, 0, 0), FontSize = (14) * UiScale.F, VerticalContentAlignment = VerticalAlignment.Center };
             // ogni gruppo riapre l'ultima sotto-linguetta usata
             b.Click += (_, _) => { var last = _st.S.Get("grp_" + g, items[0]); GoToItem(items.Contains(last) ? last : items[0]); };
             _tabButtons[g] = b;
@@ -884,7 +907,7 @@ public sealed partial class MainWindow : Window
             _subBarItems.Children.Clear(); _subTabButtons.Clear();
             foreach (var it in items)
             {
-                var b = new Button { Content = ItemLabel(it), Padding = new Thickness(16, 5), CornerRadius = new CornerRadius(16), FontSize = 13 };
+                var b = new Button { Content = ItemLabel(it), Padding = new Thickness(16, 5), CornerRadius = new CornerRadius(16), FontSize = (13) * UiScale.F };
                 var target = it;
                 b.Click += (_, _) => GoToItem(target);
                 _subTabButtons[it] = b;
@@ -962,7 +985,7 @@ public sealed partial class MainWindow : Window
 
         // barra dei layer
         var layers = new WrapPanel { Orientation = Orientation.Horizontal };
-        layers.Children.Add(new TextBlock { Text = Lang.T("layers"), FontSize = 11, FontWeight = FontWeight.SemiBold, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 10, 0) });
+        layers.Children.Add(new TextBlock { Text = Lang.T("layers"), FontSize = (11) * UiScale.F, FontWeight = FontWeight.SemiBold, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 10, 0) });
         void Layer(string key, bool v, Color sw, Action<bool> set)
         {
             var sp = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 5, Margin = new Thickness(0, 0, 12, 0) };
@@ -997,7 +1020,7 @@ public sealed partial class MainWindow : Window
         var srcButtons = new List<(string key, ToggleButton b)>();
         foreach (var (key, label) in new[] { ("media", "src.avg"), ("hepburn", "src.hep"), ("f5len", "src.f5") })
         {
-            var tb = new ToggleButton { Content = Lang.T(label), IsChecked = _st.TropoSrc == key, Padding = new Thickness(12, 3), FontSize = 12, CornerRadius = new CornerRadius(0) };
+            var tb = new ToggleButton { Content = Lang.T(label), IsChecked = _st.TropoSrc == key, Padding = new Thickness(12, 3), FontSize = (12) * UiScale.F, CornerRadius = new CornerRadius(0) };
             tb.Click += (_, _) =>
             {
                 _st.TropoSrc = key;
@@ -1178,8 +1201,8 @@ public sealed partial class MainWindow : Window
         dock.Children.Add(new Border { Child = counters, BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 0, 0, 1), [DockPanel.DockProperty] = Dock.Top });
 
         var info = new StackPanel { Margin = new Thickness(14, 6) };
-        info.Children.Add(new TextBlock { Text = Lang.T("filter"), FontSize = 11, Foreground = B(_th.Muted), TextWrapping = TextWrapping.Wrap });
-        info.Children.Add(new TextBlock { Text = Lang.T("asnote"), FontSize = 11, Foreground = B(_th.Muted), TextWrapping = TextWrapping.Wrap });
+        info.Children.Add(new TextBlock { Text = Lang.T("filter"), FontSize = (11) * UiScale.F, Foreground = B(_th.Muted), TextWrapping = TextWrapping.Wrap });
+        info.Children.Add(new TextBlock { Text = Lang.T("asnote"), FontSize = (11) * UiScale.F, Foreground = B(_th.Muted), TextWrapping = TextWrapping.Wrap });
         dock.Children.Add(new Border { Child = info, BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 0, 0, 1), [DockPanel.DockProperty] = Dock.Top });
 
         _spotRows = new StackPanel();
@@ -1367,7 +1390,7 @@ public sealed partial class MainWindow : Window
         var bar = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4, Margin = new Thickness(10, 8, 10, 0) };
         foreach (var (key, label) in new[] { ("dx", "DX cluster"), ("psk", "PSKReporter"), ("rbn", "Reverse Beacon"), ("udp", "UDP (WSJT-X, JTDX, MSHV)"), ("calls", Lang.T("c.tab")) })
         {
-            var b = new Button { Content = label, Padding = new Thickness(16, 6), CornerRadius = new CornerRadius(16), FontSize = 13 };
+            var b = new Button { Content = label, Padding = new Thickness(16, 6), CornerRadius = new CornerRadius(16), FontSize = (13) * UiScale.F };
             b.Click += (_, _) => ShowSubTab(key);
             _subButtons[key] = b;
             bar.Children.Add(b);
@@ -1431,7 +1454,7 @@ public sealed partial class MainWindow : Window
                 var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 };
                 row.Children.Add(TB(c, 14, _th.Text, true, true));
                 row.Children.Add(TB(l, 14, _th.Accent, false, true));
-                var del = new Button { Content = "✕ " + Lang.T("c.remove"), FontSize = 11, Padding = new Thickness(10, 2), CornerRadius = new CornerRadius(10), Background = B(_th.CtlBg), Foreground = B(_th.Text2) };
+                var del = new Button { Content = "✕ " + Lang.T("c.remove"), FontSize = (11) * UiScale.F, Padding = new Thickness(10, 2), CornerRadius = new CornerRadius(10), Background = B(_th.CtlBg), Foreground = B(_th.Text2) };
                 var cc = c;
                 del.Click += (_, _) => { db.SetManual(cc, ""); Changed(Lang.F("c.removed", cc)); };
                 row.Children.Add(del);
@@ -1546,7 +1569,7 @@ public sealed partial class MainWindow : Window
     {
         var body = new StackPanel { Spacing = 8, Margin = new Thickness(14, 8) };
         var stack = new StackPanel();
-        stack.Children.Add(new TextBlock { Text = title, FontSize = 16, FontWeight = FontWeight.Bold, Foreground = B(SectionColor(idx)), Margin = new Thickness(14, 10, 14, 4) });
+        stack.Children.Add(new TextBlock { Text = title, FontSize = (16) * UiScale.F, FontWeight = FontWeight.Bold, Foreground = B(SectionColor(idx)), Margin = new Thickness(14, 10, 14, 4) });
         stack.Children.Add(new Border { Background = B(_th.Chip), Child = body });
         var section = new Border { Background = B(_th.Panel), BorderBrush = B(_th.Line), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), ClipToBounds = true, Child = stack, Margin = new Thickness(0, 0, 0, 14) };
         return (section, body);
@@ -1602,7 +1625,7 @@ public sealed partial class MainWindow : Window
         body.Children.Add(status); body.Children.Add(counters);
 
         var stack = (StackPanel)sec.Child;
-        stack.Children.Add(new TextBlock { Text = help, FontSize = 12, Foreground = B(_th.Muted), Margin = new Thickness(14, 6), TextWrapping = TextWrapping.Wrap });
+        stack.Children.Add(new TextBlock { Text = help, FontSize = (12) * UiScale.F, Foreground = B(_th.Muted), Margin = new Thickness(14, 6), TextWrapping = TextWrapping.Wrap });
         var (log, sv) = LogBox(260);
         stack.Children.Add(new Border { BorderBrush = B(_th.Line2), BorderThickness = new Thickness(0, 1, 0, 0), Child = sv });
         var sendRow = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, Margin = new Thickness(14, 8) };
@@ -1653,7 +1676,7 @@ public sealed partial class MainWindow : Window
         var counters = TB("", 13, _th.Muted);
         body.Children.Add(status); body.Children.Add(counters);
         var stack = (StackPanel)sec.Child;
-        stack.Children.Add(new TextBlock { Text = Lang.T("u.realtime_reception_reports_locators"), FontSize = 12, Foreground = B(_th.Muted), Margin = new Thickness(14, 6), TextWrapping = TextWrapping.Wrap });
+        stack.Children.Add(new TextBlock { Text = Lang.T("u.realtime_reception_reports_locators"), FontSize = (12) * UiScale.F, Foreground = B(_th.Muted), Margin = new Thickness(14, 6), TextWrapping = TextWrapping.Wrap });
         var (log, sv) = LogBox(260);
         stack.Children.Add(new Border { BorderBrush = B(_th.Line2), BorderThickness = new Thickness(0, 1, 0, 0), Child = sv });
         _sections["mqtt"] = (status, counters, log, sv);
@@ -1689,7 +1712,7 @@ public sealed partial class MainWindow : Window
         _udpInfo = TB("", 13, _th.Text, false, true);
         body.Children.Add(_udpInfo);
         var stack = (StackPanel)sec.Child;
-        stack.Children.Add(new TextBlock { Text = Lang.T("u.each_decoded_station_is"), FontSize = 12, Foreground = B(_th.Muted), Margin = new Thickness(14, 6), TextWrapping = TextWrapping.Wrap });
+        stack.Children.Add(new TextBlock { Text = Lang.T("u.each_decoded_station_is"), FontSize = (12) * UiScale.F, Foreground = B(_th.Muted), Margin = new Thickness(14, 6), TextWrapping = TextWrapping.Wrap });
         var dbgHead = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 14, Margin = new Thickness(14, 6) };
         dbgHead.Children.Add(TB(Lang.T("u.debug_received_text"), 13, _th.Text, true));
         _udpShowHb = Check(Lang.T("u.show_heartbeat_and_status"), true, _ => RefreshLogs(true));
@@ -1841,7 +1864,7 @@ public sealed partial class MainWindow : Window
 
         // ------------------------------------------- sinistra: regioni
         var list = new StackPanel { Spacing = 6, Margin = new Thickness(14) };
-        list.Children.Add(new TextBlock { Text = Lang.F("u.preview_title", nome), FontSize = 18, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent), TextWrapping = TextWrapping.Wrap });
+        list.Children.Add(new TextBlock { Text = Lang.F("u.preview_title", nome), FontSize = (18) * UiScale.F, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent), TextWrapping = TextWrapping.Wrap });
         var help = TB(Lang.T("u.preview_help"), 12, _th.Muted); help.TextWrapping = TextWrapping.Wrap;
         list.Children.Add(help);
         var upd = PrimaryButton(Lang.T("u.update_now"), () => Task.Run(async () => { await _st.Tropo.UpdateAsync(_st.Http); Dispatcher.UIThread.Post(() => FillTropoTab(fonte)); }));
@@ -2051,14 +2074,14 @@ public sealed partial class MainWindow : Window
             left.Children.Add(new TextBlock
             {
                 Text = Lang.F("u.no_image", nome),
-                Foreground = B(_th.Muted), FontSize = 14, TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, MaxWidth = 600, TextAlignment = TextAlignment.Center
+                Foreground = B(_th.Muted), FontSize = (14) * UiScale.F, TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, MaxWidth = 600, TextAlignment = TextAlignment.Center
             });
         }
         g.Children.Add(left);
 
         // ------------------------------------------- destra: taratura
         var info = new StackPanel { Spacing = 8, Margin = new Thickness(14) };
-        info.Children.Add(new TextBlock { Text = Lang.T("u.calibration") + nome, FontSize = 18, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent) });
+        info.Children.Add(new TextBlock { Text = Lang.T("u.calibration") + nome, FontSize = (18) * UiScale.F, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent) });
         var att = Check(Lang.T("u.active_use_these_maps"), cal.Attivo, v => cal.Attivo = v);
         if (ed.Images.Count > 0)
             info.Children.Add(TB(ed.Frame is { } ff ? Lang.F("u.frame_found", ff.X0, ff.X1, ff.Y0, ff.Y1) : Lang.T("u.frame_not_found"), 12, ed.Frame.HasValue ? _th.Sub : _th.Bad));
@@ -2249,7 +2272,7 @@ public sealed partial class MainWindow : Window
         panel.Children.Clear();
         foreach (var (text, col, strike) in lines)
         {
-            var t = new TextBlock { Text = text, FontFamily = Mono, FontSize = 12.5, Foreground = new SolidColorBrush(col) };
+            var t = new TextBlock { Text = text, FontFamily = Mono, FontSize = (12.5) * UiScale.F, Foreground = new SolidColorBrush(col) };
             if (strike) t.TextDecorations = TextDecorations.Strikethrough;
             panel.Children.Add(t);
         }

@@ -280,6 +280,45 @@ public sealed class ForecastPainter
         return g;
     }
 
+    /// <summary>
+    /// Niente «gocce»: le isole sopra il livello più piccole di DropKm (in tutte e due le direzioni) non si disegnano
+    /// come curva chiusa. Sono celle isolate del GFS, non un'apertura su una tratta; i colori della mappa restano com'erano.
+    /// Un corridoio confermato dagli spot (Corridors) le salva.
+    /// </summary>
+    public const double DropKm = 220;
+    public Func<double, double, bool> Confirmed = (_, _) => false;
+    double[,] NoDrops(double[,] g, double level, double lat0, double lon0, double step)
+    {
+        int nr = g.GetLength(0), nc = g.GetLength(1);
+        var o = (double[,])g.Clone();
+        var seen = new bool[nr, nc];
+        var q = new Stack<(int, int)>(); var cells = new List<(int r, int c)>();
+        for (int r0 = 0; r0 < nr; r0++)
+            for (int c0 = 0; c0 < nc; c0++)
+            {
+                if (seen[r0, c0] || double.IsNaN(g[r0, c0]) || g[r0, c0] < level) continue;
+                cells.Clear(); q.Push((r0, c0)); seen[r0, c0] = true;
+                int rmin = r0, rmax = r0, cmin = c0, cmax = c0;
+                while (q.Count > 0)
+                {
+                    var (r, c) = q.Pop(); cells.Add((r, c));
+                    rmin = Math.Min(rmin, r); rmax = Math.Max(rmax, r); cmin = Math.Min(cmin, c); cmax = Math.Max(cmax, c);
+                    foreach (var (dr, dc) in new[] { (1, 0), (-1, 0), (0, 1), (0, -1) })
+                    {
+                        int rr = r + dr, cc = c + dc;
+                        if (rr < 0 || cc < 0 || rr >= nr || cc >= nc || seen[rr, cc] || double.IsNaN(g[rr, cc]) || g[rr, cc] < level) continue;
+                        seen[rr, cc] = true; q.Push((rr, cc));
+                    }
+                }
+                double lat = lat0 + (rmin + rmax) / 2.0 * step;
+                double hKm = (rmax - rmin + 1) * step * 111.2, wKm = (cmax - cmin + 1) * step * 111.2 * Math.Cos(lat * Math.PI / 180);
+                if (Math.Max(hKm, wKm) >= DropKm) continue;
+                if (cells.Any(x => Confirmed(lat0 + x.r * step, lon0 + x.c * step))) continue;
+                foreach (var (r, c) in cells) o[r, c] = level - 0.01;
+            }
+        return o;
+    }
+
     /// <summary>Curve di livello con i quadrati marcianti (interpolazione lineare sui lati), con etichette distanziate.</summary>
     void Contour(DrawingContext ctx, double[,] g, double lat0, double lon0, double step, double level, IPen pen, string label, Color labCol, List<Point> placed)
     {
@@ -334,7 +373,7 @@ public sealed class ForecastPainter
             foreach (var bnd in Palette.GainBands)
             {
                 var col = Palette.GainLineColor(bnd.Lo);
-                Contour(ctx, g, lat0, lon0, step, bnd.Lo, new Pen(new SolidColorBrush(col), 2.2, lineCap: PenLineCap.Round), $"{bnd.Lo:0.#} dB", col, placed);
+                Contour(ctx, NoDrops(g, bnd.Lo, lat0, lon0, step), lat0, lon0, step, bnd.Lo, new Pen(new SolidColorBrush(col), 2.2, lineCap: PenLineCap.Round), $"{bnd.Lo:0.#} dB", col, placed);
             }
         }
         if (St.S.GetBool("fc_ov_inv", false))
@@ -584,7 +623,8 @@ public sealed class ProfileView : Control
     Point? _hover; int _hoverKey = -1;
     // elementi colorati del disegno, per il fumetto: (centro o punto del segmento, chiave)
     readonly List<(Point p, int key)> _hits = new();
-    Point _rayA, _rayB; double _bandX0 = double.NaN, _bandX1 = double.NaN;
+    readonly List<Point> _ray = new();
+    readonly List<(double x, double yTop, double yBase)> _band = new();
 
     static string L(string it, string en) => Lang.Current == "it" ? it : en;
 
@@ -593,12 +633,20 @@ public sealed class ProfileView : Control
     {
         for (int i = 0; i < _hits.Count; i++)
             if (Math.Abs(_hits[i].p.X - p.X) <= 7 && Math.Abs(_hits[i].p.Y - p.Y) <= 7) return _hits[i].key;
-        double dx = _rayB.X - _rayA.X, dy = _rayB.Y - _rayA.Y, len2 = dx * dx + dy * dy;
-        if (len2 > 0)
+        for (int i = 1; i < _ray.Count; i++)
         {
-            double t = Math.Max(0, Math.Min(1, ((p.X - _rayA.X) * dx + (p.Y - _rayA.Y) * dy) / len2));
-            double qx = _rayA.X + t * dx - p.X, qy = _rayA.Y + t * dy - p.Y;
+            var a = _ray[i - 1]; var b = _ray[i];
+            double dx = b.X - a.X, dy = b.Y - a.Y, len2 = dx * dx + dy * dy;
+            if (len2 <= 0) continue;
+            double t = Math.Max(0, Math.Min(1, ((p.X - a.X) * dx + (p.Y - a.Y) * dy) / len2));
+            double qx = a.X + t * dx - p.X, qy = a.Y + t * dy - p.Y;
             if (qx * qx + qy * qy <= 25) return 1000;
+        }
+        // dentro la fascia arancio dello strato
+        for (int i = 0; i < _band.Count; i++)
+        {
+            var bp = _band[i]; double xa = i > 0 ? (_band[i - 1].x + bp.x) / 2 : bp.x - 6, xb = i + 1 < _band.Count ? (_band[i + 1].x + bp.x) / 2 : bp.x + 6;
+            if (p.X >= xa && p.X <= xb && p.Y >= Math.Min(bp.yTop, bp.yBase) - 3 && p.Y <= Math.Max(bp.yTop, bp.yBase) + 3) return 2000;
         }
         return -1;
     }
@@ -625,13 +673,23 @@ public sealed class ProfileView : Control
                           : L("Il punto rosso invade la zona: toglie segnale per diffrazione", "The red dot invades the zone: it costs signal by diffraction"),
                 L("Manuale delle previsioni, § 8.", "Forecast manual, § 8.") };
         }
+        if (key == 2000)
+            return new List<string> {
+                _r.LayerTraps ? L("▬ Strato fondante: CONDOTTO (intrappola la banda)", "▬ Base layer: DUCT (traps the band)") : L("▬ Strato fondante: super-rifrattivo", "▬ Base layer: super-refractive"),
+                L($"strato {_r.LayerName}, continuo da {_r.LayerFromKm:0} a {_r.LayerToKm:0} km", $"layer {_r.LayerName}, continuous from {_r.LayerFromKm:0} to {_r.LayerToKm:0} km"),
+                L($"cima media {_r.TopMean:0} m, base media {_r.BaseMean:0} m sul mare", $"mean top {_r.TopMean:0} m, mean base {_r.BaseMean:0} m a.s.l."),
+                _r.LayerTraps ? L("Il segnale resta dentro lo strato: perdita vicina allo spazio libero.", "The signal stays inside the layer: loss close to free space.")
+                              : L("Piega il raggio verso il basso (guadagno), ma non lo intrappola.", "Bends the ray downward (gain) but does not trap it."),
+                L("Arancio più pieno = condotto; più chiaro = solo super-rifrazione.", "Fuller orange = duct; lighter = super-refraction only."),
+                L("Dove manca, lo strato non è continuo lungo la tratta.", "Where missing, the layer is not continuous along the path."),
+                L("Manuale delle previsioni, § 9.", "Forecast manual, § 9.") };
         if (key == 1000)
             return _r.Los
                 ? new List<string> { L("— Raggio diretto verde: in vista ottica", "— Green direct ray: line of sight"), L("Il corrispondente si vede sopra il terreno", "The other station is visible above the terrain"), L("(terra equivalente con il k del GFS).", "(equivalent earth with the GFS k).") }
                 : new List<string> {
                     L("— Raggio diretto rosso: NON in vista ottica", "— Red direct ray: NOT line of sight"),
-                    L("La linea retta fra le antenne passa sotto il terreno", "The straight line between the antennas goes under"),
-                    L("o sotto la curvatura della terra (terra equivalente k).", "the terrain or the earth bulge (equivalent earth k)."),
+                    L("Il raggio (curvo: il profilo è a terra piatta) passa", "The ray (curved: the profile is drawn on flat earth)"),
+                    L("sotto il terreno o sotto l'orizzonte (terra equivalente k).", "goes under the terrain or the horizon (equivalent earth k)."),
                     L("Il segnale arriva per diffrazione, troposcatter o", "The signal arrives by diffraction, troposcatter or"),
                     L("strati e condotti: vedi «Perdita prevista».", "layers and ducts: see «Predicted loss».") ,
                     L("Linea tratteggiata viola: bordo della 1ª zona di Fresnel.", "Dashed violet line: edge of the 1st Fresnel zone."),
@@ -661,16 +719,15 @@ public sealed class ProfileView : Control
         }
         var dist = _r.DistAlong; var h = _r.Terrain; double D = _r.DistKm, ae = _r.K * LinkCalc.Re;
         int n = h.Length;
+        // dalla 1.3.2 il profilo è disegnato a terra piatta (le montagne risaltano): è il raggio a curvare verso il basso,
+        // di d1·d2/(2·ae) rispetto alla retta fra le antenne (terra equivalente con il k del GFS)
         var y = new double[n];
-        double ymin = 0, ymax = Math.Max(_r.HtxAsl, _r.HrxAsl);
-        for (int i = 0; i < n; i++)
-        {
-            double bulge = dist[i] * (D - dist[i]) / (2 * ae) * 1000;    // rigonfiamento della terra al centro (m)
-            y[i] = h[i] + bulge;
-            ymax = Math.Max(ymax, y[i]);
-        }
+        double ymax = Math.Max(_r.HtxAsl, _r.HrxAsl);
+        for (int i = 0; i < n; i++) { y[i] = h[i]; ymax = Math.Max(ymax, y[i]); }
         if (!double.IsNaN(_ductTop)) ymax = Math.Max(ymax, _ductTop);
-        ymax = ymax * 1.08 + 20;
+        ymax = ymax * 1.10 + 20;
+        double ymin = -0.12 * ymax;
+        double Bulge(double dk) => dk * (D - dk) / (2 * ae) * 1000;
         double X(double dk) => 8 + (W - 16) * dk / D;
         double Y(double m) => H - 14 - (H - 24) * (m - ymin) / (ymax - ymin);
         if (_r.RunDist.Length > 0)
@@ -714,7 +771,7 @@ public sealed class ProfileView : Control
                 {
                     double d1 = dist[i], d2 = D - dist[i];
                     double f1 = d1 > 0 && d2 > 0 ? Math.Sqrt(lam * d1 * d2 * 1000 / D) : 0;
-                    c.LineTo(new Point(X(d1), Y(_r.HtxAsl + (_r.HrxAsl - _r.HtxAsl) * d1 / D - f1)));
+                    c.LineTo(new Point(X(d1), Y(Math.Max(ymin, _r.HtxAsl + (_r.HrxAsl - _r.HtxAsl) * d1 / D - Bulge(d1) - f1))));
                 }
                 c.LineTo(new Point(X(D), Y(_r.HrxAsl)));
                 c.EndFigure(false);
@@ -724,14 +781,35 @@ public sealed class ProfileView : Control
             for (int oi = 0; oi < _r.Obstacles.Count; oi++)
             {
                 var ob = _r.Obstacles[oi];
-                var cp = new Point(X(ob.km), Y(ob.hM + ob.km * (D - ob.km) / (2 * ae) * 1000));
+                var cp = new Point(X(ob.km), Y(ob.hM));
                 ctx.DrawEllipse(new SolidColorBrush(Color.Parse("#D64545")), null, cp, 3, 3);
                 _hits.Add((cp, oi));
             }
         }
         var ray = new Pen(new SolidColorBrush(_r.Los ? Color.Parse("#1F9D55") : Color.Parse("#D64545")), 1.6);
-        _rayA = new Point(X(0), Y(_r.HtxAsl)); _rayB = new Point(X(D), Y(_r.HrxAsl));
-        ctx.DrawLine(ray, _rayA, _rayB);
+        // raggio diretto curvo rispetto alla terra piatta; sotto il fondo del disegno resta sul bordo
+        _ray.Clear();
+        {
+            var rg = new StreamGeometry();
+            using (var c = rg.Open())
+            {
+                int k = 120;
+                for (int j = 0; j <= k; j++)
+                {
+                    double dk = D * j / k;
+                    var pt = new Point(X(dk), Y(Math.Max(ymin, _r.HtxAsl + (_r.HrxAsl - _r.HtxAsl) * dk / D - Bulge(dk))));
+                    if (j == 0) c.BeginFigure(pt, false); else c.LineTo(pt);
+                    _ray.Add(pt);
+                }
+                c.EndFigure(false);
+            }
+            ctx.DrawGeometry(null, ray, rg);
+        }
+        // fascia dello strato fondante, per il fumetto
+        _band.Clear();
+        if (_r.RunDist.Length > 0)
+            for (int i = 0; i < _r.RunDist.Length; i++)
+                _band.Add((X(Math.Max(_r.LayerFromKm, Math.Min(_r.LayerToKm, _r.RunDist[i]))), Y(_r.RunTop[i]), Y(Math.Max(0, _r.RunBase[i]))));
         var ft = new FormattedText($"{_r.DistKm:0} km · k {_r.K:0.00}", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface.Default, 11, new SolidColorBrush(Th?.Ink ?? Colors.Black));
         ctx.DrawText(ft, new Point(10, 4));
         // fumetto dell'elemento sotto il mouse
