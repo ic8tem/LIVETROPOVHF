@@ -77,9 +77,16 @@ Criterio dell'autore: un collegamento da solo non deve mai disegnare un condotto
 - tutto negli ultimi **30 minuti**, con il fascio che si ripete a distanza di almeno **10 minuti** (persistenza);
 - per l'APRS, un salto conta solo se lo stesso salto si ripete.
 
-Fonti: spot dei cluster (non quelli marcati AS/ACS), PSKReporter via MQTT, i propri QSO e le decodifiche di WSJT-X/JTDX/MSHV, e i salti APRS in 2 m.
+Fonti: spot dei cluster (non quelli marcati AS/ACS), PSKReporter via MQTT, i propri QSO e le decodifiche di WSJT-X/JTDX/MSHV, e i salti APRS in 2 m e LoRa 433/868 MHz.
 
-**APRS in 2 m.** Il programma legge APRS-IS in sola lettura (rotate.aprs2.net, filtro sull'Europa) e ricava i salti radio fra stazioni di posizione nota (sorgente → digipeater → IGate), come la mappa VHF di DXView e APRS PropView (RF-YVY, Apache 2.0). Tiene solo i 144–145 MHz: scarta le stazioni LoRa (433 MHz) riconosciute dal tocall (elenco aprs-deviceid) o dal commento, chi dichiara 70 cm, HF o altre frequenze, i pacchetti non radio (qAC, qAX, TCPIP), i salti attraverso digipeater sconosciuti (WIDE senza nominativo), le stazioni in quota oltre 1500 m (palloni, aerei) e i salti oltre 1500 km.
+**APRS: 2 m e LoRa.** Il programma legge APRS-IS in sola lettura (rotate.aprs2.net, filtro sull'Europa) e ricava i salti radio fra stazioni di posizione nota (sorgente → digipeater → IGate), come la mappa VHF di DXView e APRS PropView (RF-YVY, Apache 2.0). Valgono tre bande: 2 m, LoRa 433 MHz (corridoi della banda 432) e LoRa 868 MHz (corridoi che contano per i 1296: un condotto che porta gli 868 MHz porta di regola anche le frequenze più alte). La banda viene dal tocall LoRa (elenco aprs-deviceid) e dalle frequenze o diciture nel commento; un salto vale solo fra due stazioni della stessa banda.
+
+Il punto delicato sono i ripetitori attivi: un segnale ricevuto a 500 km può essere arrivato con due o tre ritrasmissioni di digipeater. Un salto conta quindi solo se è fra due trasmettitori veri e consecutivi:
+
+- il percorso deve essere tracciato: ogni digipeater che ha ritrasmesso ha messo il suo nominativo, e il salto si misura fra uno e il successivo; un alias usato senza nominativo (WIDE1*, WIDE2*, alias regionali) spezza la catena e quel tratto non conta;
+- ritrasmissioni nascoste: il programma ricorda il percorso che ogni sorgente chiede di solito (per esempio WIDE2-2). Se un pacchetto arriva con un salto in meno (WIDE2-1) e nessun nominativo lo spiega, un digipeater l'ha ritrasmesso senza tracciare e il pacchetto si scarta; le sorgenti mai viste prima non contano;
+- digipeater a metà strada: se fra le due stazioni, più o meno sulla via, c'è un digipeater della stessa banda attivo nelle ultime tre ore, il salto si scarta, perché potrebbe averlo ritrasmesso (vale soprattutto per i digipeater LoRa che ritrasmettono senza modificare il percorso);
+- si scartano i pacchetti non radio (qAC, qAX, TCPIP), quelli rigirati da internet in radio da un IGate (terze parti), HF e frequenze diverse, le stazioni in quota oltre 1500 m (palloni, aerei) e i salti oltre 1500 km.
 
 **Effetto sulla mappa.** Il corridoio si disegna come fascia viola tratteggiata con le tratte che lo compongono e un'etichetta (tratte, distanza media, guadagno minimo). Sotto il corridoio, e solo vicino all'ora attuale (±90 minuti), la previsione non scende sotto un minimo che va da 10 dB (tratte di 300 km) a 16 dB (900 km e oltre). Le curve di guadagno non disegnano più «gocce»: le isole più piccole di 220 km in tutte e due le direzioni restano colorate ma senza curva chiusa, a meno che un corridoio le confermi. Si spegne con la casella «Previsione mediata dagli spot».
 

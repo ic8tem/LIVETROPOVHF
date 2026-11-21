@@ -621,7 +621,7 @@ public sealed class AppState
         if (Mqtt.AutoStart) Mqtt.Connect();
         AprsOn = S.GetBool("aprs_on", true); NowcastOn = S.GetBool("fc_nowcast", true);
         Aprs.Call = Call;
-        Aprs.Hop += (t, a, pa, b, pb) => Corridors.Add("144", a, pa, b, pb, t, "APRS");
+        Aprs.Hop += (t, band, a, pa, b, pb) => Corridors.Add(band, a, pa, b, pb, t, "APRS");
         if (AprsOn) Aprs.Start();
         TropoVHF.Forecast.OwnForecast.Nowcast = (la, lo, t, f) =>
         {

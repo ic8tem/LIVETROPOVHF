@@ -7,10 +7,15 @@ namespace TropoVHF.Core;
 /// <summary>
 /// APRS-IS in sola lettura (rotate.aprs2.net:14580, passcode −1, filtro d'area sull'Europa): ricava i «salti» radio fra
 /// stazioni di posizione nota (sorgente → digipeater → IGate), come la mappa VHF di DXView/mennolink e APRS PropView
-/// (RF-YVY, Apache 2.0). Si tengono solo i salti di almeno MinKm fatti in 2 m (144–145 MHz):
-/// - si scartano le stazioni LoRa (433 MHz) riconosciute dal tocall (elenco aprs-deviceid) o dal commento;
-/// - si scartano le stazioni che nel commento dichiarano 70 cm, HF (30 m, 300 baud) o altre frequenze fuori dai 2 m;
-/// - si scartano i pacchetti non radio (qAC, qAX, TCPIP…) e i salti attraverso un digipeater sconosciuto (WIDE*);
+/// (RF-YVY, Apache 2.0). Bande: 2 m (144–145 MHz), LoRa 433 MHz (banda 432) e LoRa 868 MHz (conta per i 1296).
+/// - la banda viene dal tocall LoRa (elenco aprs-deviceid) e dalle frequenze o diciture nel commento; un salto vale solo
+///   se le due stazioni sono nella stessa banda; HF e frequenze diverse si scartano;
+/// - si scartano i pacchetti non radio (qAC, qAX, TCPIP…), quelli rigirati da internet in radio (terze parti «}»)
+///   e i salti attraverso un digipeater sconosciuto (WIDE*);
+/// - ritrasmissioni nascoste: se un digipeater ha ritrasmesso senza mettere il suo nominativo, il pacchetto arriva con
+///   il percorso consumato (WIDE2-2 diventato WIDE2-1) rispetto a quello che la sorgente usa di solito → scartato;
+///   per le sorgenti mai viste prima il salto non conta; inoltre un salto lungo si scarta se a metà strada c'è un
+///   digipeater attivo della stessa banda che può averlo ritrasmesso (anche i digipeater LoRa che non tracciano);
 /// - si scartano le sorgenti in quota (palloni, aerei: /A= oltre 1500 m) e i salti oltre MaxKm (HF o dati sbagliati).
 /// Un pacchetto da solo non dice nulla: il salto entra nei corridoi (Corridors) solo se si ripete a distanza di minuti.
 /// </summary>
@@ -25,10 +30,16 @@ public sealed class AprsIs
     public long Packets, Hops;
     public string LastError = "";
     public event Action<string> Log;
-    /// <summary>Salto radio in 2 m: (ora, chiamata A, posizione A, chiamata B, posizione B).</summary>
-    public event Action<DateTime, string, LatLon, string, LatLon> Hop;
+    /// <summary>Salto radio: (ora, banda «144», «432» o «1296» per gli 868 MHz, chiamata A, posizione A, chiamata B, posizione B).</summary>
+    public event Action<DateTime, string, string, LatLon, string, LatLon> Hop;
 
-    sealed class Sta { public LatLon Pos; public DateTime T; public bool Not2m; public string Why = ""; }
+    /// <summary>Salti scartati per possibile ritrasmissione nascosta (percorso consumato, digipeater a metà strada, terze parti).</summary>
+    public long Hidden;
+    sealed class Sta
+    {
+        public LatLon Pos; public DateTime T; public string Band = "144"; public bool Explicit; public string Why = "";
+        public Dictionary<string, int> MaxN; public int Seen; public DateTime DigiT = DateTime.MinValue;
+    }
     readonly Dictionary<string, Sta> _sta = new(StringComparer.OrdinalIgnoreCase);
     CancellationTokenSource _cts;
 
@@ -86,6 +97,8 @@ public sealed class AprsIs
         var hdr = line.Substring(gt + 1, colon - gt - 1).Split(',');
         string dest = hdr[0];
         string info = line.Substring(colon + 1);
+        // terze parti: pacchetto rigirato da internet in radio da un IGate, non è un salto radio della sorgente
+        if (info.StartsWith("}", StringComparison.Ordinal)) return;
         // posizione e caratteristiche della sorgente
         Update(src, dest, info, now);
         if (hdr.Length < 2) return;
@@ -98,6 +111,30 @@ public sealed class AprsIs
         // ultimo elemento usato del percorso (asterisco): tutti quelli prima sono usati
         int lastUsed = -1;
         for (int i = 1; i < qi; i++) if (hdr[i].EndsWith("*")) lastUsed = i;
+        // ritrasmissione nascosta: confronta il percorso non ancora usato con quello che la sorgente manda di solito
+        bool known, silent = false;
+        lock (_sta)
+        {
+            known = _sta.TryGetValue(src, out var ss) && ss.Seen >= 2;
+            if (ss != null)
+            {
+                ss.MaxN ??= new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                for (int i = 1; i < qi; i++)
+                {
+                    if (hdr[i].EndsWith("*") || i <= lastUsed) continue;
+                    if (!PathReq(hdr[i], out var bas, out int n)) continue;
+                    if (ss.MaxN.TryGetValue(bas, out int mx) && n < mx) silent = true;
+                    if (!ss.MaxN.TryGetValue(bas, out mx) || n > mx) ss.MaxN[bas] = n;
+                }
+            }
+            // digipeater che tracciano: servono per il controllo «a metà strada»
+            for (int i = 1; i <= lastUsed; i++)
+            {
+                var nm = hdr[i].TrimEnd('*');
+                if (!IsAlias(nm) && _sta.TryGetValue(nm, out var dg)) dg.DigiT = now;
+            }
+        }
+        if (silent || !known) { if (silent) Hidden++; return; }
         var chain = new List<string> { src };
         bool broken = false;
         for (int i = 1; i <= lastUsed; i++)
@@ -119,16 +156,43 @@ public sealed class AprsIs
         return u.Length <= 6 && u.Contains("-") && char.IsDigit(u[u.IndexOf('-') - 1]) && u.IndexOf('-') <= 3;
     }
 
+    /// <summary>Richiesta di percorso tipo WIDE2-1, IT2-2: base «WIDE2» e salti rimasti n (WIDE2 senza SSID = 0).</summary>
+    static bool PathReq(string e, out string bas, out int n)
+    {
+        bas = ""; n = 0;
+        int d = e.IndexOf('-');
+        string b = d < 0 ? e : e.Substring(0, d);
+        if (b.Length < 2 || !char.IsDigit(b[b.Length - 1]) || b[b.Length - 1] == '0') return false;
+        if (!IsAlias(e) && !IsAlias(b + "-1")) return false;
+        if (d >= 0 && !int.TryParse(e.Substring(d + 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out n)) return false;
+        bas = b.ToUpperInvariant(); return true;
+    }
+
     void TryHop(string a, string b, DateTime now)
     {
-        Sta sa, sb;
-        lock (_sta) { if (!_sta.TryGetValue(a, out sa) || !_sta.TryGetValue(b, out sb)) return; }
-        if (sa.Not2m || sb.Not2m) return;
-        if ((now - sa.T).TotalHours > 24 || (now - sb.T).TotalHours > 24) return;
-        double km = Geo.DistKm(sa.Pos, sb.Pos);
-        if (km < MinKm || km > MaxKm) return;
+        Sta sa, sb; string band; bool mid = false;
+        lock (_sta)
+        {
+            if (!_sta.TryGetValue(a, out sa) || !_sta.TryGetValue(b, out sb)) return;
+            if (sa.Band == "x" || sb.Band == "x") return;
+            if (sa.Explicit && sb.Explicit && sa.Band != sb.Band) return;
+            band = sa.Explicit ? sa.Band : sb.Explicit ? sb.Band : "144";
+            if ((now - sa.T).TotalHours > 24 || (now - sb.T).TotalHours > 24) return;
+            double km0 = Geo.DistKm(sa.Pos, sb.Pos);
+            if (km0 < MinKm || km0 > MaxKm) return;
+            // un digipeater attivo (ultime 3 ore) della stessa banda a metà strada può aver ritrasmesso senza tracciare
+            foreach (var kv in _sta)
+            {
+                var d = kv.Value;
+                if (ReferenceEquals(d, sa) || ReferenceEquals(d, sb) || (now - d.DigiT).TotalHours > 3) continue;
+                if (d.Explicit && d.Band != band) continue;
+                double x = Geo.DistKm(sa.Pos, d.Pos), y = Geo.DistKm(d.Pos, sb.Pos);
+                if (x <= 0.8 * km0 && y <= 0.8 * km0 && x + y <= 1.25 * km0) { mid = true; break; }
+            }
+        }
+        if (mid) { Hidden++; return; }
         Hops++;
-        Hop?.Invoke(now, a.ToUpperInvariant(), sa.Pos, b.ToUpperInvariant(), sb.Pos);
+        Hop?.Invoke(now, band == "868" ? "1296" : band, a.ToUpperInvariant(), sa.Pos, b.ToUpperInvariant(), sb.Pos);
     }
 
     void Update(string call, string dest, string info, DateTime now)
@@ -158,8 +222,9 @@ public sealed class AprsIs
         {
             if (!_sta.TryGetValue(call, out var s)) { if (pos == null) return; s = new Sta(); _sta[call] = s; }
             if (pos != null) { s.Pos = pos.Value; s.T = now; }
-            var (bad, why) = Not2m(dest, comment);
-            if (bad) { s.Not2m = true; s.Why = why; }
+            s.Seen++;
+            var (band, expl, why) = Classify(dest, comment);
+            if (expl || !s.Explicit) { s.Band = band; s.Explicit = expl; s.Why = why; }
             // aeroplani e palloni: quota oltre 1500 m (5000 piedi)
             int ai = comment.IndexOf("/A=", StringComparison.Ordinal);
             if (ai >= 0 && comment.Length >= ai + 9 && int.TryParse(comment.Substring(ai + 3, 6), NumberStyles.Integer, CultureInfo.InvariantCulture, out int ft) && ft > 5000)
@@ -168,23 +233,27 @@ public sealed class AprsIs
         }
     }
 
-    /// <summary>Indizi che la stazione non lavora in 2 m: tocall LoRa, LoRa o frequenze dichiarate nel commento.</summary>
-    public static (bool bad, string why) Not2m(string tocall, string comment)
+    /// <summary>Banda della stazione: «144» (di default, non dichiarata), «432» (LoRa 433 MHz), «868» (LoRa 868 MHz)
+    /// o «x» (HF o frequenze che non servono). explicit = dichiarata dal tocall o dal commento.</summary>
+    public static (string band, bool expl, string why) Classify(string tocall, string comment)
     {
         var tc = (tocall ?? "").ToUpperInvariant();
-        foreach (var p in LoraTocalls) if (tc.StartsWith(p, StringComparison.Ordinal)) return (true, "LoRa (tocall " + tc + ")");
         var c = (comment ?? "").ToUpperInvariant();
-        if (c.Contains("LORA")) return (true, "LoRa (commento)");
-        if (c.Contains("300BD") || c.Contains("300 BD") || c.Contains("300 BAUD") || c.Contains(" HF ") || c.StartsWith("HF ")) return (true, "HF");
-        // frequenze scritte nel commento: fuori da 144–146 MHz (es. 433.775, 432.500, 10.147, 50.6…)
-        foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(c, @"\b(\d{1,4})[.,](\d{2,4})\s?MHZ\b"))
+        bool lora = c.Contains("LORA");
+        foreach (var p in LoraTocalls) if (tc.StartsWith(p, StringComparison.Ordinal)) { lora = true; break; }
+        if (c.Contains("300BD") || c.Contains("300 BD") || c.Contains("300 BAUD") || c.Contains(" HF ") || c.StartsWith("HF ")) return ("x", true, "HF");
+        // frequenze scritte nel commento (433.775, 868.000, 144.800…)
+        foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(c, @"\b(\d{2,4})[.,](\d{1,4})\s?(MHZ)?\b"))
         {
-            if (double.TryParse(m.Groups[1].Value + "." + m.Groups[2].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out double f) && (f < 144 || f > 146))
-                return (true, $"{f:0.###} MHz");
+            if (!double.TryParse(m.Groups[1].Value + "." + m.Groups[2].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out double f)) continue;
+            if (f >= 863 && f <= 870) return ("868", true, $"{f:0.###} MHz");
+            if (f >= 430 && f <= 440) return ("432", true, $"{f:0.###} MHz");
+            if (f >= 144 && f <= 146) return ("144", true, $"{f:0.###} MHz");
+            if (m.Groups[3].Success) return ("x", true, $"{f:0.###} MHz");
         }
-        foreach (var f in new[] { "433.775", "433,775", "432.500", "432.5 ", "10.147", "10.1476", "439.", "434." })
-            if (c.Contains(f)) return (true, f.Trim());
-        return (false, "");
+        if (c.Contains("868") || c.Contains("869")) return ("868", true, "868 MHz");
+        if (lora) return ("432", true, tc.StartsWith("AP", StringComparison.Ordinal) && !c.Contains("LORA") ? "LoRa (tocall " + tc + ")" : "LoRa");
+        return ("144", false, "");
     }
 
     static LatLon? Plain(string s)
