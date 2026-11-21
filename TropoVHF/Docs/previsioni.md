@@ -45,7 +45,7 @@ La sorgente usata è scritta nella riga di stato e nella prima riga dei risultat
 
 Il menu Caso storico rivede un'apertura documentata con le previsioni GFS d'archivio di Open-Meteo [15]: la mappa si sposta sulla zona del caso, la banda si imposta da sola e il cursore dell'ora parte dal primo giorno del caso. Premendo Aggiorna previsione si scaricano i profili di quei giorni; il calcolo del segnale funziona come per la previsione attuale. Serve a confrontare il modello con quello che è successo davvero.
 
-Il primo caso è quello del 14–15 agosto 2022 raccontato in QST (novembre 2022, «The World Above 50 MHz» [23]): un'apertura sotto un'alta pressione fra Manitoba e Kansas/Missouri, da 144 a 1296 MHz quasi tutta in FT8, con il record canadese a 10 GHz di 1228,56 km in Q65 e segnali fino a 1941 km. Per i casi più vecchi (per esempio settembre 2000) l'archivio di Open-Meteo non ha dati.
+Il primo caso è quello del 14–15 agosto 2022 raccontato in QST (novembre 2022, «The World Above 50 MHz» [23]): un'apertura sotto un'alta pressione fra Manitoba e Kansas/Missouri, da 144 a 1296 MHz quasi tutta in FT8, con il record canadese a 10 GHz di 1228,56 km in Q65 e segnali fino a 1941 km. Il secondo è l'apertura fra il 29 dicembre 2021 e il 2 gennaio 2022 sul Tirreno e il Mediterraneo occidentale a 144 MHz, dai rapporti di IC8TEM: prime aperture il 29 (fino a 737 km), più ampie il 31 (IT9GSF–EB5EA 1217 km), grande apertura il 1° gennaio fra Italia, Sicilia e Spagna. Per i casi più vecchi (per esempio settembre 2000) l'archivio di Open-Meteo non ha dati. Nell'archivio manca l'altezza dello strato limite: lì la sua correzione non si applica.
 
 ## 4. L'indice e i colori
 

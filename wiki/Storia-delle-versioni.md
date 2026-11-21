@@ -8,7 +8,7 @@ Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 Previsioni (sempre sperimentali):
 - Seconda sorgente dei dati: con la scelta automatica, quando Open-Meteo rifiuta per un limite, i punti mancanti arrivano da NOMADS (NOAA), lo stesso GFS in file GRIB2 letti dal programma. Si può anche scegliere solo Open-Meteo o solo NOMADS.
 - Altri modelli per tutta la griglia: ICON-EU (DWD) ed ECMWF IFS 0,25° da Open-Meteo, per confrontarli con il GFS. Cache separata per modello; la sorgente usata è scritta nei risultati.
-- Casi storici: si rivede un'apertura documentata con le previsioni d'archivio di Open-Meteo. Primo caso: 14–15 agosto 2022, Manitoba–Kansas/Missouri (QST novembre 2022), da 144 a 1296 MHz.
+- Casi storici: si rivede un'apertura documentata con le previsioni d'archivio di Open-Meteo. Casi: 14–15 agosto 2022, Manitoba–Kansas/Missouri (QST novembre 2022), da 144 a 1296 MHz; 29 dicembre 2021 – 2 gennaio 2022, Tirreno e Mediterraneo occidentale a 144 MHz (rapporti IC8TEM).
 - Correzioni meteo (si possono spegnere): termine di stabilità di Misme e moto verticale del GFS: +1,5 dB con subsidenza negli anticicloni, −2 dB con aria in salita (Moler e Holden 1960). Indice di rifrazione potenziale K nel registro.
 - Scirocco: segnalato sulla mappa e nei risultati quando a 850 hPa arriva aria calda da sud-est sul Mediterraneo.
 - Casella Segni meteo: S scirocco, ↓ subsidenza, ↑ aria in salita sulle celle della griglia.

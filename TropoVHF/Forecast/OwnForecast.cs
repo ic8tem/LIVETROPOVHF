@@ -438,6 +438,9 @@ public sealed class HistCase
         new HistCase { Name = "14–15 ago 2022 · Manitoba–Kansas/Missouri", StartUtc = new DateTime(2022, 8, 13, 0, 0, 0, DateTimeKind.Utc), Days = 4,
                        LatMin = 34, LatMax = 54, LonMin = -104, LonMax = -86, FreqMHz = 1296,
                        Note = "QST nov. 2022: apertura sotto un'alta pressione da 144 a 1296 MHz quasi tutta in FT8; record canadese a 10 GHz di 1228,56 km in Q65, segnali fino a 1941 km" },
+        new HistCase { Name = "29 dic 2021 – 2 gen 2022 · Tirreno e Mediterraneo occidentale", StartUtc = new DateTime(2021, 12, 29, 0, 0, 0, DateTimeKind.Utc), Days = 5,
+                       LatMin = 35, LatMax = 47, LonMin = -2, LonMax = 20, FreqMHz = 144.3,
+                       Note = "rapporti IC8TEM su MMMonVHF: 29/12 prime aperture (ODX IK1PAG JN35TB 737 km), 30/12 secondo giorno, 31/12 apertura più ampia (IT9GSF–EB5EA 1217 km), 1/1/2022 grande apertura fra Italia, Sicilia e Spagna; quasi tutto in FT8 a 144 MHz" },
     };
 }
 
