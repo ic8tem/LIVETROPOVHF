@@ -38,6 +38,9 @@ for sid, name in ST.items():
     except Exception as ex:
         out.append(f"{name}: errore {ex}"); continue
     stat = collections.defaultdict(lambda: [0, 0, 0, 0]); cnt = [0]
+    for j, x in enumerate(txt):
+        if x.startswith('#') and x[13:17] == '2020' and x[24:26] in ('00', '23', '12', '11'):
+            out.append('   CAMPIONE ' + x); out.extend('   |' + y for y in txt[j + 1:j + 9]); break
     i = 0
     while i < len(txt):
         h = txt[i]
