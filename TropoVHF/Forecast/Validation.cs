@@ -139,10 +139,12 @@ public static class Validation
         // ---- equazione parabolica nel profilo M del GFS: guadagno rispetto all'atmosfera standard, evento contro confronto
         {
             var tq = qs.Where(q => q.Cat == "tropo").ToList();
-            int every = Math.Max(1, tq.Count / 150);
+            int every = Math.Max(1, tq.Count / 100);
+            foreach (double hAnt in new[] { 30.0, 300.0 })
+            {
             var sample = tq.Where((q, i) => i % every == 0).ToList();
             W("");
-            W($"===== equazione parabolica (campione di {sample.Count} collegamenti, terreno piatto, antenne a 30 m, 144 MHz) =====");
+            W($"===== equazione parabolica (campione di {sample.Count} collegamenti, terreno piatto, antenne a {hAnt:0} m, 144 MHz) =====");
             var ge = new List<double>(); var gc = new List<double>();
             var sw = System.Diagnostics.Stopwatch.StartNew();
             foreach (var q in sample)
@@ -151,14 +153,14 @@ public static class Validation
                 var pts = Geo.GreatCircle(q.A, q.B, n - 1);
                 var pe1 = pts.Select(p => gEv.At(p.Lat, p.Lon, q.Utc)).ToList();
                 if (pe1.Count(p => p != null) < 0.6 * pe1.Count) continue;
-                var std = ParabolicEq.Run(q.Freq, q.Km, 30, 30, null, null, null, 20, CancellationToken.None, false).LossDb;
-                var le = ParabolicEq.Run(q.Freq, q.Km, 30, 30, null, null, pe1, 20, CancellationToken.None, false).LossDb;
+                var std = ParabolicEq.Run(q.Freq, q.Km, hAnt, hAnt, null, null, null, 20, CancellationToken.None, false).LossDb;
+                var le = ParabolicEq.Run(q.Freq, q.Km, hAnt, hAnt, null, null, pe1, 20, CancellationToken.None, false).LossDb;
                 ge.Add(std - le);
                 if (gCt != null)
                 {
                     var pc = pts.Select(p => gCt.At(p.Lat, p.Lon, q.Utc.AddDays(shift))).ToList();
                     if (pc.Count(p => p != null) >= 0.6 * pc.Count)
-                        gc.Add(std - ParabolicEq.Run(q.Freq, q.Km, 30, 30, null, null, pc, 20, CancellationToken.None, false).LossDb);
+                        gc.Add(std - ParabolicEq.Run(q.Freq, q.Km, hAnt, hAnt, null, null, pc, 20, CancellationToken.None, false).LossDb);
                 }
             }
             string Qp(List<double> v) { if (v.Count == 0) return "—"; var a2 = v.OrderBy(x => x).ToArray(); return string.Format(ci, "mediana {0:0.0}, 10° {1:0.0}, 90° {2:0.0}", a2[a2.Length / 2], a2[a2.Length / 10], a2[Math.Min(a2.Length - 1, a2.Length * 9 / 10)]); }
@@ -170,7 +172,9 @@ public static class Validation
                 double wins = 0; foreach (var x in ge) foreach (var y in gc) wins += x > y ? 1 : x == y ? 0.5 : 0;
                 W(string.Format(ci, "   separazione evento/confronto (AUC): {0:0.00}", wins / ((double)ge.Count * gc.Count)));
             }
+            }
         }
+
         try { File.WriteAllText(outFile, sb.ToString()); } catch { }
         return 0;
     }
