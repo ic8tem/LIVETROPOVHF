@@ -1,0 +1,1478 @@
+                       NBS REPORT
+
+                          7652
+
+
+
+
+       TRANSMISSION LOSS VARIABILITY AND FADING
+
+CHARACTERISTICS FOR LONG KNIFE-EDGE DIFFRACTION PATHS
+
+
+
+
+                           by
+
+
+
+
+                   Albrecht P.   Barsis
+                                          PKUPtKIY UP
+                                    ££T RESEARCH INSTITUTE UBKAR1
+                          N           SAN ANTONIO, TEXAS
+
+
+
+
+        U. S. DEPARTMENT OF COMMERCE
+            NATIONAL BUREAU OF STANDARDS
+                  BOULDER LABORATORIES
+                      Boulder, Colorado
+                          THE NATIONAL BUREAU OF STANDARDS
+
+
+Functions and Activities
+
+     The functions of the National Bureau of Standards are set forth in the Act of Congress, March
+3, 1901, as amended by Congress in Public Law 619, 1950.           These include the development and
+maintenance of the national standards of measurement and the provision of means and methods for
+making measurements consistent with these standards: the determination of physical constants and
+properties of materials; the development of methods and instruments for testing materials, devices,
+and structures; advisory services to government agencies on scientific and technical problems; in¬
+vention and development of devices to serve special needs of the Government: and the development
+of standard practices, codes, and specifications.      The work includes basic and applied research,
+development, engineering, instrumentation,       testing, evaluation, calibration services, and various
+consultation and information services.      Research projects are also performed for other government
+agencies when the work relates to and supplements the basic program of the Bureau or when the
+Bureau's unique competence is required.         The scope of activities is suggested by the listing of
+divisions and sections on the inside of the back cover.
+
+
+
+Publications
+
+     The results of the Bureau’s work take the form of either actual equipment and devices or pub¬
+lished papers.   These papers appear either in the Bureau’s own series of publications or in the journals
+of professional and scientific societies.   The Bureau itself publishes three periodicals available from
+the Government Printing Office: The Journal of Research, published in four separate sections,
+presents complete scientific and technical papers; the Technical News Bulletin presents summary
+and preliminary reports on work in progress; and Basic Radio Propagation Predictions provides
+data for determining the best frequencies to use for radio communications throughout the world.
+There are also five series of nonperiodical publications: Monographs, Applied Mathematics Series,
+Handbooks, Miscellaneous Publications, and Technical Notes.
+    Information on the Bureau’s publications can be found in NBS Circular 460, Publications of the
+National Bureau of Standards ($1.25) and its Supplement ($1.50), available from the Superintendent
+of Documents, Government Printing Office, Washington 25, D.C.
+                                                                       RECEIVED
+
+
+                                                                       APR 2 ’63
+
+                                                                       H. SIM?SflN,ia.
+NATIONAL BUREAU OF STANDARDS REPORT
+NBS PROJECT                                              HBS DEPOSIT
+
+ 8370-11-83171
+ 8370-12-83475
+ 8370-12-83477
+
+                           February i,   1963
+
+
+
+
+         TRANSMISSION LOSS VARIABILITY AND FADING
+
+CHARACTERISTICS FOR LONG KNIFE-EDGE DIFFRACTION PATHS
+
+
+
+
+                                   by
+
+
+
+
+                          AlbrechtP. Barsis
+
+
+
+
+              This study was supported in part by the U. S,
+              Army Strategic Communications Command
+              and by the U. S. Air Force Ground Electronics
+              Engineering Installation Agency,
+
+
+
+
+          0. S. DEPARTMENT OF COMMERCE
+                NATIONAL    BUREAU      OF   STANDARDS
+                         BOULDER LABORATORIES
+                            Boulder, Colorado
+                                           IMPORTANT NOTICE
+
+ NATIONAL BUREAU OF SI            Approved for public release by the      r progress accounting docu-
+menfs intended for use with       Director of the National Institute of   >rts is formally published it
+is subjected to additional ev                                             cation, reprinting, reproduc-
+tion, or open-literoture listir   Standards and Technology (NIST) on      ; not authorized unless per-
+mission is obtained in writing                                             u of Standards, Washington
+25, D. C. Such permission i       October 9, 2015.                         cy for which the Report hos
+been specifically prepared if                                              lies for its own use.
+                         TABLE OF CONTENTS
+
+                                                          Page No.
+
+
+     ABSTRACT                                                1
+
+
+1.   INTRODUCTION                                            1
+
+
+2.   COMPARISON OF THE I960 AND 1962
+     COLORADO DATA                                           4
+
+     2. 1   Hourly Median Distributions and Correlation      4
+
+     2.2    Height Dependence of Transmission Loss           4
+
+
+3.   VARIABILITY OF HOURLY MEDIANS OF
+     TRANSMISSION LOSS                                       5
+
+
+4.   FADEOUT CHARACTERISTICS FOR THE
+     COLORADO AND ALASKA PATHS                               9
+
+
+5.   CONCLUSIONS                                            14
+
+
+6.   ACKNOWLEDGEMENTS                                       15
+
+
+7.   REFERENCES                                             16
+            TRANSMISSION LOSS VARIABILITY AND FADING
+
+CHARACTERISTICS FOR LONG KNIFE-EDGE DIFFRACTION PATHS
+
+
+                                       by
+
+
+                           Albrecht P.      Barsis
+
+
+
+
+                                  ABSTRACT
+
+
+
+        In this report transmission loss data in the 7 50-900 Me/s range
+from three long knife-edge diffraction paths (in Colorado,       Alaska,     and
+Europe) are evaluated and analyzed in terms of power fading (long¬
+term variability) and short-term variability represented by prolonged
+space-wave fadeouts.      A comparison is made of calculated and meas¬
+ured    cumulative distributions of hourly median       transmission loss
+values.     It appears that long-term variability over a knife-edge dif¬
+fraction path can be estimated by convoluting the distributions of hourly
+medians for the two component line-of-sight paths,        and that short-term
+variations represented by space-wave fadeouts are more prevalent
+when substantial phase interference due to ground reflections in the
+vicinity of the terminal is likely to exist.
+
+
+
+
+                           1.    INTRODUCTION
+
+
+
+        During the period December 1959 to January I960,        transmission
+loss measurements on 7 51 Me/s were performed on a 223 kilometer
+knife-edge diffraction path in Colorado,       with 4292 meter high Pikes
+Peak forming the diffracting knife edge.        Results of these measure¬
+ments were described in a paper by Barsis and Kirby [1961] .          More
+recently,    additional measurements from this path and from two other
+long knife-edge diffraction paths have become available for analysis.
+It is the purpose of this paper to compare transmission loss variabil¬
+ity and fading characteristics,      as far as derivable from the available
+data,   for the three paths,    and apply the results to the prediction of
+circuit performance over paths of this type.
+
+
+        An extensive bibliography on knife-edge diffraction phenomena
+was contained in the paper by Barsis and Kirby [1961] .        The present
+work deals essentially with three paths:       the Pikes Peak path already
+                                              -2-
+
+
+discussed,    a path along the coast of Alaska across the Fairweather
+range (data for which were supplied by Western Electric Co. ),                  and a
+knife-edge diffraction path across the Alps in Europe.               Transmission
+loss data for the latter were obtained by ITT Federal Laboratories
+under contract to the U.       S.    Army Strategic Communications Command.
+
+
+         Figures 1,   2,   and 3 are terrain profiles for the three paths,         and
+Table I shows important geometric parameters for the same paths.
+As the terminal locations for the European path are classified,                 they
+can be identified only by code numbers.
+
+
+
+                                            Table I
+
+              Comparison of Path and Equipment Parameters
+
+
+                                Colorado              Alaska          Europe
+
+
+Path Distance,     km           223. 3                302             404. 1
+
+
+Angular Distance,
+                                    64. 4              62. 6            55. 0
+milliradians
+
+
+Terminal Elevations
+Above Mean Sea
+Level,    Meters
+    T ransmitte r               1905 (Beulah)         16 (Yakutat)     1485 (Site 11.1)
+    Receive r                   1 666 (Table          488 (Hoonah)     1020 (Site 46)
+                                            Me sa)
+
+
+Antenna Height Above
+Ground,    Meters
+    T ransmitter                     7. 3              21                7
+    Receive r                        8. 2              42                7
+
+
+Height of Common
+Horizon Above Mean             4292                   3429             3950
+Sea Level,    Meters
+
+
+Carrier Frequency,
+                                 751                   900             875
+Me/s
+
+
+Polarization                   Horizontal             Horizontal      Vertical
+                                       -3-
+
+
+
+                             Table I (Continued)
+
+
+                             Colorado        Alaska         Europe
+
+
+Antennas
+    T ransmitting            4. 3m Dish      3m Dish        4m Dish
+    Receiving                3m Dish         3m Dish        4m Dish
+
+
+Antenna Gain Values, db
+(relative to isotropic)
+    T ransmitting             26. 7           26. 5          28. 5
+    Receiving                 23. 6           26. 5          28. 5
+
+
+
+
+      The angular distance values in Table I were determined using
+pertinent minimum monthly surface refractivity values for the areas
+concerned.    The calculation procedure for angular distance is outlined
+in a recent document supplied by the United States to the CCIR Study
+Group V [1962] .     It was also assumed that free-space antenna gains
+are realized over a knife-edge diffraction path.
+
+
+      At the Table Mesa receiving site a corner reflector antenna
+mounted on a telescopic tower was used in addition to the 3-m dish.
+Experiments using this antenna at various heights will be discussed
+in more detail below; its free-space gain is 14. 6 db relative to an
+isotropic radiator.
+
+
+      In the succeeding sections of this report the following studies
+will be discussed:
+
+
+      (a)   Comparison of the Colo-rado data taken in August 1962 with
+            previous results.
+
+
+      (b)   Comparison of the variability of hourly median transmission
+            loss data for all three paths.
+
+
+      (c)   Comparison of fading characteristics for the Alaska and the
+            Colorado path.   Equivalent data for the European path are
+            not available.
+                                                            -4-
+
+
+
+               In addition to the evaluation of measurement results,                          a compari-
+sor of calculated and measured transmission loss values will also be
+                   Transmission loss calculations were performed in accordance
+'■ .1         the procedures given by the U. S. -CCIR Document referred to
+[1962] .
+
+
+
+          2.       COMPARISON OF THE I960 AND 1962 COLORADO DATA
+
+
+                         2. 1       Hourly Median Distributions and Correlation
+
+
+
+               In order to establish the continuity of the Colorado measurements,
+.1 c P kes Peak knife-edge diffraction path was operated during the week
+              gust 27-31,             1962,    with the antennas arranged in the same way as
+d .i.i j-jig die u une 6 - ± i,               I960,   measurement period.              Thus the 7 51 Me/s
+carrier transmitted from Beulah was received simultaneously on the
+3-m dish at 8.2 m above ground and on the corner reflector at 22. 3 m
+above ground.                       Cumulative distributions of hourly median basic trans¬
+mission loss for both antennas and for both periods are shown in Fig. 4.
+              !i ?•'.’Hbutions for the dish differ by several decibels; this variation
+       r j.    bn-Ay due to a change in the circuit parameter assumptions and
+reca i iora tion of the signal generator used,                               since the expected month-
+tc - ... anth and year-to-year variability of transmission loss might be
+  ■pected to account only for 2 db or less.
+
+
+               v   :os'-'“Correlation coefficients of hourly transmission loss medians
+         t1    ■ l-'ip r -: roods are compared in Fig.                  5.     The correlation coefficient
+                                v transmission loss medians resulting from the two verti-
+                                •      as is       0. 65 for the August 1962 period versus 0.72 for
+ ’•e      . m<      i960 period.              These two results are not significantly different.
+
+
+
+                          2     2    Height Dependence of Transmission Loss
+
+
+
+               A height-gain run at the Table Mesa receiving site was originally
+made on Mar :h 25,                         I960,    using the corner reflector antenna on the
+;e.lc mord “ tower.                       Results of this experiment were discussed in the
+                   - paper [Ba.rsis and Kirby,               19 61] ,   and it was pointed out that
+                     •          height dependence bears no resemblance to calculated
+ uives using ioui-ray optics and diffraction over the knife-edge.                                    A
+                                     run was made on October 16,               1962,   in the same manner
+                                - ~ one     This run confirmed earlier results,              as shown in
+                                              - 5-
+
+
+
+Fig.    6.    The shape of the height gain curve is almost identical to the
+one obtained previously; the overall shift in the transmission loss level
+is again within the range of expected month-to-month or year-to-year*
+variations.          A satisfactory geometric-optics model based on the terrain
+profile still has not been found which would explain the shape of this
+height dependence curve.
+
+
+
+                     3.   VARIABILITY OF HOURLY MEDIANS OF
+                                    TRANSMISSION LOSS
+
+
+
+         In the analysis of tropospheric propagation data and in the appli¬
+cation of such data to performance predictions for communication sys¬
+tems it has been found convenient to distinguish between long-term and
+short-term variations in transmission loss or field strength.                     The time
+interval of one hour has been chosen more or less arbitrarily as the
+dividing line between long-term and short-term variations.                      Short-term
+variations within the hour,           more recently termed rrphase-interference
+fading, "      are taken into account in the specification of required pre¬
+detection signal-to-noise ratios for any specific application.                   Long¬
+term variations,           or "power fading, "       are defined in terms of variations
+of hourly median values of transmission loss.
+
+
+        It has already been explained in the previous paper [Barsis and
+Kfrby,       1961]    that for the purpose of studying power fading over knife-
+edge diffraction paths,         any such path can be considered to consist of
+two within-the-horizon paths in tandem.                 The diffracting knife-edge is
+of course the common horizon and constitutes a common terminal for
+both paths.          The variability of hourly median transmission loss for
+each of the two within-the-horizon paths may be characterized by func¬
+tions    V^(p)       and   Vg(p),   which are the decibel differences between a
+reference level and the medians exceeded during p% of all hours.                        For
+any particular hour,          the variation    V(p)     on the diffraction path would
+be expected to be the sum             V-|(p) + V^lp)?    with all    V's    expressed in
+decibels.       The cumulative distribution of all           V(p)   values for the entire
+path may then be determined by a convolution process involving the
+individual cumulative distributions of               V^(p)   and    V^p)    [Davenport
+and Root,       1958] .
+
+
+        For the calculation of basic transmission loss hourly medians
+and their variability the methods given by CCIR [19 62]                    previously
+referred to were used.              For each of the three paths considered,         the
+                                         -6   -
+
+
+
+
+reference value           of basic transmission loss was computed first.
+This was done on the basis of a single diffracting knife-edge without
+taking possible reflections from terrain into consideration.                 Next,   the
+variability of hourly medians for the individual path segments was
+determined.      These were appropriately combined as outlined above;
+for the convolution of the cumulative distributions an electronic com¬
+puter was used.      The total time variability of hourly basic transmis¬
+sion loss medians is then determined by
+
+
+
+
+                             Lb(p)   =       Lbd - V(p)                                 (1)
+
+
+
+
+for each path,   where    L^(p)   is the hourly median basic transmission
+loss not exceeded during      p   percent of all hours of the year,                  is
+the calculated reference value,      and          V(p)   is the time variability func¬
+tion obtained by convoluting the time variability functions               V^(p)   and
+V^lp)   for each of the two segments for each path.
+
+
+        In accordance with the service probability concept outlined by
+Barsis,   Norton,    and Rice [1962],    90% confidence limits were also
+determined for each resulting distribution; these reflect the uncer¬
+tainty in predicting transmission loss.
+
+
+        Figure 7 shows the calculated distributions of hourly median
+transmission loss values for the three paths together with their 90%
+confidence limits.     The distribution of the measured hourly medians
+is also shown.      On each graph the solid curve is the calculated expected
+distribution corresponding to a service probability                q(\) = 0. 5.   The
+dash-dotted curves are for service probability values of                 q(\) = 0.05
+and 0.95,   respectively,   thus they include the 90% confidence band.                  The
+heavy dashed lines are the measured distributions.
+
+
+        It is quite evident that there is little agreement between absolute
+levels of calculated and measured basic transmission loss.*                   However,
+if ranges of transmission loss medians are defined as the decibel dif¬
+ferences between values exceeded during 10% and 90%,                   or during 1%
+
+
+* The term "measured basic transmission loss" is here interpreted
+  as a conversion of measured transmission loss values to basic trans¬
+  mission loss under the assumptions that antenna circuit losses are
+  negligible and free-space antenna gains are realized.
+                                                    -7-
+
+
+
+and 99% of all hours,            the calculated and the expected range values are
+in much better agreement.                   The discrepancy in the absolute levels may
+be ascribed to the already mentioned fact that for the purpose of this
+study possible reflections from the terrain in the vicinity of the terminals
+have not been taken into account in the calculation of the expected trans¬
+mission loss distributions.                 Barsis and Kirby [1961]      have already dis¬
+cussed the effects of the assumption of a "rounded"                     knife-edge as the
+diffracting obstacle.
+
+
+        In Table II below,         overall medians and ranges of hourly medians
+are listed for both the calculated and the measured distributions shown
+on Fig.     7.
+
+
+                                                  Table II
+
+
+                 Comparison of Calculated and Measured Basic
+                                Transmission Loss Values
+
+
+                                                      Basic Transmission Loss,    Decibels
+                                                      Pikes Peak     Alaska       Europe
+                                                       751 Mc/s      900 Me/s    875 Mc/s
+                                                       223. 3 km      302 km     404. 1 km
+
+Overall Median of Distributions
+
+   Calculated       Ln (50)                               178.3       184. 7
+                     be                                                                      185.7
+   Measured        L,  (50)                               197. 7      202.8
+                    bm                                                                       202.2
+   Difference       Ln (50) - L
+                     be         bm
+                                   (50)                   -19.4       -18. 1      WX>W       -16.5
+
+10 - 90% Range of Distributions
+
+   Calculated
+                                                             10. 2      7. 7         9.8
+    Ac(10)=Lbc(90)-Lbc(10)
+
+   Measured
+    A       (10)= L          (90)-L         (10)              7. 5     11.2          9. 1
+        m             bm               bm
+
+  Diffe
+  Difference        A       (10) - A       (10)               2. 7    -3.5           0. 7
+                        c              m
+                                                 -8-
+
+
+                                     Table II (Continued)
+
+
+                                                     Basic Transmission Loss,             Decibels
+                                                     Pikes Peak          Alaska            Europe
+                                                      7 51 Me/s      900 Me/s            875 Mc/s
+                                                      223. 3 km          302 km          404. 1 km
+
+
+   99% Range of Distributions
+
+   Calculated
+    Ac(1)=Lbc(99)-Lbc(l)                                 19.9                13.8               21.0
+
+
+   Measured
+    A       (1) = L        (99) - L        (1)           12. 9               20. 7              16. 5*
+        m             bm              bm
+
+   Difference         A    (1) - A    (1)                 7. 0           -    6.9                4. 5
+
+
+
+* Extrapolated.
+
+
+
+
+        The overall median data indicate a long-term hourly median basic
+transmission loss value between 1 6 and 20 db greater than calculated
+for knife-edge diffraction paths of the type discussed here.                            Thus it
+appears that on the average a lS’db allowance for the effects of fore¬
+ground terrain,           rounding of the knife-edge,            and finite dimension of the
+knife-edge could be made when estimating long-term median values
+for such paths.           This estimate is based on a rather limited sample of
+data; additional studies are in progress now.
+
+
+        In order to illustrate the behavior of the range of hourly medians,
+the measured distributions of Fig.                   7 have been replotted on Fig.              8
+together with the 90% confidence bands of Fig.                      7,   but with the overall
+median of each measured distribution made to coincide with the appli¬
+cable calculated overall median.                 In this way the measured distribution
+is shown to lie well within the 90% confidence limits,                         and the agreement
+of the range of hourly medians with estimates is quite good.                             Note that
+these confidence bands would even be wider if the finite length of the
+measurement period had been taken into account [Barsis,                              et al. ,   1962] .
+Thus it appears that the convolution process referred to above may be
+used to estimate long-term ranges of power fading for knife-edge dif¬
+fraction paths,       although agreement of the long-term median level between
+calculated and measured values is lacking.
+                                             -9-
+
+
+
+               4.    FADEOUT CHARACTERISTICS FOR THE
+                       COLORADO AND ALASKA PATHS
+
+
+
+         The original recording charts for the European path were not
+available for detailed analysis; thus short-term fading characteristics
+could only be compared between the Colorado and the Alaska paths.
+Short-term variability is evaluated in terms of space-wave fadeouts,
+similar to the procedure used on within-the-horizon paths [Bean,                 1954;
+Barsis and Johnson,        1962] .    A space-wave fadeout is defined here as
+a drop in signal level to 5,         10,   15,   .db below a specified long-term
+median value,       if it lasts for at least one minute.         The requirement of
+the one-minute minimum duration is chiefly due to the chart speed used
+for the Alaska data,      where shorter fadeouts could not be measured
+accurately.       One may also consider a fadeout essentially to represent
+slow signal variations; thus a distinction is made between fadeouts and
+the more rapid fading observed on tropospheric scatter paths.                 As a
+space-wave fadeout can conceivably last longer than one hour,                 it con¬
+stitutes a short-term variability definition which is different from the
+more general approach described in Section 3 above; the effect of long
+fadeouts is also reflected in the variability of hourly medians.
+
+
+         The long-term reference levels for the Colorado data are the
+overall medians for each five-day measurement period during the
+summer months of I960 (May - October),                   which vary over a 4-5 db
+range.     For the Alaska data,        the overall median for the entire two-
+week measurement period in June,                 1958,   served as a reference level.
+Only summer data from the Colorado path were compared with the
+Alaska data; complete fadeout data for the Colorado path were given
+in the earlier paper by Barsis and Johnson [1962] .
+
+
+         A comparison of the fadeout characteristics for the two paths is
+shown in Table III below.        The total number of hours,          the total number
+of observed fadeouts at all levels,              the number of fadeouts normalized
+to 100 hours,       and the fadeout duration in percent of the total recording
+time are compared in this table.             It should be kept in mind that the
+occurrence of fadeouts is not evenly distributed throughout the day.
+Previous studies for the Colorado path [Barsis and Johnson,                 1962] have
+shown diurnal trends for the fadeout incidence; as an example,                5 db
+fadeouts are most prevalent in the morning hours (0600 to 1300 local
+time).    Days without any fadeouts at all have also been observed.              Table
+III,   however,     does not include a breakdown of the data into time blocks
+                                     -10-
+
+
+for the study of diurnal trends.    It only serves to show a substantial
+greater fadeout incidence for the Alaska path on the basis of the normal¬
+ized figures and presents a comparison of the total fadeout time.
+
+
+
+                                   Table III
+
+          Comparison of Fadeout Incidence for Colorado and
+                      Alaska Paths,      Summer Data
+
+
+                                                    Colorado                 Alaska
+                                                           Corner
+                                         3 - m Dish
+                                                          Reflector
+
+
+Total Number of Hours of Data               613                624            158
+
+
+Number of Fadeouts Observed
+at Indicated Levels
+          5 db                              376                490            206
+         10 db                                 36               56            129
+         15 db                                 12                7             65
+         20 db                                  0                0              19
+
+
+Number of Fadeouts at Indicated
+Levels Normalized to 100 Hours
+          5 db                                 61               78            130
+         10 db                                  6                9             82
+         15 db                                  2                1             41
+         20 db                                  0                0              12
+
+Percentage of Total Time Signal
+Remains Below Indicated Levels
+for at Least One Minute
+          5 db                                  3. 32            4. 19         27. 0
+         10 db                                  0.31             0. 31          8. 54
+         15 db                                  0. 061           0. 026          1.83
+         20 db                                                                   0. 39
+
+
+
+      It is seen that the normalized fadeout incidence and percent fade-
+out time are both substantially greater for the Alaska path.              This will
+be discussed further later on.     It is also of interest to note that no 20
+db fadeouts at all appeared on the Colorado path,         and that there were
+much fewer 10 and 1 5 db fadeouts in relation to the number of 5 db
+fadeouts on this path than on the Alaska path.           The possibility of dif¬
+ferent mechanisms being responsible for 5 db fadeouts and deeper
+fadeouts,       respectively,   has been mentioned in the earlier paper by
+Barsis and Kirby [1961].
+
+
+        Fig.     9 shows plots of cumulative distributions of the fadeout
+durations for the two paths.         The curves shown here have a slightly
+different appearance from equivalent curves shown in earlier reports,
+due to a different analysis method.            The distributions shown here are
+also based on those fadeouts which are longer than one minute at that
+level by which the curves are identified; thus all fadeouts (100%) are
+at least one minute long,        and the curves extend asymptotically along
+the abscissa axis toward the 100% point,           which is at infinity for the
+type of graph paper used.          Many additional fadeouts shorter than one
+minute at the 10,       15,   or 20 db level actually exist which exceed one
+minute's duration at the 5 db level.           Those are not included here due
+to the limitation on the definition of a fadeout discussed above.
+
+
+        Fadeout duration distribution graphs have the duration as the
+ordinate and the percent of fadeouts as the abscissa; the curves are
+labelled with the total number of fadeouts at the level considered.
+For the Alaska path,          as an example,    10% of the 129   10 db fadeouts
+observed are at least 17. 5 minutes long,          and 10% of the 65    1 5 db
+fadeouts observed are at least 7.2 minutes long.
+
+
+        An alternate method for presenting fadeout statistics has been
+demonstrated in the paper by Barsis and Kirby [1961] .              Analysis of
+the data now being collected over the Pikes Peak path in accordance
+with this method will be contained in later reports.
+
+
+        Table IV,     below,    shows pertinent values taken from the graphs
+of Fig.    9.    The Colorado data include those measurement periods
+during which the corner reflector was at 22. 3 m above ground (June
+6-17,     1960).
+                                       -12-
+
+
+                                   Table IV
+
+
+             Comparison of Fadeout Durations for Colorado and
+                       Alaska Paths,       Summer Months
+
+
+                                               Fadeout Duration in Minutes
+                                                    at Indicated Levels
+
+                                           5 db      10 db        15 db      20 db
+Colorado Path
+
+
+   Corner Reflector:
+
+      Duration exceeded by
+                                            6. 8      3.8         2.0            -
+      10% or all fadeouts
+
+      Duration exceeded by
+                                            2. 0      1. 5         1.2           -
+      50% of all fadeouts
+
+
+   3-meter Dish:
+
+      Duration exceeded by
+                                            6. 0      5. 2        2. 5           -
+      10% of all fadeouts
+
+      Duration exceeded by
+                                            1.9       1.8          1.7           -
+      50% of all fadeouts
+
+
+Alaska Path
+
+
+      10% of all Fadeouts                  27.0      17. 5        7.2        4. 6
+
+      Median Fadeout                        4. 7      3.8         2. 6        2. 2
+
+
+
+
+      As demonstrated by Table III,         Fig.   9 and Table IV confirm that
+the Alaska fadeouts are deeper and longer than those observed on the
+Colorado path besides being relatively more frequent.             It is quite likely
+that the Alaska fadeouts are at least partially caused by phase inter¬
+ference phenomena.       Although height gain data for the Alaska path are
+not available,    a study of the terrain profile (Fig.       2) shows a strong
+potential for ground (or water surface) reflections from the foreground
+of the Yakutat terminal.     The entire path between Yakutat and the dif¬
+fracting mountain obstacle extends over low,          flat coastal areas,   or
+over water.      Assuming a 0.95 effective reflection coefficient from such
+a surface,    a height gain curve for the Yakutat terminal has been calculated
+                                                  -13-
+
+
+
+and is shown in Fig.        10.       The actual antenna height used for the meas¬
+urements       falls into a "null"          of the calculated height-gain pattern;
+thus relatively small changes in the surface refractivity may cause
+noticeable changes in the transmission loss,                    which are reflected in
+the observed fadeouts.            It is also of interest that the overall median
+of measured basic transmission loss values agrees quite well with the
+value determined from the height gain calculations.                      This overall
+median is also shown on Fig.                10,   together with the values exceeded
+during 1 and 99% of all hours.
+
+
+      It has already been pointed out that no substantial height gain
+variations were observed on the Colorado path; therefore the fadeouts
+observed there can only to a very small extent be due to phase inter¬
+ference phenomena.
+
+
+      For the Alaska measurements,                       surface values of temperature,
+pressure,      and humidity are available,                which were taken at both ter¬
+minals three or four times per day.                      From these data,   the surface
+refractivity     NQ    (referred to sea level) was calculated,               and an attempt
+was made to correlate the fadeout statistics with these refractivity
+values.    No really significant dependence was found to exist; the only
+trend suggested by the studies showed that fadeouts may be more likely
+to occur when the surface refractivity at the path terminals differs by
+more than 10 N-units.         This is demonstrated in Table V below,                where
+■frie analysis is made in terms of two-hour periods characterized by
+the difference in      NQ   values at the terminals,             and by the occurrence
+or absence of 5 and 10 db fadeouts.
+
+
+
+                                             Table V
+
+
+            Fadeout Dependence on Differences in the Surface
+                Refractivity,         N ,    Measured at the Terminals
+
+
+                        Total Number
+ 5 db Fadeouts          of Two-Hour               Number of Periods       Number of Periods
+                            Periods                 With Fadeouts           Without Fadeouts
+Difference in N
+                   o     Inve stigated             5 db          10 db      5 db          10 db
+
+
+      <   10                  21                     9             7         12            14
+
+      > 10                        9                  8             8          11
+                                        -14-
+
+
+
+      It may be significant that fadeouts appear for eight out of nine
+periods characterized by a difference in N-units greater than 10.
+
+
+      B.    R.   Bean* suggested that fadeout occurrence may depend on
+the difference of surface refractivity values between readings taken at
+midday and midnight (indicative of duct formation).       No such depend¬
+ence was found using the available data.       It was observed,   however,
+that the surface refractivity at the Yakutat terminal increased between
+noon and midnight during 5 out of 7 days for which data were available,
+while a corresponding decrease was noted at the Hoonah terminal dur¬
+ing 4 of these days (no data available for the other days).
+
+
+
+                             5.    CONCLUSIONS
+
+
+
+      The comparison of transmission loss measurements over three
+knife-edge diffraction paths,      all relatively long and widely separated
+in geographical location,    showed the following results:
+
+
+      (a)   The overall measured transmission loss medians are
+            1<6 -20 db greater than the values calculated on the basis
+            of the Fresnel-Kirchhoff diffraction theory,     neglecting
+            the effects of the terrain near the terminals.
+
+
+      (b)   The range of power fading on a knife-edge diffraction
+            path can be estimated by convoluting the distributions
+            of hourly medians for the two individual line-of-sight
+            paths which make up the total path.
+
+
+      (c)   Prolonged space-wave fadeouts have been found to be
+            more severe on a knife-edge diffraction path (the Alaska
+            path) where substantial phase-interference due to ground
+            reflections in the vicinity of the terminals is likely to
+            exist.   However,     space-wave fadeouts also exist on the
+            Colorado path where no pronounced transmission loss
+            variations are observed as a function of antenna height.
+
+
+      The results of this study also suggest re-evaluation of the criteria
+used to determine the effects of the terrain between the antenna and its
+horizon where the terrain is too rough to permit its approximation by
+
+
+
+* Private communication.
+                                        -15-
+
+
+
+a single reflecting surface.       The criteria outlined in the U. S. -CCIR
+Document referred to [196Z]         do not seem to be applicable in the case
+of the three paths discussed here.
+
+
+
+                         6.    ACKNOWLEDGEMENTS
+
+
+
+      Personnel of the Spectrum Utilization Research Section,              Tropo¬
+sphere and Space Telecommunications Division,               National Bureau of
+Standards,    Boulder,   Colorado,    participated in the collection,      analysis,
+and evaluation of the Colorado data,       and in the analysis and evaluation
+of the Alaska data.      The cooperation of Western Electric Company in
+supplying data and related information for the Alaska path is gratefully
+acknowledged.      The data for the European path were obtained by ITT
+Federal Laboratories,         and supplied by the U.   S.   Army Strategic
+Communications Command.             The author is indebted to R.     S.   Kirby
+and B.   R.   Bean for their review and suggestions.
+                                                      -16-
+
+
+
+                                      7.        REFERENCES
+
+
+
+Barsis,   A. P.,      and M.       E.      Johnson (1962).            Prolonged space-wave
+                     fadeouts in tropospheric propagation,                        J.   Research NBS
+                     66D (Radio Prop. ),               No.     6,   681-694.
+
+
+Barsis,   A.   P.,    and R.     S.     Kirby (1961).               YHF and UHF signal charac¬
+                     teristics observed on a long knife-edge diffraction path,
+                     J.   Research NBS 65D (Radio Prop. ),                       No.    5,   437-448.
+
+
+Barsis,   A.   P.,    K. A.     Norton,          and.P.       L.    Rice (1962).       Predicting the
+                    performance of tropospheric communication links,
+                     singly and in tandem,                  IRE Trans,         on Comm.      Systems,
+                     CS-10,     No.        1,   2-22.
+
+
+Bean,   B.   R.   (1954).      Prolonged space-wave fadeouts at 1046 Mc/s
+                     observed in Cheyenne Mountain propagation program,
+                    Proc.      IRE 42,          No.    5,    848-853.
+
+
+Davenport,     W.    B.,    Jr.,    and W.         L.       Root (1958).       An introduction to
+                     the theory of random signals and noise,                           McGraw-Hill
+                     Book Co.,        Inc.,      New York,           N.   Y.    See Chapter 3,
+                     36-37.
+
+
+United States Contribution to CCIR Study Group V,                               Document V/23-E
+                     (1962).     Tropospheric wave transmission loss predictions.
+TERRAIN   PROFILE   FOR COLORADO KNIFE-EDGE DIFFRACTION PATH
+
+
+
+
+                                                               SEI313IAI Nl NOI1VA333
+
+
+
+
+                    TOTAL DISTANCE 223.3 Km
+TERRAIN   PROFILE   FOR   ALASKA KNIFE-EDGE DIFFRACTION PATH
+
+
+
+
+                                                                            SU313W Nl NOI1VA333
+
+
+
+
+                                                               1 B- 37881
+TERRAIN PROFILE FOR EUROPEAN KNIFE-EDGE DIFFRACTION PATH
+
+
+
+
+                                                                    <Z>
+                                                                    d>
+                                                                    C2>
+
+
+
+
+                                                                          SU313IAI Nl NOI1VA333
+
+
+
+
+                                                              CZ>
+                                                              CNJ
+
+
+
+
+                                                           B-37882    1
+                              COMPARISON   OF HOURLY   MEDIAN TRANSMISSION          LOSS DISTRIBUTIONS
+                                      COLORADO KNIFE-EDGE DIFFRACTION PATH, 751 Mc/s
+
+
+
+
+LOSS, DECIBELS
+
+
+
+
+TRANSMISSION
+
+
+
+
+BASIC
+
+
+
+
+TRANSMISSION LOSS, DECIBELS
+
+
+
+
+BASIC
+
+
+
+
+                                                       PERCENT   OF ALL     HOURS
+
+
+                                                                 FIGURE 4
+
+
+
+                                                                                                  l B- 37874
+                               CORRELATION OF HOURLY MEDIANS FOR                                                                                ANTENNAS
+                                                SPACED VERTICALLY BY 14.1 m
+                               COLORADO KNIFE-EDGE DIFFRACTION                                                                            PATH, 751 Mc/s
+
+
+
+
+8.2
+
+AT
+
+
+
+
+Lbm FOR 3m DISH
+
+
+
+
+                  185            r
+                           AUGUST 27-31, 1962
+
+                                                                                                                                                    X X
+
+                                                                                                                                                X
+
+
+                  190                                                                   X                                            *     *■
+                                                                                            X
+                                                                                                                               yv   / i     X
+                                                                                                         X
+                                                                      X
+                                                                                                                           x x      *
+
+
+
+
+AT 8.2 m
+                                                                                    x       Xx       X       X
+                                                                  X
+                                                                                                 x   >,
+                                                                                                 *x*
+                                                                                X X                                  X -       xx
+                  195                                                                                    X           r*        x x
+                                                                            X                                              X
+                                                  “       X                 8                    *x X ’
+                                                          X
+
+
+
+
+Lbm FOR 3m DISH
+                                                  X                                              X X             X
+                                                  X                                     x        X
+                                                  ¥
+                                                  *
+                                                          X
+                                                              X
+                                                                  X             x                                    ,
+                                                                                             /X
+
+
+                  200
+
+                                                      X
+
+
+
+                                                                                                                                                           80 HRS
+
+                  205                                                                                                                                     sx   = 3.0 db
+
+                                                                                                                                                          Sy   = 3.9 db
+
+                                                                                                                                                          rXy = 0 65
+
+
+
+                  210
+                    '210        205         200                           195                                    190                       185                 180        175
+                                           Lbm FOR                CORNER REFLECTOR                                                   AT 22.2 m
+
+                                                                                    FIGURE 5
+                                            MEASURED HEIGHT GAIN FOR COLORADO KNIFE-EDGE DIFFRACTION PATH, 751 Mc/s
+                                  LO
+                                  r—
+
+
+
+
+                                  CD
+                                  CO
+
+
+
+
+                                  LO
+                                  OO
+
+
+
+
+                                  CD
+                                  OD
+qp ‘ssoi NOissiiAisNvai oisva
+
+
+
+
+                                  LO
+                                  OD
+
+
+
+
+                                  CD
+                                  CD
+                                c>o
+                                                                                cd           LO    cd       ID
+                                       CD         LO                  LO        CsJ          C\J   ro       fO
+
+
+
+                                                                      HEIGHT ABOVE GROUND,   E
+COMPARISON OF CALCULATED AND MEASURED HOURLY
+
+   MEDIAN DISTRIBUTIONS FOR                    THREE KNIFE-EDGE
+                        DIFFRACTION            PATHS
+
+
+
+
+                                                                                 Xj
+                                                                                  CD
+                                                                                         </)
+                                                                                  C3
+                                                                                  —r
+                                                                                  —>
+                                                                                         sz              jQ
+                                                                                  O              CD      *o
+                                                                                                 JD
+                                                                                  03                     CO
+                                                                                  O      o                 <
+                                                                                                 T3
+                                                                                  CD     CO
+                                                                                         c        33
+                                                                                  SZ     o        O
+                                                                                  -i—*                      -Q
+                                                                                                  JT
+                                                                                   >     "5        CO
+                                                                                         J3                 T3
+                                                                                                             <D
+                                                                                   CD             X-
+                                                                                  -t—>            ■4-J
+0.10.2 0.5 I   2   5   10   20 30 40 50 60 70 80   90   95   98 99 99.5   99.9      O      t/>
+                                                                                                   03        03
+                                                                                  z:               Cl
+                       PERCENT OF ALL HOURS                                               -Q
+
+
+                                  Figure   7
+
+
+
+
+                                                                                                 B- 37877     |
+      COMPARISON           OF        CALCULATED AND           MEASURED RANGE
+           OF         HOURLY MEDIANS FOR THREE KNIFE-EDGE
+                                 DIFFRACTION PATHS
+              (MEASURED              DISTRIBUTIONS           ADJUSTED TO
+                       CALCULATED           OVERALL          MEDIANS)
+
+
+
+
+co
+_)
+LxJ
+CD
+
+O
+LU
+Q
+
+CO
+CO
+O
+
+
+o
+co
+co
+
+co
+<
+CL
+
+u
+CO
+<
+CD
+
+
+
+
+      0.1 0.2 0.5 I    2   5    10    20 30 40 50 60 70 80    90   95   98 99 99.5   99.9
+                                 PERCENT OF ALL HOURS
+
+                                           Figure   8
+
+
+
+                                                                                            B   37878   1
+                                      CUMULATIVE DISTRIBUTIONS OF FADEOUT DURATIONS, SUMMER
+                          COLORADO PATH, CORNER                   REFLECTOR                        n COLORADO PATH, 3 m DISH
+                   CD .
+                   CD
+
+                   CD
+                   P"-
+
+                   CD
+                   LO
+
+
+
+                   CD
+                   rO
+
+                   CD
+                   C'J
+
+
+
+
+                   CD
+                   -
+
+                    P—
+
+                    LO
+S3inNi^ ‘Nonvana
+
+                    fO
+
+
+                    CNJ
+
+
+
+
+                                                                                                                    <    Z>   Ld
+
+
+
+
+                                             S3inNiiAj ‘Nonvana
+
+
+
+
+                                                                       LO               CD    CD       CD   LO     CT5
+                                                                  CD   CD     LO   cd   CVJ   LO       CD   CT>    05
+                                                                                                                   CT5
+
+                                                         PERCENT OF FADEOUTS LONGER THAN ORDINATE VALUE
+
+
+
+
+                                                                                                                                   CO   O
+                                                                                                 X
+
+
+
+
+S~I391030 ‘SS01 N0ISSIINSNVH1 OISV0
+
+
+
+
+                                      HEIGHT ABOVE MEAN SEA LEVEL, METERS, AT YAKUTAT TERMINAL
+u. S. DEPARTMENT OF COMMERCE
+         Luther H. Hodges, Secretary
+
+
+NATIONAL BUREAU OF STANDARDS
+        A. V. Astin, Director
+
+                             THE NATIONAL BUREAU OF STANDARDS
+The scope of activities of llie National Bureau of Standards at its major laboratories in Washington, D.C., and Boulder,
+Colorado, is suggested in the following listing of the divisions and sections engaged in /technical work.                          Tn general,
+each section carries out specialized research, development, and engineering in the field indicated by its title.                       A brief
+description of the activities, and of the resultant publications, appears on the inside of the front cover.
+
+
+WASHINGTON, D.C.
+Electricity.      Resistance     and      Reactance.    Electrochemistry.       Electrical     Instruments.     Magnetic       Measurements.
+Dielectrics.
+Metrology.        Photometry        and    Colorimetry.     Refi actometry.       Photographic        Research.      Length.       Engineering
+Metrology.       Mass and Scale.       Volumetry and Densirnetry.
+
+Heat.      Temperature Physics.           Heat Measurements.        Cryogenic Physics.         Equation of State.     Statistical Physics.
+Radiation Physics.           X-ray.    Radioactivity.     Radiation Theory.        High Energy Radiation.          Radiological Equipment.
+Nucleonic Instrumentation.            Neutron Physics.
+Analytical and Inorganic Chemistry.                    Pure Substances.        Spectrochemistry.        Solution Chemistry.         Analytical
+Chemistry.       Inorganic Chemistry.
+
+Mechanics.        Sound,      Pressure and Vacuum.         Fluid Mechanics.       Engineering Mechanics.            Rheology.      Combustion
+Controls.
+
+Organic and        Fihrotis Materials.          Rubber.     Textiles.    Paper.      Leather.     Testing and Specifications.         Polymer
+Structure.      Plastics.    Dental Research.
+Metallurgy.        Thermal Metallurgy.          Chemical Metallurgy.          Mechanical Metallurgy.           Corrosion.      Metal Physics’
+Mineral Products.            Engineering Ceramics.         Glass.    Refractories.     Enameled Metals.         Crystal Growth.
+Physical       Properties.       Constitution and Microstructure.
+
+Building Research.            Structural Engineering.       Fire Research.        Mechanical Systems.          Organic Building Materials,
+Codes and Safety Standards.            Heat Transfer.      Inorganic Building Materials.
+
+Applied Mathematics.             Numerical Analysis.        Computation.        Statistical Engineering.       Mathematical Physics.
+Data Processing Systems.               Components and Techniques.             Digital Circuitry.      Digital Systems.       Analog Systems-
+Applications Engineering.
+
+Atomic Physics.         Spectroscopy.         Radiomelry.       Solid StaLe Physics.     Electron Physics.         Atomic Physics.
+Instrumentation.             Engineering Electronics.       Electron Devices.        Electronic Instrumentation.         Mechanical Instru¬
+ments.      Basic Instrumentation.
+
+Physical       Chemistry.        Thermochemistry.         Surface    Chemistry.      Organic      Chemistry.       Molecular    Spectroscopy.
+Molecular Kinetics.          Mass Spectrometry.         Molecular Structure and Radiation Chemistry.
+
+• Office of Weights and Measures.
+
+
+BOULDER, COLO.
+Cryogenic Engineering.              Cryogenic Equipment.         Cryogenic Processes.        Properties of Materials.       Gas Liquefaction.
+Ionosphere        Research      ami       Propagation.     Low      Frequency    and    Very    Low    Frequency     Research.      Ionosphere
+Research.       Prediction Services.        Sun-Earth Relationships.      Field Engineering.          Radio Warning Services.
+
+Radio Propagation Engineering.                  Data Reduction Instrumentation.              Radio Noise.     Ttopospheric Measurements.
+Tropospheric Analysis.          Propagation-Terrain Effects.         Radio-Meteorology.          Lower Alniospheie Physics.
+
+Radio      Standards.        High     Frequency    Electrical    Standards.     Radio    Broadcast      Service.    Radio    and    Microwave
+Materials.      Atomic Frequency and Time Interval Standards.                     Electronic Calibration Center.            Millimeter-Wave
+Research.       Mictowave Circuit Standards.
+Radio Systems.          High Frequency and Very High Frequency Research.                      Modulation Reseatch.       Antenna Research.
+Navigation Systems.           Space Telecommunications.
+Upper Atmosphere and Space Physics.                       Upper Atmosphere and Plasma Physics.                  Ionosphere and Exosphere
+Scatter.     Airglow and Aurora.           Ionospheric Radio Astronomy.
+                   2
+                   ft d
+                   £• n>
+            td2 d
+                0)
+       td o P P h
+o
+l-+>          ^ r+
+1-^    § *
+       P  CL.
+
+o
+                   td 3
+H-                 C o>
+P                  4 3
+       ? f a>              «-►
+         P 2               o
+w                  P       H-h
+       O S'
+p
+w
+H-
+       0i—> n2 O o
+                 o
+                   t-h
+
+3      0    P
+       •i          Cn
+ft                 c+      3
+cn     P  2        P
+cn
+       n. “
+                   3 3(13
+                   p,
+                   P       H
+                           O
+                           CD
+                   P-
+                   03
+
+
+
+
+            a
+
+            cn
+
+
+                    d
+             0      0
+             03     03
+                    ct-
+            d
+                    p
+             P
+                   crq
+             4
+                    (D
+             cf
+
+             3      P
+             0)     3
+             3      a.
+             cl-
+                    d
+             o
+                    0)
+             H-h
+                    (D
+
+             o      03
+
+             o
+             3      d
+             3
+             3
+                    P
+                    (-*•
+             3
+             0)
+
+
+             n
+             CD
+

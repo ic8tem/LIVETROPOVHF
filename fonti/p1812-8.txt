@@ -1,0 +1,1620 @@
+                               International Telecommunication Union
+Recommendations                            Radiocommunication Sector
+
+
+
+
+    Recommendation ITU-R P.1812-8
+    (09/2025)
+    P Series: Radio-wave propagation
+
+    A path-specific propagation prediction
+    method for point-to-area terrestrial
+    services in the frequency range 30 MHz
+    to 6 GHz
+ii                                                Rec. ITU-R P.1812-8
+
+
+                                                          Foreword
+
+The role of the Radiocommunication Sector is to ensure the rational, equitable, efficient and economical use of the radio-
+frequency spectrum by all radiocommunication services, including satellite services, and carry out studies without limit
+of frequency range on the basis of which Recommendations are adopted.
+The regulatory and policy functions of the Radiocommunication Sector are performed by World and Regional
+Radiocommunication Conferences and Radiocommunication Assemblies supported by Study Groups.
+
+
+
+                                   Policy on Intellectual Property Right (IPR)
+
+ITU-R policy on IPR is described in the Common Patent Policy for ITU-T/ITU-R/ISO/IEC referenced in Resolution
+ITU-R 1. Forms to be used for the submission of patent statements and licensing declarations by patent holders are
+available from https://www.itu.int/ITU-R/go/patents/en where the Guidelines for Implementation of the Common Patent
+Policy for ITU-T/ITU-R/ISO/IEC and the ITU-R patent information database can also be found.
+
+
+
+
+                                           Series of ITU-R Recommendations
+                                   (Also available online at https://www.itu.int/publ/R-REC/en)
+
+     Series                                                           Title
+     BO          Satellite delivery
+     BR          Recording for production, archival and play-out; film for television
+     BS          Broadcasting service (sound)
+     BT          Broadcasting service (television)
+     F           Fixed service
+     M           Mobile, radiodetermination, amateur and related satellite services
+     P           Radio-wave propagation
+     RA          Radio astronomy
+     RS          Remote sensing systems
+     S           Fixed-satellite service
+     SA          Space applications and meteorology
+     SF          Frequency sharing and coordination between fixed-satellite and fixed service systems
+     SM          Spectrum management
+     SNG         Satellite news gathering
+     TF          Time signals and frequency standards emissions
+     V           Vocabulary and related subjects
+
+
+
+
+ Note: This ITU-R Recommendation was approved in English under the procedure detailed in Resolution ITU-R 1.
+
+
+
+                                                                                                          Electronic Publication
+                                                                                                                  Geneva, 2025
+
+
+                                                          © ITU 2025
+All rights reserved. No part of this publication may be reproduced, by any means whatsoever, without written permission of ITU.
+                                           Rec. ITU-R P.1812-8                                                1
+
+
+
+
+                           RECOMMENDATION ITU-R P.1812-8*
+           A path-specific propagation prediction method for point-to-area
+             terrestrial services in the frequency range 30 MHz to 6 GHz
+                                          (Question ITU-R 203/3)
+                                                    (2007-2009-2012-2013-2015-2019-2021-2023-2025)
+
+Scope
+This Recommendation describes a propagation prediction method suitable for terrestrial point-to-area services
+in the frequency range 30 MHz to 6 GHz. It predicts signal levels at the median of the multipath distribution
+exceeded for a given percentage of time, p%, in the range 1% ≤ p ≤ 50% and a given percentage of locations,
+pL%, in the range 1% ≤ pL ≤ 99%. The method provides detailed analysis based on the terrain profile.
+The method is suitable for predictions for radiocommunication systems utilizing terrestrial circuits having path
+lengths from 0.25 km up to about 3 000 km distance, with both terminals within approximately 3 km height
+above ground. It is not suitable for propagation predictions on either air-ground or space-Earth radio circuits.
+This Recommendation complements Recommendation ITU-R P.1546.
+Keywords
+Long range path-specific propagation, tropospheric paths/circuits, basic transmission loss predictions,
+time and location variability
+Abbreviations/Glossary
+amsl         above mean sea level
+DTT          Digital terrestrial television
+IDWM         ITU digitized world map
+LoS          Line-of-sight
+NLoS         Non-line-of-sight
+P-P          Point-to-Point
+UHF          Ultra-high frequency
+VHF          Very high frequency
+Related ITU Recommendations
+Recommendation ITU-R P.452 – Prediction procedure for the evaluation of interference between stations on
+      the surface of the Earth at frequencies above about 100 MHz
+Recommendation ITU-R P.528 – A propagation prediction method for aeronautical mobile and
+      radionavigation services using the VHF, UHF and SHF bands
+Recommendation ITU-R P.530 – Propagation data and prediction methods required for the design of terrestrial
+      line-of-sight systems
+Recommendation ITU-R P.617 – Propagation prediction techniques and data required for the design of trans-
+      horizon radio-relay systems
+
+
+
+*   Radiocommunication Study Group 3 made editorial amendments to this Recommendation in the year 2026
+    in accordance with Resolution ITU-R 1.
+2                                        Rec. ITU-R P.1812-8
+
+Recommendation ITU-R P.844 – Ionospheric factors affecting frequency sharing in the VHF and UHF bands
+      (30 MHz-3 GHz)
+Recommendation ITU-R P.1144 – Guide to the application of the propagation methods of
+      Radiocommunication Study Group 3
+Recommendation ITU-R P.1406 – Propagation effects relating to terrestrial land mobile and broadcasting
+      services in the VHF and UHF bands
+Recommendation ITU-R P.1411 – Propagation data and prediction methods for the planning of short-range
+      outdoor radiocommunication systems and radio local area networks in the frequency range 300 MHz
+      to 100 GHz
+Recommendation ITU-R P.1546 – Method for point-to-area predictions for terrestrial services in the frequency
+      range 30 MHz to 4 000 MHz
+Recommendation ITU-R P.2001 – A general purpose wide-range terrestrial propagation model in the
+      frequency range 30 MHz to 50 GHz
+Recommendation ITU-R P.2040 – Effects of building materials and structures on radio-wave propagation
+      above about 100 MHz
+NOTE – The latest revision/edition of the Recommendation should be used.
+
+The ITU Radiocommunication Assembly,
+        considering
+a)     that there is a need to give guidance to engineers in the planning of terrestrial
+radiocommunication services in the VHF and UHF bands;
+b)      that, for stations working in the same or adjacent frequency channels, the determination of
+the minimum geographical distance of separation required to avoid unacceptable interference due to
+long-distance terrestrial propagation is a matter of great importance,
+        recognizing
+a)       that Recommendation ITU-R P.528 provides guidance on the prediction of point-to-area
+basic transmission loss for the aeronautical mobile service for the frequency range 100 MHz to
+30 GHz;
+b)      that Recommendation ITU-R P.452 provides guidance on the detailed evaluation of
+microwave interference between stations on the surface of the Earth at frequencies above
+about 0.1 GHz;
+c)       that Recommendation ITU-R P.617 provides guidance on the prediction of point-to-point
+(P-P) propagation loss for trans-horizon radio-relay systems for the frequency range above 30 MHz
+and for the distance range 100 to 1 000 km;
+d)       that Recommendation ITU-R P.1411 provides guidance on prediction for short-range
+(up to 1 km) outdoor services;
+e)       that Recommendation ITU-R P.530 provides guidance on the prediction of P-P propagation
+loss for terrestrial line-of-sight systems;
+f)       that Recommendation ITU-R P.1546 provides guidance on the prediction of point-to-area
+field strengths in the VHF and UHF bands based principally on statistical analyses of experimental
+data;
+g)       that Recommendation ITU-R P.2001 provides a wide-range terrestrial propagation model for
+the frequency range 30 MHz to 50 GHz including both fading and enhancement statistics which is
+well suited for use in Monte-Carlo simulations;
+                                                       Rec. ITU-R P.1812-8                                                                    3
+
+h)      that Recommendation ITU-R P.2040 provides guidance on the effects of building material
+properties and structures on radio-wave propagation,
+        recommends
+that the procedure given in the Annex should be used for the detailed evaluation of point-to-area
+signal levels in connection with these services.
+NOTE – Long range propagation paths may also occur at VHF via the ionosphere. These modes are
+summarized in Recommendation ITU-R P.844.
+
+
+
+
+                                                                  Annex
+
+                                                     TABLE OF CONTENTS
+                                                                                                                                           Page
+
+1    Introduction ....................................................................................................................       5
+
+2    Model elements of the propagation prediction method ..................................................                                  6
+
+3    Input parameters .............................................................................................................          6
+     3.1        Basic input data...................................................................................................          6
+     3.2        Radio path profile ...............................................................................................           7
+     3.3        Radio-climatic zones ..........................................................................................              9
+     3.4        Terminal distances from the coast ......................................................................                    10
+     3.5        Basic radio-meteorological parameters ..............................................................                        10
+     3.6        Incidence of ducting ...........................................................................................            11
+     3.7        Effective Earth radius .........................................................................................            11
+     3.8        Parameters derived from the path profile analysis .............................................                             12
+
+4    The prediction procedure ................................................................................................              12
+     4.1        General ................................................................................................................    12
+     4.2        Line-of-sight propagation (including short-term effects) ...................................                                13
+     4.3        Propagation by diffraction ..................................................................................               13
+     4.4        Propagation by tropospheric scatter ....................................................................                    19
+     4.5        Propagation by ducting/layer reflection..............................................................                       20
+     4.6        Basic transmission loss not exceeded for p% time and 50% locations ..............                                           21
+     4.7        Location variability of losses ..............................................................................               24
+     4.8        Building entry loss ..............................................................................................          25
+4                                                         Rec. ITU-R P.1812-8
+
+        4.9         Basic transmission loss not exceeded for p% time and pL% locations ...............                                       25
+        4.10        The field strength exceeded for p% time and pL% locations ..............................                                 26
+
+Attachment 1 to Annex 1 – Path profile analysis.....................................................................                         26
+
+1       Introduction ....................................................................................................................    26
+
+2       Construction of path profile ............................................................................................            26
+
+3       Path length ......................................................................................................................   28
+
+4       Path classification ...........................................................................................................      28
+
+5       Derivation of parameters from the path profile ..............................................................                        29
+        5.1         Transmitting antenna horizon elevation angle above the local horizontal, θt.....                                         29
+        5.2         Transmitting antenna horizon distance, dlt .........................................................                     29
+        5.3         Receiving antenna horizon elevation angle above the local horizontal, θr .........                                       29
+        5.4         Receiving antenna horizon distance, dlr..............................................................                    30
+        5.5         Angular distance θ (mrad) ..................................................................................             30
+        5.6         “Smooth-Earth” model and effective antenna heights ........................................                              30
+
+Attachment 2 to Annex 1 – An approximation to the inverse complementary cumulative
+     normal distribution function ...........................................................................................                33
+
+Attachment 3 to Annex 1 – An alternative method to calculate the spherical earth diffraction
+     loss Lbulls .........................................................................................................................   33
+                                         Rec. ITU-R P.1812-8                                              5
+
+1       Introduction
+The propagation prediction method described in this Annex is recommended for the detailed
+evaluation of signal levels suitable for use in connection with terrestrial point-to-area services in the
+frequency range 30 MHz to 6 000 MHz. It predicts the signal level (i.e. electric field strength)
+exceeded for a given percentage, p%, of an average year in the range 1% ≤ p ≤ 50% and pL% locations
+in the range 1% ≤ pL ≤ 99%. Therefore, this method may be used to predict both the service area and
+availability for a desired signal level (coverage), and the reductions in this service area and availability
+due to undesired, co- and/or adjacent-channel signals (interference).
+The propagation model of this method is symmetric in the sense that it treats both radio terminals in
+the same manner. From the model’s perspective, it does not matter which terminal is the transmitter
+and which is the receiver. However, for convenience in the model’s description, the terms
+“transmitter” and “receiver” are used to denote the terminals at the start and end of the radio path,
+respectively.
+The method is first described in terms of calculating basic transmission loss (dB) not exceeded for
+p% time for the median value of locations. The location variability element is then characterized
+statistically with respect to receiver locations, in addition to the building entry loss element from
+Recommendation ITU-R P.2040. A procedure is then given for converting to electric field strength
+(dB(μV/m)) for an effective radiated power of 1 kW.
+This method is intended primarily for use with systems using low-gain antennas. However, the change
+in accuracy when high-gain antennas are used only affects the troposcatter element of the overall
+method, and the change in the predictions is small. For example, even with 40 dBi antennas at both
+ends of the link the over-estimation of troposcatter signals will amount to only about 1 dB.
+The method is suitable for predictions for radiocommunication systems utilizing terrestrial circuits
+having path lengths from 0.25 km up to about 3 000 km distance, with both terminals within
+approximately 3 km height above ground. It is not suitable for propagation predictions on either
+air-ground or space-Earth radio circuits.
+The propagation prediction method in this Annex is path-specific. Point-to-area predictions using this
+method consist of series of many point-to-point (P-P) (i.e. transmitter-point-to-receiver-multipoint)
+predictions, uniformly distributed over notional service areas. The number of points should be large
+enough to ensure that the predicted values of basic transmission losses or field strengths thus obtained
+are reasonable estimates of the median values, with respect to locations, of the corresponding
+quantities for the elemental areas that they represent.
+In consequence, it is assumed that users of this Recommendation are able to specify detailed terrain
+profiles (i.e. elevations above mean sea level) as functions of distance along the great circle paths
+(i.e. geodesic curves) between the terminals, for many different terminal locations (receiver-points).
+For most practical applications of this method to point-to-area coverage and interference predictions,
+this assumption implies the availability of a digital terrain elevation database, referenced to latitude
+and longitude with respect to a consistent geodetic datum, from which the terrain profiles may be
+extracted by automated means. If these detailed terrain profiles are not available, then
+Recommendation ITU-R P.1546 should instead be used for predictions.
+In view of the foregoing, the location variability element of this Recommendation and the building
+entry loss model element of Recommendation ITU-R P.2040 are characterized via the statistics of
+lognormal distributions with respect to receiver locations. Although this statistical characterization of
+the point-to-area propagation problem would appear to make the overall model unsymmetrical
+(i.e. non-reciprocal), users of this Recommendation should note that the location variability could, in
+principle, be applied at either end of the path (i.e. either terminal), or even both (i.e. the transmitter
+and the receiver). However, the location variability correction is only meaningful in situations when
+exact location of a given terminal is unknown and a statistical representation over that terminal’s
+6                                       Rec. ITU-R P.1812-8
+
+potential locations is required. There are unlikely to be many situations where this could meaningfully
+be applied to the transmitter location. If the locations of both terminals are known exactly and this
+procedure is being used in P-P mode, then this Recommendation is only applicable with pL = 50%.
+A similar point is true regarding building entry losses. The argument is slightly more complicated
+than for location variability owing to the fact that the median entry loss correction is non-zero. At the
+transmitter end, users should also add the building entry loss to the basic transmission loss if the
+transmitter is inside a building, but users must also be aware that the use of median loss values may
+be misleading if the transmitter is not in a “median” location.
+
+
+2         Model elements of the propagation prediction method
+This propagation prediction method takes account of the following model elements:
+–       line-of-sight (LoS);
+–       diffraction (embracing smooth-Earth, irregular terrain and sub-path cases);
+–       tropospheric scatter;
+–       anomalous propagation (ducting and layer reflection/refraction);
+–       location variability;
+–       building entry losses (from Recommendation ITU-R P.2040).
+
+
+3         Input parameters
+
+3.1       Basic input data
+Table 1 describes the basic input data, which defines the radio terminals, the frequency, and the
+percentage time and locations for which a prediction is required.
+The latitude and longitude of the two stations are stated as basic inputs on the basis that they are
+needed to obtain the path profile. Radiometeorological parameters must be obtained for a single
+location associated with the radio path, and for a long path the path-centre should be selected. It is
+appropriate to obtain the radiometeorological parameters for the transmitter location when predicting
+its coverage area.
+
+                                                TABLE 1
+                                             Basic input data
+      Parameter        Minimum     Maximum                              Description
+       f (GHz)           0.03          6.0       Frequency (GHz)
+         p (%)           1.0          50.0       Percentage of average year for which the calculated
+                                                 signal level is exceeded
+        pL (%)            1            99        Percentage of locations for which the calculated signal
+                                                 level is exceeded
+    φt, φr (degrees)     −80          +80        Latitude of transmitter, receiver
+    ψt, ψr (degrees)    −180.0        180.0      Longitude of transmitter, receiver (positive = East of
+                                                 Greenwich)
+                                              Rec. ITU-R P.1812-8                                               7
+
+                                                   TABLE 1 (end)
+      Parameter           Minimum       Maximum                               Description
+      htg, hrg (m)            1            3 000       Antenna centre height above ground level
+      Polarization                                     Signal polarisation, e.g. vertical or horizontal
+        ws (m)                1             100        Width of street. The value of 27 should be used unless
+                                                       specific local values are available.
+
+
+Polarisation in Table 1 is not a parameter with a numerical value. The information is used in § 4.3.3
+in connection with equations (29a), (29b) and (30).
+
+3.2       Radio path profile
+The path profiles used in the method described below require path-specific data for terrain heights,
+and in addition either path-specific clutter (ground cover) categories or path-specific surface heights
+along the path. Terrain heights refer to bare-Earth to differentiate from the surface heights which
+include the natural or man-made structures on top of the terrain.
+A profile for the radio path is required for the application of the propagation prediction method. In
+principle, this consists of three arrays each having the same number of values, n, as follows:
+          di: distance from transmitter of i-th profile point (km)                                          (1a)
+          hi: terrain height of i-th profile point above sea level (m)                                      (1b)
+          gi: surface height of i-th profile point above sea level (m)                                      (1c)
+where:
+                     i:   1, 2, 3, ..., n = index of the profile point
+                     n:   number of profile points.
+The height of clutter should not be added to the terrain heights at the transmitter and receiver. Thus
+g1 is the terrain height at the transmitter in metres above sea level and gn is the terrain height at the
+receiver in metres above sea level.
+There must be at least one intermediate profile point between the transmitter and the receiver. Thus n
+must satisfy n ≥ 3. Such a small number of points is appropriate only for short paths, less than of the
+order of 1 km.
+Note that the first profile point is at the transmitter. Thus, d1 is zero and h1 is the terrain height at the
+transmitter in metres above sea level. Similarly, the n-th profile point is at the receiver. Thus, dn is
+the path length in km, and hn the terrain height at the receiver in metres above sea level.
+No specific distance between profile points is given. Assuming that profiles are extracted from digital
+terrain elevation and ground cover (clutter) datasets, a suitable spacing will typically be similar to the
+point spacing of the source datasets of similar resolution to each other. The profile points are not
+required to be equally-spaced, but it is desirable that they are at a similar spacing for the whole profile.
+Two profile calculation methods may be used to derive the surface height gi, these are outlined in the
+following sections. The first uses ground cover data to determine a representative clutter height which
+can be added to the terrain heights, the second uses surface-height data, where heights include clutter
+with no explicit distinction between terrain and clutter.
+8                                       Rec. ITU-R P.1812-8
+
+3.2.1   Terrain and ground cover data
+The method includes:
+–      the construction of a terrain profile using actual terrain heights;
+–      based on the clutter categories, the addition of representative clutter heights to the terrain
+       profile.
+If this method is used to calculate diffraction loss using the terrain profile without clutter, the
+diffraction loss will be under-estimated in cluttered environments, as opposed to combined
+representation of terrain and clutter. This method has been developed and validated against digital
+terrain data, by combining digital terrain data with statistical representative clutter categories. It is
+important to note that diffraction loss may be over-estimated if the terrain heights ℎ𝑖 , include natural
+or man-made structures on top of the terrain. If accurate surface-heights are available, an improved
+estimation of propagation loss may be obtained using the profile calculation method expanded in
+§ 3.2.2, or other techniques such as 3-D ray tracing, which would include the effect of diffraction
+around buildings, could be explored.
+In this method the surface height profile is approximated using the terrain heights with the addition
+of representative clutter heights based on the clutter categories at each profile point.
+The surface heights g𝑖 are given by:
+              ℎ𝑖 + representative clutter height of 𝑖-th profile point (m) for 𝑖 = 2, … , 𝑛 − 1
+        g𝑖 = {ℎ1                                                           for 𝑖 = 1            (1d)
+              ℎ𝑛                                                           for 𝑖 = 𝑛
+When using this method the profile spacing should be no less than the order of 30 m.
+The “representative clutter height” referred to in equation (1c) concerns statistical height information
+associated with ground cover classification, such as vegetation and buildings, i.e. a single height value
+assigned to each ground cover/clutter class. Adding representative clutter heights to a profile is based
+on the assumption that the heights hi represent the bare surface of the Earth. If the radio path passes
+over woodland or urbanization where diffraction or sub-path obstruction occurs, in general the
+effective profile height will be higher because the radio signal will travel over the clutter. Thus a more
+suitable representation of the profile can be obtained by adding representative heights to account for
+the clutter.
+The appropriate addition is not necessarily physical, such as rooftop heights in the case of buildings.
+Where gaps exist between clutter objects, as seen by the radio wave, some energy may travel between
+rather than over them. In this situation the presence of clutter is expected to increase diffraction loss,
+but not by as much as raising the profile to the physical clutter height.
+This applies particularly to high-rise urban areas. Categories such as “dense urban” or “high-rise
+urban” tend to be associated with building heights of 30 metres or more. But some high-rise areas
+have large spaces between the tall buildings, and it is possible for low-loss paths to exist passing
+around them, rather than over the roofs. Smaller values of representative heights rather than the
+physical clutter heights may be appropriate in such cases.
+At the other extreme, even in areas classified as “open” or “rural” it is unusual for the ground to be
+completely bare, that is, free of any objects which might add to propagation losses. Thus, small values
+of representative clutter heights rather than zero, might be appropriate in many cases.
+Thus, representative clutter height depends not only on the typical physical height of clutter objects
+but also on the horizontal spacing of objects and the gaps between them. There is no generally
+accepted standard as to what a clutter category, such as “urban”, represents in physical terms in
+different countries. Where available, representative clutter height information based on local clutter
+                                        Rec. ITU-R P.1812-8                                            9
+
+height statistics or other sources should be used. Alternatively, clutter classification models developed
+based on local or regional geospatial data and validated against measurements, are in use in some
+administrations. Table 2 suggests default values for representative clutter heights which may be used
+in the absence of region/country-specific information.
+
+                                               TABLE 2
+                            Default representative clutter height values
+                Clutter category                            Representative clutter height (m)
+                                                               Add to profile of equation (1c)
+                                                                      for i = 2 to n – 1
+                    Water/sea                                                0
+                   Open/rural                                                0
+                    Suburban                                                 10
+                Urban/trees/forest                                           15
+                   Dense urban                                               20
+
+
+3.2.2   Terrain and surface data
+In this method the surface height profile is extracted directly from surface height data.
+The surface heights g𝑖 are given by:
+              surface height of i-th profile point above sea level (m)    for 𝑖 = 2, … , 𝑛 − 1
+        g𝑖 = {ℎ1                                                          for 𝑖 = 1                 (1e)
+              ℎ𝑛                                                          for 𝑖 = 𝑛
+Noting that surface height data should be used with a similar resolution as the profile spacing, when
+using this method, spacing of less than the order of 10 m may lead to the overestimation of basic
+transmission loss as the data will describe individual obstacles. Extensive testing has shown that use
+of profile spacing of greater than the order of 50 m gives no benefit over the method described in
+§ 3.2.1.
+
+3.3     Radio-climatic zones
+Information is also needed on what lengths of the path are in the radio-climatic zones described in
+Table 3.
+For reference purposes administration might wish to use the coastal contours as contained in the ITU
+Digitized World Map (IDWM) which is available from the BR: https://www.itu.int/pub/R-SOFT-
+IDWM. If all points on the path are at least 50 km from the sea or other large bodies of water, then
+only the inland category applies.
+If the zone information is stored in successive points along the radio path, it should be assumed that
+changes occur midway between points having different zone codes.
+10                                       Rec. ITU-R P.1812-8
+
+                                               TABLE 3
+                                         Radio-climatic zones
+      Zone type          Code                                        Definition
+      Coastal land        A1         Coastal land and shore areas, i.e. land adjacent to the sea up to an
+                                     altitude of 100 m relative to mean sea or water level, but limited to a
+                                     distance of 50 km from the nearest sea area. Where precise 100 m
+                                     data are not available an approximate value may be used
+        Inland            A2         All land, other than coastal and shore areas defined as “coastal land”
+                                     above
+          Sea              B         Seas, oceans and other large bodies of water (i.e. covering a circle of
+                                     at least 100 km in diameter).
+
+
+3.4        Terminal distances from the coast
+If the path is over zone B two further parameters are required, dct, dcr, giving the distance of the
+transmitter and the receiver from the coast (km), respectively, in the direction of the other terminal.
+For a terminal on a ship or sea platform the distance is zero.
+
+3.5        Basic radio-meteorological parameters
+The prediction procedure requires two radio-meteorological parameters to describe the variability of
+atmospheric refractivity.
+–      ΔN (N-units/km), the average radio-refractivity lapse-rate through the lowest 1 km of the
+       atmosphere, provides the data upon which the appropriate effective Earth radius can be
+       calculated for path profile and diffraction obstacle analysis. Note that ΔN is a positive
+       quantity in this procedure.
+–      N0 (N-units), the sea-level surface refractivity, is used only by the troposcatter model as a
+       measure of variability of the troposcatter mechanism.
+If local measurements are not available, these quantities can be obtained from the maps in the integral
+digital products supplied with this Recommendation. The maps are contained in the files DN50.txt
+and N050.txt, respectively. The data are from 0o to 360o in longitude and from +90o to −90o in latitude,
+with a resolution of 1.5o in both latitude and longitude. The data are used in conjunction with the
+companion data files LAT.txt and LON.txt containing respectively the latitudes and longitudes of the
+corresponding entries (grid points) in the files DN50.txt and N050.txt. For a location different from
+the grid points, the parameter at the desired location can be derived by performing a bi-linear
+interpolation on the values at the four closest grid points, as described in Recommendation
+ITU‑R P.1144.
+
+                                               TABLE 4
+                                      Integral digital products
+                                            Latitude                                Longitude
+       Filename       Origin      From          To        Spacing         From         To         Spacing
+                                 (degree)    (degree)     (degree)       (degree)   (degree)      (degree)
+ DN50.txt             P.453         90          −90         1.5             0          360           1.5
+ N050.txt             P.453         90          −90         1.5             0          360           1.5
+ LAT.txt              P.453         90          −90         1.5             0          360           1.5
+ LON.txt              P.453         90          −90         1.5             0          360           1.5
+                                           Rec. ITU-R P.1812-8                                       11
+
+These digital maps were derived from analysis of a ten-year (1983–1992) global dataset of radiosonde
+ascents.
+The digital maps are contained in the zip file R-REC-P.1812-8-202509-I!!ZIP-E.zip.
+
+3.6      Incidence of ducting
+The degree to which signal levels will be enhanced due to anomalous propagation, particularly
+ducting, is quantified by a parameter β0 (%), the time percentage for which refractivity lapse-rates
+exceeding 100 N-units/km can be expected in the first 100 m of the lower atmosphere. The value of
+0 is calculated as follows.
+Calculate the parameter μ1, which depends on the degree to which the path is over land (inland and/or
+coastal) and water:
+                                                                                 0.2
+                                       – dtm                                
+                                       16 – 6.6      – 5(0.496 + 0.354  ) 
+                                 μ1 = 10         + 10                                              (2)
+                                                                            
+                                                                            
+where the value of μ1 shall be limited to μ1  1,
+and
+                                                     (          2.41
+                                        = 1 − exp − 0.000412d lm        )                           (3)
+
+                dtm:   longest continuous land (inland + coastal) section of the great-circle path (km)
+                dlm:   longest continuous inland section of the great-circle path (km).
+The radio-climatic zones to be used for the derivation of dtm and dlm are defined in Table 3. If all
+points on the path are at least 50 km from the sea or other large bodies of water, then only the inland
+category applies and dtm and dlm are equal to the path length, d.
+Calculate the parameter μ4, which depends on μ1 and the latitude of the path centre in degrees:
+                            4 = 1(–0.935 + 0.0176||)                for   70
+                                                                                                     (4)
+                            4 = 10.3                                 for   70
+where:
+                 φ:    path centre latitude (degrees).
+Calculate β0:
+                            10− 0.015  + 1.67 μ μ          %              for   70
+                       β0 =                      1 4
+                              4.17μ μ
+                                     1 4                      %              for   70
+                                                                                                     (5)
+
+3.7      Effective Earth radius
+The median effective Earth radius factor k50 for the path is given by:
+                                                           157
+                                               k50 =                                                 (6)
+                                                         157 − N
+The value of the average radio-refractivity lapse-rate, ΔN, may be obtained from the integral digital
+map DN50.txt, using the latitude and longitude of the path centre as representative for the entire path.
+12                                           Rec. ITU-R P.1812-8
+
+The median value of effective Earth radius ae is given by:
+                                            𝑎𝑒 = 𝑘50 𝑎              km                                      (7a)
+
+The effective Earth radius exceeded for 0 time, a, is given by:
+                                             𝑎β = 𝑘β 𝑎             km                                       (7b)
+
+where k = 3.0 is an estimate of the effective Earth-radius factor exceeded for 0 time.
+A general effective Earth radius is defined, where ap = ae for 50% of time, and ap = aβ for β0% of time.
+
+3.8        Parameters derived from the path profile analysis
+Values for a number of path-related parameters necessary for the calculations, as indicated in Table 5,
+must be derived via an initial analysis of the path profile based on the value of ae given by
+equation (7a). Information on the derivation, construction and analysis of the path profile is given in
+Attachment 1 to this Annex.
+
+
+4          The prediction procedure
+
+4.1        General
+The overall prediction procedure is described in this section. First, the basic transmission loss,
+Lb (dB), not exceeded for the required annual percentage time, p%, and 50% locations is evaluated as
+described in §§ 4.2 to 4.6 (i.e. the basic transmission losses due to LoS propagation, propagation by
+diffraction, propagation by tropospheric scatter, propagation by ducting/layer reflection and the
+combination of these propagation mechanisms to predict the basic transmission loss, respectively).
+In §§ 4.7 to 4.8, methods to account for the inclusion of the effects of location variability and building
+entry loss are described. Finally, § 4.10 gives expressions that relate the basic transmission loss to the
+field strength (dB μV/m) for 1 kW effective radiated power.
+
+                                                   TABLE 5
+                     Parameter values to be derived from the path profile analysis
+      Parameter                                                Description
+           d          Great-circle path distance (km)
+        dlt, dlr      Distance from the transmit and receive antennas to their respective horizons (km)
+        θt, θr        Transmit and receive horizon elevation angles respectively (mrad)
+           θ          Path angular distance (mrad)
+        hts, hrs      Antenna centre height above mean sea level (m)
+        htc, hrc      hts and hrs respectively
+        hte, hre      Effective heights of antennas above the terrain (m) for the ducting/layer-reflection model
+                      and as defined in Attachment 1 to Annex 1
+          db          Aggregate length of the path sections over water (km)
+          ω           Fraction of the total path over water:
+                                                                = db / d
+                      where d is the great-circle distance (km) calculated using equation (73). For totally
+                      overland paths: ω = 0.
+                                        Rec. ITU-R P.1812-8                                          13
+
+4.2      Line-of-sight propagation (including short-term effects)
+The following should all be evaluated for both LoS and trans-horizon paths.
+The basic transmission loss due to free-space propagation is given by:
+                             𝐿𝑏𝑓𝑠 = 92.4 + 20 log 𝑓 + 20 log(𝑑𝑓𝑠 ) dB                               (8)
+where:
+               f:     frequency (GHz)
+              dfs :   distance between the transmit and receive antennas (km):
+                                                         ℎ −ℎ𝑟𝑠 2
+                                       𝑑𝑓𝑠 = √𝑑 2 + ( 𝑡𝑠         )                                 (8a)
+                                                          1000
+               d:     great-circle path distance (km)
+              hts :   transmit antenna height above sea level (masl)
+              hrs :   receive antenna height above sea level (masl).
+Corrections for multipath and focusing effects at p and 0 percentage times, respectively, are given
+by:
+                                               d + d lr    p 
+                             Esp = 2.6 1 – exp – lt      log         dB                       (9a)
+                                                    10    50 
+                                                d + d lr    β 0 
+                              Esβ = 2.6 1 − exp − lt      log        dB                       (9b)
+                                                     10    50 
+
+Calculate the basic transmission loss not exceeded for time percentage, p%, due to LoS propagation
+(regardless of whether or not the path is actually LoS), as given by:
+                                    Lb0 p = Lbfs + Esp
+                                                                     dB                            (10)
+Calculate the basic transmission loss not exceeded for time percentage, 0%, due to LoS propagation
+(regardless of whether or not the path is actually LoS), as given by:
+                                    Lb0 = Lbfs + Es
+                                                                     dB                            (11)
+
+4.3      Propagation by diffraction
+Diffraction loss is calculated by the combination of a method based on the Bullington construction
+and spherical-Earth diffraction. The Bullington part of the method is an expansion of the basic
+Bullington construction to control the transition between free-space and obstructed conditions.
+This part of the method is used twice: for the actual path profile, and for a zero-height smooth profile
+with modified antenna heights referred to as effective antenna heights. The same effective antenna
+heights are also used to calculate spherical-earth diffraction loss. The final result is obtained as a
+combination of three losses calculated as above. For a perfectly smooth path the final diffraction loss
+will be the output of the spherical-Earth model.
+This method provides an estimate of diffraction loss for all types of path, including over-sea or over-
+inland or coastal land, and irrespective of whether the path is smooth or rough, and whether LoS or
+transhorizon.
+This diffraction method is always used for median effective Earth radius. If an overall prediction is
+required for p = 50%, no further diffraction calculation is necessary.
+14                                           Rec. ITU-R P.1812-8
+
+In the general case where p < 50%, the diffraction calculation must be performed a second time for
+an effective Earth-radius factor equal to 3. This second calculation gives an estimate of diffraction
+loss not exceeded for β0% time, where β0 is given by equation (5).
+The diffraction loss not exceeded for p% time, for 1% ≤ p ≤ 50%, is then calculated using a limiting
+or interpolation procedure described in § 4.3.5.
+The method uses an approximation to the single knife-edge diffraction loss as a function of the
+dimensionless parameter, ν, given by:
+
+                               J ( ) = 6.9 + 20 log       ( − 0.1)2 + 1 +  − 0.1             (12)
+                                                                                    
+Note that J(−0.78) ≈ 0, and this defines the lower limit at which this approximation should be used.
+J(ν) is set to zero for ν ≤ −0.78.
+The overall diffraction calculation is described in sub-sections as follows:
+Section 4.3.1 describes the Bullington part of the diffraction method. For each diffraction calculation
+for a given effective Earth radius this is used twice. On the second occasion the antenna heights are
+modified and all profile heights are zero.
+Section 4.3.2 describes the spherical-Earth part of the diffraction model. This is used with the same
+antenna heights as for the second use of the Bullington part in § 4.3.1.
+Section 4.3.3 describes how the methods in § 4.3.1 and § 4.3.2 are used in combination to perform
+the complete diffraction calculation for a given effective Earth radius. Due to the manner in which
+the Bullington and spherical-earth parts are used, the complete calculation has come to be known as
+the “delta-Bullington” model.
+Section 4.3.4 describes the complete calculation for diffraction loss not exceeded for a given
+percentage time p%.
+4.3.1    The Bullington part of the diffraction calculation
+In the following equations slopes are calculated in m/km relative to the baseline joining sea level at
+the transmitter to sea level at the receiver. The distance and height of the i-th profile point are
+di kilometres and gi metres above sea level respectively, i takes values from 1 to n where n is the
+number of profile points, and the complete path length is d kilometres. For convenience the terminals
+at the start and end of the profile are referred to as transmitter and receiver, with heights in metres
+above sea level hts and hrs, respectively. Effective Earth curvature Ce km–1 is given by 1/ap where ap
+is effective earth radius in kilometres. Wavelength in metres is represented by . Values to be used
+for ap are given in § 4.3.5.
+Find the intermediate profile point with the highest slope of the line from the transmitter to the point.
+                                             𝑔 +500𝐶𝑒 𝑑𝑖 (𝑑−𝑑𝑖 )−ℎ𝑡𝑐
+                            𝑆𝑡𝑖𝑚 = max [ 𝑖                             ]          m/km              (13)
+                                                            𝑑𝑖
+
+where the profile index i takes values from 2 to n – 1.
+Calculate the slope of the line from transmitter to receiver assuming a LoS path:
+                                                hrc − htc
+                                        Str =                          m/km                         (14)
+                                                    d
+Two cases must now be considered.
+Case 1. Diffraction path is LoS
+If Stim < Str the diffraction path is LoS.
+                                              Rec. ITU-R P.1812-8                                                  15
+
+Find the intermediate profile point with the highest diffraction parameter :
+                                                       h (d − d i ) + hrc d i                0.002d 
+             max = max   g i + 500C e d i (d − d i ) − tc                                                     (15)
+                                                               d              
+                                                                                             λd i (d − d i ) 
+
+where the profile index i takes values from 2 to n – 1.
+In this case, the knife-edge loss for the Bullington point is given by:
+                                          Luc = J ( max )                    dB                                  (16)
+
+where the function J is given by equation (12) for b greater than –0.78, and is zero otherwise.
+Case 2. Diffraction path is transhorizon
+If Stim  Str the diffraction path is transhorizon.
+Find the intermediate profile point with the highest slope of the line from the receiver to the point.
+                                      g + 500Ce d i  d − di  − hrc 
+                         S rim = max  i                                               m/km                      (17)
+                                              d − di                     
+where the profile index i takes values from 2 to n – 1.
+Calculate the distance of the Bullington point from the transmitter:
+                                              hrc − htc + S rim d
+                                     d bp =                                        km                             (18)
+                                                 Stim + S rim
+Calculate the diffraction parameter, b, for the Bullington point:
+                                                     (          )
+                                              htc d − d bp + hrc d bp                  0.002d
+                     b = htc + S tim d bp −
+                                                        d            
+                                                                                        (
+                                                                                    λd bp d − d bp   )            (19)
+
+In this case, the knife-edge loss for the Bullington point is given by:
+                                              Luc = J (b )             dB                                        (20)
+For Luc calculated using either equation (16) or (20), Bullington diffraction loss for the path is now
+given by:
+                                                − L 
+                          Lbull = Luc + 1 − exp uc (10 + 0.02d )                         dB                   (21)
+                                                6 
+
+4.3.2    Spherical-Earth diffraction loss
+The spherical-Earth diffraction loss for effective antenna heights htesph and hresph (m), Ldsph, is
+calculated as follows.
+Calculate the marginal LoS distance for a smooth path:
+
+                        dlos =     2a p   ( 0.001h  tesph +    0.001hresph     )              km                  (22)
+
+Values to be used for ap are given in § 4.3.5. Effective antenna heights htesph and hresph are defined in
+equations (38a) and (38b).
+
+If d ≥ dlos calculate diffraction loss using the method in § 4.3.3 below for adft = ap to give Ldft, and set
+Ldsph equal to Ldft. No further spherical-Earth diffraction calculation is necessary.
+Otherwise continue as follows:
+16                                       Rec. ITU-R P.1812-8
+
+Calculate the smallest clearance height between the curved-Earth path and the ray between the
+antennas, hse, given by:
+                                      2                           2 
+                       htesph − 500 d se1 d se2 +  hresph − 500 d se2 d se1
+                                    a p                         a p 
+                hse =                              
+                                                                                            m       (23)
+                                                  d
+where:
+                                               d
+                                     d se1 =     (1 + b)                    km                     (24a)
+                                               2
+                                      d se2 = d − d se1                     km                     (24b)
+
+                                mc + 1        π  1                      3c   3mc   
+                       b = 2           cos     +    arccos                                      (24c)
+                                3mc            3 3                      2 (m + 1)3 
+                                                                              c      
+where the arccos function returns an angle in radians
+                                                   htesph − hresph
+                                             c =                                                   (24d)
+                                                   htesph + hresph
+
+                                                         250d 2
+                                         mc =                                                      (24e)
+                                                   a p (htesph + hresph )
+
+Calculate the required clearance for zero diffraction loss, hreq, given by:
+                                                     d se1d se 2 λ
+                                   hreq = 17.456                                 m                  (25)
+                                                          d
+If hse > hreq the spherical-Earth diffraction loss Ldsph is zero. No further spherical-Earth diffraction
+calculation is necessary.
+Otherwise continue as follows:
+Calculate the modified effective Earth radius, aem, which gives marginal LoS at distance d given by:
+                                                                     2
+                                                d        
+                               aem = 500                                           km             (26)
+                                         htesph + hresph 
+                                                         
+Use the method in § 4.3.3 for adft = aem to give Ldft.
+If Ldft is negative, the spherical-Earth diffraction loss Ldsph is zero, and no further spherical-Earth
+diffraction calculation is necessary.
+Otherwise continue as follows:
+Calculate the spherical-Earth diffraction loss by interpolation:
+                                               h 
+                                    Ldsph = 1 – se  Ldft                                          (27)
+                                             hreq                        dB
+
+4.3.3    First-term part of spherical-Earth diffraction loss
+This sub-section gives the method for calculating spherical-Earth diffraction using only the first term
+of the residue series. It forms part of the overall diffraction method described in § 4.3.2 above to give
+                                             Rec. ITU-R P.1812-8                                        17
+
+the first-term diffraction loss Ldft for a given value of effective Earth radius adft. The value of adft to
+use is given in § 4.3.2.
+Set terrain electrical properties typical for land, with relative permittivity εr = 22.0 and conductivity
+σ = 0.003 S/m and calculate Ldft using equations (29) to (36) and call the result Ldftland.
+Set terrain electrical properties typical for sea, with relative permittivity εr = 80.0 and conductivity σ
+= 5.0 S/m and calculate Ldft using equations (29) to (36) and call the result Ldftsea.
+First-term spherical diffraction loss is now given by:
+                              𝐿𝑑𝑓𝑡 = ω𝐿𝑑𝑓𝑡𝑠𝑒𝑎 + (1 − ω)𝐿𝑑𝑓𝑡𝑙𝑎𝑛𝑑                              dB       (28)
+where  is the fraction of the path over sea.
+Start of calculation to be performed twice, as described above:
+Normalized factor for surface admittance for horizontal and vertical polarization:
+                                                                        –1/ 4
+                                                       18σ  
+                                                               2
+
+                          (
+             K H = 0.036 adft f   )–1/3
+                                          (ε r – 1) + 
+                                                    2
+                                                              
+                                                       f  
+                                                                                     (horizontal)    (29a)
+and
+                                                                       1/ 2
+                                                    18 σ  
+                                                                   2
+
+                                  KV = K H ε 2r +                         (vertical)           (29b)
+                                                   f  
+If the polarization vector contains both horizontal and vertical components, e.g. circular or slant,
+decompose it into horizontal and vertical components, calculate each separately and combine the
+results by a vector sum of the field amplitude. In practice this decomposition will generally be
+unnecessary because above 300 MHz a value of 1 can be used for βdft in equation (30).
+
+Calculate the Earth ground/polarisation parameter:
+                                                      1 + 1.6 K 2 + 0.67 K 4
+                                             dft =                                                   (30)
+                                                      1 + 4.5K 2 + 1.53K 4
+where K is KH or KV according to polarisation.
+Normalized distance:
+                                                                              1/ 3
+                                                           f 
+                                           X = 21.88 βdft  2                       d                (31)
+                                                           adft 
+                                                                
+Normalized transmitter and receiver heights:
+                                                                          1/3
+                                                             f2
+                                          Yt = 0.9575 β dft        h                               (32a)
+                                                             a  tesph
+                                                              dft 
+                                                                         1/3
+                                                             f2
+                                          Yr = 0.9575 β dft        h                               (32b)
+                                                             a  resph
+                                                              dft 
+18                                        Rec. ITU-R P.1812-8
+
+Calculate the distance term given by:
+                         11 + 10 log( X ) − 17.6 X                            for X  1.6
+                    FX =                           1.425                                           (33)
+                         − 20 log( X ) − 5.6488X                              for X  1.6
+Define a function of normalized height given by:
+                         17.6( B − 1.1)0.5 − 5 log( B − 1.1) − 8                  for B > 2
+                G (Y ) =                   3
+                                                                                                    (34)
+                         20 log( B + 0.1B )                                       otherwise
+where:
+                                                 𝐵 = β𝑑𝑓𝑡 𝑌                                         (35)
+Limit G(Y) such that G(Y )  2 + 20 log K
+The first-term spherical-Earth diffraction loss is now given by:
+                                  Ldft = − FX − G(Yt ) − G(Yr )           dB                        (36)
+
+4.3.4    Complete “delta-Bullington” diffraction loss model
+Use the method in § 4.3.1 for the path profile heights (gi) and antenna heights (htc, hrc). Set the
+resulting Bullington diffraction loss for the actual path, Lbulla = Lbull as given by equation (21).
+Attachment 3 to this Annex provides an alternative method to calculate Lbulls without using terrain
+profile analysis.
+Use the method in § 4.3.1 for a second time, with all profile heights, gi, set to zero, and modified
+antenna heights given by:
+                                            htc' = htc − hstd         m                            (37a)
+
+                                           hrc' = hrc − hsrd          m                            (37b)
+where the smooth-Earth heights at transmitter and receiver, hstd and hsrd, are given in § 5.6.2 of
+Attachment 1 to this Annex. Set the resulting Bullington diffraction loss for this smooth path,
+Lbulls = Lbull as given by equation (21).
+Use the method in § 4.3.2 to calculate the spherical-Earth diffraction loss Ldsph for the actual path
+length d km and with:
+                                                htesph = htc'   m                                  (38a)
+
+                                               hresph = hrc'      m                                (38b)
+
+Diffraction loss for the general path is now given by:
+                         Ld = Lbulla + max{ Ldsph − Lbulls , 0}                    dB               (39)
+
+4.3.5    The diffraction loss not exceeded for p% of the time
+Use the method in § 4.3.4 to calculate diffraction loss Ld for median effective Earth radius ap = ae as
+given by equation (7a). Set median diffraction loss Ld50 = Ld.
+If p = 50% the diffraction loss not exceeded for p% time, Ldp, is given by Ld50.
+If p < 50%, the diffraction loss not exceeded for p% time, Ldp, should be calculated as follows.
+                                          Rec. ITU-R P.1812-8                                              19
+
+Use the method in § 4.3.4 to calculate diffraction loss Ld for effective Earth radius not exceeded for
+0% time ap = a as given by equation (7b). Set diffraction loss not exceeded for 0% time
+Ld = Ld.
+The application of the two possible values of effective Earth radius factor is controlled by
+an interpolation factor, Fi, based on a log-normal distribution of diffraction loss over the range
+β0%≤ p ≤ 50%, given by:
+                                         0              if 𝑝 = 50%
+                                       𝐼(𝑝/100)
+                               𝐹𝑖 = {𝐼(β /100)          if β0 % < 𝑝 < 50%                                (40)
+                                         0
+                                         1             if 1% ≤ 𝑝 ≤ β0 %
+where I(x) is the inverse complementary cumulative normal distribution as a function of the
+probability x. An approximation for I(x) which may be used with confidence for x ≤ 0.5 is given in
+Attachment 2 to this Annex.
+The diffraction loss, Ldp, not exceeded for p% time, is now given by:
+                               𝐿𝑑𝑝 = 𝐿𝑑50 + (𝐿𝑑β − 𝐿𝑑50 )𝐹𝑖                  dB                          (41)
+Fi is defined by equation (40), depending on the values of p and 0.
+The median basic transmission loss associated with diffraction, Lbd50, is given by:
+                                    𝐿𝑏𝑑50 = 𝐿𝑏𝑓𝑠 + 𝐿𝑑50                 dB                               (42)
+where Lbfs is given by equation (8).
+The basic transmission loss associated with diffraction not exceeded for p% time is given by:
+                                     𝐿𝑏𝑑 = 𝐿𝑏0𝑝 + 𝐿𝑑𝑝               dB                                   (43)
+where Lb0p is given by equation (10).
+
+4.4      Propagation by tropospheric scatter
+NOTE 1 – At time percentages much below 50%, it is difficult to separate the true tropospheric scatter mode
+from other secondary propagation phenomena which give rise to similar propagation effects. The “tropospheric
+scatter” model adopted in this Recommendation is therefore an empirical generalization of the concept of
+tropospheric scatter which also embraces these secondary propagation effects. This allows a continuous
+consistent prediction of basic transmission loss over the range of time percentages p from 0.001% to 50%, thus
+linking the ducting and layer reflection model at the small time percentages with the true “scatter mode”
+appropriate to the weak residual field exceeded for the largest time percentage.
+NOTE 2 – This troposcatter prediction model has been derived for interference prediction purposes and is not
+appropriate for the calculation of propagation conditions above 50% of time affecting the performance aspects
+of trans-horizon radio-relay systems.
+The basic transmission loss due to troposcatter, 𝐿𝑏𝑠 (dB), not exceeded for any time percentage, p ≤ 50%, is
+given by:
+                                                                                        50   0.7
+         𝐿𝑏𝑠 = 190.1 + 𝐿𝑓 + 20 log10 (𝑑) + 0.573θ − 0.15𝑁0 − 10.125 [log10 ( 𝑝 )]                  dB    (44)
+
+where:
+                𝐿𝑓 :   frequency dependent loss:
+                                                                𝑓   2
+                            𝐿𝑓 = 25 log10 (𝑓) − 2.5 [log10 (2)]               dB                         (45)
+               𝑁0 :    path centre sea-level surface refractivity from the integral digital map N050.txt
+20                                                  Rec. ITU-R P.1812-8
+
+4.5      Propagation by ducting/layer reflection
+The basic transmission loss associated with ducting/layer-reflection not exceeded for p% time,
+Lba (dB), is given by:
+                                             𝐿𝑏𝑎 = 𝐴𝑓 + 𝐴𝑑 (𝑝)                  dB                                           (46)
+where:
+                Af :      total of fixed coupling losses between the antennas and the anomalous
+                          propagation structure within the atmosphere:
+          Af = 102.45 + 20 log( f ) + 20 log(dlt + dlr ) + Alf + Ast + Asr + Act + Acr                           dB          (47)
+               Alf :      empirical correction to account for the increasing attenuation with wavelength
+                          in ducted propagation
+                                    45.375 − 137.0 f + 92.5 f 2         dB          for f  0.5 GHz
+                                    
+                        Alf ( f ) = 
+                                    0                                   dB          for f  0.5 GHz
+                                                                                                 (47a)
+           Ast, Asr :     site-shielding diffraction losses for the transmitting and receiving stations
+                          respectively:
+
+                    
+                             (
+                    20 log 1 + 0.361t, r f d(lt,lr   )      )
+                                                       1 / 2 + 0.264  f 1 / 3 dB
+                                                                      t,r                           for t, r  0 mrad
+         Ast , sr = 
+                    0                                                           dB                 for t, r  0 mrad
+                                                                                                                            (48)
+where:
+                                     t, r = θ t,r – 0.1 d lt,lr                    mrad                                 (48a)
+           Act, Acr:      over-sea surface duct coupling corrections for the transmitting and receiving
+                          stations respectively:
+                                 (              )
+              Act,cr = – 3 exp − 0.25d ct2 ,cr 1 + tanh0.07(50 − hts,rs )                    dB        for      0.75
+
+                                                                                    ω  0.75
+                (               )
+           – 3 exp − 0.25d 2 1 + tanh0.07(50 − h )
+                           ct ,cr                  ts , rs            dB for         d ct ,cr  d lt ,lr
+          
+Act ,cr =                                                                           d ct ,cr  5 km
+          
+          
+          
+          0                                                          dB for         all other conditions                    (49)
+It is useful to note the limited set of conditions under which equation (49) is needed.
+              Ad (p): time percentage and angular-distance dependent losses within the anomalous
+                       propagation mechanism:
+                                           Ad ( p) =  d  + A( p)              dB                                          (50)
+where:
+                 γd:      specific attenuation:
+
+                                          γ d = 5 10–5 ae f 1/ 3         dB/mrad                                            (51)
+                                                    Rec. ITU-R P.1812-8                                              21
+
+                 :      angular distance (corrected where appropriate (via equation (48a))
+                          to allow for the application of the site shielding model in equation (46)):
+                                              103 d
+                                        =         + t + r                       mrad                          (52)
+                                               ae
+
+                                   θ t,r                         for θ t,r  0.1 d lt,lr          mrad
+                                   
+                       t , r   =                                                                                (52a)
+                                   0.1 d                         for θ t,r  0.1 d lt,lr          mrad
+                                         lt,lr
+
+              A(p):       time percentage variability (cumulative distribution):
+                                                                                      
+                                                       p
+                                                        −3        p
+                A( p) = −12 + (1.2 + 3.7 10 d ) log   + 12                                       dB        (53)
+                                                      β        β
+
+         =
+                          1.076
+                                                   (                                          )
+                                                exp – 9.51 – 4.8 log β + 0.198 (log β) 2  10– 6 d 1.13           (53a)
+              (2.0058 – log β )         1.012
+
+
+                                                β = β0 μ2 μ3              %                                         (54)
+                μ2:       correction for path geometry:
+                                                                                  α
+                                                       500           2
+                                                                      d      
+                                                 μ2 =                                                             (55)
+                                                       ae
+                                                             (            2 
+                                                                  hte + hre  )
+              The value of μ2 shall not exceed 1.
+                                                 α = –0.6 − τ d 3.1ε  10 −9                                       (55a)
+where:
+                 :       3.5
+                 :       is defined in equation (3), and the value of  shall not be allowed to decrease
+                          below −3.4
+                μ3:       correction for terrain roughness:
+                        1                                                                for hm  10 m
+                        
+                   μ3 =                                                                                            (56)
+                                  
+                        exp – 4.6 10 – 5 (h – 10) (43 + 6 d )
+                                             m               I                           for hm  10 m
+and:
+                                         d I = min (d – dlt – dlr , 40)               km                           (56a)
+
+The remaining terms have been defined in Tables 1 and 2 and Attachment 1 to this Annex.
+
+4.6      Basic transmission loss not exceeded for p% time and 50% locations
+The following procedure should be applied to the results of the foregoing calculations for all paths,
+in order to compute the basic transmission loss not exceeded for p% time and 50% locations. In order
+to avoid physically unreasonable discontinuities in the predicted notional basic transmission losses,
+the foregoing propagation models must be blended together to get modified values of basic
+transmission losses in order to achieve an overall prediction for p% time and 50% locations.
+22                                          Rec. ITU-R P.1812-8
+
+Calculate an interpolation factor, Fj, to take account of the path angular distance:
+                                                               (θ − Θ) 
+                                Fj = 1.0 − 0.51.0 + tanh 3.0 ξ                                 (57)
+                                                                  Θ    
+where:
+               Θ:     fixed parameter determining the angular range of the associated blending;
+                      set to 0.3 mrad
+                ξ:    fixed parameter determining the blending slope at the end of the range; set to 0.8
+                θ:    path angular distance (mrad) defined in Table 7.
+Calculate an interpolation factor, Fk, to take account of the path great-circle distance:
+                                                               ( d − dsw ) 
+                              Fk = 1.0 − 0.5 1.0 + tanh 3.0                                 (58)
+                                                                   dsw      
+where:
+                d:    great circle path length defined in Table 3 (km)
+              dsw :   fixed parameter determining the distance range of the associated blending;
+                      set to 20
+                κ:    fixed parameter determining the blending slope at the ends of the range;
+                      set to 0.5.
+Calculate a notional minimum basic transmission loss, Lminb0p (dB), associated with LoS propagation
+and over-sea sub-path diffraction:
+                                    Lb 0 p + (1 − ω) Ldp                   for p  β 0   dB
+                                   
+                      Lmin b 0 p =                                                                (59)
+                                    L + ( L + (1 − ω) L − L ) F            for p  β0    dB
+                                    bd 50       b 0β     dp bd 50 i
+
+
+where:
+             Lb0p:    notional LoS basic transmission loss not exceeded for p% time, given by
+                      equation (10)
+             Lb0:    notional LoS basic transmission loss not exceeded for 0% time, given by
+                      equation (11)
+             Ldp:     diffraction loss not exceeded for p% time, given by equation (41)
+            Lbd50:    median basic transmission loss associated with diffraction, given by
+                      equation (42)
+               Fi:    Diffraction interpolation factor, given by equation (40).
+Calculate a notional minimum basic transmission loss, Lminbap (dB), associated with LoS and
+transhorizon signal enhancements:
+                                            L              Lb 0 p 
+                            Lminbap = η ln exp ba  + exp                   dB            (60)
+                                                η           η      
+                                           Rec. ITU-R P.1812-8                                    23
+
+where:
+             Lba :   ducting/layer reflection basic transmission loss not exceeded for p% time, given
+                     by equation (46)
+             Lb0 :   notional LoS basic transmission loss not exceeded for p% time, given by
+                     equation (10)
+              η=     2.5.
+Calculate a notional basic transmission loss, Lbda (dB), associated with diffraction and LoS or
+ducting/layer-reflection enhancements:
+                         Lbd                             for Lminbap  Lbd
+                        
+                 Lbda =                                                           dB           (61)
+                        L
+                         minbap + ( Lbd − Lminbap ) Fk   for Lminbap  Lbd
+
+where:
+             Lbd :   basic transmission loss for diffraction not exceeded for p% time from
+                     equation (43)
+         Lminbap :   notional minimum basic transmission loss associated with LoS propagation and
+                     trans-horizon signal enhancements from equation (60)
+              Fk :   interpolation factor given by equation (58), according to the value of the path
+                     great-circle distance, d.
+Calculate a modified basic transmission loss, Lbam (dB), which takes diffraction and LoS or
+ducting/layer-reflection enhancements into account:
+                              𝐿𝑏𝑎𝑛 = 𝐿𝑏𝑑𝑎 + (𝐿𝑚𝑖𝑛𝑏0𝑝 − 𝐿𝑏𝑑𝑎 )𝐹𝑗          dB                     (62)
+where:
+            Lbda :   notional basic transmission loss associated with diffraction and LoS or
+                     ducting/layer-reflection enhancements, given by equation (61)
+         Lminb0p :   notional minimum basic transmission loss associated with LoS propagation and
+                     over-sea sub-path diffraction, given by equation (59)
+              Fj :   interpolation factor given by equation (57), according to the value of the path
+                     angular distance, θ.
+Calculate the basic transmission loss not exceeded for p% time and 50% locations, Lbc (dB), as given
+by:
+                         𝐿𝑏𝑐 = −5 log(10−0.2𝐿𝑏𝑠 + 10−0.2𝐿𝑏𝑎𝑚 )                dB                (63)
+where:
+             Lbs :   basic transmission loss due to troposcatter not exceeded for p% time, given by
+                     equation (44)
+            Lbam :   modified basic transmission loss taking diffraction and LoS ducting/
+                     layer-reflection enhancements into account, given by equation (62).
+24                                          Rec. ITU-R P.1812-8
+
+4.7      Location variability of losses
+In this Recommendation, and generally, location variability refers to the spatial statistics of local
+ground cover variations. This is a useful result over scales substantially larger than the ground cover
+variations, and over which path variations are insignificant. As location variability is defined to
+exclude multipath variations, it is independent of system bandwidth.
+In the planning of radio systems, it will also be necessary to take multipath effects into account.
+The impact of these effects will vary with systems, being dependent on bandwidths, modulations and
+coding schemes. Guidance on the modelling of these effects is given in Recommendation
+ITU-R P.1406.
+Extensive data analysis suggests that the distribution of local mean field strength due to ground cover
+variations is approximately lognormal.
+Values of the standard deviation are dependent on the prediction resolution and frequency, and
+empirical studies have shown a spread. Representative values, which relate to the 50 th percentile of
+the distribution of standard deviation of location variability, are given by the following expression:
+                               σ𝐿 = (0.024𝑓 + 0.52)𝑤𝑎 0.28               dB                          (64)
+where:
+               f:    required frequency (GHz)
+              wa :   prediction resolution (m).
+The prediction resolution is the width of the square area over which the variability applies. The
+percentage locations, pL%, can vary between 1% and 99%. This model is not valid for percentage
+locations less than 1% or greater than 99%.
+The values given in Table 6 have been found appropriate for the planning of digital terrestrial
+television (DTT) services. They were found to be equivalent to the 93rd percentile of the measurement
+cumulative distribution function for a rooftop height antenna in a 100 × 100 m area.
+
+                                                    TABLE 6
+      Values of location variability standard deviations used in certain planning situations
+                                                         Standard deviation (dB)
+                                          100 MHz               600 MHz                2 000 MHz
+ Broadcasting, DTT                           5.5                   5.5                      5.5
+
+When the receiver/mobile is located on land and outdoors but its height above ground is greater than
+or equal to the height of representative clutter, it is reasonable to expect that the location variability
+will decrease monotonically with increasing height until, at some point, it vanishes. In this
+Recommendation, the location variability height variation, u(h), is given by:
+                            u(h ) = 1                    for    0h R
+                                          (h − R)
+                            u(h ) = 1 −                  for   R  h  R + 10                        (65)
+                                            10
+                            u(h ) = 0                    for   R + 10  h
+where R (m) is the height of representative clutter at the receiver/mobile location. Therefore, for a
+receiver/mobile located outdoors, the standard deviation of the location variability, σL, as given by
+either equation (64) or Table 6, should be multiplied by the height variation function, u(h), given in
+equation (65), when computing values of the basic transmission loss for values of pL% different from
+50%.
+                                          Rec. ITU-R P.1812-8                                         25
+
+4.8      Building entry loss
+Definitions, theoretical models and references to empirical results relating to building entry loss can
+be found in Recommendation ITU-R P.2040.
+The field-strength variation for indoor reception is the combined result of the outdoor variation, L,
+and the variation due to building attenuation, be (see Recommendation ITU-R P.2040). These
+variations are likely to be uncorrelated. The standard deviation for indoor reception, i can therefore
+be calculated by taking the square root of the sum of the squares of the individual standard deviations.
+
+                                           i = 2L + be
+                                                       2
+                                                                    dB                               (66)
+where L is the standard deviation of location variability, as given by equation (64) or Table 6.
+
+4.9      Basic transmission loss not exceeded for p% time and pL% locations
+In order to compute the desired percentage locations, the median loss, Lloc, and the standard deviation,
+σloc, are given by:
+                                        Lloc = 0       (outdoors)     dB                            (67a)
+
+                                       Lloc = Lbe
+                                                         (indoors)       dB                         (67b)
+and:
+                                     σloc = u(h) σ L     (outdoors)        dB                       (68a)
+
+                                       loc = i        (indoors)        dB                         (68b)
+where the median building entry loss, Lbe, is given in Recommendation ITU-R P.2040, the height
+function, u(h), is given by equation (65) and the standard deviations, σL and σi, are given by
+equation (64) (or Table 6) and equation (66), respectively.
+The basic transmission loss not exceeded for p% time and pL% locations, Lb (dB), is given by:
+
+                                                                  p  
+                               Lb = max  Lb 0 p , Lbc + Lloc − I  L σ loc  dB                    (69)
+                                                                  100  
+where:
+             Lb0p:   basic transmission loss not exceeded for p% time and 50% locations associated
+                     with LoS with short term enhancements, given by equation (10)
+              Lbc:   basic transmission loss not exceeded for p% of time and 50% locations,
+                     including the effects of terminal clutter losses, given by equation (63)
+             Lloc:   median value of the location loss, as given by equations (67a) and (67b)
+             I(x):   inverse complementary cumulative normal distribution as a function of
+                     probability, x. An approximation for I(x) which may be used for
+                     0.000001 ≤ x ≤ 0.999999 is given in Attachment 2 to this Annex
+             loc:   combined standard deviation (i.e. building entry loss and location variability),
+                     given by equations (68a) and (68b).
+The percentage locations, pL%, can vary between 1% and 99%. This model is not valid for percentage
+locations less than 1% or greater than 99%.
+26                                      Rec. ITU-R P.1812-8
+
+4.10     The field strength exceeded for p% time and pL% locations
+The field strength normalized to 1 kW effective radiated power exceeded for p% time and pL%
+locations, Ep dB(μV/m), may be calculated using:
+                                    E p = 199.36 + 20 log( f ) – Lb                dB(μV/m)         (70)
+
+where:
+               Lb :   basic transmission loss not exceeded for p% time and pL% locations calculated
+                      by equation (69)
+                f:    required frequency (GHz).
+
+
+
+
+                                           Attachment 1
+                                           to the Annex
+
+                                       Path profile analysis
+
+1        Introduction
+For path profile analysis, a path profile of terrain heights above mean sea level is required.
+The parameters that need to be derived from the path profile analysis for the purposes of the
+propagation models are given in Table 7.
+
+
+2        Construction of path profile
+Based on the geographical coordinates of the transmitting (φt, ψt) and receiving (φr, ψr) stations,
+terrain heights (above mean sea level) along the great-circle path should be derived from
+a topographical database or from appropriate large-scale contour maps. The distance resolution of the
+profile should be as far as is practicable to capture significant features of the terrain. Typically,
+a distance increment of 30 m to 1 km is appropriate. In general, it is appropriate to use longer distance
+increments for longer paths. The profile should include the ground heights at the transmitting and
+receiving station locations as the start and end points. The equations of this section take Earth
+curvature into account where necessary, based on the value of ae found in equation (7a).
+Although equally spaced profile points are considered preferable, it is possible to use the method with
+non-equally spaced profile points. This may be useful when the profile is obtained from a digital map
+of terrain height contours. However, it should be noted that the Recommendation has been developed
+from testing using equally spaced profile points; information is not available on the effect of non-
+equally spaced points on accuracy.
+For the purposes of this Recommendation the point of the path profile at the transmitting station is
+considered as point 1, and the point at the receiving station is considered as point n. The path profile
+therefore consists of n points. Figure 1 gives an example of a path profile of terrain heights above
+mean sea level, showing the various parameters related to the actual terrain.
+                                         Rec. ITU-R P.1812-8                                            27
+
+                                                   FIGURE 1
+                                   Example of a (trans-horizon) path profile
+
+
+
+
+Table 7 defines parameters used or derived during the path profile analysis.
+
+                                                 TABLE 7
+                                 Path profile parameter definitions
+  Parameter                                               Description
+       a         Average physical Earth’s radius (6 371 km)
+       ae        Effective Earth’s radius (km)
+       d         Great-circle path distance (km)
+       di        Great-circle distance of the 𝑖-th profile point from the transmitter
+       dii       Incremental distance for regular (i.e. equally spaced) path profile data (km)
+        f        Frequency (GHz)
+       λ         Wavelength (m)
+       hts       Transmitter antenna height (m) above mean sea level (amsl)
+       hrs       Receiver antenna height (m) (amsl)
+       θt        For a trans-horizon path, horizon elevation angle above local horizontal (mrad), measured
+                 from the transmitting antenna. For a LoS path this should be the elevation angle of the
+                 receiving antenna
+       θr        For a trans-horizon path, horizon elevation angle above local horizontal (mrad), measured
+                 from the receiving antenna. For a LoS path this should be the elevation angle of the
+                 transmitting antenna
+28                                          Rec. ITU-R P.1812-8
+
+                                                TABLE 7 (end)
+     Parameter                                              Description
+         θ          Path angular distance (mrad)
+         hst        Height of the smooth-Earth surface (amsl) at the transmitting station location (m)
+         hsr        Height of the smooth-Earth surface (amsl) at the receiving station location (m)
+         hi         Height of the i-th terrain point amsl (m)
+                    h1: ground height of the transmitter
+                    hn: ground height of receiver
+         hm         Terrain roughness (m)
+         hte        Effective height of transmitting antenna (m)
+         hre        Effective height of receiving antenna (m).
+
+
+
+3         Path length
+The path length can be obtained using great-circle geometry (based on the average physical Earth
+radius a) from the geographical coordinates of the transmitting (φt, ψt) and receiving (φr, ψr) stations.
+Alternatively the path length can be found from the path profile. For general cases, the path length, d
+(km), can be found from the path profile data:
+                                                       𝑑 = 𝑑𝑛                            km              (71)
+For regularly spaced path profile data it is also true that:
+                                                𝑑𝑖 = (𝑖 − 1)𝑑𝑖𝑖                          km              (72)
+for i = 1, …, n, where dii is the incremental path distance (km).
+
+
+4         Path classification
+The path must be classified into LoS or transhorizon only for the determination of distances dlt and dlr,
+and elevation angles θt and θr, see below.
+The path profile must be used to determine whether the path is LoS or trans-horizon based on the
+median effective Earth’s radius of ae, as given by equation (7a).
+A path is trans-horizon if the physical horizon elevation angle as seen by the transmitting antenna
+(relative to the local horizontal) is greater than the angle (again relative to the transmitter's local
+horizontal) subtended by the receiving antenna.
+The test for the trans-horizon path condition is thus:
+                                                   θ𝑚𝑎𝑥 > θ𝑡𝑑                            mrad            (73)
+where:
+                                                n –1
+                                        θmax = max ( θi )                  mrad                          (74)
+                                                i=2
+
+                 θi :   elevation angle to the i- th terrain point
+                                                        ℎ −ℎ
+                                                         𝑡𝑠        𝑑
+                                                    𝑖
+                               θ𝑖 = 1 000 arctan ( 10         𝑖
+                                                      3 𝑑 − 2𝑎 )
+                                                                                  mrad                   (75)
+                                                               𝑖       𝑒
+                                           Rec. ITU-R P.1812-8                                                       29
+
+where:
+                hi:   height of the i-th terrain point amsl (m)
+               hts:   transmitter antenna height amsl (m)
+                di:   distance from transmitter to the i-th terrain element (km).
+                                                                  ℎ −ℎ             𝑑
+                                   θ𝑡𝑑 = 1 000 arctan ( 𝑟𝑠   𝑡𝑠
+                                                                − 2𝑎 )                        mrad                  (76)
+                                                        103 𝑑                          𝑒
+
+where:
+              hrs:    receiving antenna height amsl (m)
+               d:     total great-circle path distance (km)
+              ae:     median effective Earth’s radius appropriate to the path (see equation (7a)).
+
+
+5        Derivation of parameters from the path profile
+The parameters to be derived from the path profile are those contained in Table 7.
+
+5.1      Transmitting antenna horizon elevation angle above the local horizontal, θt
+The transmitting antenna’s horizon elevation angle relative to the local horizontal is given by:
+                                  θ𝑡 = max(θ𝑚𝑎𝑥 , θ𝑡𝑑 )                         mrad                                (77)
+with θmax as determined in equation (74). Thus for a LoS path the transmitting antenna's horizon
+elevation angle is considered to be the elevation angle of the line to the receiving antenna.
+
+5.2      Transmitting antenna horizon distance, dlt
+The horizon distance is the minimum distance from the transmitter at which the maximum antenna
+horizon elevation angle is calculated from equation (74).
+                                     𝑑𝑙𝑡 = 𝑑𝑖         km          for max(θ𝑖 )                                      (78)
+For a LoS path, the index i should be the value which gives the maximum diffraction parameter :
+                                                       h (d − d i ) + hrs d i               0.002d 
+                max = max  hi + 500Ce d i (d − d i ) − ts
+                                                               d              
+                                                                                             λd i (d − d i ) 
+                                                                                                                   (78a)
+where the profile index i takes values from 2 to n – 1, and Ce is effective Earth curvature as defined
+in § 4.3.1 of Annex 1.
+
+5.3      Receiving antenna horizon elevation angle above the local horizontal, θr
+For a LoS path, θr is given by:
+                                                     ℎ −ℎ           𝑑
+                           θ𝑟 = 1 000 arctan [ 𝑡𝑠   𝑟𝑠
+                                                       − 2𝑎 ]                              mrad                     (79)
+                                               103 𝑑                    𝑒
+
+Otherwise, r is given by:
+                                              n –1
+                                       θr = max (θj )                       mrad                                    (80)
+                                              j=2
+
+                                                     ℎ −ℎ𝑟𝑠        𝑑−𝑑
+                         θ𝑗 = 1 000 arctan [103𝑗(𝑑−𝑑 ) − 2𝑎 𝑗 ]                             mrad                   (80a)
+                                                              𝑗             𝑒
+30                                        Rec. ITU-R P.1812-8
+
+5.4      Receiving antenna horizon distance, dlr
+The horizon distance is the minimum distance from the receiver at which the maximum antenna
+horizon elevation angle is calculated from equation (80).
+                                 𝑑𝑙𝑟 = 𝑑 − 𝑑𝑗       km      for    max(θ𝑗 )                             (81)
+For a LoS path, dlr is given by:
+                                       𝑑𝑙𝑟 = 𝑑 − 𝑑𝑙𝑡              km                                   (81a)
+
+5.5      Angular distance θ (mrad)
+                                       103 d
+                                    θ=       + θt + θr             mrad                                 (82)
+                                        ae
+
+5.6      “Smooth-Earth” model and effective antenna heights
+A “smooth-Earth” surface is derived from the profile to calculate effective antenna heights both for
+the diffraction model, and for an assessment of path roughness required by the ducting/
+layer-reflection model. The definitions of effective antenna heights differ for these two purposes.
+Section 5.6.1 fits a smooth-Earth surface to the profile, from which are obtained the heights of this
+surface at the terminals, hst, and hsr.
+In § 5.6.2, hst, and hsr are used to calculate modified smooth-Earth heights at the terminals, hstd and
+hsrd, which in § 4.3.4 of Annex 1 are used to calculate effective antenna heights for the diffraction
+model. Depending on the profile, hstd and hsrd may have different values from hst, and hsr respectively.
+In § 5.6.3, hst, and hsr are used to calculate effective antenna heights hte, and hre and a terrain roughness
+parameter hm which are required in the ducting/layer-reflection model described in § 4.5 of Annex 1.
+5.6.1    Deriving the smooth-Earth surface
+Calculate the smooth-Earth heights at the terminals, hst and hsr, as follows:
+                                           n
+                                    v1 =  (d i − d i −1 )(hi + hi −1 )                                 (83)
+                                          i=2
+
+                           n
+                  v2 =     (di − di −1 )hi (2di + di −1 ) + hi −1 (di + 2di −1 )                     (84)
+                         i = 2
+
+                                             2v d − v 
+                                      hst =  1 2 2                m                                   (85)
+                                                d     
+                                            v − v d 
+                                      hsr =  2 2 1                m                                   (86)
+                                              d     
+where:
+               hst :   height amsl (m), of the smooth-Earth surface at the path origin, i.e. at the
+                       transmitter
+               hsr :   height amsl (m), of the smooth-Earth surface at the end of the path, i.e. at the
+                       receiver.
+                                            Rec. ITU-R P.1812-8                                      31
+
+5.6.2    Smooth-surface heights for the diffraction model
+Find the highest obstruction height above the straight-line path from transmitter to receiver hobs, and
+the horizon elevation angles αobt, αobr, all based on flat-Earth geometry, according to:
+                                         ℎ𝑜𝑏𝑠 = max(𝐻𝑖 )                      m                   (87a)
+
+                                                   H 
+                                       α obt = max  i                    mrad                 (87b)
+                                                     di 
+                                                  Hi 
+                                     α obr = max                            mrad                (87c)
+                                                  (d − d i )
+where:
+
+                                   H i = hi −
+                                                htc (d − di ) + hrc di             m            (87d)
+                                                           d
+and the profile index i takes values from 2 to (n – 1).
+Calculate provisional values for the heights of the smooth surface at the transmitter and receiver ends
+of the path:
+If hobs is less than or equal to zero, then:
+                                                 hstp = hst       m amsl                          (88a)
+
+                                                hsrp = hsr         m amsl                         (88b)
+
+otherwise:
+                                        hstp = hst − hobs gt m amsl                               (88c)
+
+                                        hsrp = hsr − hobs gr m amsl                               (88d)
+
+where:
+                                                               α obt
+                                                   gt =                                           (88e)
+                                                          (α obt + α obr )
+                                                               α obr
+                                                  gr =                                            (88f)
+                                                          (α obt + α obr )
+Calculate final values for the heights of the smooth surface at the transmitter and receiver ends of the
+path as required by the diffraction model:
+If hstp is greater than h1 then:
+                                                 hstd = h1        m amsl                          (89a)
+otherwise:
+                                                hstd = hstp         m amsl                        (89b)
+
+If hsrp is greater than hn then:
+                                                hsrd = hn          m amsl                         (89c)
+otherwise:
+32                                               Rec. ITU-R P.1812-8
+
+                                                 hsrd = hsrp           m amsl                       (89d)
+
+5.6.3    Parameters for the ducting/layer-reflection model
+Calculate the smooth-Earth heights at transmitter and receiver as required for the roughness factor
+given by:
+                                        hst = min (hst , h1 )                    m                  (90a)
+                                        hsr = min (hsr , hn )                    m                  (90b)
+The slope, m, of the smooth-Earth surface should be calculated as:
+                                                   hsr – hst
+                                        m=                                    m/km                   (91)
+                                                       d
+The terminal effective heights for the ducting/layer-reflection model, hte and hre, are given by:
+                                                       hte = htg + h1 − hst          m              (92a)
+
+                                                   hre = hrg + hn − hsr              m              (92b)
+
+The terrain roughness parameter, hm (m) is the maximum height of the terrain above the smooth-Earth
+surface in the section of the path between, and including, the horizon points:
+                                           ilr
+
+                                         i = ilt
+                                                   
+                                   hm = max hi – (hst + mdi )                       m               (93)
+
+where:
+               ilt :   index of the profile point at distance dlt from the transmitter
+               ilr :   index of the profile point at distance dlr from the receiver.
+The smooth-Earth surface and the terrain roughness parameter hm are illustrated in Fig. 2.
+
+                                                            FIGURE 2
+                       An example of the smooth-Earth surface and terrain roughness parameter
+                                              Rec. ITU-R P.1812-8                                    33
+
+
+                                                   Attachment 2
+                                                   to the Annex
+
+             An approximation to the inverse complementary cumulative
+                           normal distribution function
+
+The following approximation to the inverse complementary cumulative normal distribution function
+is valid for 0.000001  x  0.999999 and is in error by a maximum of 0.00054. If x < 0.000001, which
+implies β0 < 0.0001%, x should be set to 0.000001. Similar considerations hold for x > 0.999999. This
+approximation may be used with confidence for the interpolation function in equations (40) and (59)
+and in equation (69). For the latter equation, however, the value of x must be limited: 0.01  x  0.99.
+The function I(x) is given by:
+                      I ( x ) = T ( x ) – ( x )                       for 0.000001  x  0.5     (94a)
+and, by symmetry:
+                      I ( x ) = (1 − x ) − T (1 − x )                 for 0.5 < x  0.999999     (94b)
+where:
+                                                T( x) =      [–2 ln( x )]                         (95a)
+                                                  (C2T ( x) + C1 ) T ( x) + C0
+                                  ξ ( x) =                                                        (95b)
+                                             ( D3T ( x) + D2 ) T ( x) + D1  T ( x) + 1
+                                                𝐶0 = 2.515516698                                  (95c)
+                                                   𝐶1 = 0.802853                                  (95d)
+                                                   𝐶2 = 0.010328                                  (95e)
+                                                   𝐷1 = 1.432788                                  (95f)
+                                                   𝐷2 = 0.189269                                  (95g)
+                                                   𝐷3 = 0.001308                                  (95h)
+
+
+
+
+                                                   Attachment 3
+                                                   to the Annex
+
+    An alternative method to calculate the spherical earth diffraction loss Lbulls
+
+This Attachment gives an alternative method to calculate Lbulls without using terrain profile analysis.
+If d < dlos (LoS), calculate the diffraction parameter for the smallest clearance height hse
+(equation (23)) between the curved-Earth path and the ray between the antennas with the distance d se1
+(equation (24a)):
+34                                         Rec. ITU-R P.1812-8
+
+                                                                      0.002𝑑
+                                      𝑣max = −ℎ𝑠𝑒 ∙ √λ𝑑                                                          (96)
+                                                                     𝑠𝑒𝑙 (𝑑−𝑑𝑠𝑒𝑙 )
+
+The knife-edge loss for this point is given by:
+                                       𝐿𝑢𝑠 = 𝐽(𝜈max )                         dB                                 (97)
+If d ≥ dlos (non-line-of-sight (NLoS)), find the highest slope of the line from the transmitter antenna
+to the curved-Earth path.
+                              Stm = 500Ce d − 2 500Ce htesph
+                                                                                        m/km                     (98)
+Then find the highest slope of the line from the receiver antenna to the curved-Earth path.
+                              Srm = 500Ce d − 2 500Ce hresph
+                                                                                        m/km                     (99)
+Use these two slopes to calculate the Bullington point as:
+                                          hresph − htesph + S rm d
+                                   ds =
+                                                 Stm + S rm                          km                         (100)
+Calculate the diffraction parameter s for the Bullington point:
+                                               htesph  d − d s  + hresph d s       0.002d
+                     s = htesph + Stm d s −                                       
+                                                               d                       λd s  d − d s 
+                                                                                                                (101)
+The knife-edge loss for the Bullington point is given by:
+                                          𝐿𝑢𝑠 = 𝐽(𝑣𝑠 )                      dB                                  (102)
+For Lus calculated using either equation (97) or equation (102), the Bullington diffraction loss for the
+smooth path is given by:
+                                                        − L 
+                                Lbulls = Lus + 1 − exp us  (10 + 0.02d )
+                                                        6                                                   (103)
+

@@ -1,0 +1,1475 @@
+VHF AND UHF SIGNAL CHARACTERISTICS OBSERVED ON
+
+      A LONG KNIFE-EDGE DIFFRACTION PATH
+
+
+
+
+                       by                   PK      r Of
+                               SOUTHWEST R,ESEARi
+                                                   INS- flL LiisK
+                                       San an
+                                                MIO, TEXAS
+
+
+
+
+           A. P. Barsis and R. S. Kirby
+
+
+
+
+    U. S. DEPARTMENT OF COMMERCE
+        NATIONAL BUREAU OF STANDARDS
+              BOULDER LABORATORIES
+                  BouHer, Colorado
+                         THE NATIONAL BUREAU OF STANDARDS
+
+
+Functions and Activities
+
+     The functions of the National Bureau of Standards are set forth in the Act of Congress, Marcli
+3, 1901, as amended by Congress in Public Law 619, 1950. These include the development and
+maintenance of the national standards of measurement and the provision of means and methods for
+making measurements consistent with these standards; the determination of physical constants and
+properties of materials; the development of methods and instruments for testing materials, devices,
+and structures; advisory services to government agencies on scientific and technical problems; in¬
+vention and development of devices to serve special needs of the Government; and the development
+of standard practices, codes, and specifications.    The work includes basic and applied research,
+development, engineering, instrumentation, testing, evaluation, calibration services, and various
+consultation and information services. Research projects are also performed for other government
+agencies when the work relates to and supplements the basic program of the Bureau or when the
+Bureau’s unique competence is required. The scope of activities is suggested by the listing of
+divisions and sections on the inside of the back cover.
+
+
+Publications
+
+     The results of the Bureau’s work take the form of either actual equipment and devices or pub¬
+lished papers. These papers appear either in the Bureau’s own series of publications or in the journals
+of professional and scientific societies. The Bureau itself publishes three periodicals available from
+the Government Printing Office: The Journal of Research, published in four separate sections,
+presents complete scientific and technical papers; the Technical News Bulletin presents summary
+and preliminary reports on work in progress; and Basic Radio Propagation Predictions provides
+data for determining the best frequencies to use for radio communications throughout the world.
+There are also five series of nonperiodical publications: Monographs, Applied Mathematics Series,
+Handbooks, Miscellaneous Publications, and Technical Notes.
+    Information on the Bureau’s publications can be found in NBS Circular 460, Publications of the
+National Bureau of Standards (SI.25) and its Supplement ($1.50), available from the Superintendent
+of Documents, Government Printing Office, Washington 25, D.C.
+                                                                    S. H. Simpson, lr-
+NATIONAL BUREAU OF STANDARDS REPORT
+NBS PROJECT                                            NBS REPORT
+8370-11-83171            March 1,   1961                 6751
+
+
+
+
+  VHF AND UHF SIGNAL CHARACTERISTICS OBSERVED ON
+
+          A LONG KNIFE-EDGE DIFFRACTION PATH
+
+
+
+
+                              by
+
+
+
+
+                 A. P. Barsis and R„ S. Kirby
+
+
+
+
+        U. S. DEPARTMENT OF COMMERCE
+              NATIONAL   BUREAU     OF     STANDARDS
+                    BOULDER LABORATORIES
+                       Boulder, Colorado
+                                        IMPORTANT NOTICE
+national bureau of sta APProved for public release by the                 progress accounting docu-
+ments intended for use within    Director of the National Institute of    s is formally published it
+is subjected to additional eval                              ululc u 1    tion, reprinting, reproduc-
+tion, or open-literature listing standards and Technology (N 1ST) on      not authorized unless per-
+mission is Obtoined in writing  October 9 2015                             of Standards, Washington
+25, D. C. Such permission is             '                               r for which the Report has
+been specifically prepared if I                                          es for its own use.
+                      TABLE      OF   CONTENTS
+
+                                                            Page No.
+
+     Summary                                                   1
+
+1.   Introduction                                              1
+
+2.   Characteristics of the Received Signal and Variation
+     of Hourly Median Values                                   2
+
+     2. 1   Signal Characteristics                             2
+
+     2.2    Variations of Hourly Medians                       2
+
+     2. 3   Comparative Studies of Median Distributions        3
+
+     2.4    Frequency Dependence of the Distributions
+            of Hourly Medians                                  6
+
+3.   Height Gain Studies                                       6
+
+4.   Vertical Space Diversity and Fading Characteristics       8
+
+5.   Conclusions                                               9
+
+6.   Acknowledgements                                         10
+
+7.   Table of References                                      10
+                       VHF AND UHF SIGNAL CHARACTERISTICS OBSERVED ON
+
+                               A LONG KNIFE-EDGE DIFFRACTION PATH
+
+
+                                                         by
+
+
+                                       A. P.    Barsis and R. S.        Kirby
+                                        National Bureau of Standards
+                                               Boulder, Colorado
+
+
+
+                      Summary                                 possible that obstacle - gain effects may aggravate
+                                                              rather than alleviate interference.
+     During 1959 and I960 long-term transmis¬
+sion loss measurements were performed over a                                      1.   Introduction
+223 kilometer path in Eastern Colorado using
+frequencies of 100 and 751 Me.      This path inter¬                  It is generally known that mountain ridges can
+sects Pikes Peak which forms a knife-edge type                act as diffracting knife-edges in point-to-point
+obstacle visible from both terminals.     The trans¬          communication circuits on VHF and UHF frequen¬
+mission loss measurements have been analyzed                  cies.     The mathematical approach was developed
+in terms of diurnal and seasonal variations in                by Schelleng,     Burrows, and Ferrel,     using the
+hourly medians and in instantaneous levels.         As        Fresnel-Kirchhoff diffraction theory. 1       Substan¬
+expected,    results show that the long-term fading           tial reductions in transmission loss as compared
+range is substantially less than expected for                 to scatter circuits of similar length, and relatively
+tropospheric scatter paths of comparable length.              fading-free signals were reported by several
+Transmission loss levels were in general agree¬               workers, both in this country and abroad. 2-7
+ment with predicted knife-edge diffraction propa¬             More recently, additional work in Japan, ® and so
+gation when allowance is made for rounding of                 far unpublished data from Alaskan knife-edge
+the knife edge.   A technique for estimating long¬            diffraction paths° have shown that some paths
+term fading ranges is presented and the results               exhibit considerable fading at carrier frequencies
+are in good agreement with observations.        Short¬        in the 900 Me range.       Much of the time the fading
+term variations in some cases resemble the                    encountered resembles the "space-wave fadeout"
+space-wave fadeouts commonly observed on                      phenomena observed commonly on within-the-
+within-the-horizon paths, although other phenom¬              horizon paths at comparable frequencies and first
+ena may contribute to the fading.    Since the                analyzed by Bean. ^        It consists of relatively deep
+foreground terrain was rough,    there was no                 and slow fades,     and the occurrence of these fades
+evidence of direct and ground-reflected lobe                  may show marked diurnal trends and correlation
+structure.                                                    with meteorological phenomena as well as with
+                                                              simultaneous ducting on paths just beyond the
+     In most cases comparatively high correlation             horizon.
+exists between signals received simultaneously
+on two antennas with 8. 3 and 14 meters vertical                      To obtain a better understanding of the long¬
+separation.    These separations were chosen as               term signal and fading characteristics, the
+being representative for practical space diversity            National Bureau of Standards established a test
+systems designed for eliminating the effects of               path in Colorado to study knife-edge type diffrac¬
+fading arising from direct and ground reflected               tion phenomena.      This path extends in a roughly
+phase interference phenomena.       The compara¬              north-south direction along the Front Range of the
+tively high correlation observed suggests that                Colorado Rockies,        and uses Pikes Peak as the
+space diversity will be relatively less successful            diffracting knife-edge.      An outline map of the path
+in mountain obstacle paths with rough terrain                 with the locations of the terminals at Beulah and
+near the terminals than on tropospheric scatter               Table Mesa, Colorado, is shown on Fig.         1.   Per¬
+paths or on line-of-sight paths over smooth                   tinent path and equipment data are given in Table
+ter rain.                                                     1, below.     The path profile is shown on Fig. 2,
+                                                              based on an equivalent earth radius of 9000 km.
+     The enhancement of field strength associated             This is 1.41 times the actual earth's radius and
+with propagation over mountain ridges may cause               corresponds to a surface refractivity of 316 N-
+concern in applications where mountains are being             units.
+counted on to shield unwanted radio waves.       Some
+radio astronomy installations have been located
+in mountain valleys for this reason,    and it is
+                                                               -2-
+
+                          Table 1                                    Mesa receiving site shows more rapid small signal
+                                                                     variations superimposed on a much slower fading
+                Path and Equipment Data
+                                                                     pattern, which includes a fade in excess of 1 5 db
+              Pikes Peak Obstacle Gain Path
+                                                                     lasting several minutes.      There appears to be sub¬
+                                                                     stantial correlation between the signal recorded
+Path Distance. 223 km
+                                                                     simultaneously on the two antennas on 751 Me.
+Angular Distance.. 64. 4 milliradians
+                                                                     The slow fading pattern is absent on the Table
+Terminal Elevations Above Mean Sea Level
+                                                                     Mesa 100 Me record; only the more rapid varia¬
+       Transmitter..(Beulah) 1905 m
+                                                                     tions are present, and they are superimposed on
+       Receiver ...                 (Table Mesa) 1666 m
+                                                                     a virtually constant signal.     It is believed that
+Height of Obstruction Above Mean Sea Level
+                                                                     these rapid signal variations of small amplitude
+              (Pikes Peak).4292 m
+                                                                     are due to a component of scattered field super¬
+Height of Obstruction Above Mean
+                                                                     imposed on the more slowly varying diffracted
+         Receiver Height. 2507 m
+                                                                     field.    For the line-of-sight path with the terminal
+Antenna Heights Above Ground
+                                                                     on the top of Pikes Peak this scattered component
+       Transmitter.7. 3 m for 751 Me,
+                                                                     is not noticeable, as expected.        However, the
+                                    12.4 m for 100 Me
+                                                                     slower variations are still present on 7 51 Me, and
+       Receiver ..8. 2,                  16. 5 and 22. 3
+                                                                     they do not appear correlated with the slow fading
+                                    m for 751 Me.      13. 7
+                                                                     observed at the Table Mesa site.
+                                    m for 100 Me
+
+                                                                             The slow signal variations which are similar
+Polarization..Horizontal
+                                                                     to the "space-wave fadeouts" commonly observed
+Antennas
+                                                                     on line-of-sight paths will be discussed in more
+                                      751 Me      100 Me
+                                                                     detail later on.
+       Transmitting.4. 3 m Dish                       Yagi
+       Receiving ....                3 m Dish         Yagi           2.2     Variations of Hourly Medians
+
+Modulation ....Continuous Wave
+                                                                             A typical sample of diurnal variations of
+                                                                     hourly medians is shown on Fig. 4 for the period
+       Operation on 751 Me commenced in December,                    August 8- 12,    1960, at the Table Mesa receiving
+1959, and terminated in September,        1960.    Data              site.    Each open circle denotes an hourly median
+were recorded continuously during five-day periods                   of basic transmission loss for the hour given by
+at the rate of one each month with more frequent                     the abscissa.      The distribution of the points and
+operation in June and August.       Operation on 100                 the median curve shows no pronounced diurnal
+Me started in August,      I960, on the same basis.                  trend.     This is in contrast to (smooth earth) dif¬
+During two five-day periods in August,         I960, an              fraction or scatter paths of similar length where
+additional site was operated on top of Pikes Peak,                   usually a substantial diurnal trend of hourly
+using horizontal half-wave dipole receiving                          median values is observed.
+antennas on both frequencies.       These antennas
+were mounted about 6 m above ground.            The                          Similarly, the absence of a pronounced sea¬
+length of this auxiliary line-of-sight path was                      sonal trend is shown by Fig.      5.    Here, the median
+77 km.                                                               of all hourly medians recorded during each five-
+                                                                     day period is plotted vs time.         The maximum
+       The receiver outputs were recorded on strip                   variation is about 5 db.     The overall medians
+charts and multi-channel magnetic tape.           Trans¬             obtained for the two antennas appear well corre¬
+mitter power output values were also recorded on                     lated, and there seems to be no significant differ¬
+strip charts, so that a continuous record of the                     ence between the results obtained at the two
+transmitter power is available for both frequen¬                     heights used for the corner reflector antenna.
+cies.    The receivers were calibrated by signal                     During the three recording periods in June when
+generators checked against laboratory standards.                     the corner reflector antenna was at the 22. 3 m
+                                                                     elevation, the overall medians follow the trend
+  2.    Characteristics of the Received Signal and                   given by the rest of the data, when the 16. 5 m
+              Variation of Hourly Median Values                      height was used.
+
+
+2. 1    Signal Characteristics                                               The 100 Me data at Table Mesa and the Pikes
+                                                                     Peak data were not included in this study, because
+       Fig.   3 shows sample recordings of both fre¬                 they are only available for August and September--
+quencies at the two sites taken on the morning of                    not enough to study seasonal trends.
+August 10,      1960.   The 751 Me record at the Table
+                                                         -3-
+
+      It should be recognized that the time periods            shown on Fig. 6 separately for all time blocks,
+on Fig.   5 are consecutive as far as recorded data            and for both 751 Me antennas, with the corner
+are concerned.     Weeks with no recordings have               reflector at the 16. 5 m elevation.         All curves are
+been omitted.                                                  bunched and nearly parallel, indicating very little
+                                                               diurnal or seasonal variation.           Table 3, below,
+      Diurnal and seasonal variations may also be              shows a comparison of the overall median values
+studied by obtaining distributions of hourly                   and the long-term fading range.           Here the overall
+medians for eight time blocks as defined by                    median is the median of all hourly medians within
+Norton, et al. ^      For this purpose, the hours of           a time block, and the long-term fading range is
+the day are divided into four blocks for summer                defined as the difference between hourly median
+as well as winter months, as follows:                          values exceeded 1% and 99% of all hours.
+
+
+                         Table 2                                       Even though the cumulative distributions of
+                                                               hourly medians plotted by time blocks on Fig. 6
+                      Time Blocks
+                                                               appear quite similar. Table 3 indicates some
+                                                               seasonal effect in the long-term fading range.             The
+No.                   Months                  Hours
+                                                               range is larger during summer, and is also larger
+ 1            November - April              0600-1300          for the corner reflector at the higher elevation
+2             November - April              1300- 1800         than for the dish.       There is very little variation
+ 3            November - April              1800-2400          in the overall median values between time blocks,
+4             May - October                 0600-1300          and the difference between the dish and the corner
+ 5            May - October                 1300- 1800         reflector appears to be slightly higher in summer.
+6             May - October                 1800-2400
+ 7            May - October                 0000-0600          2. 3    Comparative Studies of Median Distributions
+8             November - April              0000-0600
+                                                                       Although tropospheric scatter is not pri¬
+                                                               marily involved in these experiments, it is of
+      Cumulative distributions of the hourly basic
+                                                               interest to compare first the measured distribu¬
+transmission loss medians are calculated for each
+                                                               tions with theoretically expected values and with
+individual time block, or for combinations of
+                                                               data from tropospheric scatter paths having
+time blocks, and plotted on log-normal graph
+                                                               similar path parameters. For this purpose, two
+paper.    Thus it is possible to obtain an estimate
+                                                               hypothetical paths and the measured results ob¬
+of the range of observed hourly medians which is
+                                                               tained from two actual tropospheric scatter paths
+the long-term fading range.        This will be com¬
+                                                               were used.         The two hypothetical paths were con¬
+pared with theoretical estimates, or with similar
+                                                               sidered to have the same antenna height as the
+data obtained from other paths.
+                                                               actual path.       One was assumed to have an angular
+                                                               distance which a tropospheric scatter path of the
+      The cumulative distributions of all measured
+                                                               same length would have over a smooth earth, and
+hourly median transmission loss values are
+
+
+
+                                                       Table 3
+
+                                   Comparison of Winter and Summer Results
+
+
+                                                                                            Long-Term Fading Range,
+                           Overall Median, Decibels                   Difference of            Decibels (1% - 99%)
+                                             Corner              Overall Medians                             Corner
+ Time Block No.                3 m Dish     Reflector                      db                 3 m Dish         Reflector
+
+Winter:
+      8 (0000-0600)             198. 4        193. 2                       5. 2                  8. 9             14. 8
+      1 (0600-1300)             197. 6        192. 6                       5. 0                  8.9              10. 5
+      2 (1300-1800)             198. 3        192. 8                       5. 5                 12. 4             14. 0
+      3 (1800-2400)             197. 9        192. 7                       5. 2                 11. 5             11. 6
+
+Summer;
+      7 (0000-0600)             198. 1        192. 7                       5. 4                 13. 5             16. 2
+      4 (0600-1300)             197. 6        191. 4                       6. 2                 13. 8             14. 4
+      5 (1300-1800)             197. 3        189. 9                       7. 4                 11. 4             10. 7
+      6 (1800-2400)             198. 5        192. 3                       6. 2                 13.0              12. 9
+                                                            -4-
+
+the other would have a path length corresponding                  United States.      The time block medians and long¬
+to a smooth earth path having the same angular                    term fading ranges given there are measured re¬
+distance as the obstacle gain path.      The actually-            lative to a calculated reference value of basic
+measured paths were selected to correspond                        transmission loss, which is the median of all
+closely to these assumptions in path geometry                     hourly median values in Time Block 2 (winter
+and frequency.     Table 4, below, shows the path                 afternoon).       The curves are assumed to be valid
+constants used:                                                   for all frequencies in the 70-4000 Me range.
+
+
+                       Table 4                                        A comparison of the long-term fading range
+                                                                  determined in this manner for the hypothetical
+        Path Constants for Comparative Study
+                                                                  paths with the ones measured on the Pikes Peak
+                                                                  obstacle gain path is shown as Table 5 for all
+                                 Path           Angular
+                                                                  time blocks separately, for all hours during
+                            Distance,       Distance,
+                                                                  summer and winter, and for all hours of the year.
+                                 km        Milli radians
+
+Hypothetical Path A              223             24. 0                 It is seen that the actually observed long¬
+Hypothetical Path B              566             64. 4            term fading ranges were considerably smaller
+Actual Paths:                                                     than the ones predicted on the basis of scatter
+ Pikes Peak Obstacle                                              propagation, although the fading predicted for a
+   Gain (751 Me)                 223             64. 4            scatter path having the same angular distance is
+ Cheyenne Mt. -Garden                                             a somewhat better estimate.
+  City (1046 Me)                 364             26. 7
+ Cheyenne Mt. -Anthony                                                In order to provide a more valid basis for
+   (1046 Me)                     633             59. 8            estimating long-term fading ranges and the distri¬
+                                                                  bution of hourly medians for knife-edge diffraction
+                                                                  paths,   use is made of a method suggested by K. A.
+    Overall time block medians and the long¬                      Norton.    The results of this method as applied to
+term fading ranges for the hypothetical paths                     the Pikes Peak obstacle gain path will be compared
+were determined from a consideration of the ex¬                   with the actual measurements in what follows.
+pected long-term variation of hourly medians.
+These distributions are obtained from the empiri¬                     For the purpose of studying variations in
+cal V(p, 0) curves defined by Rice, et al,         which          hourly median field strength or transmission loss
+were determined from a large amount of experi¬                    values a knife-edge diffraction path is considered
+mental data representing a number of different                    to consist of two line-of-sight paths in tandem.
+geographical and climatic regions within the                      The diffracting knife-edge constitutes a common
+
+
+
+                                                          Table 5
+
+                   Comparison of Hypothetical Tropospheric Propagation Paths Data with
+                           Measured Data from Pikes Peak Obstacle Gain Path
+
+
+                                                     Long-Term Fading Range, db (1% - 99%)
+                                                                                                       Pikes Peak
+                                 Hypothetical Path                  Hypothetical Path              Obstacle Gain Path
+                                   A,   223 km,                       B,    566 km,               223 km,   0 = 64. 4 mi.
+    Time Block                     0 = 24 miles                      0 = 64. 4 miles                   (3 m Dish)
+
+    8 (winter)                          42. 1                               21.1                             8. 9
+    1                                   37. 6                               13.9                             8. 9
+    2                                   32.9                                14. 0                           12. 4
+    3                                   39. 2                               16. 3                           11.5
+
+    7 (summer)                          42. 2                               21.4                            13. 5
+    4                                   37. 7                               28. 1                           13. 8
+    5                                   25. 1                               18. 2                           11. 4
+    6                                   36. 5                               19. 0                           13.0
+
+All Hours, Winter                       38. 8                               19. 3                           11.7
+All Hours, Summer                       41. 9                               26.0                            13. 4
+        All Year                        39. 7                               26. 4                           14. 3
+                                                               -5-
+
+terminal for the two paths.         If the hourly median                 The comparison of measured and predicted
+signal for each of the two line-of-sight paths is                    fading ranges from Fig. 7 is summarized in Table
+subject to random variations, Vj and V2, then                        6 below.
+the random variation V expected on the mountain
+obstacle path would be V = Vj + V2, where V, Vi                          Table 6 shows that the empirical method just
+and V^ are random variables expressed in deci¬                       described provides much better estimates of the
+bels.    The resulting cumulative distribution of                    long-term fading range than the assumption of a
+hourly medians for the entire path may be deter¬                     tropospheric scatter path of the same linear or
+mined by the convolution of the distributions of                     angular distance.   This conclusion applies to this
+Vl and V2.    13                                                     specific knife-edge diffraction path, and should be
+                                                                     tested against data obtained from other knife-edge
+    The cumulative distributions of hourly medians                   paths in order to arrive at an estimate of the un¬
+for the two individual line-of-sight paths may be                    certainty inherent in the prediction process.    How¬
+calculated by empirical formulas as functions of                     ever, agreement of the predicted 1 - 99% long¬
+the path distance, the effective antenna heights,                    term fading ranges is well within the sampling
+the carrier frequency, the horizon elevation                         error of the empirical data on which this predic¬
+angles, and season,      summer or winter.           The             tion is based and this suggests that the proposed
+methods used are unpublished empirical methods                       method of predicting long-term fading ranges is a
+communicated to the authors by P. L. Rice.                           reliable one.
+This material will be described in detail in forth¬
+coming NBS Technical Notes and in a U.S. Air                             The data in Tables 5 and 6 have been plotted
+Force Technical Order dealing with design pro¬                       on Fig. 8 to obtain a better picture of the compari¬
+cedures for tropospheric communication circuits.                     son between predicted and measured long-term
+Results are shown on Fig. 7, where the empiri¬                       fading ranges and their diurnal trends.    As the
+cal distributions are compared with the actually                     empirical prediction method just mentioned does
+measured distributions.       Comparison is made for                 not distinguish between individual time blocks, it
+the data on 751 Me obtained using the 3-me ter                       is represented by a straight line for all summer
+dish separately for all hours during the summer                      and winter time blocks, respectively.     In spite of
+and during the winter months, and for the 100 Me                     the large discrepancy between the measured fading
+data for the summer months.                                          ranges and the ones predicted on the basis of
+                                                                     scatter propagation, it is of interest to note that
+    Calculation of the empirical distributions of                    the predicted diurnal trend is evident in the mea¬
+hourly medians shown on Fig.               7 includes deter¬         sured data for the summer time blocks, although
+mination of the overall median reference value by                    to a considerably lesser degree.    This is not the
+Fresnel diffraction and ray optics methods which                     case for the winter time blocks due to the relatively
+will be discussed in more detail in Section 3                        large measured Time Block 2 long-term fading
+below.    What is primarily important here is the                    range.
+comparison of the slopes of the actually measured
+and the empirically predicted distribution curves                        An additional comparison of the measurement
+shown on Fig.      7, rather than their absolute posi¬               results was made with similar data obtained from
+tion on the basic transmission loss scale.                           two actually measured tropospheric propagation
+                                                                     paths which represent a geographical location
+                                                                     similar to the Pikes Peak obstacle gain path.       In
+                         Table fe
+                                                                     addition thereto, these paths correspond most
+    Comparison of Actually Measured Fading                           closely to the hypothetical paths described above
+        Ranges with Empirical Predictions for                        in path distance and angular distance, and at the
+           Pikes Peak Obstacle Gain Path                             same time, represent a similar carrier frequency.
+                                                                     The hourly median distributions for these two paths
+                                Long-Term Fading                     were taken from unpublished reports.      A descrip¬
+                                Range in Decibels                    tion of the paths and the various experiments con¬
+                                  (1% - 99%)                         ducted are contained in a National Bureau of
+                            Actually     Empirical                   Standards Circular. ^
+                            Measured     Prediction
+7 51 Me                                                                  Fig. 9 compares the distribution of hourly
+                                                                     medians measured during the summer months
+All Hours, Winter              11. 7                 11.5
+                                                                     over the Pikes Peak obstacle gain path     with the
+All Hours, Summer              13. 4                 16. 2
+                                                                     two paths between Cheyenne Mountain and points
+100 Me                                                               in the eastern plains.   It is seen that the long-term
+                                                                     fading range is smallest for the obstacle gain path;
+All Hours, Summe r                  7. 0              9.0
+                                                         -   6-
+
+                                                     Table 7
+
+                        Comparison of Long Tropospheric Propagation Path Results
+
+
+                                                                        Basic Transmission          Long-Term Fading
+                       F requency                        No. of         Loss Overall Median               Range, db
+      Path                Me        Time Period           Hours                      db                   (1% - 99%)
+
+Pikes Peak
+Obstacle Gain              751      Summer I960              613                198. 7                       13. 4
+
+Cheyenne Mt. -
+Garden City               1046      Summer 1952              1646               208. 9                       30. 5
+
+Cheyenne Mt. -
+Anthony                   1046      Summer 1952               184               225. 5                       21.5
+                                    (July-August)
+
+
+it is quite large for the Garden City path which                                          Table 8
+represents the same linear path distance, and
+                                                                    Data from Distributions of Hourly Medians
+slightly larger for the Anthony path which repre¬
+sents the same angular distance, but a substan¬
+                                                                                               Basic        Long-Term
+tially greater linear path distance.     Table 7 shows
+                                                                                          Transmission        Fading
+the comparison of overall median values and
+                                                                                            Loss Overall     Range, db
+ranges taken from Fig. 9
+                                                                  Path and Frequency         Median, db      (1 % - 99%)
+
+      The overall medians have been added for                     Seulah-Pikes Peak,
+completeness of the information.       It is quite                     100 Me                  128. 2           5. 7
+clear that transmission loss tends to be smaller                  Beulah-Pikes Peak,
+for a knife-edge diffraction path as compared to                      7 51 Me                  132. 0           6. 3
+tropospheric scatter paths of similar length.                     Beulah-Table Mesa,
+Perhaps even more significant is the substantial                       100 Me                  165. 3           7. 0
+reduction in the long term fading range.       Although           Beulah-Table Mesa,
+there are fewer hours of measurements available                       751 Me (Dish)            197. 0          13. 0
+for the Cheyenne Mountain-Anthony path,        Table 6            Beulah-Table Mesa,
+shows that a tropospheric scatter path of com¬                        751 Me (Corner)          191. 6          14. 7
+parable linear distance has a substantially greater
+long-term fading range than an obstacle gain path,
+whereas a scatter path of similar angular dis¬                        This tabulation shows a substantial frequency
+tance has only a moderately greater long-term                     dependence of the fading range for the obstacle
+fading range.    This agrees well with the results                gain path--more than doubled when comparing 100
+obtained by the application of empirical methods                  Me with either one of the 751 Me antennas.           There
+for determining fading range--the method based                    is not nearly that much frequency dependence on
+on scatter propagation paths yielding substantially               the line-of-sight path.     It has already been shown
+greater fading ranges than the method based on                    that the V(p, 0) distributions are not appropriate
+line-of-sight paths.                                              for use in predicting the performance of knife-edge
+                                                                  diffraction paths, and that much better agreement
+2.4   Frequency Dependence of the Distributions                   is obtained by the use of a different empirical
+      of Hourly Medians                                           method taking into account carrier frequency and
+                                                                  horizon elevation angles.
+      Fig.   10 shows a comparison of all measured
+data on 100 Me and 7 51 Me during the two weekly                                3.    Height Gain Studies
+periods when the receiver site on Pikes Peak was
+operated.     These are overall summer-time dis¬                      Previous measurements made of obstacle
+tributions; they have not been separated into time                diffraction over Pikes Peak^ showed marked agree¬
+blocks because of the comparatively few hours                     ment between the predicted and observed varia¬
+available.    As expected, the long-term fading                   tion of transmission loss with height.       These mea¬
+range is smaller for the line-of-sight path to the                surements were made using a shorter path and
+top of the peak than for the obstacle gain path.                  with a relatively smooth terrain area in the imme¬
+Overall median and ranges for this period are                     diate foreground of the antenna whose height was
+given in Table 8.                                                 varied.
+                                                          -7-
+
+    The 751 Me equipment installed on Table                     whereas the theoretical calculations predict four
+Mesa permitted the collection of similar data for               to five lobes within the height interval measured.
+antenna heights up to 100 feet using a telescopic               A change in the reflection coefficient only changes
+tower with dual receivers and recorders.        How¬            the magnitude of the maxima and minima.        Simi¬
+ever, the Table Mesa site differs from the re¬                  larly, any change in the assumed elevation of the
+ceiving site previously used in that the terrain is             transmitting antenna has little or no effect upon
+very rough except for a small flat area imme¬                   the position and number of lobes at the receiver,
+diately in front of the receiver site, which is only            but can modify the transmission loss approximately
+large enough for approximately one-third of the                 the same amount at all heights.     Height-gain ex¬
+first-Fresnel-zone ellipse.       It has been previous¬         periments using the transmitting antenna were not
+ly shown that the cumulative distributions of                   performed.
+hourly basic transmission loss medians for the
+two antenna heights on 751 Me have approximately                       Studies were also made assuming the cross
+the same dispersion and the medians are sepa¬                   section along the profile of the refracting knife-
+rated by approximately 5 db in winter, and up to                edge to be rounded.     The terrain profile cross
+7. 4 db in summer.     Using a small stored-program             section through the top of Pikes Peak can be ap¬
+electronic computer the height distribution of                  proximated by a circular arc with a radius of
+field strength or basic transmission loss was                   roughly 11. 5 kilometers.     Following, in general,
+calculated by methods of geometrical optics using               the procedure given by Wait and Conda, ^ the
+the vector sum of four rays.       ^   Each of the rays         resultant diffracted field as a function of receiving
+has a magnitude and phase value determined by                   antenna height was calculated again as the vector
+reflections from the ground and diffraction by the              sum of four rays, each of which is affected by the
+knife-edge type obstacle.     The reflecting planes             rounded obstacle and by reflections from the
+were assumed to be parallel to a smooth earth's                 terrain in the foreground of the antennas.     These
+surface, and to pass through the bases of the                   results are shown on Fig.     12, together with the
+antenna towers.   Reflection coefficients of 0. 5               measured height-gain run and the theoretical
+and 0.9 were assumed, with a phase shift of 180                 curve for the ideal knife-edge.    Both theoretical
+degrees occurring at the reflecting planes.       The           curves are based on a reflection coefficient of
+attenuation and phase-shift at the obstacle were                0.9.    It is seen that only the absolute values of
+calculated using the asymptotic expansions for                  transmission loss are affected by "rounding" the
+Fresnel integrals. ^   This was justified due to the            knife-edge; the number and position of the lobes
+magnitude of the parameters involved.        For all            with antenna height remains the same.       Additional
+calculations a refractivity value Ng = 290 was                  calculations show that the change in transmission
+assumed, which corresponds to average winter                    loss depends on the radius of curvature assumed;
+afternoon for the geographical region where the                 as this is somewhat arbitrary for this terrain
+measurements were made.        Changes in the Ng                configuration, the assumption of 11. 5 km depends
+value within the range 240 to 320 N-units did not               on how much of the profile the arc is fitted to.
+materially affect the relative height dependence
+of basic transmission loss.                                            Fig.   11 shows that the long-term median
+                                                                values of transmission loss observed on the dish
+    A height-gain run was performed in the morn¬                at 8.2 meters and the corner reflector at 16. 5
+ing hours of March 25,    1960.    For each position            meters have approximately the same difference
+of the corner reflector antenna (mounted on the                 as is indicated by the measured height gain curve.
+telescopic tower) the basic transmission loss was               For the two different heights used for the higher
+determined for both receiving antennas,       so that           antenna (corner reflector at 16. 5 and 22. 3 meters)
+the values measured could be corrected for                      there is little difference in the values of trans¬
+changes recorded on the fixed antennas.        The re¬          mission loss observed.      This tends to confirm
+sults are plotted versus receiving antenna height               the similarity of long-term transmission loss
+on the subsequent figures in order to permit com¬               values observed at the two heights as shown in
+parison with calculated values using various                    Fig.   5.
+parameters.
+                                                                       It is quite clear from the above discussion
+    Fig.   11 shows the comparison of the mea¬                  that the basic transmission loss dependence on
+sured height dependence with calculated values,                 antenna height cannot be represented in this case
+using reflection coefficients of 0. 9 and 0. 5.                 by the simple four-ray knife-edge model, even if
+There is no agreement in the magnitude of the                   the knife edge is assumed to be rounded.      The
+transmission loss or in the number of lobes. The                reason becomes evident if the transverse profile
+measured data show only one lobe with a maxi¬                   through the obstacle is studied, which is a terrain
+mum at approximately 21 meters above ground,                    profile drawn through the obstacle at right angles
+                                                           -8-
+
+
+to the propagation path.       Fig.   13 is a photograph         performed to determine the correlation coefficient
+of the visual horizon as seen from the transmit¬                 between instantaneous envelope values for various
+ting antenna with various visible ridge lines                    sample periods.         For this purpose,   the transmis¬
+emphasized.      A grid is superimposed which shows              sion loss information recorded on magnetic tape
+the angles subtended from the transmitting site.                 was digitized and fed into a computer program.
+It is seen that the transmitting antenna beam,                   The tape contained adequate timing signals to in¬
+with a 7. 7° half-power beam width sees a sub¬                   sure proper evaluation without time lag.         Table 9,
+stantial portion of the ridge line on either side of             below,   contains the time and duration of each
+the principal obstacle.       Similar conditions exist           sample,      the separation of the receiving antennas,
+if the transverse profile is viewed from the re¬                 and (he resulting correlation coefficient.        For
+ceiving terminal.        Thus field contributions may            purpose of digitizing,      the magnetic tape was sam¬
+exist from the ridges and other terrain features                 pled once per second.        The correlation coefficients
+between the terminals and Pikes Peak illuminated                 listed apply to basic transmission loss in decibels;
+by the antenna beams.        It has so far not been              a check revealed that results were not materially
+possible to make a quantitative study of these                   different if receiver input voltages (proportional
+contributions in order to use them for field com¬                to field strength) were correlated.
+putations.
+                                                                      The samples were picked to represent differ¬
+    4.     Vertical Space Diversity and Fading                   ent types of the signal as it appeared on the visual
+                    Characteristics                              recording charts for the two antennas.         They are
+                                                                 not to be considered taken at random in a statisti¬
+    A detailed study of the short-term fading                    cal sense; therefore they serve only to illustrate
+characteristics observed on this path is contained               the phenomenon, and cannot be used to establish
+in another paper. ^        A number of possible mecha¬           a time or spacing dependence, or similar results.
+nisms appear responsible for the fading.         These           They show,      however,    that moderately high corre¬
+include those associated with prolonged space-                   lation exists between simultaneous envelope values
+wave fadeouts, which resemble phenomena ob¬                      of the signal received on vertically spaced antennas,
+served on within-the-horizon paths, as well as                   and that the correlation coefficient seems to be
+those associated with scattering components.                     higher at nighttime and for closer spaced antennas,
+Other mechanisms appear to be due to the terrain                 and that these results make the effectiveness of
+configuration and may be the cause of an inter¬                  vertical space diversity questionable for a path of
+mediate type of fading, characterized by fadeouts                this type.     A more complete analysis using many
+on the order of 5 db which last less than a few                  more samples evenly distributed over the record¬
+minutes.                                                         ing period would be necessary to draw final con¬
+                                                                 clusions on the diurnal variation and other charac¬
+    In view of the apparent positive correlation                 teristics of the correlation coefficient.
+between the 751 Me signals recorded simultane¬
+ously on the two receiving antennas,        studies were
+
+
+                                                        Table 9
+
+                Results of Envelope Correlation Studies for Pikes Peak Obstacle Gain Path
+
+
+Date and Time of Sample                       Length,                     Antenna Spacing,                   Correlation
+         (all In 1960)                        Minutes                           Meters                       Coefficient
+
+June 13,     1745-1800                           15                              14. 1                          0. 491
+June 13, 2120-2125                                5                              14. 1                          0. 50 3
+June 13, 2200-2220                              20                               14. 1                          0. 625
+June 14.     1010-1020                          20                               14. 1                          0. 204
+June 15, 0738-0748                               10                              14. 1                          0. 242
+June 15,     1200-1210                           10                              14. 1                          0.033
+June 15,     1800-1805                            5                              14. 1                          0. 537
+June 16, 0350-0400                               10                              14. 1                          0. 656
+September 15,     1700- 1710                     10                               8. 3                          0. 555
+September 15,     1920- 1930                     10                               8. 3                          0. 677
+September 15, 2126-2146                         20                                8. 3                          0. 685
+September 16, 0255-0305                          10                               8. 3                          0. 331
+September 16,     1015-1025                      10                               8. 3                          0. 780
+September 16,     1120-1130                     10                                8. 3                          0. 450
+                                                           -9-
+
+       A visual representation of the instantaneous              fell below the specified level for durations of one
+envelope correlation may be obtained by applying                 and two minutes respectively can be read from
+the tape-recorded signals to an x - y plotter.                   this type of presentation.    From this information
+Fig.     14 shows two such samples, and a good qual¬             the number of fades within this range of duration
+itative idea of the magnitude of the correlation                 can easily be determined for the entire period of
+coefficient may be obtained thereby.                             the analysis.
+
+
+       Fig.   15 shows examples of the correlation                                 5.   Conclusions
+coefficient between hourly median values of basic
+transmission loss.      In general, hourly medians                   The analysis of 7 51 Me data from a long
+tend to be more highly correlated than instanta¬                 obstacle gain path showed principally that the dis¬
+neous values.      The two graphs shown represent                tribution of hourly medians of field strength or
+the two antenna separations used.      The correla¬              basic transmission loss may be approximated by
+tion coefficient is substantially higher for the                 the convolution of cumulative distributions for two
+closer spaced antennas (8. 3 m).     It cannot be                line-of-sight paths in tandem which have the obsta¬
+determined, however, if this is entirely due to                  cle as a common terminal.       As expected, these
+the spacing, as the two samples were taken at                    long-term fading characteristics are quite differ¬
+different times.     The graphs indicate the antenna             ent from the ones observed for tropospheric
+spacing, the number of hours,      the standard devia¬           scatter propagation over comparable distances.
+tions of hourly medians for each antenna, and the                No significant diurnal variation in propagation
+correlation coefficient.    Hourly medians deter¬                characteristics was observed on the obstacle-gain
+mined with the 3 m dish are plotted along the y-                 path, and the indication is that seasonal variations
+axis, whereas the corner reflector data are                      are small.   Due to the limited width of the obstacle,
+plotted along the x-axis.                                        the knife-edge approximation by a semi-infinite
+                                                                 plane, or half-cylinder may not be entirely appro¬
+       Finally, a new analysis of fade durations and             priate, although a somewhat arbitrary assumption
+signal distributions is shown on Fig.    16.   Four              of curvature leads to theoretical values of trans¬
+periods of record ranging from 6 hours to more                   mission loss equivalent to observed values.
+than 200 hours each were analyzed to determine
+the distribution of fades as well as high signal of                  Correlation studies of the signal received on
+various levels and duration periods.     Each curve              vertically spaced antennas suggest that space
+shown corresponds to one of these levels, and the                diversity may not be very effective on circuits
+points plotted are the percentages of the total                  utilizing obstacle gain.    Transmission loss re¬
+time the signal remained either above or below                   cordings show slow and deep fades occurring
+the indicated level for the duration given by the                simultaneously on antennas vertically separated
+ordinate.     The median is the dividing line; for               14. 1 and 8.8 meters.      Correlation was somewhat
+each graph curves to the left of the median repre¬               lower for the greater spacing.
+sent fades, and the ones to the right represent
+periods of signal higher than the median.      The                   It is hoped that additional diversity experi¬
+asymptotic extensions of the curves toward a zero                ments can be performed using this path with the
+fade or signal duration become the distribution of               antennas spaced horizontally in line with and
+instantaneous signal levels for each period in the               normal to the path profile.
+limit.    As an example, in the upper right hand
+graph (period August 8-12), the curve labelled                       The outstanding advantages of obstacle gain
+"202" indicates the distribution of durations when               paths of this type are that the signal level is sig¬
+the basic transmission loss exceeded 202 db:                     nificantly higher than expected for scatter paths
+1% of all "fades" to 202 db was of at least 8                    of comparable length, and the amplitude of rapid
+minutes duration.                                                Raleigh-fading components is substantially re¬
+                                                                 duced.   However, the received field strength is
+       This type of representation permits an analy¬             lower than values calculated using the idealized
+sis of fades or short-term variations in terms of                knife-edge theory.     This is probably due to the
+basic transmission loss levels, which may be                     profile through the obstacle, which represents a
+easily related to any arbitrary reference, like                  rounded knife-edge, and to reflections and contri¬
+the overall median of the period considered.        This         butions from other terrain features.
+type of presentation can be used to determine, at
+least statistically, the characteristics of indivi¬                  These and similar measurements show that
+dual fades.     For example it might be of interest              relatively high signal strengths are consistently
+to know how many fades occurred whose duration                   observed behind mountain ridges.      Thus it is un¬
+was between one and two minutes.       The difference            likely that mountain ranges can always be relied
+hetween the percentage of the total time the signal              upon to shield potential interference.   Special
+                                                                 - 10-
+
+
+consideration to this phenomena should be given                           7,    J. M. Crysdale, J. W. B. Day, W. S. Cook,
+in locating radio astronomy or space communica¬                                 M. E. Psutka, and P. E. Robillard,           "An
+tion terminals.                                                                 experimental investigation of the diffraction
+                                                                                of electromagnetic waves by a dominating
+                 6.    Acknowledgements                                         ridge," IRE Trans, on Antennas and Propa¬
+                                                                                gation, AP-5, pp. 203-210; April,          1957.
+     The authors wish to thank all the personnel                                See also subsequent discussion by Crysdale
+of the Propagation-Ter rain Effects Section who                                 inAP-6, pp. 293-295; July,        1958.
+contributed to the installation and operation of
+the equipment, and the collection and the analysis                        8,    K. Kakita, F. Iwai, and S. leiri,         "Radio
+of the data, and to Messrs. K. A. Norton and                                    transmission beyond line-of-sight between
+G. W. Haydon for their review and suggestions.                                  Kyushu and Anami-Oshima Island, " Electri¬
+Transmission loss calculations for a "rounded"                                  cal Communication Laboratory Journal,
+knife-edge were performed by Messrs. H. T.                                      N. T.T. (Japan), 8, pp.       1183-1213; 1959.
+Dougherty and L. J. Maloney.            Drafting work
+was performed by J. C. Harman and his group,                              9     Private communication from Western
+and the manuscript was typed by Mrs. D. J. Hunt.                                Electric Co.
+
+
+                7.    Table of References                                10     B. R.   Bean,   "Prolonged space-wave fadeouts
+                                                                                at 1046 Me observed in Cheyenne Mountain
+1.   J. C. Schelleng, C. R. Burrows and E.                  B.                  propagation program, " Proc. IRE, 42, pp.
+     Ferrell,   "Ultra short-wave propagation, "                                848-853; May,      1954.
+     Proc.   IRE,     21,    pp. 427-463; March,       1933.
+                                                                         1 1    K.   A. Norton, P. L. Rice, and L.         E. Vogler,
+2.   F. H. Dickson, J. J. Egli,         J. W. Herbstreit,                       "The use of angular distance in estimating
+     and G. S. Wickizer, "Large reductions of                                   transmission loss and fading range for propa¬
+     VHF transmission loss and fading by the                                    gation through a turbulent atmosphere over
+     presence of a mountain obstacle in bevond-                                 irregular terrain," Proc.       IRE, 43, pp,       1488-
+     line-of-sight paths, " Proc. IRE,          41, pp. 967-                    1526; October,     1955.
+     96^; August,      1953.    See also subsequent
+     correspondence by Crysdale, and rebuttal by                         12     P. L. Rice, A. G. Longley, and K. A. Norton,
+     Dickson, et al, in Proc.        IRE,    43, pp. 627-                       "Prediction of the cumulative distribution with
+     628; May,       1955.                                                      time of ground wave and tropospheric wave
+                                                                                transmission loss; Part I - The prediction
+3.   R. S. Kirby, H. T. Dougherty, and P. L.                                    formula," NBS Technical Note No.           15; July,
+     McQuate, "Obstacle gain measurements over                                  1959.
+     Pikes Peak at 60 to 1046 Me," Proc.              IRE.
+     43, pp.    1467-1472; October,         1955.    This                1 3,   W.   B. Davenport, Jr. , and W. L. Root,             "An
+     paper contains an extensive list of references                             introduction to the theory of random signals
+     to previous work.                                                          and noise, " McGraw-Hill Book Co. ,         Inc. ,
+                                                                                New York,     1958.   See Chapter 3, pp.     35-37.
+4.   T. Kono and M. Hirai,          "Use of diffraction
+     effect of mountains for VHF radio communi¬                          14,    A. P. Barsis, J. W. Herbstreit, and K. O.
+     cation, " Journal of the Radio Research Labo¬                              Hornberg,     "Cheyenne Mountain tropospheric
+     ratories (Japan), 2, pp, 293- 309; July,            1955.                  propagation experiments, " NBS Circular
+                                                                                554; January,     1955.
+5.   K. Nishikori, Y. Kurihara,          M. Fukushima,
+     and M. Ikeda,          "Broad and narrow beam in¬                   1 5,   J. R. Wait and A. M. Conda,         "Diffraction of
+     vestigations of SHF diffraction by mountain                                electromagnetic waves by smooth obstacles for
+     ridges, " Journal of the Radio Research Labo¬                              grazing angles, " NBS Journal of Research,
+     ratories (Japan), 4, pp. 407-422; October,                                 63-D,   pp.   181-197; Septe mbe r - Oc tober ,    1959.
+     1957.
+                                                                         16,    A. P. Barsis and M. E. Johnson,           "Prolonged
+6.   M. Hirai, Y. Fujii, and H. Saito,              "An experi¬                 space-wave fadeouts in tropospheric propaga¬
+     mental investigation of the diffraction at VHF                             tion, " NBS Technical Note No. 88; February,
+     and UHF by mountain ridges, " Journal of the                               1961.
+     Radio Research Laboratories (Japan),               5, pp.
+     189-211; July, 1958.
+
+                                                                                                                     USCOMM-NBS- BL
+OUTLINE MAP FOR BEULAH-TABLE MESA PROPAGATION PATH
+                   (COLORADO)
+
+
+
+
+                       Figure I
+                        TERRAIN   PROFILE OF COLORADO OBSTACLE GAIN PATH
+
+
+
+
+Sd313IAI Nl NOI1VA313                                                      Sd313A Nl NOI1VA313
+
+
+
+
+                                              223.3   £
+
+                                                  m   CM
+                                SIMULTANEOUS CHART RECORDINGS OF
+                              KNIFE EDGE AND LINE OF SITE PROPAGATION
+                               BEULAH TO TABLE MESA AND PIKES PEAK
+                                         AUGUST 10, I960
+
+                                     751 Me TABLE MESA, 3 171 DISH AT 8.2 m
+
+
+
+
+BASIC TRANSMISSION LOSS, db
+                                           751 Me PIKES PEAK, DIPOLE
+
+
+
+
+                              1000                    MOO                     1200
+
+                                                     MST
+                                                     Figure 3
+     DAY TO DAY VARIATION IN
+      HOURLY MEDIAN LEVELS
+       BY HOUR OF THE DAY
+        AUGUST 8-12, I960
+              751 Me              3 m DISH AT 8.2 m
+    190       O o
+                              o o o   o               o                    o
+          o           o                                           o
+                                o         o       o O o o              o       °_    o
+
+
+                                              °   /^e<»
+                                                                  ■°
+                                                                  „        0   o     o
+    200       O   O       0                   u o o                        0
+
+                                                                       o
+
+
+                                                  86 H OURS
+    210
+      751 Me CORNER REFLECTOR AT 16.5 m
+    180
+E          0o            o
+                     o °                           o
+         o     °         o o              o O Q
+                       0      o O O o c ° ° 20 O o o
+    190              ox\                  s/w°/
+                                              ^SQjg   o   O   o
+
+               o\/ m8 V °             o °o 8 O o 8
+         o ° o° o ° 0      o°
+               ° o o              93 HiOURS
+    200
+                          100 Me YAG1 AT 13.7 m
+    160   ° 1 °
+           o o                o O °8 °
+           o o  o                                            -8-8 8-ft^o
+                                                          °° O o o o ° °
+          O0 11 o
+           o 1 o              O o ° ° ° 8 °Oo
+                                                  62 HOURS
+    170
+     0000                 0600         1200               1800                      2400
+
+                              HOUR OF DAY
+                                      Figure 4
+                                                                                       91- 6
+                                                                                       21-6
+                                                                                       92- 8
+
+
+
+
+SEASONAL TREND OF OVERALL WEEKLY MEDIANS
+                                                                                       22-8
+                                                                                       21-8
+                                                                                       8-8
+                                                                                       1 -1
+
+                                                                                       12-9
+                                                                                       172-9
+                                                                                   02-9
+
+
+
+
+         BEULAH-TABLE MESA PATH
+                                                                                                I960
+                                                                                       11-9
+                                                                                   21- 9
+                                                                                       01-9
+                                                                                       6-9
+                                                                                       6-9
+                                                                                       9-9
+                                                                                       62-1?
+
+
+
+
+                  751 Me
+                                                                                       22- fr
+                                                                                       21 17
+                                                                                        -
+
+
+
+
+                                                                                       ll-t?
+
+                                                                                       22 2
+                                                                                         -
+
+
+
+
+                                                                                       22-2
+
+                                                                                                1959 I
+                                                                                       81-21
+                                                                                       tl-21
+                                           O        LO     CD    LO     CD       LO
+                                           CO       OO     CD    CO     CD       CD
+                                           -        -      -     -      CVJ      CVJ
+
+
+
+                                                qp ‘SS01 NOISSIIAISNVLLL OISVB
+                                                                                                            <T>
+                                                                                                            O')
+                                                                                                            CD
+
+                                                                                                            CD
+
+
+
+
+DISTRIBUTIONS OF HOURLY MEDIAN BASIC TRANSMISSION LOSS VALUES
+                                                                                                            CD
+
+                                                                                                            LO
+                                                                                                            CD    in
+                                                                                                            O     01
+                                                                                                            CD    3
+                                                                                                                  O
+                                                                     cc                                           I
+                                                                     SjJ                                    P
+                                                                                                            O     o
+                                                                     3                                            \—
+                                                                                                            O
+                                                                     CO                                     m
+                                                                                                                  2
+                                                                                                                  LlI
+                                                                                                                  O
+
+                                                                                                            O     CC
+                                                                                                                  LlJ
+                                                                                                                  Q_
+                                                                                                            LO
+
+
+
+
+                                                                o
+
+                                                                                                                        Figure 6
+                                                                                                            O
+
+
+                                                                in                                          CD
+                                                                                                            CD
+                                                                                                            CD
+
+
+                                                                                                            CD
+
+
+
+
+                PIKES PEAK OBSTACLE GAIN PATH
+                                                                                                            CD
+
+                                                                                                            in
+                                                                                                            CD
+                                                                                                                  CO
+                                                                                                            o CC
+                                                                                                            CD
+                                                                                                                  3
+                                                                                                                  O
+                                                                                                                  X
+                                                                     o:
+                                                                     LlJ
+                                                                                                            £     IL
+                                                                     H                                      o o
+                                                                                                            in
+                                                                                                                  h-
+                                                                                                            o
+                                                                                                            ro
+                                                                                                                  UJ
+                                                                                                                  O
+                                                                                                            O     cr
+                                                                                                                  LlJ
+                                                                                                            in    CL
+
+
+
+
+                                                                          o      O      O      o      oo
+                                                                           CD    CD     O             <\J
+                                                                                        CYI    OJ     <\J
+
+
+                                                                           qp lssoi NOissiiAisNVdi oisva
+
+                                                                                                                                   I
+               PREDICTED AND MEASURED CUMULATIVE   DISTRIBUTIONS
+                  OF BASIC TRANSMISSION LOSS HOURLY MEDIANS
+                         PIKES PEAK OBSTACLE GAIN PATH
+
+                          DECEMBER           1959— SEPTEMBER I960
+                              -----         PREDICTED        DISTRIBUTION
+                              --—           MEASURED         DISTRIBUTION
+
+
+
+
+DECIBELS
+
+
+IN
+
+
+LOSS
+
+
+
+
+TRANSMISSION
+
+
+
+
+BASIC
+
+                    IOC) IV c, suiv1 ME R
+
+
+
+
+                    23 3 F RS.^                                     -- -—.
+
+
+
+
+                180-L-J----—*—1—1—--1                _ --1-
+                 0.1 0.5 I 5 • 10 20 30 40 50 60 70 80 90 95 99 99.9
+
+                                            PERCENT      TIME
+
+
+                                                Figure   7
+     COMPARISON OF PREDICTED AND MEASURED
+     DIURNAL AND SEASONAL VARIATIONS OF THE
+            LONG-TERM FADING RANGE
+
+45
+
+
+
+40
+
+
+
+35
+
+
+
+30
+
+
+
+25
+
+
+
+20
+
+
+15
+
+
+
+10
+
+
+ 5
+
+
+ 0
+
+
+       WINTER                    SUMMER
+                    Figure 8
+CUMULATIVE DISTRIBUTIONS OF HOURLY MEDIAN
+    BASIC TRANSMISSION LOSS VALUES
+              ALL HOURS, SUMMER
+            COLORADO-KANSAS PATHS
+
+
+
+
+  O.l   I     5 10   30 50 70    90 95   99   99.9
+             PERCENT OF ALL HOURS
+                      Figure 9
+                              MEASURED DISTRIBUTIONS OF HOURLY MEDIANS
+                                  BASIC TRANSMISSION LOSS VALUES
+                                   AUGUST 8-12 AND 22-26, I960
+
+
+
+
+BASIC TRANSMISSION LOSS, db
+
+
+
+
+                                O.l   I    5 10   30 50 70     90 95 99   99.9
+                                          PERCENT OF ALL HOURS
+
+                                                   Figure 10
+      COMPARISON OF CALCULATED AND MEASURED
+                HEIGHT-GAIN CURVES
+                     PIKES PEAK OBSTACLE GAIN PATH
+
+170                                                  ——                        n
+            ——                 R = -0.9          f CALCULAT ED HEIGHT -GAIN CUF?VES
+                                 = -0.5          l FOR IDEAL. KNIFE E DGE
+
+
+
+            \
+                           J
+                                    \
+                                        %
+                                                       /~\
+
+                                                                         /
+                                                                             ~\
+                                                                             ' \
+                                                                                  \
+                                                                                          rt
+
+
+
+
+                   t1/
+                \1                          \
+                                                                                         If"
+                           •
+
+      ""N
+                                                                        //• A.
+            \A
+180                  t ~X\                                          i   / /  \ \
+
+
+                                                                                      1!i
+            \\
+                                                                   1    if
+                 1 1/ Vl
+                                                                    \
+190                                             II                 lL j
+                                                 /
+                                                     /
+                                                 (
+                                                     - MEASUREID OVERAL L MEDIAN
+                                                       TIME BL.OCK 1
+
+200
+                           ^f\/1EASURED HEIGHT-G AIN CURVET
+                             l\/1ARCH 25, I960
+
+
+
+
+210
+            5                  10                15                20        25       30       35
+                      HEIGHT ABOVE GROUND IN METERS
+
+
+                                                       Figure II
+                   COMPARISON OF CALCULATED AND MEASURED
+                                  HEIGHT-GAIN CURVES
+                         PIKES        PEAK OBSTACLE GAIN               PATH
+
+
+
+
+IN db
+
+
+
+LOSS
+
+
+
+
+TRANSMISSION
+
+
+
+
+BASIC
+
+
+
+
+               _i_i__i_i__
+
+               0     5           10        15               20    25          30   35
+                          HEIGHT ABOVE GROUND IN                 METERS
+
+                                                Figure 12
+TRANSVERSE    PROFILE THROUGH   PIKES   PEAK
+    AS SEEN   FROM TRANSMITTER SITE
+
+
+
+
+                  Figure 13
+                    INSTANTANEOUS ENVELOPE CORRELATION
+                       PIKES PEAK OBSTACLE GAIN PATH
+                                        751 MC
+
+                               JUNE 15, I960; 1200-1210
+
+
+           191.5
+
+     e     i9i
+     ro
+     c\j
+     OJ
+
+o o
+     cr
+co i—
+£ a
+CO
+z LU       189
+< cr
+cr
+     cr
+     LU
+y z
+co cr
+< o
+m o
+
+           187
+
+           1865
+
+
+                   BASIC TRANSMISSION   LOSS - 3.3 m   DISH, AT 8.2 m
+
+
+
+
+                              SEPT 16, I960; 1015-1025
+
+
+
+
+                                        Figure   14
+     CORRELATION IN HOURLY MEDIANS
+       VERTICALLY SPACED ANTENNAS
+                AT 751 Me
+                     185                                  n
+                           JUN E 6- 17. 1 960                                                               SPACING
+                     190                                                                                     !4,1 m
+                                                                                                            17! HRS.
+                                                                           *x
+
+
+                                                                                                           crx = 2.4 db
+
+
+
+
+3 rn DISH AT 8.2 m
+                                          X
+                                                  X           ■   i0                                       cry = 2.8 db
+                     200                                  js.'w 4   XX
+                                              X       X
+                                                  XX
+                                                                  XX
+
+                                                                                                       p      = 0.72
+                                                                                                       r xy
+
+                                                                    X
+                     210
+                       210        200                                     190                               180        !70
+                             Lu   COR. REFL. AT 22.2 m
+                     185
+                          JUNE 20”                                                                          SPACING
+                     190 JUL *  ItJOU                                                       X
+                                                                                                       X
+                                                                                                              8.3 m
+                                                                                    }   *       *x *
+                                                                                                            183 HRS.
+         E                                                                      .   J"
+        n                                                                                              a■x = 3.1 db
+                                     *                              J
+                     200                                                                               a y = 3.2 db
+                                                          *
+                                          *
+                                         " ?                                                       p><y = 0.93
+
+                     210
+                       210        200                                     190                               S80        170
+                             Lbm COR. REFL. AT 16.5 m
+                                                                         Figure 15
+                                        751 MC FADE CHARACTERISTICS OBSERVED
+                                                  ON 3 METER DISH
+
+
+
+
+DURATION OF FADE OR SIGNAL IN MINUTES
+
+
+
+
+                                                       Figure   16
+U.S. DEPARTMENT OF COMMERCE
+    Frederick H. Mueller, Secretary
+
+NATIONAL BUREAU OF STANDARDS
+   A. V. Astin, Director
+
+                              THE NATIONAL BUREAU OF STANDARDS
+The scope of activities of the National Bureau of Standards at its major laboratories in Washington, D.C., and
+Boulder, Colo., is suggested in the following listing of the divisions and sections engaged in technical work. In
+general, each section carries out specialized research, development, and engineering in the field indicated by its
+title. A brief description of the activities, and of the resultant publications, appears on the inside of the front cover.
+
+WASHINGTON, D.C.
+ELECTRICITY.       Resistance and Reactance.      Electrochemistry.      Electrical Instruments. Magnetic Measurements.
+Dielectrics.
+METROLOGY. Photometry and Colorimetry. Refractometry.                    Photographic Research.          Length.       Engineering
+Metrology. Mass and Scale. Volumetry and Densimetry.
+HEAT. Temperature Physics. Heat Measurements. Cryogenic Physics. Rheology.                           Molecular Kinetics.       Free
+Radicals Research. Equation of State. Statistical Physics. Molecular Spectroscopy.
+RADIATION PHYSICS. X-Ray. Radioactivity. Radiation                      Theory.     High   Energy      Radiation.      Radiological
+Equipment. Nucleonic Instrumentation. Neutron Physics.
+CHEMISTRY. Surface Chemistry. Organic Chemistry.                   Analytical Chemistry. Inorganic Chemistry. Electro¬
+deposition. Molecular Structure and Properties of Gases.           Physical Chemistry. Thermochemistry. Spectrochem¬
+istry. Pure Substances.
+MECHANICS.       Sound.   Pressure and Vacuum.      Fluid Mechanics.       Engineering Mechanics.            Combustion Controls.
+ORGANIC AND FIBROUS MATERIALS. Rubber.                      Textiles.     Paper.      Leather.     Testing    and    Specifications.
+Polymer Structure. Plastics. Dental Research.
+METALLURGY. Thermal Metallurgy. Chemical Metallurgy. Mechanical Metallurgy. Corrosion. Metal Physics.
+MINERAL PRODUCTS.            Engineering    Ceramics.     Glass.     Refractoi’ies.    Enameled Metals.         Constitution and
+Microstructure.
+BUILDING RESEARCH. Structural Engineering. Fire Research. Mechanical Systems.                             Organic Building Ma¬
+terials. Codes and Safety Standards. Heat Transfer. Inorganic Building Materials.
+APPLIED      MATHEMATICS.          Numerical    Analysis.    Computation.          Statistical     Engineering.      Mathematical
+Physics.
+DATA PROCESSING SYSTEMS. Components and Techniques.                        Digital Circuitry.        Digital Systems.       Analog
+Systems. Applications Engineering.
+ATOMIC PHYSICS.        Spectroscopy.    Radiometry.     Mass Spectrometry.         Solid State Physics.         Electron Physics.
+Atomic Physics.
+INSTRUMENTATION. Engineering Electronics.                Electron Devices.         Electronic Instrumentation.          Mechanical
+Instruments. Basic Instrumentation.
+Office of Weights and Measures.
+
+BOULDER, COLO.
+CRYOGENIC       ENGINEERING.         Cryogenic Equipment.          Cryogenic Processes.          Properties of Materials.       Gas
+Liquefaction.
+IONOSPHERE RESEARCH AND PROPAGATION.                 Low Frequency and Very Low Frequency Research. Ion¬
+osphere Research. Prediction Services. Sun-Earth Relationships. Field Engineering. Radio Warning Services.
+RADIO PROPAGATION ENGINEERING. Data Reduction Instrumentation. Radio Noise. Tropospheric Meas¬
+urements. Tropospheric Analysis. Propagation-Terrain Effects. Radio-Meteorology. Lower Atmosphere Physics.
+RADIO STANDARDS. High frequency Electrical Standards. Radio Broadcast Service. Radio and Microwave
+Materials. Atomic Frequency and Time Standards. Electronic Calibration Center. Millimeter-Wave Reseai’ch.
+Microwave Circuit Standards.
+RADIO SYSTEMS. High Frequency and Very High Frequency Research.                         Modulation Research.          Antenna Re¬
+search. Navigation Systems. Space Telecommunications.
+UPPER ATMOSPHERE AND SPACE PHYSICS. Upper Atmosphere and Plasma Physics.                                            Ionosphere and
+Exosphere Scatter. Airglow and Aurora. Ionospheric Radio Astronomy.
+
+
+
+
+                                                                                                                                  USCOMM-NBS-BL
+              & d
+              h- n>
+     td       9
+              p           p
+td o          P           4
+              1-‘         r+
+P.   Cl
+              td B
+              p           ft)
+              4           P
+P d 0P,                   a-
+                          o
+  P
+o £
+o 0 o                     o
+  p ^
+0 rf                      o
+4 o wrt-
+     rl-
+                          5P
+P    p
+P 4 p
+O
+                          B
+                          a)
+     p                    4
+              p
+              4  n
+              P ft>
+              0)
+
+
+
+
+       U1
+                  d
+       d o
+       fD         to
+      ^           P
+       £ to
+
+       Bft) gjP
+       p            P
+       rr           d
+
+                    ft)
+       O            to
+          o
+          B dpH*
+                    P-
+

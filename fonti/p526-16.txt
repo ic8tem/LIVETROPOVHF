@@ -1,0 +1,1875 @@
+                               International Telecommunication Union
+Recommendations                            Radiocommunication Sector
+
+
+
+
+    Recommendation ITU-R P.526-16
+    (11/2025)
+    P Series: Radio-wave propagation
+
+    Propagation by diffraction
+ii                                                 Rec. ITU-R P.526-16
+
+
+                                                          Foreword
+
+The role of the Radiocommunication Sector is to ensure the rational, equitable, efficient and economical use of the radio-
+frequency spectrum by all radiocommunication services, including satellite services, and carry out studies without limit
+of frequency range on the basis of which Recommendations are adopted.
+The regulatory and policy functions of the Radiocommunication Sector are performed by World and Regional
+Radiocommunication Conferences and Radiocommunication Assemblies supported by Study Groups.
+
+
+
+                                   Policy on Intellectual Property Right (IPR)
+
+ITU-R policy on IPR is described in the Common Patent Policy for ITU-T/ITU-R/ISO/IEC referenced in Resolution
+ITU-R 1. Forms to be used for the submission of patent statements and licensing declarations by patent holders are
+available from https://www.itu.int/ITU-R/go/patents/en where the Guidelines for Implementation of the Common Patent
+Policy for ITU-T/ITU-R/ISO/IEC and the ITU-R patent information database can also be found.
+
+
+
+
+                                           Series of ITU-R Recommendations
+                                   (Also available online at https://www.itu.int/publ/R-REC/en)
+
+     Series                                                           Title
+     BO          Satellite delivery
+     BR          Recording for production, archival and play-out; film for television
+     BS          Broadcasting service (sound)
+     BT          Broadcasting service (television)
+     F           Fixed service
+     M           Mobile, radiodetermination, amateur and related satellite services
+     P           Radio-wave propagation
+     RA          Radio astronomy
+     RS          Remote sensing systems
+     S           Fixed-satellite service
+     SA          Space applications and meteorology
+     SF          Frequency sharing and coordination between fixed-satellite and fixed service systems
+     SM          Spectrum management
+     SNG         Satellite news gathering
+     TF          Time signals and frequency standards emissions
+     V           Vocabulary and related subjects
+
+
+
+
+ Note: This ITU-R Recommendation was approved in English under the procedure detailed in Resolution ITU-R 1.
+
+
+
+                                                                                                          Electronic Publication
+                                                                                                                  Geneva, 2025
+
+
+                                                          © ITU 2025
+All rights reserved. No part of this publication may be reproduced, by any means whatsoever, without written permission of ITU.
+                                          Rec. ITU-R P.526-16                                               1
+
+
+                           RECOMMENDATION ITU-R P.526-16*
+                                    Propagation by diffraction
+                                        (Question ITU-R 202-5/3)
+(1978-1982-1992-1994-1995-1997-1999-2001-2003-2005-2007-2009-2012-2013-2018-2019-2025)
+
+Scope
+This Recommendation presents several models to enable the reader to evaluate the effect of diffraction on the
+received field strength. The models are applicable to different obstacle types and to various path geometries.
+
+
+Keywords
+Diffraction, irregular terrain, obstacles, knife-edge, aperture, screen
+Related ITU Recommendations
+Recommendation ITU-R P.310 – Definitions of terms relating to propagation in non-ionized media
+Recommendation ITU-R P.368 – Ground-wave propagation prediction method for frequencies between
+      10 kHz and 30 MHz
+Recommendation ITU-R P.834 – Effects of tropospheric refraction on radiowave propagation
+Recommendation ITU-R P.1546 – Method for point-to-area predictions for terrestrial services in the frequency
+      range 30 MHz to 4 000 MHz
+NOTE – The latest edition of the Recommendation in force should be used.
+
+
+The ITU Radiocommunication Assembly,
+         considering
+that there is a need to provide engineering information for the calculation of field strengths over
+diffraction paths,
+         recommends
+that the methods described in Annex 1 should be used for the calculation of field strengths over
+diffraction paths, which may include a spherical earth surface, or irregular terrain with different kinds
+of obstacles.
+
+
+
+
+____________________
+*   Recommendation ITU-R P.526-15 is incorporated by reference in the Radio Regulations, Edition of 2024,
+    Volume 4.
+2                                                        Rec. ITU-R P.526-16
+
+
+                                                                  Annex 1
+                                                      TABLE OF CONTENTS
+                                                                                                                                           Page
+
+1      Introduction ....................................................................................................................      3
+
+2      Basic concepts ................................................................................................................        3
+       2.1        Fresnel ellipsoids and Fresnel zones ...................................................................                    3
+       2.2        Penumbra width ..................................................................................................           4
+       2.3        Diffraction zone ..................................................................................................         4
+       2.4        Obstacle surface smoothness criterion ................................................................                      4
+       2.5        Isolated obstacle ..................................................................................................        5
+       2.6        Types of terrain ...................................................................................................        5
+       2.7        Fresnel integrals ..................................................................................................        5
+
+3      Diffraction over a spherical Earth ..................................................................................                  6
+       3.1        Diffraction loss for over-the-horizon paths ........................................................                        6
+       3.2        Diffraction loss for any distance at 10 MHz and above .....................................                                15
+
+4      Diffraction over isolated obstacles or a general terrestrial or Earth – space path ..........                                         17
+       4.1        Single knife-edge obstacle ..................................................................................              17
+       4.2        Single rounded obstacle ......................................................................................             20
+       4.3        Double isolated edges .........................................................................................            22
+       4.4        Multiple isolated cylinders .................................................................................              24
+       4.5        Method for a general terrestrial path ..................................................................                   27
+       4.6        Method for a general Earth – space slant path ....................................................                         30
+
+5      Diffraction by thin screens .............................................................................................             34
+       5.1        Finite-width screen .............................................................................................          34
+       5.2        Diffraction by rectangular apertures and composite apertures or screens ..........                                         34
+
+6      Diffraction over a finitely conducting wedge .................................................................                        38
+
+7      Guide to propagation by diffraction ...............................................................................                   42
+
+Attachment 1 to Annex 1 – Calculation of cylinder parameters .............................................                                   44
+
+1      Diffraction angle and position of vertex .........................................................................                    44
+
+2      Cylinder parameters ........................................................................................................          45
+
+Attachment 2 to Annex 1 – Sub-path diffraction losses .........................................................                              46
+                                                        Rec. ITU-R P.526-16                                                                  3
+
+1     Introduction ....................................................................................................................     46
+
+2     Method ............................................................................................................................   46
+
+
+
+
+1        Introduction
+Although diffraction is produced only by the surface of the ground or other obstacles, account must
+be taken of the mean atmospheric refraction on the transmission path to evaluate the geometrical
+parameters situated in the vertical plane of the path (angle of diffraction, radius of curvature, height
+of obstacle). For this purpose, the path profile has to be traced with the appropriate equivalent Earth
+radius (Recommendation ITU-R P.834). If no other information is available, an equivalent Earth
+radius of 8 500 km may be taken as a basis.
+
+
+2        Basic concepts
+Diffraction of radio-waves over the Earth’s surface is affected by terrain irregularities. In this context,
+before going further into the prediction methods for this propagation mechanism, a few basic concepts
+are given in this section.
+
+2.1      Fresnel ellipsoids and Fresnel zones
+In studying radio-wave propagation between two points A and B, the intervening space can be
+subdivided by a family of ellipsoids, known as Fresnel ellipsoids, all having their focal points at A and
+B such that any point M on one ellipsoid satisfies the relation:
+                                                                                             
+                                                    AM + MB = AB + n                                                                        (1)
+                                                                                             2
+where n is a whole number characterizing the ellipsoid and n = 1 corresponds to the first Fresnel
+ellipsoid, etc., and  is the wavelength.
+As a practical rule, propagation is assumed to occur in line-of-sight (LoS), i.e. with negligible
+diffraction phenomena if there is no obstacle within the first Fresnel ellipsoid.
+The radius of an ellipsoid at a point between the transmitter and the receiver can be approximated in
+self-consistent units by:
+
+                                                                                      1/ 2
+                                                                  n  d1 d 2 
+                                                         Rn    =                                                                          (2)
+                                                                  d1 + d 2 
+or, in practical units:
+
+                                                                                              1/ 2
+                                                               n d1 d 2      
+                                                  Rn    = 550                                                                             (3)
+                                                               (d1 + d 2 ) f 
+where f is the frequency (MHz) and d1 and d2 are the distances (km) between transmitter and receiver
+at the point where the ellipsoid radius (m) is calculated.
+4                                       Rec. ITU-R P.526-16
+
+Some problems require consideration of Fresnel zones which are the zones obtained by taking the
+intersection of a family of ellipsoids by a plane. The zone of order n is the part between the curves
+obtained from ellipsoids n and n – 1, respectively.
+
+2.2      Penumbra width
+The transition from light to shadow defines the penumbra region. This transition takes place along
+a narrow strip (penumbra width) in the boundary of geometric shadow. Figure 1 shows the penumbra
+width (W) in the case of a transmitter located a height, h, above a smooth spherical earth, which is
+given by:
+                                                              1/ 3
+                                               a 2 
+                                          w =  e                   m                            (4)
+                                                
+where:
+               :     wavelength (m)
+               ae :   effective Earth radius (m).
+
+                                                 FIGURE 1
+                                        Definition of penumbra width
+
+
+
+
+2.3      Diffraction zone
+The diffraction zone of a transmitter extends from the LoS distance where the path clearance is equal
+to 60% of the first Fresnel zone radius, (R1), up to a distance well beyond the transmitter horizon
+where the mechanism of troposcatter becomes predominant.
+
+2.4      Obstacle surface smoothness criterion
+If the surface of the obstacle has irregularities not exceeding Δh,
+where:
+
+                                                  
+                                     h = 0.04 Rλ 2
+                                                       1/ 3
+                                                                         m                        (5)
+where:
+               R:     obstacle curvature radius (m)
+               :     wavelength (m);
+then the obstacle may be considered smooth and the methods described in §§ 3 and 4.2 may be used
+to calculate the attenuation.
+                                          Rec. ITU-R P.526-16                                          5
+
+2.5     Isolated obstacle
+An obstacle can be considered isolated if there is no interaction between the obstacle itself and the
+surrounding terrain. In other words, the path attenuation is only due to the obstacle alone without any
+contribution from the remaining terrain. The following conditions must be satisfied:
+–       no overlapping between penumbra widths associated with each terminal and the obstacle top;
+–       the path clearance on both sides of the obstacles should be, at least, 0.6 of the first Fresnel
+        zone radius;
+–       no specular reflection on both sides of the obstacle.
+
+2.6     Types of terrain
+Depending on the numerical value of the parameter h (see Recommendation ITU-R P.310) used to
+define the degree of terrain irregularities, three types of terrain can be classified:
+a)      Smooth terrain
+The surface of the Earth can be considered smooth if terrain irregularities are of the order or less than
+0.1R, where R is the maximum value of the first Fresnel zone radius in the propagation path. In this
+case, the prediction model is based on the diffraction over the spherical Earth (see § 3).
+b)      Isolated obstacles
+The terrain profile of the propagation path consists of one or more isolated obstacles. In this case,
+depending on the idealization used to characterize the obstacles encountered in the propagation path,
+the prediction models described in § 4 should be used.
+c)      Rolling terrain
+The profile consists of several small hills, none of which form a dominant obstruction. Within its
+frequency range Recommendation ITU-R P.1546 is suitable for predicting field strength but it is not
+a diffraction method.
+
+2.7     Fresnel integrals
+The complex Fresnel integral is given by:
+                                          
+                                                 s2 
+                                 Fc () =  exp  j    ds = C () + jS()                           (6)
+                                          0      2 
+where j is the complex operator equal to –1, and C() and S() are the Fresnel cosine and sine
+integrals defined by:
+                                              
+                                                     s 2 
+                                      C () =  cos              ds                             (7a)
+                                              0       2 
+                                               
+                                                      s 2 
+                                       S () =  sin             ds                             (7b)
+                                               0       2 
+The complex Fresnel integral Fc() can be evaluated by numerical integration, or with sufficient
+accuracy for most purposes for positive  using:
+
+                                      x 11             x 
+                                                              n
+
+                   Fc ( ) = exp( jx)    (an – jbn )  4  
+                                      4 n =0 
+                                                                             for 0  x  4          (8a)
+                                                                
+6                                       Rec. ITU-R P.526-16
+
+
+                                           4 11               4 
+                                                                  n
+                      1 + j 
+             Fc () = 
+                       2 
+                              + exp( jx )     n n  x  
+                                           x n = 0 
+                                                     ( c – jd )                 for x  4          (8b)
+                                                                    
+where:
+                                              x = 0.5 2                                            (9)
+and an, bn, cn and dn are the Boersma coefficients given below:
+ a0    = +1.595769140      b0    = −0.000000033      c0     = +0.000000000      d0    = +0.199471140
+ a1    = −0.000001702      b1    = +4.255387524      c1     = −0.024933975      d1    = +0.000000023
+ a2    = −6.808568854      b2    = −0.000092810      c2     = +0.000003936      d2    = −0.009351341
+ a3    = −0.000576361      b3    = −7.780020400      c3     = +0.005770956      d3    = +0.000023006
+ a4    = +6.920691902      b4    = −0.009520895      c4     = +0.000689892      d4    = +0.004851466
+ a5    = −0.016898657      b5    = +5.075161298      c5     = −0.009497136      d5    = +0.001903218
+ a6    = −3.050485660      b6    = −0.138341947      c6     = +0.011948809      d6    = −0.017122914
+ a7    = −0.075752419      b7    = −1.363729124      c7     = −0.006748873      d7    = +0.029064067
+ a8    = +0.850663781      b8    = −0.403349276      c8     = +0.000246420      d8    = −0.027928955
+ a9    = −0.025639041      b9    = +0.702222016      c9     = +0.002102967      d9    = +0.016497308
+ a10   = −0.150230960      b10   = −0.216195929      c10    = −0.001217930      d10   = −0.005598515
+ a11   = +0.034404779      b11   = +0.019547031      c11    = +0.000233939      d11   = +0.000838386
+
+C() and S() may be evaluated for negative values of  by noting that:
+                                           𝐶(−𝜈) = −𝐶(𝜈)                                          (10a)
+
+                                           𝑆(−𝜈) = −𝑆(𝜈)                                          (10b)
+
+
+3        Diffraction over a spherical Earth
+The additional transmission loss due to diffraction over a spherical Earth can be computed by the
+classical residue series formula. The computer program “LFMF-SmoothEarth” in Recommendation
+ITU-R P.368 provides the complete method. A subset of the outputs from this program (for antennas
+close to the ground and at lower frequencies) is presented in Recommendation ITU-R P.368.
+The following subsections describe numerical and nomogram methods which may be used for
+frequencies 10 MHz and above. For frequencies below 10 MHz, “LFMF-SmoothEarth” should
+always be used. Section 3.1 gives methods for over-the-horizon paths. Section 3.1.1 is a numerical
+method. Section 3.1.2 is a nomogram method. Section 3.2 is a method applicable for the smooth earth
+case for any distance and for frequencies 10 MHz and above. This utilizes the numerical method
+in § 3.1.1.
+
+3.1      Diffraction loss for over-the-horizon paths
+At long distances over the horizon, only the first term of the residue series is important. Even near or
+at the horizon this approximation can be used with a maximum error around 2 dB in most cases.
+This first term can be written as the product of a distance term, F, and two height gain terms, GT and
+GR. Sections 3.1.1 and 3.1.2 describe how these terms can be obtained from simple formula or from
+nomograms.
+                                             Rec. ITU-R P.526-16                                         7
+
+3.1.1     Numerical calculation
+3.1.1.1    Influence of the electrical characteristics of the surface of the Earth
+The extent to which the electrical characteristics of the surface of the Earth influence the diffraction
+loss can be determined by calculating a normalized factor for surface admittance, K, given by the
+formulae:
+in self-consistent units:
+
+                       2π 𝑎𝑒 −1⁄3
+            𝐾𝐻 = (          )       [(ε − 1)2 + (60 λ σ)2 ]−1⁄4         for horizontal polarization    (11)
+                        λ
+
+and
+                        𝐾𝑉 = 𝐾𝐻 [ε2 + (60 λ σ)2 ]1⁄2              for vertical polarization            (12)
+or, in practical units:
+                            𝐾𝐻 = 0.36(α𝑒 𝑓)−1⁄3 [(ε − 1)2 + (18 000 σ⁄𝑓 )2 ]−1⁄4                      (11a)
+
+                                        𝐾𝑉 = 𝐾𝐻 [ε2 + (18 000 σ⁄𝑓)2 ]1⁄2                              (12a)
+where:
+                ae :     effective radius of the Earth (km)
+                 ε:      effective relative permittivity
+                 σ:      effective conductivity (S/m)
+                 f:      frequency (MHz).
+Typical values of K are shown in Fig. 2.
+8                                       Rec. ITU-R P.526-16
+
+                                                FIGURE 2
+                                             Calculation of K
+
+
+
+
+If K is less than 0.001, the electrical characteristics of the Earth are not important. For values of K
+greater than 0.001 and less than 1, the appropriate formulae given in § 3.1.1.2 can be used. When K
+has a value greater than about 1, the diffraction field strength calculated using the method of § 3.1.1.2
+differs from the results given by the “LFMF-SmoothEarth”, and the difference increases rapidly as K
+increases. “LFMF-SmoothEarth” should be used for K greater than 1. This only occurs for vertical
+polarization, at frequencies below 10 MHz over sea, or below 200 kHz over land. In all other cases
+the method of § 3.1.1.2 is valid.
+                                            Rec. ITU-R P.526-16                                          9
+
+3.1.1.2    Diffraction field strength formulae
+The diffraction field strength, E, relative to the free-space field strength, E0, is given by the equation:
+
+                                      𝐸
+                              20 log10 𝐸 = 𝐹(𝑋) + 𝐺(𝑌1 ) + 𝐺(𝑌2 )                          dB         (13)
+                                       0
+
+
+where X is the normalized length of the path between the antennas at normalized heights Y1 and Y2
+                    𝐸
+(and where 20 log10 𝐸 is generally negative).
+                          0
+
+In self-consistent units:
+                                                         π           1⁄3
+                                              𝑋 = β (λ α2)                 𝑑                          (14)
+                                                             𝑒
+
+
+                                                                      1⁄3
+                                                         π2
+                                             𝑌 = 2β (λ2 α )                 ℎ                         (15)
+                                                                 𝑒
+
+or, in practical units:
+
+                                                                               ⁄
+                                           𝑋 = 2.188β 𝑓 1⁄3 α−2
+                                                             𝑒
+                                                                3
+                                                                  𝑑                                  (14a)
+
+                                                                                   ⁄
+                                     𝑌 = 9.575 × 10−3 β 𝑓 2⁄3 α−1
+                                                               𝑒
+                                                                  3
+                                                                    ℎ                                (15a)
+
+where:
+                 d:    path length (km)
+                ae :   equivalent Earth’s radius (km)
+                 h:    antenna height (m)
+                 f:    frequency (MHz).
+ is a parameter allowing for the type of ground and for polarization. It is related to K by the following
+semi-empirical formula:
+
+                                           1 + 1.6 K 2 + 0.67 K 4
+                                       β =                                                            (16)
+                                           1 + 4.5 K 2 + 1.53 K 4
+
+For horizontal polarization at all frequencies, and for vertical polarization above 20 MHz over land
+or 300 MHz over sea,  may be taken as equal to 1.
+For vertical polarization below 20 MHz over land or 300 MHz over sea,  must be calculated as
+a function of K. However, it is then possible to disregard ε and write:
+
+                                                                      
+                                            K 2  6.89                                               (16a)
+                                                             2/3
+                                                         k                f 5/3
+where  is expressed in S/m, f (MHz) and k is the multiplying factor of the Earth’s radius.
+The distance term is given by the formula:
+
+                       F(X) = 11 + 10 log10 (X) − 17.6 X                               for X  1.6   (17a)
+
+                       F(X) = −20 log10 (X) − 5.6488X1.425                             for X < 1.6   (17b)
+10                                         Rec. ITU-R P.526-16
+
+
+
+The height gain term, G(Y ) is given by the following formulae:
+
+                𝐺(𝑌) ≅ 17.6(𝐵 − 1.1)1⁄2 − 5 log10 (𝐵 − 1.1) − 8                         for 𝐵 > 2    (18)
+
+                𝐺(𝑌) ≅ 20 log10 (𝐵 + 0.1𝐵 3 )                                          for 𝐵 ≤ 2    (18a)
+
+If 𝐺(𝑌) < 2 + 20 log10 𝐾, set 𝐺(𝑌) to the value 2 + 20 log10 𝐾.
+In the above:
+
+                                                    𝐵 = β𝑌                                          (18b)
+
+The accuracy of the diffracted field strength given by equation (13) is limited by the approximation
+inherent in only using the first term of the residue series. Equation (13) is accurate to better than 2 dB
+for values of X, Y1 and Y2 that are constrained by the formula:
+
+                          𝑋 − (β𝑌1 )1⁄2 ∆(𝑌1 , 𝐾) − (β𝑌2 )1⁄2 ∆(𝑌2 , 𝐾) > 𝑋𝑙𝑖𝑚                       (19)
+
+where:
+
+                                     𝑋𝑙𝑖𝑚 = 1.096 − 1.280(1 − β)                                    (19a)
+
+                       ∆(𝑌, 𝐾) = ∆(𝑌, 0) + 1.779(1 − β) [∆(𝑌, ∞) − ∆(𝑌, 0)]                         (19b)
+
+Δ(Y,0) and Δ(Y,∞) are given by:
+
+                                                 0.5 log10 (βY ) − 0.255  
+                        (Y , 0) = 0.5 1 + tanh                                                 (19c)
+                                                            0.3          
+
+                                                  0.5 log10 (βY ) + 0.255  
+                         (Y , ) = 0.5 1 + tanh                                                (19d)
+                                                             0.25         
+Consequently, the minimum distance dmin for which equation (13) is valid is given by:
+
+                         X min = X lim + (β Y1 )1 / 2 (Y1, K ) + (β Y2 )1 / 2 (Y2 , K )           (19e)
+
+and dmin is obtained from Xmin using equation (14a).
+3.1.2    Calculation by nomograms
+Under the same approximation condition (the first term of the residue series is dominant),
+the calculation may also be made using the following formula:
+
+                                    E
+                         20 log10      = F(d ) + H(h1) + H(h2 )                       dB             (20)
+                                    E0
+
+where:
+                E:   received field strength
+                                          Rec. ITU-R P.526-16                                             11
+
+               E0 :   field strength in free space at the same distance
+                d:    distance between the extremities of the path
+        h1 and h2 :   heights of the antennas above the spherical earth.
+The function F (influence of the distance) and H (height-gain) are given by the nomograms in Figs 3,
+4, 5 and 6.
+These nomograms (Figs 3 to 6) give directly the received level relative to free space, for k = 1 and
+k = 4/3, and for frequencies greater than approximately 30 MHz. k is the effective Earth radius factor,
+defined in Recommendation ITU-R P.310. However, the received level for other values of k may be
+calculated by using the frequency scale for k = 1, but replacing the frequency in question by a
+hypothetical frequency equal to f / k2 for Figs 3 and 5, and f / k for Figs 4 and 6.
+Very close to the ground the field strength is practically independent of the height. This phenomenon
+is particularly important for vertical polarization over the sea. For this reason, Fig. 6 includes a heavy
+black vertical line AB. If the straight line should intersect this heavy line AB, the real height should
+be replaced by a larger value, so that the straight line just touches the top of the limit line at A.
+NOTE 1 – Attenuation relative to free space is given by the negative of the values given by equation (20). If
+equation (20) gives a value above the free-space field, the method is invalid.
+NOTE 2 – The effect of line AB is included in the numerical method given in § 3.1.1.
+12               Rec. ITU-R P.526-16
+
+                          FIGURE 3
+     Diffraction by a spherical Earth – effect of distance
+        Rec. ITU-R P.526-16                      13
+
+                 FIGURE 4
+Diffraction by a spherical Earth – height-gain
+14               Rec. ITU-R P.526-16
+
+                          FIGURE 5
+     Diffraction by a spherical Earth – effect of distance
+                                       Rec. ITU-R P.526-16                                      15
+
+                                                FIGURE 6
+                               Diffraction by a spherical Earth – height-gain
+
+
+
+
+3.2     Diffraction loss for any distance at 10 MHz and above
+The following step-by-step procedure should be used for a spherical-earth path of any length at
+frequencies of 10 MHz and above, for effective Earth radius ae > 0. The method uses the calculation
+in § 3.1.1 for over-the-horizon cases, and otherwise an interpolation procedure based on a notional
+effective-earth radius.
+16                                        Rec. ITU-R P.526-16
+
+The procedure uses self-consistent units and proceeds as follows:
+Calculate the marginal LoS distance given by:
+
+                                       d los = 2ae      (h+ h)
+                                                            1            2                           (21)
+
+If d ≥ dlos calculate diffraction loss using the method in § 3.1.1. No further calculation is necessary.
+Otherwise continue:
+Calculate the smallest clearance height between the curved-earth path and the ray between the
+antennas, h (see Fig. 7), given by:
+
+                                              d2              d2 
+                                        h1 − 1 d 2 +  h2 − 2 d1
+                                             2 ae            2 ae 
+                               h =                                                                   (22)
+                                                        d
+
+                                                      d
+                                           d1   =       (1 + b)                                    (22a)
+                                                      2
+
+                                                d 2 = d − d1                                       (22b)
+
+
+                                 m +1           1              3c  3m 
+                         b = 2        cos      +    arccos                                      (22c)
+                                 3m            3 3              2 (m + 1)3 
+                                                                             
+
+                                                      h1 − h2
+                                                c =                                                (22d)
+                                                      h1 + h2
+
+                                                         d2
+                                            m =                                                    (22e)
+                                                    4ae (h1 + h2 )
+
+Calculate the required clearance for zero diffraction loss, hreq, given by:
+
+                                                            d1 d 2 λ
+                                         hreq = 0.552                                                (23)
+                                                               d
+
+If h > hreq the diffraction loss for the path is zero. No further calculation is required.
+Otherwise continue:
+Calculate the modified effective earth radius, aem, which gives marginal LoS at distance d given by:
+
+                                                                     2
+                                                      d    
+                                          aem = 0.5                                                (24)
+                                                    h + h 
+                                                    1    2 
+                                          Rec. ITU-R P.526-16                                             17
+
+Use the method in § 3.1.1 to calculate the diffraction field strength relative to free-space for the path
+using the modified effective earth radius aem in place of the effective earth radius ae, and calculate
+                                   𝐸
+loss Ah, given by 𝐴ℎ = −20 log10 𝐸 .
+                                     0
+
+If Ah is negative, the diffraction loss for the path is zero, and no further calculation is necessary.
+Otherwise calculate the interpolated diffraction loss, A (dB), given by:
+
+                                         A =    1 − h / h A   req   h                                  (25)
+
+
+4       Diffraction over isolated obstacles or a general terrestrial or Earth – space path
+Many propagation paths encounter one obstacle or several separate obstacles and it is useful to
+estimate the losses caused by such obstacles. To make such calculations, it is necessary to idealize
+the form of the obstacles, either assuming a knife-edge of negligible thickness or a thick smooth
+obstacle with a well-defined radius of curvature at the top. Real obstacles have, of course, more
+complex forms, so that the indications provided in this Recommendation should be regarded only as
+an approximation. These models do not take into account the profile transverse to the direction of the
+radio link, which may have a significant effect on diffraction loss.
+In those cases where the direct path between the terminals is much shorter than the diffraction path,
+it is necessary to calculate the additional transmission loss due to the longer path.
+The data given below apply when the wavelength is fairly small in relation to the size of the obstacles,
+i.e. mainly to VHF and shorter waves ( f > 30 MHz).
+
+                                                  FIGURE 7
+                                               Path clearance
+
+
+
+
+4.1     Single knife-edge obstacle
+In this extremely idealized case (see Figs 8a) and 8b)), all the geometrical parameters are combined
+together in a single dimensionless parameter normally denoted by ν which may assume a variety of
+equivalent forms according to the geometrical parameters selected:
+
+                                                   21      1
+                                           = h         +                                             (26)
+                                                     d1   d 2 
+18                                         Rec. ITU-R P.526-16
+
+
+                                                            2                                          (27)
+                                            = 
+                                                       1      1 
+                                                          +     
+                                                         d1   d 2 
+
+
+                                         2h
+                                  =              ( has the sign of h and θ)                          (28)
+                                          
+
+                                  2d
+                           =         1  2       ( has the sign of 1 and  2 )                    (29)
+                                   
+
+where:
+                 h:    height of the top of the obstacle above the straight line joining the two ends of
+                       the path. If the height is below this line, h is negative
+         d1 and d2 :   distances of the two ends of the path from the top of the obstacle
+                 d:    length of the path
+                 :    angle of diffraction (rad); its sign is the same as that of h. The angle  is assumed
+                       to be less than about 0.2 rad, or roughly 12º
+         1 and 2 :   angles in radians between the top of the obstacle and one end as seen from the
+                       other end. The signs of 1 and 2 are the same sign of h in the above equations.
+
+NOTE 1 – In equations (26) to (29) inclusive h, d, d1, d2 and  should be in self-consistent units.
+                                         Rec. ITU-R P.526-16      19
+
+                                                FIGURE 8
+                                           Geometrical elements
+
+
+
+
+Figure 9 gives, as a function of , the loss J() (dB).
+20                                      Rec. ITU-R P.526-16
+
+J() is given by:
+                                           1 − C () − S ()2 + C () − S ()2 
+                      J ( ) = − 20 log                                                        (30)
+                                                              2                     
+                                                                                    
+where C() and S() are the real and imaginary parts respectively of the complex Fresnel integral
+F() defined in § 2.7.
+For  greater than −0.78 an approximate value can be obtained from the expression:
+
+                J ( ) = 6.9 + 20 log   ( ( – 0.1) + 1 +  – 0.1)
+                                                       2
+                                                                                         dB     (31)
+
+
+                                                 FIGURE 9
+                                        Knife-edge diffraction loss
+
+
+
+
+4.2     Single rounded obstacle
+The geometry of a rounded obstacle of radius R is illustrated in Fig. 8c). Note that the distances d1
+and d2, and the height h above the baseline, are all measured to the vertex where the projected rays
+intersect above the obstacle. The diffraction loss for this geometry may be calculated as:
+
+                                  A = J (v) + T (m, n)                dB                        (32)
+                                          Rec. ITU-R P.526-16                                            21
+
+where:
+a)     J(ν) is the Fresnel-Kirchoff loss due to an equivalent knife-edge placed with its peak at the
+       vertex point. The dimensionless parameter ν may be evaluated from any of equations (26) to
+       (29) inclusive. For example, in practical units equation (26) may be written:
+
+                                                                           1/ 2
+                                                   2(d + d 2 ) 
+                                      = 0.0316 h  1                                                 (33)
+                                                    d1 d 2 
+
+         where h and λ are in metres, and d1 and d2 are in kilometres.
+         J(ν) may be obtained from Fig. 9 or from equation (31). Note that for an obstruction to LoS
+         propagation, ν is positive and equation (31) is valid.
+b)      T(m,n) is the additional attenuation due to the curvature of the obstacle:
+
+         T (m, n) = 7.2m1/ 2 − (2 − 12.5n)m + 3.6m3/ 2 − 0.8m 2 dB                 for mn  4         (34a)
+
+
+T (m, n) = − 6 − 20 log (mn) + 7.2m1/ 2 − (2 − 17n)m + 3.6m3/ 2 − 0.8m 2 dB for mn  4                (34b)
+
+        and
+                                                                            1/ 3
+                                          d + d2                    R 
+                                    m = R 1                                                     (35)
+                                          d1d 2 
+
+                                                            2/3
+                                                R
+                                          n = h                      R                                (36)
+                                                 
+
+        and R, d1, d2, h and λ are in self-consistent units.
+Note that as R tends to zero, T(m,n) also tend to zero. Thus, equation (32) reduces to knife-edge
+diffraction for a cylinder of zero radius.
+The obstacle radius of curvature corresponds to the radius of curvature at the apex of a parabola fitted
+to the obstacle profile in the vicinity of the top. When fitting the parabola, the maximum vertical
+distance from the apex to be used in this procedure should be of the order of the first Fresnel zone
+radius where the obstacle is located. An example of this procedure is shown in Fig. 10, where:
+
+                                                        xi2
+                                                   yi =                                                (37)
+                                                        2ri
+and ri is the radius of curvature corresponding to the sample i of the vertical profile of the ridge. In the
+case of N samples, the median radius of curvature of the obstacle is given by:
+
+                                                    1   N
+                                                              xi2
+                                             r =
+                                                    N
+                                                        
+                                                        1     2 yi
+                                                                                                       (38)
+22                                        Rec. ITU-R P.526-16
+
+                                                  FIGURE 10
+                                         Vertical profile of the obstacle
+
+
+
+
+4.3     Double isolated edges
+This method consists of applying single knife-edge diffraction theory successively to the two
+obstacles, with the top of the first obstacle acting as a source for diffraction over the second obstacle
+(see Fig. 11). The first diffraction path, defined by the distances a and b and the height h1 , gives a loss
+L1 (dB). The second diffraction path, defined by the distances b and c and the height h2, gives a loss
+L2 (dB). L1 and L2 are calculated using formulae of § 4.1. A correction term Lc (dB) must be added to
+take into account the separation b between the edges. Lc may be estimated by the following formula:
+
+                                                           (𝑎+𝑏) (𝑏+𝑐)
+                                        𝐿𝑐 = 10 log10 [ 𝑏(𝑎+𝑏+𝑐) ]                                      (39)
+
+which is valid when each of L1 and L2 exceeds about 15 dB. The total diffraction loss is then given
+by:
+
+                                             𝐿 = 𝐿1 + 𝐿2 + 𝐿𝑐                                           (40)
+
+The above method is particularly useful when the two edges give similar losses.
+
+                                                  FIGURE 11
+                                        Method for double isolated edges
+
+
+
+
+If one edge is predominant (see Fig. 12), the first diffraction path is defined by the distances a and
+b + c and the height h1. The second diffraction path is defined by the distances b and c and the
+height h'2.
+                                           Rec. ITU-R P.526-16                                       23
+
+                                                   FIGURE 12
+                                Figure showing the main and the second obstacle
+
+
+
+
+The method consists of applying single knife-edge diffraction theory successively to the two
+obstacles. First, the higher h/r ratio determines the main obstacle, M, where h is the edge height from
+the direct path TxRx as shown in Fig. 12, and r is the first Fresnel ellipsoid radius given by equation
+(2). Then h'2, the height of the secondary obstacle from the sub-path MR, is used to calculate the loss
+caused by this secondary obstacle. A correction term Tc (dB) must be subtracted, in order to take into
+account the separation between the two edges as well as their height. Tc (dB) may be estimated by the
+following formula:
+
+                                                             
+                                                       2   q  2 p
+                                   Tc = 12 – 20 log10                                      (41)
+                                                       1 –    p 
+                                                             
+                                                     
+with:
+                                                                 1/ 2
+                                              2 (a + b + c) 
+                                           p=                         h1                        (42a)
+                                               (b + c)a 
+
+                                                                 1/ 2
+                                             2 (a + b + c) 
+                                          q=                          h2                        (42b)
+                                              ( a + b )c 
+
+                                                                        1/ 2
+                                                   b( a + b + c )                               (42c)
+                                          tan  =                 
+                                                        ac
+h1 and h2 are the edge heights from the direct path transmitter-receiver.
+The total diffraction loss is given by:
+
+                                             𝐿 = 𝐿1 + 𝐿2 − 𝑇𝑐                                      (43)
+
+The same method may be applied to the case of rounded obstacles using § 4.3.
+In cases where the diffracting obstacle may be clearly identified as a flat-roofed building a single
+knife-edge approximation is not sufficient. It is necessary to calculate the phasor sum of two
+components: one undergoing a double knife-edge diffraction and the other subject to an additional
+reflection from the roof surface. It has been shown that, where the reflectivity of the roof surface and
+any difference in height between the roof surface and the side walls are not accurately known, then a
+24                                        Rec. ITU-R P.526-16
+
+double knife-edge model produces a good prediction of the diffracted field strength, ignoring the
+reflected component.
+
+4.4      Multiple isolated cylinders
+This method is recommended for diffraction over irregular terrain which forms one or more obstacles
+to LoS propagation where each obstacle can be represented by a cylinder with a radius equal to the
+radius of curvature at the obstacle top, being advisable when detailed vertical profile through the ridge
+is available.
+The terrain height profile should be available as a set of samples of ground height above sea level,
+the first and last being the heights of the transmitter and receiver above sea level. Atmospheric
+refractivity gradient should be taken into account via the concept of effective Earth radius. Distance
+and height values are described as though stored in arrays indexed from 1 to N, where N equals
+the number of profile samples.
+In the following a systematic use of suffices is made:
+               hi : height above sea level of the i-th point
+               di :    distance from the transmitter to the i-th point
+               dij :   distance from the i-th to the j-th points.
+The first step is to perform a “stretched string” analysis of the profile. This identifies the sample
+points which would be touched by a string stretched over the profile from transmitter to receiver. This
+may be done by the following procedure, in which all values of height and distance are in
+self-consistent units, and all angles are in radians. The method includes approximations which are
+valid for radio paths making small angles to the horizontal. If a path has ray gradients exceeding about
+5º more exact geometry may be justified.
+Each string point is identified as the profile point with the highest angular elevation above the local
+horizontal as viewed from the previous string point, starting at one end of the profile and finishing at
+the other. Viewed from point s, the elevation of the i-th profile sample (i > s) is given by:
+
+                                    𝑒 = [(ℎ𝑖 − ℎ𝑠 )⁄𝑑𝑠𝑖 ] − [𝑑𝑠𝑖 ⁄2𝑎𝑒 ]                              (44)
+
+where:
+               ae:     effective Earth radius, given by:
+                 =     k × 6 371 (km)
+and
+                k:     effective Earth-radius factor.
+
+A test is now applied to determine whether any group of two or more string points should represent
+the same terrain obstruction. For samples at spacings of 250 m or less any group of string points
+which are consecutive profile samples, other than the transmitter or receiver, should be treated as one
+obstruction.
+Each obstruction is now modelled as a cylinder, as illustrated in Fig. 13. The geometry of each
+individual cylinder corresponds with Fig. 8c). Note that in Fig. 13 the distances s1, s2 for each cylinder
+are shown as measured horizontally between the vertex points, and that for near-horizontal rays these
+distances approximate to the slope distances d1 and d2 in Fig. 8c). For ray angles to the horizontal
+greater than about 5º it may be necessary to set s1 and s2 to the inter-vertex slope distances d1 and d2.
+                                         Rec. ITU-R P.526-16                                    25
+
+                                                 FIGURE 13
+                          The cascaded cylinder model a), overall problem b), details
+
+
+
+
+Similarly in Fig. 13, the height h of each cylinder is shown as measured vertically from its vertex
+down to the straight line joining the adjacent vertex or terminal points. The value of h for each
+cylinder corresponds to h in Fig. 8c). Again, for near-horizontal rays the cylinder heights may be
+computed as though vertical, but for steeper ray angles it may be necessary to compute h at right
+angles to the baseline of its cylinder.
+Figure 14 illustrates the geometry for an obstruction consisting of more than one string point.
+The following points are indicated by:
+               w: closest string point or terminal on the transmitter side of the obstruction which
+                     is not part of the obstruction
+               x: string point forming part of the obstruction which is closest to the transmitter
+               y: string point forming part of the obstruction which is closest to the receiver
+26                                        Rec. ITU-R P.526-16
+
+                 z:    closest string point or terminal on the receiver side of the obstruction which is
+                       not part of the obstruction
+                 v:    vertex point made by the intersection of incident rays above the obstruction.
+
+                                                    FIGURE 14
+                                       Geometry of a multipoint obstacle
+
+
+
+
+The letters w, x, y and z will also be indices to the arrays of profile distance and height samples. For an
+obstruction consisting of an isolated string point, x and y will have the same value, and will refer to a
+profile point which coincides with the vertex. Note that for cascaded cylinders, points y and z for one
+cylinder are points w and x for the next, etc.
+A step-by-step method for fitting cylinders to a general terrain profile is described in Attachment 1 to
+Annex 1. Each obstruction is characterized by w, x, y and z. The method of Attachment 1 to Annex 1
+is then used to obtain the cylinder parameters s1, s2, h and R. Having modelled the profile in this way,
+the diffraction loss for the path is computed as the sum of three terms:
+–        the sum of diffraction losses over the cylinders;
+–        the sum of sub-path diffraction between cylinders (and between cylinders and adjacent
+         terminals);
+–        a correction term.
+The total diffraction loss, in dB relative to free-space loss, may be written:
+                         N                    N
+                  Ld =  Li + L ( w x)1 +  L ( y z )i – 20 log CN               dB              (45)
+                        i =1                 i =1
+
+
+where:
+               L'i :   diffraction loss over the i-th cylinder calculated by the method of § 4.2
+         L"(w x)1 :    sub-path diffraction loss for the section of the path between points w and x for
+                       the first cylinder
+          L"(y z)i :   sub-path diffraction loss for the section of the path between points y and z for all
+                       cylinders
+               CN :    correction factor to account for spreading loss due to diffraction over successive
+                       cylinders.
+Attachment 2 to Annex 1 gives a method for calculating L" for each LoS section of the path between
+obstructions.
+                                          Rec. ITU-R P.526-16                                          27
+
+The correction factor, CN, is calculated using:
+
+                                              𝐶𝑁 = (𝑃𝑎 ⁄𝑃𝑏 )0.5                                      (46)
+where:
+                                                                          
+                                                                             
+                                             N                   N
+                                   Pa = s1  ( s2 )i   s1 +  ( s2 ) j                         (47)
+                                           i =1                j=1         
+
+                                                          N
+                                    Pb = ( s1 )1 ( s2 ) N  ( s1 )i + ( s2 )i                      (48)
+                                                         i =1
+
+
+
+and the suffices to round brackets indicate individual cylinders.
+
+4.5      Method for a general terrestrial path
+This method is recommended for situations where an automatic process is required to predict
+diffraction loss for any type of path as defined by a profile, whether LoS or trans-horizon, and whether
+the terrain is rough or smooth. This model is based on the Bullington construction, but also makes
+use of the spherical Earth diffraction model as described in § 3.2. These models are combined so that
+for a completely smooth path, the result will be the same as the spherical Earth model.
+The path must be described by a profile consisting of samples of terrain height in metres above sea
+level for a succession of distances from one terminal to the other. Unlike the profile required in § 4.4,
+the first and last points of this profile, (d1, h1) and (dn, hn), must give terrain height underneath the
+two antennas, and the antenna heights above ground must be supplied separately.
+In this model, there is no requirement for the profile points to be equally spaced. However, it is
+important that the maximum point spacing is not large compared to the sample spacing of the
+topographic data from which it is extracted. It is particularly inadvisable to represent a section of
+constant height profile, such as water, by a first and last point separated by the length of the flat
+section of the path. The model performs no interpolation between profile points, and due to Earth
+curvature a large distance between profile points, however flat the profile between, can lead to
+significant errors.
+Where urbanization or tree cover exists along the profile, it will normally improve accuracy to add
+a representative clutter height to bare earth terrain heights. This should not be done for the terminal
+locations (first and last profile points) and care is needed close to the terminals to ensure that the
+addition of cover heights does not cause an unrealistic increase in the horizon elevation angles as seen
+by each antenna. If a terminal is in an area with ground cover and below the representative cover
+height, it may be preferable to raise the terminal to the cover height for the application of this model,
+and to use a separate height-gain correction for the additional loss actually experienced by the
+terminal in its actual (lower) position.
+This method should be used when there is no a priori information as to the nature of the propagation
+path or of possible terrain obstructions. This is typical of the case where a computer program is used
+for profiles selected from a terrain height database on a fully automatic basis, with no individual
+inspection of path characteristics. The method gives reliable results for all types of path, LoS or trans-
+horizon, rough or smooth, or over the sea or large bodies of water.
+The method contains two sub-models:
+a)     the Bullington diffraction method used with a tapered correction to provide a smooth
+       transition between LoS and trans-horizon;
+28                                          Rec. ITU-R P.526-16
+
+b)       the spherical Earth method given in § 3.2.
+The Bullington part of the method is used twice. The following subsection gives a general description
+of the Bullington calculation.
+4.5.1    Bullington model
+In the following equations slopes are calculated in m/km relative to the baseline joining sea level at
+the transmitter to sea level at the receiver. The distance and height of the i-th profile point are di km
+and hi m above sea level respectively, i takes values from 1 to n where n is the number of profile
+points, and the complete path length is d km. For convenience the terminals at the start and end of the
+profile are referred to as transmitter and receiver, with heights in m above sea level hts and hrs,
+respectively. Effective Earth curvature Ce km−1 is given by 1/re where re is effective Earth radius in
+km. Wavelength in metres is represented by .
+Find the intermediate profile point with the highest slope of the line from the transmitter to the point.
+                                  Stim = max i   h + 500Ce d i ( d − d i )− hts
+                                                             di
+                                                                                                  m/km                                  (49)
+
+where the profile index i takes values from 2 to n − 1.
+Calculate the slope of the line from transmitter to receiver assuming an LoS path:
+
+                                                        hrs − hts
+                                            Str =           d
+                                                                               m/km                                                      (50)
+Two cases must now be considered.
+Case 1. Path is LoS
+If Stim < Str the path is LoS.
+Find the intermediate profile point with the highest diffraction parameter :
+
+                                    
+                         max = max hi + 500Ce d i (d − d i ) − ts
+                                                                                   h   ( d − d i )+ hrs d i
+                                                                                              d
+                                                                                                                  0.002 d
+                                                                                                                  d i ( d − d i )
+                                                                                                                                        (51)
+
+where the profile index i takes values from 2 to n − 1.
+In this case, the knife-edge loss for the Bullington point is given by:
+                                            Luc = J (max )                             dB                                               (52)
+
+where the function J is given by equation (31) for b greater than −0.78, and is zero otherwise.
+Case 2. Path is trans-horizon
+If Stim  Str the path is trans-horizon.
+Find the intermediate profile point with the highest slope of the line from the receiver to the point.
+                                 S rim = max ih + 500Ce d i ( d − d i )− hrs
+                                                        d −di
+                                                                                                    m/km                                (53)
+
+where the profile index i takes values from 2 to n − 1.
+Calculate the distance of the Bullington point from the transmitter:
+
+                                                    hrs − hts + S rim d
+                                           db =        S tim + S rim                      km                                             (54)
+                                               Rec. ITU-R P.526-16                                               29
+
+
+
+Calculate the diffraction parameter, b, for the Bullington point:
+
+                                       
+                                b = hts + S tim d b − ts
+                                                             h   (d − d b )+ hrs d b
+                                                                       d
+                                                                                             0.002 d
+                                                                                            d b ( d − d b )    (55)
+
+In this case, the knife-edge loss for the Bullington point is given by:
+
+                                             Luc = J ( b )                            dB                       (56)
+
+For Luc calculated using either equation (52) or (56), Bullington diffraction loss for the path is now
+given by:
+                             𝐿𝑏 = 𝐿𝑢𝑐 + [1 − exp(−𝐿𝑢𝑐 ⁄6)](10 + 0.02𝑑)                                          (57)
+4.5.2    Complete method
+Use the method in § 4.5.1 for the actual terrain profile and antenna heights. Set the resulting
+Bullington diffraction loss for the actual path, Lba dB, to Lb as given by equation (57).
+Find the effective transmitter and receiver heights relative to a smooth surface fitted to the profile.
+Calculate initial provisional values for the heights of the smooth surface at the transmitter and receiver
+ends of the path, as follows:
+                                                   n
+                                           v1 =  ( d i − d i −1 )( hi + hi −1 )                                (58)
+                                                 i=2
+
+                                  n
+                          v2 =  ( d i − d i −1 )  hi ( 2d i + d i −1 ) + hi −1 ( d i + 2d i −1 )           (59)
+                                i=2
+
+
+                                                       2v d − v 
+                                              hstip =  1 2 2                                                 (60a)
+                                                          d     
+                                                       v −v d 
+                                               hsrip =  2 2 1                                                (60b)
+                                                         d    
+Find the highest obstruction height above the straight-line path from transmitter to receiver hobs,
+and the horizon elevation angles αobt, αobr, all based on flat-Earth geometry, according to:
+                                           hobs = maxhobi                                m                   (61a)
+                                      obt = maxhobi / di                                mrad                (61b)
+                                   obr = maxhobi / (d − d i )                               mrad            (61c)
+where:
+                                hobi = hi − hts (d − di ) + hrs di / d                               m       (61d)
+and the profile index i takes values from 2 to (n – 1).
+Calculate provisional values for the heights of the smooth surface at the transmitter and receiver ends
+of the path:
+30                                          Rec. ITU-R P.526-16
+
+If hobs is less than or equal to zero, then:
+                                           ℎ𝑠𝑡𝑝 = ℎ𝑠𝑡𝑖𝑝        masl                               (62a)
+                                           ℎ𝑠𝑟𝑝 = ℎ𝑠𝑟𝑖𝑝        masl                               (62b)
+otherwise:
+                                      ℎ𝑠𝑡𝑝 = ℎ𝑠𝑡𝑖𝑝 − ℎ𝑜𝑏𝑠 𝑔𝑡           masl                       (62c)
+                                      ℎ𝑠𝑟𝑝 = ℎ𝑠𝑟𝑖𝑝 − ℎ𝑜𝑏𝑠 𝑔𝑟           masl                       (62d)
+where:
+                                          𝑔𝑡 = α𝑜𝑏𝑡 ⁄(α𝑜𝑏𝑡 + α𝑜𝑏𝑟 )                               (62e)
+                                          𝑔𝑟 = α𝑜𝑏𝑟 ⁄(α𝑜𝑏𝑡 + α𝑜𝑏𝑟 )                               (62f)
+Calculate final values for the heights of the smooth surface at the transmitter and receiver ends of the
+path:
+If hstp is greater than h1 then:
+                                            hst = h1           masl                               (63a)
+otherwise:
+                                           hst = hstp              masl                           (63b)
+
+If hsrp is greater than hn then:
+                                            hsr = hn           masl                               (63c)
+otherwise:
+                                           hsr = hsrp              masl                           (63d)
+
+Use the method in § 4.5.1 for a smooth profile by setting all profile heights hi to zero, and with
+modified antenna heights:
+                                         hts' = hts − hst           masl                          (64a)
+
+                                         hrs' = hrs − hsr           masl                          (64b)
+Set the resulting Bullington diffraction loss for the smooth path, Lbs dB, to Lb as given by
+equation (57).
+Use the method for diffraction over spherical earth given in § 3.2 for the actual path length d km and
+with:
+                                               h1 = hts'           m                              (65a)
+                                               h2 = hrs'           m                              (65b)
+Set the resulting spherical-earth diffraction loss, Lsph dB, to A as given by equation (25).
+The diffraction loss for the general path is now given by:
+                                   L = Lba + max{Lsph − Lbs , 0}              dB                   (66)
+
+4.6      Method for a general Earth – space slant path
+This method is recommended to predict diffraction loss for any type of slant path as defined by a
+profile in the region of the terrestrial portion of the path, whether LoS or trans-horizon, and whether
+                                         Rec. ITU-R P.526-16                                            31
+
+the terrain is rough or smooth, and is preferred when the high end of the path is much further away
+from the obstructing terrain than the low end of the path. This model is based on the knife-edge loss
+of the Bullington construction, blended with a similar construction predicting plane-Earth loss for a
+general path, referred to as the “effective plane-Earth model”. Care is needed close to the terminals
+to ensure that the heights of local terrain do not cause unrealistic horizon elevation angles as seen by
+each antenna.
+This method has been found to be reasonably accurate for rough terrain up to 50 dB obstruction
+relative to free-space and for smooth terrain up to 30 dB obstruction relative to free space, so is
+suitable for all Earth-space paths where the elevation angle is between zero and 90 degrees. It may
+under-estimate diffraction loss at negative elevation angles, especially in smooth terrain.
+4.6.1   Bullington model for an Earth – space slant path
+The Bullington triangle knife-edge construction may be applied to the terrain in the region of the
+lower end of a slant path with the upper end at great distance, by assuming parallel rays to the upper
+end, as shown in Fig. 15, with a ray leaving the antenna at the low end of the path, towards the antenna
+at the high end, travelling through the terrain if the path is not line-of-sight. In this case, another ray
+parallel to this one is drawn to be tangent to the terrain, and the perpendicular distance h between
+these two parallel rays is used to calculate diffraction parameter ν with equation (26), together with
+d1 as shown in Fig. 15. The d2 term in equation (26) may be omitted if it is extremely large; otherwise
+d2 is the length of the remainder of the direct path, and the two rays to the high end of the path
+converge on the high-end antenna.
+If the line-of-sight is unobstructed, h is negative, and evaluated at the point where Fresnel clearance
+is a minimum. The measurement of h is perpendicular to the line-of-sight ray. All quantities in
+equation (26); h, d1, d2, and λ, are in the same units.
+Having calculated ν with equation (26), Bullington knife-edge loss J(ν) is estimated with equation
+(31), provided ν exceeds −0.78; otherwise assume J(ν) = 0, and assume diffraction loss is zero. If ν
+exceeds −0.78, proceed to §§ 4.6.2 and 4.6.3 to estimate terrain diffraction loss.
+32                                      Rec. ITU-R P.526-16
+
+                                                FIGURE 15
+                                    Bullington geometry for a slant path
+
+
+
+
+4.6.2   Effective plane-Earth model
+The Bullington triangle knife-edge loss method of § 4.6.1 is a simple diffraction loss estimation
+method which may be applied to any arbitrary terrain but can only be assumed accurate for the case
+of a true single knife-edge obstruction. For other obstructing terrain, Bullington knife-edge loss J(ν)
+is generally an under-estimate of diffraction loss. This deficiency is overcome in the following
+method, especially for smooth terrain in the region of the low end of the path.
+The effective plane-Earth model described here, is a simple diffraction loss estimation method which
+may be applied to any arbitrary terrain, but can only be assumed accurate for the case of any plane-
+Earth path with low enough clearance to cause diffraction loss. For irregular obstructing terrain, this
+simple model has a tendency to over-estimate diffraction loss, in contrast to the Bullington knife-
+edge loss equation (56), which tends to under-estimate loss.
+The procedure for estimating effective plane-Earth loss is a triangle obstruction method, similar to
+the Bullington construction, except that the terrain profile points are raised by first Fresnel radius
+divided by 1/√𝜋, given as 𝑅1/π ≈ √λ𝑑1 ⁄π in the satellite case with consistent units, in a direction
+perpendicular to the direct rayline, before finding the tangent rays from each antenna. This
+construction is shown in Fig. 16.
+                                         Rec. ITU-R P.526-16                                          33
+
+                                                 FIGURE 16
+                                Effective plane-Earth geometry for a slant path
+
+
+
+
+The angles of these tangent rays to the direct rayline are α1 and α2 radians. If the total path length is
+d and the wavelength is λ, both in the same units, then the effective plane-earth obstruction loss
+relative to free space is given by
+
+                         𝐿𝑒 = −40 log10 [√πα1 α2 𝑑/λ + 1 − √πα1 α2 𝑑/λ ]                            (67)
+
+In the case of a slant path of great length, the height h of the obstruction triangle may be approximated
+as h ≈ α2d, leading to the following expression:
+
+                            𝐿𝑒 ≈ −40 log10 [√πα1 ℎ/λ + 1 − √πα1 ℎ/λ ]                               (68)
+
+Height h and angle α1 are as shown in Fig. 16, with the terrain is here raised by 1⁄√π of the first
+Fresnel zone radius (𝑅1/π ). For convenience, distances such as d1 may be measured in the direction
+of the direct ray to the satellite, and heights such as h or 𝑅1/𝜋 must be measured perpendicular to the
+direct ray.
+4.6.3   The complete slant-path model
+The Bullington knife-edge loss J(ν) from § 4.6.1, and the effective plane-Earth loss Le from § 4.6.2,
+are blended to give the diffraction loss Leb as follows:
+
+                                      𝐿𝑒𝑏 = 𝑘𝑏 𝐽(𝜈) + (1 − 𝑘𝑏 )𝐿𝑒                                   (69)
+34                                          Rec. ITU-R P.526-16
+
+with
+
+                                                          (𝐿 −26)
+                                            𝑘𝑏 = max { 𝑒70          , 0}                              (70)
+
+The blended loss Leb has been found to provide reasonable accuracy in predicting terrain diffraction
+losses up to 50 dB in excess of free space for irregular terrain. It may under-estimate the diffraction
+loss in smooth terrain beyond line-of-sight, i.e. at negative elevation angles.
+
+
+5        Diffraction by thin screens
+The following methods assume that the obstruction is in the form of a thin screen. They can be applied
+to propagation around an obstacle or through an aperture.
+
+5.1      Finite-width screen
+Interference suppression for a receiving site (e.g. a small earth station) may be obtained by an artificial
+screen of finite width transverse to the direction of propagation. For this case the field in the shadow
+of the screen may be calculated by considering three knife-edges, i.e. the top and the two sides of the
+screen. Constructive and destructive interference of the three independent contributions will result in
+rapid fluctuations of the field strength over distances of the order of a wavelength. The following
+simplified model provides estimates for the average and minimum diffraction loss as a function of
+location. It consists of adding the amplitudes of the individual contributions for an estimate of the
+minimum diffraction loss and a power addition to obtain an estimate of the average diffraction loss.
+The model has been tested against accurate calculations using the uniform theory of diffraction (UTD)
+and high-precision measurements.
+Step 1: Calculate the geometrical parameter ν for each of the three knife-edges (top, left side and right
+side) using any of equations (26) to (29).
+Step 2: Calculate the loss factor j(ν) = 10 J(ν)/20 associated with each edge from equation (31).
+Step 3: Calculate minimum diffraction loss Jmin from:
+
+                                               1           1         1 
+                       Jmin ( ) = – 20 log10          +         +             dB                   (71)
+                                               j1 ( )   j2 ( )   j3 ( ) 
+
+or, alternatively,
+Step 4: Calculate average diffraction loss Jav from:
+                                             1           1         1 
+                       Ja ( ) = –10 log10  2       + 2       + 2            dB                    (72)
+                                             j1 ( )   j2 ( )   j3 ( ) 
+
+5.2      Diffraction by rectangular apertures and composite apertures or screens
+The method described below can be used to predict the diffraction loss due to a rectangular aperture
+in an otherwise totally absorbing thin screen. The method can be extended to cover several rectangular
+apertures or finite screens, and is thus an alternative method for the finite-width screen discussed in
+§ 5.1.
+5.2.1    Diffraction by a single rectangular aperture
+Figure 17 shows the geometry used to represent a rectangular aperture in an infinite totally absorbing
+thin screen.
+                                         Rec. ITU-R P.526-16                                           35
+
+                                                 FIGURE 17
+                                  Geometry for a single rectangular aperture
+
+
+
+
+The positions of the aperture edges, x1, x2, y1 and y2, are given in a Cartesian coordinate system with
+origin at the point where the straight line from transmitter T at coordinates xt, yt, zt, to receiver R at
+coordinates xr, yr, zr, passes through the screen in the X-Y plane, with propagation not necessarily
+parallel to the Z axis. The origin is on the plane of the screen.
+The angle θp between the direction of propagation and the Z axis is:
+                                            √(𝑥𝑟 −𝑥𝑡 )2 +(𝑦𝑟 −𝑦𝑡 )2
+                            θ𝑝 = arctan (                             )        rad                   (73)
+                                                    𝑍𝑟 −𝑍𝑡
+
+The field strength, ea, at the receiver in linear units normalized to free space, and in complex form,
+may be evaluated accurately for small θp by the Fresnel integral method of § 5.2.1.1, or with
+reasonable accuracy for any θp by the semi-empirical method of § 5.2.1.2.
+The corresponding diffraction loss La is given by:
+
+                                  𝐿𝑎 = −20 log10 (|𝑒𝑎 |)                  dB                         (74)
+
+
+5.2.1.1   Fresnel integral method
+                         ea(x1,x2,y1,y2) = 0.5(CxSy + SxCy) + j 0.5(SxSy – CxCy)                     (75)
+where:
+                                         𝐶𝑥 = 𝐶(ν𝑥2 ) − 𝐶(ν𝑥1 )                                     (76a)
+                                        𝐶𝑦 = 𝐶(ν𝑦2 ) − 𝐶(ν𝑦1 )                                      (76b)
+                                         𝑆𝑥 = 𝑆(ν𝑥2 ) − 𝑆(ν𝑥1 )                                     (76c)
+                                         𝑆𝑦 = 𝑆(ν𝑦2 ) − 𝑆(ν𝑦1 )                                     (76d)
+36                                       Rec. ITU-R P.526-16
+
+
+
+C() and S() are as given in equations (7a) and (7b) and may be evaluated from the complex Fresnel
+coefficient using equations (8a) and (8b).
+The four diffraction parameters x1, x2, y1 and y2 are:
+                                                                             0.18
+                                        2 1.18  1     1                                   0.82
+                        x1 = sgn( x1 )   x1       −                               21           (77a)
+                                                zr   zt 
+                                                                              0.18
+                                         2    1.18  1    1                                 0.82
+                       x2   = sgn( x2 )   x2         −                            22          (77b)
+                                                     z
+                                                     r   z t 
+
+                                                                              0.18
+                                        2    1.18  1     1                                 0.82
+                        y1 = sgn( y1 )   y1          −                            11           (77c)
+                                                   zr   z t 
+                                                                               0.18
+                                          2    1.18  1    1                                0.82
+                       y2   = sgn( y 2 )   y2         −                          12           (77d)
+                                                      z
+                                                      r   z t 
+
+with:
+                                         𝑥 −𝑥                     𝑥 −𝑥
+                        ϕ21 = arctan ( 1𝑍 𝑟 ) − arctan ( 1𝑍 𝑡)                              rad     (77e)
+                                              𝑟                      𝑡
+
+                                         𝑥 −𝑥                     𝑥 −𝑥
+                        ϕ22 = arctan ( 2𝑍 𝑟 ) − arctan ( 2𝑍 𝑡)                              rad     (77f)
+                                              𝑟                      𝑡
+
+                                         𝑦 −𝑦                    𝑦 −𝑦
+                        ϕ11 = arctan ( 1𝑍 𝑟 ) − arctan ( 1𝑍 𝑡)                              rad     (77g)
+                                              𝑟                      𝑡
+
+                                         𝑦 −𝑦                     𝑦 −𝑦
+                        ϕ12 = arctan ( 2𝑍 𝑟 ) − arctan ( 2𝑍 𝑡)                              rad     (77h)
+                                              𝑟                      𝑡
+
+
+5.2.1.2   Semi-empirical method
+For reasonable accuracy at any θp, the following method does not require the Fresnel integrals C()
+and S():
+                        2
+                                   1 phi1                    1 phi 2      
+                 ea =  sgn( i1 ) −      Gi1  − sgn( i 2 ) −       Gi 2                      (78)
+                      i =1         2 Ph                     2  Ph         
+where:
+                                         ij   1 1
+                               Gij = cos   − arctan(1.4 ij )
+                                                                  
+                                                                                                     (79)
+                                          2  2                
+with φij from equations (77e) to (77h), and
+                                         1
+                             ij = 2
+                                         
+                                           ( Dt − proj −ij + Dr − proj −ij − rproj −i )              (80)
+
+                                 rproj −1 =       (zr − zt )2 + ( yr − yt )2                        (81a)
+
+                               rproj − 2 =        (z r − zt )2 + (xr − xt )2                        (81b)
+                                                      Rec. ITU-R P.526-16                                                  37
+
+
+                                                                                zt2 + ( y1 − yt )
+                                                                                                             2
+                                              Dt − proj −11 =                                                            (82a)
+
+                                                                                zt2 + ( y2 − yt )
+                                                                                                             2
+                                              Dt − proj −12 =                                                            (82b)
+
+                                                                                    zt2 + ( x1 − xt )
+                                                                                                             2
+                                              Dt − proj − 21 =                                                           (82c)
+
+                                                                                    zt2 + ( x2 − xt )
+                                                                                                             2
+                                              Dt − proj − 22 =                                                           (82d)
+
+                                                                                zr2 + ( y1 − yr )
+                                                                                                             2
+                                              Dr − proj −11 =                                                            (82e)
+
+                                                                                zr2 + ( y2 − yr )
+                                                                                                             2
+                                              Dr − proj −12 =                                                            (82f)
+
+                                                                                    zr2 + ( x1 − xr )
+                                                                                                             2
+                                              Dr − proj − 21 =                                                           (82g)
+
+                                                                                    zr2 + ( x2 − xr )
+                                                                                                             2
+                                              Dr − proj − 22 =                                                           (82h)
+
+Evaluate D11, D12, D21, D22:
+
+                     ( zr ) + ( yr − yij ) + ( xr − xij ) + ( zt ) + ( yt − yij ) + ( xt − xij )
+                           2                  2                                 2                        2       2   2
+           Dij =                                                                                                          (83)
+
+where, if Dr-proj−1 j  Dt-proj−1 j
+
+                    xt ( Dr-proj−1 j ) − xr ( Dt-proj−1 j ) − Dt-proj−1 j Dr-proj−1 j ( xt − xr )
+                                     2                                  2
+
+           x1 j =                                                                                                        (84a)
+                                             (D             ) −(D                                )
+                                                                2                                    2
+                                               r-proj−1 j                           t-proj−1 j
+
+
+or if Dr-proj−1 j = Dt-proj−1 j
+
+                                                                                    xt + xr
+                                                                x1 j =                                                   (84b)
+                                                                                       2
+and if Dr-proj− 2 j  Dt-proj− 2 j
+
+                    yt ( Dr-proj− 2 j ) − yr ( Dt-proj− 2 j ) − Dt-proj− 2 j Dr-proj− 2 j ( yt − yr )
+                                         2                                  2
+
+           y2 j =                                                                                                        (85a)
+                                             (D                 ) −(D                                )
+                                                                    2                                    2
+                                                  r-proj− 2 j                         t-proj− 2 j
+
+
+or if Dr-proj− 2 j = Dt-proj− 2 j
+                                                                                     yt + y r
+                                                            y2 j =                                                       (85b)
+                                                                                        2
+and:
+                                                         y1 j = y j , x2 j = x j                                          (86)
+using ph11, ph12, ph21, ph22, from
+38                                       Rec. ITU-R P.526-16
+
+
+                                                    − j 2Dij 
+                                         phij = exp                                              (87)
+                                                              
+and Ph:
+                                                   − j 2r 
+                                          Ph = exp                                                 (88)
+                                                    
+
+5.2.2     Diffraction by composite apertures or screens
+The method for a single rectangular aperture can be extended as follows:
+Since in the linear units normalized to free space of equations (75) or (78) the free-space field is given
+by 1.0 + j 0.0, the normalized complex field es due to a single rectangular screen (isolated from
+ground) is given by:
+
+                                             𝑒𝑠 = 1.0 − 𝑒𝑎                                           (89)
+
+where ea is calculated using equations (75) or (78) for an aperture of the same size and position as the
+screen.
+–       The normalized field due to combinations of several rectangular apertures or isolated screens
+        can be calculated by adding the results of equations (75) or (78).
+–       Arbitrarily shaped apertures or screens can be approximated by suitable combinations of
+        rectangular apertures or screens.
+–         Since the C() and S() integrals converge to 0.5 + j 0.5 as  approaches infinity,
+          equation (75) can be applied to rectangles of unlimited extent in one or more directions.
+
+
+6         Diffraction over a finitely conducting wedge
+The method described below can be used to predict the diffraction loss due to a finitely conducting
+wedge. Suitable applications are for diffraction around the corner of a building or over the ridge of
+a roof, or where terrain can be characterized by a wedge-shaped hill. The method requires the
+conductivity and relative dielectric constant of the obstructing wedge, and assumes that no
+transmission occurs through the wedge material.
+The method is based on UTD. It takes account of diffraction in both the shadow and line-of-sight
+region, and a method is provided for a smooth transition between these regions.
+The geometry of a finitely conducting wedge-shaped obstacle is illustrated in Fig. 18.
+                                          Rec. ITU-R P.526-16                                         39
+
+                                                  FIGURE 18
+                               Geometry for application of UTD wedge diffraction
+
+
+
+
+The UTD formulation for the electric field at the field point, specializing to two dimensions, is:
+                                   exp(− jks1) ⊥               s1
+                       eUTD = e0              D                          exp(− jks2 )              (90)
+                                       s1                 s2 ( s1 + s2 )
+where:
+             eUTD :   electric field at the field point
+               e0 :   relative source amplitude
+               s1 :   distance from source point to diffracting edge
+               s2 :   distance from diffracting edge to field point
+                k:    wave number 2π/λ
+                ⊥
+              D :   diffraction coefficient depending on the polarization (parallel or perpendicular
+                      to the plane of incidence) of the incident field on the edge
+and s1, s2 and λ are in self-consistent units.
+The diffraction coefficient for a finitely conducting wedge is given as:
+                                   + (  2 − 1 )                                     
+                                cot                      F (kLa ( 2 − 1 ))
+                                                                    +
+
+                                              2n                                          
+                                                                                       
+                                          − (  2 − 1 )                              
+                                + cot                       F (kLa ( 2 − 1 ))
+                                                                      −
+                                                                                          
+             ⊥
+                  − exp(− j/4)                 2n                                     
+            D =                                                                                  (91)
+                    2n 2 k           ⊥
+                                                 − (  2 + 1 ) 
+                                   + R0  cot 
+                                      
+                                                                    F (kLa ( 2 + 1 )) 
+                                                                            −
+
+                                                      2n                               
+                                                                                         
+                                + R  cot   + ( 2 + 1 )   F (kLa + ( +  ))
+                                       ⊥
+
+
+                                    n
+                                                       2n        
+                                                                                2    1
+                                                                                          
+
+where:
+               1 :   incidence angle, measured from incidence face (0 face)
+               2 :   diffraction angle, measured from incidence face (0 face)
+40                                                 Rec. ITU-R P.526-16
+
+                n:     external wedge angle as a multiple of π radians (actual angle = nπ (rad))
+                j=        −1
+and where F(x) is a Fresnel integral:
+                                                                        
+                                   F( x) = 2 j x  exp( jx)   exp(– jt 2) dt                              (92)
+                                                                        x
+
+                                                                           x
+                                                         
+                                exp(– jt ) dt =                             exp(– jt ) dt
+                                         2                                                2
+                                                           (1 – j) –                                        (93)
+                               x
+                                                         8                  0
+
+The integral may be calculated by numerical integration.
+Alternatively a useful approximation is given by:
+                                               
+                                                                        π
+                                                exp(− jt ) dt =
+                                                         2
+                                                                          A( x)                             (94)
+                                               x
+                                                                        2
+where:
+
+                       1 − j                         x 11                     x 
+                                                                                   n
+                                                                                                       
+                                − exp(− jx)             (an + jbn ) 4                 if x  4 
+                        2                            4 n = 0                                      
+               A( x) =                                                                                    (95)
+                                        4 11                         4 
+                                                                           n
+                                                                                                      
+                        − exp( − j x )    n
+                                        x n = 0 
+                                                   ( c   +     j d n   
+                                                                    )
+                                                                       x  
+                                                                                              otherwise
+                                                                                                      
+and the coefficients a, b, c, d are given in § 2.7.
+                                                              s2  s1
+                                                      L =                                                   (96)
+                                                             s2 + s1
+
+                                                             2n N −  
+                                                                        
+
+                                           a  () = 2 cos2                                               (97)
+                                                                  2    
+where:
+                                                      β =  2  1                                          (98)
+
+In equation (45), N  are the integers which most nearly satisfy the equation.
+                                                                β  π
+                                                      N =                                                  (99)
+                                                                 2nπ
+  ⊥    ⊥
+      are the reflection coefficients for either perpendicular or parallel polarization given by:
+R0 , Rn
+
+                                           ⊥        sin () −      − cos( ) 2
+                                       R       =                                                           (100)
+                                                                                  2
+                                                    sin () +      − cos( )
+                                                 Rec. ITU-R P.526-16                                      41
+
+
+
+                                                 η  sin () −    − cos() 2
+                                    R   ||
+                                             =                                                         (101)
+                                                 η  sin () +    − cos() 2
+where:
+          = 1          for R0 and  = (nπ −  2 ) for Rn
+               =  r − j  18  109  / f
+                  r :   relative dielectric constant of the wedge material
+                  :     conductivity of the wedge material (S/m)
+                  f:       frequency (Hz).
+
+Note that, if necessary, the two faces of the wedge may have different electrical properties.
+At shadow and reflection boundaries one of the cotangent functions in equation (91) becomes
+singular.
+              ⊥
+However, D remains finite, and can be readily evaluated. The term containing the singular
+cotangent function is given for small  as:
+
+          π  β
+      cot 
+           2n 
+                  F (kLa (β))  n 
+                          
+                                                    2π kL  sign (ε) − 2kL  exp( j/4)  exp( j/4) (102)
+with  defined by:
+          =  +  − 2 nN +                            for       =  2 + 1                          (103)
+          =  −  + 2 nN −                            for       =  2 − 1                          (104)
+The resulting diffraction coefficient will be continuous at shadow and reflection boundaries, provided
+that the same reflection coefficient is used when calculating reflected rays.
+The field eLD due to the diffracted ray, plus the LoS ray for ( 2 − 1 )  π, is given by:
+
+
+                       exp(− jks)
+               e     +                                  for      2  1 + 
+         eLD =  UTD        s                                                                          (105)
+               eUTD                                    for      2  1 + 
+where:
+                   s:    straight-line distance between the source and field points.
+Note that at ( 2 − 1 ) = π the 2nd cotangent term in equation (91) will become singular, and that the
+alternative approximation given by equation (102) must be used.
+The field strength at the field point (dB) relative to the field which would exist at the field point in
+the absence of the wedge-shaped obstruction (i.e. dB relative to free space) is given by setting e0 to
+unity in equation (90) and calculating:
+                                                            s  eUTD 
+                                             EUTD = 20 log               
+                                                                                                      (106)
+                                                             exp( − jks ) 
+42                                       Rec. ITU-R P.526-16
+
+where:
+                s:   straight-line distance between the source and field points.
+Note that, for n = 2 and zero reflection coefficients, this should give the same results as the knife edge
+diffraction loss curve shown in Fig. 9.
+A MathCAD version of the UTD formulation is available from the Radiocommunication Bureau.
+
+
+7        Guide to propagation by diffraction
+A general guide for the evaluation of diffraction loss corresponding to §§ 3 and 4 is shown in Fig. 19.
+This flow chart summarizes the procedure to be adopted in each case.
+   Rec. ITU-R P.526-16                43
+
+           FIGURE 19
+Guide to propagation by diffraction
+44                                         Rec. ITU-R P.526-16
+
+
+                                             Attachment 1
+                                              to Annex 1
+
+                                   Calculation of cylinder parameters
+
+The following procedure can be used to calculate the cylinder parameters illustrated in Figs 8c)
+and 14 for each of the terrain obstructions. Self-consistent units are used, and all angles are in radians.
+The approximations used are valid for radio paths which are within about 5º of horizontal.
+
+
+1       Diffraction angle and position of vertex
+Although not used directly as cylinder parameters, both the diffraction angle over the cylinder and
+the position of the vertex are required.
+The diffraction angle over the obstacle is given by:
+
+                                            θ = α𝑤 + α𝑧 + α𝑒                                         (107)
+where w and z are the angular elevations of points x and y above the local horizontal as viewed
+from points w and z respectively, given by:
+
+                                                  (hx − hw )   d
+                                           w =              − wx                                    (108)
+                                                     d wx      2ae
+
+                                                  (hy − hz )   d
+                                           z =              − yz                                    (109)
+                                                     d yz     2ae
+
+and e is the angle subtended by the great-circle distance between points w and z given by:
+                                                         d wz
+                                                  e =                                               (110)
+                                                         ae
+The distance of the vertex from point w is calculated according to whether the obstruction is
+represented by a single profile sample or by more than one.
+For a single-point obstruction:
+                                                  𝑑𝑤𝑣 = 𝑑𝑤𝑥                                          (111)
+For a multipoint obstruction it is necessary to protect against very small values of diffraction:
+
+                       e                
+                  z + 2  d wz + hz − hw 
+                           
+         d wv =                                 for  · ae  dxy                                  (112a)
+                              
+
+                  (d wx + d wy )
+         d wv =                                    for  · ae < dxy                                 (112b)
+                       2
+The distance of point z from the vertex point is given by:
+                                             𝑑𝑣𝑧 = 𝑑𝑤𝑧 − 𝑑𝑤𝑣                                         (113)
+                                        Rec. ITU-R P.526-16                                          45
+
+The height of the vertex point above sea level is calculated according to whether the obstruction is
+represented by a single profile sample or by more than one.
+For a single point obstruction:
+                                                 ℎ𝑣 = ℎ𝑥                                          (114)
+For a multipoint obstruction:
+                                                                2
+                                                              d wv
+                                        hv = d wv w + hw +                                       (115)
+                                                              2ae
+
+
+2       Cylinder parameters
+The cylinder parameters illustrated in Fig. 8c) can now be calculated for each of the terrain obstacles
+defined by the string analysis:
+d1 and d2 are the positive inter-vertex distances to the obstacles (or terminals) on the transmitter and
+receiver sides of the obstacle respectively,
+and:
+                                             d wvdvz   (hwdvz + hz d wv )
+                                  h = hv +           −                                            (116)
+                                              2ae           d wz
+
+To calculate the cylinder radius use is made of two further profile samples:
+        p: the point adjacent to x on the transmitter side,
+and:
+        q: the point adjacent to y on the receiver side.
+Thus the profile indices p and q are given by:
+
+                                                𝑝 =𝑥−1                                            (117)
+and:
+
+                                                𝑞 =𝑦+1                                            (118)
+
+If a point given by p or q is a terminal, then the corresponding value of h should be the terrain height
+at that point, not the height above sea level of the antenna.
+The cylinder radius is calculated as the difference in slope between the profile section p-x and y-q,
+allowing for Earth curvature, divided by the distance between p and q.
+The distances between profile samples needed for this calculation are:
+
+                                              𝑑𝑝𝑥 = 𝑑𝑥 − 𝑑𝑝                                       (119)
+
+                                              𝑑𝑦𝑞 = 𝑑𝑞 − 𝑑𝑦                                       (120)
+
+                                              𝑑𝑝𝑞 = 𝑑𝑞 − 𝑑𝑝                                       (121)
+The difference in slope between the p-x and y-q profile sections is given in radians by:
+46                                         Rec. ITU-R P.526-16
+
+
+
+                                          (hx − hp )  (h − h ) d
+                                   t=                + y q − pq                                     (122)
+                                             d px       d yq   ae
+
+where ae is the effective Earth radius.
+The cylinder radius is now given by:
+
+                                            
+                                    R = d pq / t     1 – exp (−4 )
+                                                                     3
+                                                                                                    (123)
+
+where ν is the dimensionless knife-edge parameter in equation (32).
+In equation (123), the second factor is an empirical smoothing function applied to the cylinder radius
+to avoid discontinuities for marginally LoS obstructions.
+
+
+
+
+                                                Attachment 2
+                                                 to Annex 1
+
+                                   Sub-path diffraction losses
+
+1       Introduction
+This Attachment provides a method for computing the sub-path diffraction loss for a LoS subsection
+of a diffraction path. The path has been modelled by cascaded cylinders each characterized by profile
+points w, x, y and z as illustrated in Figs 13 and 14. The sub-path diffraction is to be calculated for
+each subsection of the overall path between points represented by w and x, or by y and z. These are
+the LoS sections of the path between obstructions, or between a terminal and an obstruction.
+The method can also be used for a LoS with sub-path diffraction, in which case it is applied to the
+entire path.
+
+
+2       Method
+For a LoS section of the profile between profile samples indexed by u and v, the first task is to identify
+the profile sample between but excluding u and v which obstructs the largest fraction of the first
+Fresnel zone for a ray travelling from u to v.
+To avoid selecting a point which is essentially part of one of the terrain obstacles already modelled
+as a cylinder, the profile between u and v is restricted to a section between two additional indices p
+and q, which are set as follows:
+–        Set p = u + 1.
+–        If both p < v and hp > hp+1, then increase p by 1 and repeat.
+–       Set q = v – 1.
+–       If both q > u and hq > hq–1, then decrease q by 1 and repeat.
+                                          Rec. ITU-R P.526-16                                             47
+
+If p = q then the sub-path obstruction loss is set to 0. Otherwise the calculation proceeds as follows.
+It is now necessary to find the minimum value of normalized clearance, CF, given by hz / F1, where in
+self-consistent units:
+                hz: height of ray above profile point
+               F1:    radius of first Fresnel zone.
+The minimum normalized clearance may be written:
+
+                                            q
+
+                                   CF = min (h z )i / ( F1 )i 
+                                       i= p                                                            (124)
+
+
+where:
+
+                                           (ℎ𝑧 )𝑖 = (ℎ𝑟 )𝑖 − (ℎ𝑡 )𝑖                                    (125)
+
+                                        (𝐹1 )𝑖 = √λ ∙ 𝑑𝑢𝑖 ∙ 𝑑𝑖𝑣 ⁄𝑑𝑢𝑣                                   (126)
+
+(hr)i, the height of the ray above a straight line joining sea level at u and v at the i-th profile point is
+given by:
+
+                                    (ℎ𝑟 )𝑖 = (ℎ𝑢 ∙ 𝑑𝑖𝑣 + ℎ𝑣 ∙ 𝑑𝑢𝑖 )⁄𝑑𝑢𝑣                                (127)
+
+(ht)i, the height of the terrain above a straight line joining sea level at u and v at the i-th profile point
+is given by:
+
+                                       (ℎ𝑡 )𝑖 = ℎ𝑖 + 𝑑𝑢𝑖 ∙ 𝑑𝑖𝑣 ⁄2𝑎𝑒                                    (128)
+
+The minimum value of normalized clearance is used to compute the knife-edge diffraction
+geometrical parameter for the most significant sub-path obstruction:
+
+                                                ν = −𝐶𝐹 ∙ √2                                           (129)
+
+The sub-path diffraction loss L" is now obtained from equation (31) or Fig. 9.
+For some applications it may be undesirable to include sub-path diffraction enhancements. In this
+case a value of L" should be set to zero when it would otherwise be negative.
+

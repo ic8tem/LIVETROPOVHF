@@ -1,0 +1,1547 @@
+                                                                                                                                                                     --,
+                       Journal of Research of the National Bureau of Standards-D. Radio Propaga tion
+                                              Vol. 63D, No.1 , July- August 1959
+
+
+                System Loss in Radio Wave Propagation
+                                                    Kenneth A. Norton
+                                                          (Febru ary 26, 1959)
+                     A summary is prese nted of the ways in whi ch the concept of system loss a nd the close ly
+               related concepts of transmission loss, basic transm iss io n loss, propagation loss, and pat h
+               ~ntellna gain ma y be used for precise, yet s imple, description s of so me of t he characteris tics
+               of rad io wave propaga tion which are important in t he des ign of rad io syste ms. D efini t ions
+               of various terms associated with the co ncept of syste m loss a re give n which in trodu ce a
+               greater fl exibility into its use without any loss in precis ion . I t is shown t hat t he usc of thC'se
+               added terms and concepts ma kes feasible the extens ion of the usc of t his met hod of descript ion
+               t o a ny portion of th e ra dio spectr um. A more general formul a for the syste m loss is give n
+               which may be used for anten nas with an arb itrarily sma ll separa t ion. Usin g t his formll l~ it
+               is shown that t he syste m loss betwee n s m~ll elect ric or magn et ic dipoles separated by a
+               distance d « A can be mad e arbitrarily small eve n though t he individua l a nte nn as have
+               la rge circuit losses. Formulas are developed for the perce ntage of t im e t hat a des ired signal
+               is free of in terference, a nd these a re used to demonstrate met hods for t he e ffi cient use of the
+               spectr um. In particula r, contrary to general belief, it is show n t hat efficie ncy is promo te d
+               by t he use of high power a nd hi gh ant~nnas and, in the case of a broad cast ser vice, s uffici ent ly
+               srnall separations so t hat t here is appreciable mu t ual in terfe re nce. A n a na lys is is mad e o f
+               t he var ia nce of t he path a ntenna gain in ion osp heri c scatter propagation. Met hod s a re
+               g ive n for t he calculatio n of the tra ns mission loss for t he gro und wave an d tropospheric
+               scatter modes of propagation thro ugh a turb ul ent model at mosp here w it h a n expo nen t ia l
+               grad ient. Examples of such calculat ion s are g iven which cover a wide ra nge of frequ cncies
+               a nd antc nn a heights. Finall y, cxa mples are given of t hc expected ra nge o f various t ropo-
+               spheric poin t-to-point scatter syste ms s uch as a n FM m ul t icha nn e l telety pe sys tcm, a
+               te lev ision relay or a n FM br oadcast relay.
+
+                   1. Introduction                                     the rece iving antenna. Both p, and ]J a are expressed
+                                                                       in watts. The system loss is uSLlally expressed in
+   Al thou gh the idea of a radio circuit transmiss ion                decib els:
+loss had been in use by engineers concerned wi th the
+design of cOl1ulluni cation system s for many ~' ears
+prior to that time, it was in a paper b.v the author [1]               NoLe that the system loss, as above defin ed, excludes
+in 1953 that its great advantages, parti cularly in                    any tran smitting or r eceiving antenna transmi ssion
+connection with ionosph eri c or tropospheric scatte r                 lin e losses sin ce it is considered th at su ch losses arc
+systems, were first ex plicitl y pointed out. Since                    readily m easurable. On the other hand , the system
+t hat time this co ncept has been used extensive].\· in                loss includes all of the losses in th e transmitting and
+the radio propagation studies at tll e Ce ntral Radio                  receivin g antenna circuits, including not only the
+Propagation Laboratory and elsewh ere, and a fairly                    Lransmission loss du e to radia tion hom the Lrans-
+large body of conventions has grown up around thi s                    mitLin g antenna and. rerad iation from the receiving
+usage. It is the purpose of t,h is paper to describe                   antenna, bu t also any ground losses, dielectric losses,
+the precise m.eaning attach ed to these conventions                    an tenn a loading coil losses, termin ating resis tor
+by the eno·ineers at CRPL, wi th the hop e that these                  losses in rhombic ante nnas, etc. The inclusion of all
+usages will prove equally usef ul and will be adopted                  of the antenna circuit losses in the definition of sys-
+in other laboratories throughout the world. In                         tem loss provides a quantity which can always b e
+addition , its use is illustrated by numerous examples                 accurately m easured and which is directly applicable
+throughout the usable portion of the radio spectrum                    to the solution of radio system design problems.
+ranging from 3 to 100,000,000 kc.                                         For many application s, however , particularly in
+                                                                       the study of radio wave propagation, it is cOJlvenienL
+2 . Definitions of System Loss, Transmission                           to hav e a definition of a system loss whi ch exclud es
+                                                                       all of the antenna circuit losses except those associ-
+   Loss, Basic Transmission Loss, Path An-                             ated with th e antenna radiation resistances; thus,
+   tenna Gain, and Path Antenna Power                                  the transmission lo ss of a radio circuit consis ting of a
+   Gain                                                                transm itting an te nna, receiving an tellna, and the
+                                                                       in tervening propagaLion medium is defined as the
+   The system loss of a radio circuit consisting of a                  dimensionless ratio, p; /p~, where p; is the radio-
+transmitting antenna, rece iving a ntenna, and the                     frequ ency power radia Lecl from Lhe transmitting
+intervening propagation m edium is defin ed as the                     an tenna, and p ~ is the resulLant radiofrequency
+dimensionless ratio, P,/Pa, where p, is the radio-                     signal power which would be available from the
+freq uen cy power input to the terminals of the                          I   'l' hroll ghout this paper , eapitalletters are used to denote the ratios, ex pressed
+transmitting antenna and Pa is t he resultant radio-                   in decibels, of the corres pond Lng Quantities deSignated with lower-case ty pe;
+                                                                       e.g., P t = 10 laglo Pt is the inpu t power to th e transm itt ing antenna expressed in
+freq Llen cy signal power available at t he terminals of               decibels above 1 w.
+
+                                                                  53
+
+
+
+
+                                                                                                                                                         _ . _ _ -.-l
+receiving antenna if th ere were no circuit losses other              power gains GlP and OT1'. In such cases the path
+than those associated with its radiation resistance.                  antenna power gain cannot be determined accurately
+The transmission loss is usually expressed in decibels:               as the sum of the effective power gains of the trans-
+                                                                      mitting and receiving antennas (as determined by
+                                                                      replacing first one antenna by a standard antenna
+                                                                      and then the other antenna by a standard antenna)
+where Ltc and L rc are th e losses, expressed in decibels,            since such effective power gains depend upon the
+in th e transmitting and receiving antenna circuits,                  ga in of the anten na used at the other terminal.
+respectively, excluding the losses associated with thc                   In the case of ionospheric or tropospheric propaga-
+antenna radiation resistances; i.e. ,                                 tion, the transmission loss L, the basic transmission
+                                                                      loss L b , and the path antenna gain 0 1" are all random
+         L lc = 10 10glQ(r;/r t) = 10 10glO(l + 6. IC )               variables with respr,ct to time and tend to be nor-
+and                                                                   mally distributed abou t their expected valu es.
+         L rc= lO 10 glQ(r~ /rT ) = 10 10glO(l + 6.TJ,                Furthermore, Land Op are typically negatively
+                                                                      correlated with each other , and thus the variance
+where r' is th e actual resistive component of the                    of L b is usually substantiall.v less than the sum of
+antenna circuit, r is the radiation resistance, and the               the variances of Land Gp (see sec. 9) ; for this reason
+subscripts t and r refer to th e transmitting and                     it 'will often be more practical simply to measure the
+receiving antennas, respectively.                                     transmission loss with the particular antennas in-
+    In order to separate the effects of the transmitting              tended for use rath er than attempt to calculate the
+and receiving antenna gains and circuit losses from                   e:\--pected transmission loss and its variance with time
+t he effects of the propagation, it is convenient to                  in terms of the measured or calculated values of the
+define the basic transmission loss , Lb (sometimes                    basic transmi ssion loss and the path antenna gain.
+called path loss) as the transm ission loss expected                     Note also that the path antenna gain may actu-
+between fictitious loss-free isotropic transmitting a nd              ally be negative. For example, the path antenna
+receiving antennas at the same locations as the actual                gain will usually be negative for ground wave or
+transmitting and receiving antennas. This serves                      tropospheric wave propagation between a vertically
+a lso to d efin e th e path antenna directive gain, Gp :              polarized and a horizon tally polarized antenna, and
+                         G1J = L b - L,                   (3 )        the concept of path antenna gain should prove to be
+                                                                      useful for expressing the results of such cross polari-
+            L b= L + Gp= Ls+ Gl, - Llc-L,r.               (4 )        zation measurements.
+  In-some cases it may be quite diffic ul t to measure                      3. Transmission Loss in Free Space
+the antenna circuit losses; thus it is convenient to
+define t he path antenna power gain, G1' 1' , as                         As an example of the simplicity of transmission
+                                                                      loss calculations in some cases , we may cons ider the
+                                                          (5)         transmission loss between two isotropic antennas in
+It is seen that the path antenna power ga in i~ the                   free space. At a distance, el, very much greater
+change in the system loss when loss-less isotropic                    than the wavelength, A, the field intensity, expressed
+antennas arc used at th e same locations as the actua l               in watts p er square meter, is simply p,' /47rd2 since the
+antennas; note that G1' p will be negative when the                   power is radiated uniformly in all directions. Since
+antenna circuit losses excred the path antenna                        the effective absorbing area of the receiving antenna
+directive gain. Throughout the remainder of this                      is A2/47r, the ayailable power at the terminals of the
+paper the term path antenna gain and symbol G1'                       loss-free isotropic receiving antenna is given b~T
+are often used when a distinction between the direc-
+tive gain and the power gain is unnecessary.                                                                                    (6 )
+   I n some icleaJized situations the path antenna
+power gain, G1'1' , is simpl.v the s um (Gl P+ OTP ) of thc           Consequently, the basic transmission loss in free
+free space power gains Gip and Gr p of the trans-                     space may be expressed
+mitting and receiving antennas relative to loss-less
+isotropic antennas. However, in most practical                                                      (free space ; el> > :1\).   (7)
+situations OP1' is less than Gl :,+GT p because of the
+complex nature of the received field. The path                        Since th e free space gain of a short electric loss-less
+antenna power gain ma~' be measured by deter-                         dipole is gt= gr= 1.5 , the path antenna gain for two
+mining the increase in the system loss when both                      optimally oriented short electric loss-less dipoles in
+the transmitt ing and receiving antennas are replaced                 free space is
+simultaneously by simple standard antennas such                                                                                 (8)
+a s short electric or magnetic dipoles, and then adding
+the calculated path antenna power gain correspond-                    Consequently, t he transmission loss between two
+ing to the usc of the standard antennas. In the                       optimally oriented short electric loss-less dipoles in
+case of ionospheric or tropospheric scatter propaga-                  free space is
+tion, the path a ntenna power gain is sometimes sub-
+stantially smaller tlutll the sum of t~e free space                                                                             (9)
+                                                                 54
+     4. Influence of the Antenna Environment                                   rather t han (13), since the g roun d re fl eetion in flu -
+          and Definition of Propagation Loss                                   ences the radi ation for all valu es of h t. I n more
+                                                                               familiar uni ts, when h ,= hr= O, (13) m ay be exp ressed
+        In order Lo ill ustraLe Lhe influ ence of cha nges i n
+      Lhe im peda nees of t he a n te ll nas caused by env iron-                           e(fJ.v/m) = 2.998962 .1O\ /p; (kw) /d(km).             (14)
+     me ntal factors w hich may, in par t, be ind ependent
+     of t he a n te n na circ ui t losses, ' \fe will co nsider the            Th e effective absorbing area of a shor t vertical
+     tra nsmiss io n loss betwee n t\VO shor t ver tical elec tr ic            electric loss-less dipole r eceivin g a ntenn a at a height
+     loss-less dipoles at heights h , and hr, resp ec tivel,'"                 hr above t he perfectly conducting plane m ay be
+     above a plane perfectly co nductin g surface and                          ex pressed
+     separated by a dista nce, el, alo ng t he surface large
+     wit h r e pect to t he wavelength, Altho ugh we will                                                      1. 5t..2 cos 2if;
+                                                                                                         a e = 47T [I + tJ. r] ,
+                                                                                                                                                  (15)
+     treat her e in detail only the case of a nten nas over
+     a perfectly con ducting plane, the concep ts arc
+     ide ntical in the case of a ny other environ m ental                      where tJ. r is defi ned by (12) wit h h, r eplaced by h r.
+     conditions and only the mag nitudes of t he effects                       Since p;= e2a e /1'/ o we find by com bining (13) a nd (15 )
+     will be differen t, In free space the field strength e,                   t hat t he transmiss ion loss betw'een two shor t ver t ical
+     ex pressed in vol ts pel' m eter at a d ista nce el, ex-                  elect,ric loss-less d ip oles at heights h , a nd hr above a
+     pressed in m eters, in t he equatorial plane of a shor t                  pla ne perfectly co nd ucting surface m ay be expressed
+     electric loss-less dipole r adi atin g p; watts is give n by
+
+                                                                   (10)
+                                                                               or
+  wher e 1'/o= 47Tc· l 0 - = impeda nce of h ee space ex-
+                                7
+
+  pressed in ohms, a nd c= 2,997925· 10 B m /sec =
+  veloc ity of light in free space , NoLe t hat Lhe factor
+  (1.5) is just the free space gain of t he transmi tti ng
+> d ip ole ante nn a, Th e r adiation r es ista nce of a short                 wh r re L" r= 1 0 10glO [1 + tJ. , ,r], Gp~ 20 10gIO [(:3 /2) cos 21/; }
+! vert ical electric dipole of effective lengt h l a nd at a                   and A~ - 20 !oglO[cos (kh, sin if;)]. Note th at
+0'
+  heig ht h, above a perfectly co nd ucti ng pla ne is
+I
+  give n by                                                                    L s= L in (.hi s case since there ar c ]1 0 losses other
+                                                                               th an radiation losses, Th e factor L , i sh own
+                                                                               graph icall~' as a fun ction of (h/t.. ) ill figure 1. It is of
+                                                                               in ter e t to note th at th e tr ansmi ion loss between
+                                                                               t he dipoles on th e pl ane perfectly conductin g sur-
+                                                                               face, h,= hr= O, is the sa me as if th e dipoles we re
+                                                                               separated b ~T t he arn e distan ce in free space, al-
+                                                                               tllO ugh the field in tensity is 3 db gr eater fo r the
+                                                                               sam e power r adiate d . On th e oth er h and , wh en t hl'
+     In t he above k = 27T/t.. = 27Tf/c, i. e., t.. is the wavelengt h         dipoles ar e several wavelengths ab ove th e perfectly
+     in fr ee space. Note t hat tJ. , appr oaches ze ro at                     reflecting s urface (h ,= hr> > t.. ) a nd arc sepa,rated
+     large heigh ts above the surface and r appr oaches                        by a large d istance (if; ~0 ) , t he transmiss ion loss is
+     its fr ee space value, rf. On t he other hand, tJ., = 1                   6.02 db less th an for dipoles separate d by th e sam e
+     fo1' h ,= O, and the radiation resista nce is t hen just                  distance in free space. Eq uation (17) illustr ates t he
+     t wice its fr ee space vaille. T he field in tensity ex-                  defini tion of L p , the p7'opagation l088, i. e., th e tr ans-
+     pressed in watts per squar e meter for a SllOl' t vertical                mi ssion loss expected if the a ntennas h ad gains an d
+     electric loss-less dip ole over the p erfectly co nd ucting               circui t resistances the sam e as if th ey were in free
+     surface may b e expressed                                                 space. More generally, L, and Lr are defin ed as
+                 e2       1. 5p;[2 cos 21/; cos (k h, sin 1/;))2                                                                                 (18)
+                 :;;;;~              47Tel 2[1 + tJ. ,]      ' .   (13)
+                                                                               wh ere r' is th e act ual r esistance of th e a ntenn a in
+r   I n Lhe above ex press ion ta n if;= hr/d and thr dista nce                th e presence of its environmen t and r f is th e radia-
+ ? d along Lbe s urface m ust be lar ge wi th respect to                       tion resistance i t wo uld h ave h ad if i t were in fr ee
+    bot h t.. and h,; in t hi s case t he d ista ncc between the               space, ~Wh e n we note th at L, a nd L r m ay var y
+    a nte nn as is approximately d/cos 1/;. Eq uations (11 ),                  s ubstan tially from one antenn a in stall ation to th e
+     (12 ), a ll d (13) were der ived by SchelkunoA' in cha p-                 n ext, depending upon th e circui t losses, polar iza-
+    ters VI and IX of [2], Sin ce tJ. ,= 1 for h, = O, t he                    tion, ground co ndi tions, wheth er 0 1' n ot a ground
+ (" field intensity is 3 db greater whe n if;= 0 a nd t he                     screen is used, and upon oth er environmental factors
+    d ipole is on t he s urface of a perfectly co nd ucting                    s uch as th e presence of trees 01' ovcrhead wir es, it
+iv plane (i.e. , e2/1'/o= 3p;/47Td 2) t ha n when it is in free                becom es clear why it is de irable to separate these
+    space; note t hat in free space (10) must be used                          compon ents from the system loss and to have a
+                                                                          55
+                                                                                  Although it appears to be desirable to separate the
+                                                                               effects of earth reflections and sometimes other
+                                                                               environmental effects from the gains of the antennas
+                                                                               by means of the propagation loss concept described
+        {)
+                                                                               earlier, there will be other situations in which such a
+                                                                               separation of environmental effects is undesirable.
+                                                                               For example, the power gain of an antenna mounted
+                                                                               on an aircraft, satellite, or space vehicle should be
+       -5                                                                      considered as the gain which would be determined
+                                                                               by comparison of the fields obtained in various direc-
+                                                                               tions as the vehicle is rotated in free space with those
+                                                                               obtained from a standard antenna with the vehicle
+      -10                                                                      removed; i.e. , in these cases the vehicle is to be con-
+<J)
+-'                                                                             sidered an integral part of the antenna.
+W
+lD
+<:3                                                                               Suppose now that we use small loop antennas of
+w
+o                                                                              area 8, with their axes normal to the plane of propaga-
+      -15
+                                                                               tion , parallel to the perfectly conducting surface and
+                                                                               at heights h t and h" respectively. In this case the
+                                                                               electric vector lies in the horizontal plane and the
+                                                                               radiation resistance is [2]
+      -20
+
+                                                                                                                                             (20)
+      -25
+                                                                               The subscript m refers to the magnetic dipole , and
+                                                                               the prime to the effect of the surface.
+
+      -30
+             0.01       0.02       0.05    0.1    0.2       0.5
+                                                                               <1' = (3/2) [(1 _ _
+                                                                                ,
+                                                                                                    1_) sin2kh,
+                                                                                                 (2kh ,)2
+                                                                                                            (2kh,) + cos (2kh r) ]
+                                                                                                                       (2lch r)      2   '
+                                                                                                                                             (21)
+                                                                                                                                                     ,
+
+                                                                                                                                                     1
+                       (hi>.) HEIGHT OF ANTENNA IN WAVELENGTHS
+                                  ABOVE THE SURFACE                                                                                                  <
+                                                                                                                                                     I
+                                                                                                               )-..2(3/2)
+FIGt;RE             l. Transm ission loss arising from a change in the                                ae =   47r-[1 + <1;]'
+                                                                                                                                             (22)    ~
+      radiation 1'esistance of short dipole antennas n ew' a perjectly-
+      conducting S1l1/ace.
+                                                                                               G~ = 20 10g!O[3j2] = 3.52,                    (23)
+
+propagation loss, L 7 independent of these antenna
+                                 J)
+                                                                                           A' =- 20 10glO[cos (lch t sin I/t )],             (24 )
+·environmental conditions.
+                                                                                                                                             (25)
+                                                                  (19)
+                                                                               The factor L ;.r is also shown graphically on figure 1.
+                                                                               Note that <1; approaches zero at large heights and
+   The above is not the only lo gicall~T consistent                            <1; = 1 for hr= O.
+method of describing the gains and losses of antennas                              Consider next the tranmission loss between two
+in the presence of an environment. Thus 8chel-                                 small loop antennas at heights h t and hr, respectively,
+kunoff [2] considered the perfectly reflecting surface                         above a perfectly conducting surface with their
+to be an integral part of the transmitting and re-                             axes normal to this surface. III this case the electric
+ceiving antennas, and set Gts= 10 10glo{3([1 + <1 t ])                         vector lies in the horizontal plane and the radiation
+and G'8= 10 loglo {3([1 + <1,]} where the subscript s                          resistance is [2]
+l'efers to Schelkunoff's usage. In other words, he
+referred his maximum gains to those expected for
+isotropic antennas with the earth removed; this                                              " 871" 371 08 2
+                                                                                            rm= ;))-..4 [l - <1] = rmr [l - <1],             (26)
+leads to a path antenna gain, referred to that ex-
+pected between isotropic antennas with the earth
+removed, given by Gps= Gp + 6.02 - Lt - L, - A, and                                           G; = 20 logro[ (3(2) cos 21/tl,                (27 )
+his tranmission loss is then simply L = L br- Gps.
+However, this method of approach is not recommended                                         A" = - 20 logro[sin (lch a sin I/t )],           (28 )
+since (a) it is impracticable to remove the earth in
+order to measure Gps and (b) it would lead to antenna                                           L;: r= 10 10gro[1-<1 t ,r].                  (29 )
+gains 3 db larger than their free space values even
+when they are many wavelengths above a perfectly                               The factor L;' , is also shown as a function of (h()-. )
+reflecting plane surface, and this is inconsistent with                        on figure 1. '
+ the present usage of the concept of antenna gain in                             Finally, consider the transmission loss between
+the higher freq uency ranges.                                                  two short horizontal electric dipoles of effective
+                                                                          56
+length l , n ormal Lo t he plan e of propaga tion and at             field expected at a unit distance on a p erfectly con-
+ h eig hts lo t and hr, res p ec tivel ~r , a bo ve a p erfectl~T    du cting plane surface. It is convenient to expr ess I
+,co lldud ing plan e s urface. In thi s case [2],                    in decibels above 1 v, e. g., 1 v j m at 1 m. 'iVe will
+                                                                     r elate such v alu es to th e propagation loss, Lp.
+                                                                         In free space th e in ver se distance field I f m a y b e
+              r" , = 27r'r]ol 2 l1 _ L'l' ]= r [1 - L'l']   (3 0)    obtained from (10); wh en we note thatP t' = P t- L t,
+                        3 }.2                 f '
+
+
+                 G'~' = 20 loglO(3 j2) = 3. 52,             (31)
+                                                                     Over a p erfectly conducting ground plan e th e inverse
+             A '" = - 20 10glO[sin (kh a sin ¢;)],          (3 2)    distance field I , m ay be ob tained from (13) :
+
+                                                            (33 )                                                             (3 6)
+
+r-r:h e factor L;:; is also shown graph ically on figure l.          Th e r elation bet wecn th e ava ila ble power , Pa, from
+1\ o te t hat L'" and L" both approac h (-00) as 10                  t he r eceiving an tenna and th e fielcl s trengt h, e, may
+a pproach es zero , bu t t he radia tion r esistan ce simul-         be expresse d in dec ibels as follo ws:
+taneously approaches zero , a nd it would be difficult
+in practice to k eep th e radiated power consta n t as t he          E = 10 10glO( 47r1Jopu[r' /rf]·1012/ t-.2gr)
+an te nnas are br ou g ht near er and n ear er to t he sur-                        = P u+ 20 10glOjMc - Gr+ L , + 107. 22.    (3 7)
+f ace. When h, and lor ar e both much less than a
+                     + +
+,,-avele ng th , A" L'e' L ~' for hori zon tal loops b e-            If we solve (36) for P t and (37) for P a a nd com bin e
+com es independent of th ese heigh ts a nd equal to                  t he r esul ts, we ob tain t he follo win g expression :
+20 ]ogJO (lcd/l0 ); similarly 1'" + L ';' + L ';' for hori-
+zo ntal electri c dipoles a pproac hes 20 loglO(kdj5) fo r           L ,= Pt - P a= I - Er - Gp+ 20 loglOjMc + 86.43 + L t+ L r
+h t and lor much less t ha n a wav elength .
+     All of th e a bovc sp eeifle r esul ts r efc r to t he case                                                          (38)
+of a p erfectly co ndu cting plan e surface an d to d is-
+ta nces d» t-.. F or a fini tely conciu c ting ground ,              Tn th e li ter ature E is somet imes referred 1,0 a n inverse
+t he at tenu a ti o n A in t he abovc express ions will b e          distan ce field of 300 v, i. e., 3 X 105 JJ.v j m at 1 km
+S tl bstan tially modified.    For example, for ver tical            (i.c., b y (14) to 1 kw r a d ia ted from a shor t vertical
+electri c d ipoles ovcr a flat ear th of finit e condu c-            electric dipole o n a p erfeetl.v condu ct ing plane SUl'-
+t iv ity and wit h ht= hr= O,                                        face) and in thi s case 1 = 49.54 db so t ha t
+
+                                                                     L p= L s- L t- L r= 135.97 - Gp + 20 loglOjMc - Er =49 .54
+   A =- 20 10gI0 11- i-v'7rp ex]) (-p ) er Fe (i,,/p) I (34)
+                                                                                                                          (39)
+H ere p d enotes Sommerfeld's Humeri cal dista nc e as
+defined for a time facto r ex p (+ iwt). In refere nce [3]               In Lbe higher frcqu enc.,- r a nges, however, E is
+a compreh ensive d iscu ss io n is give n of t he radiatio n         usually referred to an inverse d is tan ce field in free
+fields of eler tr ic and mag neti c dipoles over a f-in itely        space of 222 v (i.e., by (35 ) to 1 kw radia ted from
+con ducti ng pla nc ea rt h; in t his r efer ence a time fac-        a half wave di pole in fr ee space) an d ill lhis cflse
+tor cxp ( - iwt) was used , bu t in th e prese nt p a p er           I f = 46.92 db; if we n ow solve (36 ) for Pt - L t, sol ve
+exp ( + iwt) is u sed in order to conform wit h current              (3 7) for P U+ L T , we obtain t he i'ollowing r ela tio n :
+engineering practice. F ur therm or e, L'l a nd L'l ' will be
+m odified when the a ntennas ar e located over a fini te             L p= P I- L ,-P u- L r= 139. 37 - Gp
+ground [4, 5, 6, 7], but this d iffcr ence will lar gely b e                                + 20 10glOjM.C-E1f=46 92         (39a )
+ca ncelled if a large grou nd scr een is used under t he
+ante nnas. Although (2 6) indica tes th at T:~ ap-                   On e of the importan t a d vantages of expressing propa-
+proaches zero as th e vertical m agnetic dipoles                     gation r esul ts in terms of t h e pr opagation loss Lp
+a pproach the p erfectly condu cting surface, W ait [4]              rather t han in terms of E is th e fact t,h at L p is
+h as s hown t hat T:~ actually b ecomes ver~- large when             dimensionless and so do es no t r equir e a sp ecifica tion
+suc h loops ar e brou gh t near a fini tely conducting               of th e r efer ence inverse distan ce field or of t he
+ground .                                                             r a diated power .
+
+5. Relation Between Propagation Loss, L p ,                          6 . System Loss, Transmission Loss, Propaga-
+           and Field Strength, E                                        tion Loss, and Relative Phase of Currents
+                                                                        in Two Antennas Expressed in Terms of
+   T he r es ults of m a n)" previo us stud ies of rad io wave          Their Self and Mutual Impedances
+pro pagat ion in the lov{ and medium frequ ency range
+have been expressed in terms of t he field sLrengL il E ,              All of t he preceding a nalyses ar e limi ted to tb e
+expressed in decibels above 1 JJ.v j m for a n u natten -            case wh er e the a n te nnas ar e sufficien tly far a par t
+u a tecl fielcl I , at a uni t dista nce, i.e., to th e radiation    (d» t-. ) so that t he m agni tude of th eir mu tu al im-
+                                                                57
+p edance is small comp ar ed to the self r esistances of                                                         IZo+z:ut I2
+eac h of the antennas . In this section a completely                                                                I z~ 1
+general express ion will be obtained for tbe system
+loss. It is convenient to use the T -network of figure 2
+to r epresent the imp eda nces of th e an te nnas. The
+accessible terminals of the transmitting antenna a
+and of the receiving antenna b ar e denoted by AA                            where T~ and 1'; denote the r eal parts of the an-
+and BB , respectively. The central m ember of the                            tenna self impedances Za and Zo, Zm == Iz",1 exp (i¢)
+T is the mu tual impedance Zm b etween the two an-                                                                +
+                                                                             and (zo+ zo:,) = 2r~ - [z;,/ (za zs)]* == IZb+ zo:, 1 exp (iO ).
+ tennas whil e Za and Zo are the self-impedances of the                      Equation (43) is the most general expression for th e
+ two antennas; t hus t he impedance at the terminals                         system loss; this same equa tion may be u sed for
+AA, with BB open circuited, is Za while the imp ed-                          calculating the transmission loss L simply b y r eplac-
+ance at the terminals BB, with AA open circuited,                            ing t he actual antenna resistances T~ and               T;
+                                                                                                                                   by the
+I S Zb.                                                                      radiation resistan ces Ta and T b ; furthermore, (43)
+                                                                             gives th e propagation loss L p if we replace T~ and
+                                                                             T; b y th e radiation resistances Tla and Tlb whi ch the
+                   A                                   B                     antennas would have if they were lo cated in free
+                                                                             space .
+                                                                                Note now t hat Zou t= z o provided lz~ I « lzb l ' l za + zsl
+zs= rst lXs       Z;
+                                    1'm 'm" 'm
+                                        O           ~I     Zf = rft i Xf
+                                                                             and this will b e the case (a) at large distances
+                                                                             or (b) even at sh ort distances if the source imp edance
+                                                                             Zs is suffi.ciently large ; in this case Zl= zo:t~ z;.
+              ~                                                              N ote that this sam e r el at.ion ZI= Z; would apply in
+                   A                                   B                     case the load impedance wer e matched to the re-
+                                                                             ceivin.g antenna Imp edance with the terminals of
+          FIG U RE     2. T -network for system loss analysis.
+                                                                             the transmitting antenmt open or witb th e trans-
+                                                                             mitting antenna at a sufficiently lar ge distan ce so
+L et Zl indicate th e receiving antenna load imp edan ce                     th at it has a n egli gible effect on Zout. In this sp ec ial
+at BB. From figure 2 it is easy to show that the                             case (41 ) and (43) b ecom e
+impedallce Zin at AA is given by
+                                                                                                . ( _ *) _    . IZ·m! exp (icf»               (44)
+                                                                                                ~I)Zl- Zb - - ~a      21"       ,
+                                            Z;,                                                                              b
+                            Zi n=Za- ZO+Zl'                         (40)
+
+
+Since th ere ar e no source vol tages in the m esh Il1
+which th e CUlTen t ib is flowing, we may write
+                                                                                    It will b e of interest to illustrate tbe use of (45)
+                                                                    (41 )        b y m eans of two simple exampl es. ' Ve will consider
+                                                                                 first the system loss between two short electric di-
+The above relation provides a m eans for determining                             poles, each p erp endicular to th e line joining th eir
+th e relative m agnit ud e and phase of the current io in                        centers, and se parated by a di stance d in free space.
+antenna b r elative to the magni tude and phase of                               It m ay b e sh own [2 ] that tl:le m utual impedan('e Zm
+t he curren t ia in antenna a. The fact that ia and                              b etween the dipoles of effective lengths la and l b'
+io h ave th e sam e direction of flow through 'Zm may                            which arc each much shor ter than a wavelength, is
+b e establish ed by con sidering t h e limit ing case as                         given by
+th e spacing b etween th e two antennas approaches
+zero. The ratio of the power l i~ 1 R e Zin from the
+                                                                                  zm= i '2Ad                      - ( - ~'kGl) -= IZm I exp
+                                                                                                            i ] exp
+                                                                                         YJolalo [ 1- k2d2-kd
+                                                                                                       1                                 . (.~¢) .
+source t o th e power li; 1 R e Zl delivered to th e load
+m ay now be expressed                                                                                                                         (46)
+
+                                                                                 H ere kcl = 27r d/ A.   The antep na self r esistances are
+                                                                    (42)         given by
+                                                                                                                                              (47)
+N ote th at the maximum power will b e deliver ed to
+th e load, i. e., th e above ratio will b e minimized for a                                                                                   (48)
+constant power input to th e tr an smitting antenna,
+when the loa d impedan ce Zl is a dju sted so that i t is
+equal t o the complex conjugate zo:t of the output                               The fa ctors (l + Ll IC) and (l + Ll rc ) in (47) and (48)
+impedance Zout =zo-z;,/ (za+z,,) where Zs is th e im-                            a llow for th e circui t losses.
+                                                  is
+p edance of the source. In this case R e Zl is equal
+to the available power from the receiving antenna                                                                                             (49)
+and th e system loss is equ al to
+                                                                            58
+                                                                                          Consider n ex t two shor t electri c colinear dipoles
+                                                                            (50)
+                                                                                        separated by a distance d in free space, In this case,
+
+                                                                                                                                                   (52)
+
+
+                                                                                                           cf>=~-kd+tan - l (kd) ,                 (5:3)
+
+
+
+
+     'Wh en the distance d»A , the second term in (5 1)
+     is n egli gible compared with the first term and (5 1)                                                                                        (54)
+                             +
+     approaches (9) h tc + L Tc as expected. At the other
+     extrem e when d«A, the first term in (5 1) is n egli-
+     g ible compared to the second term, r/> approaches                                    Figure 3 also s hows the transmission loss, as given
+     7r/2 and L s(zt=zt) = l0 10glO 2 = 3 .01 db. Thu s, in                             by (54) with t. 1C= t.TC= 0 , as well as the system loss
+      this case, h alf of the power fr om t he so urce is ava,il-                       for the case (1 + t. /c) = (l + t. tr) = 2, b ctw'een s hort
+     able in the load r esista nce . The above formulation                              electric colin ea r dipoles; (54) also appli es to s mall
+     o( t he t ran s miss ion loss problem in Lcrms of the                              colinea r mag netic dipoles, i,e " s mall loop anten nu,s
+     a n tenn a self a nd mutual impeda nces is due to                                  wi t h the ir axes colin ear.
+     W ai t rS) and (51 ) is s imilar to tile solu t io n Wait                             Equatioll (45 ) and co nseq uentl y (51) a nd (54) !.we
+     o btain ed in appendix II of his p aper fo r two ve ltieal                         no t ve r,\' rcalislic expressions foJ' t he s,vs Lem loss
+      dipol es on a fl at p erfectly,-cond ueLin g gro und pla ne.                      w hcn t he dista nce (d/A) is sm u,ll s in ce Lhe \' u,rc
+         The tl'ansmi sion loss may be obtained from (51)                               stri c tl\- appli ca bl e ; i, c., Lhe power deli vc rcd Lo Lhe
+     if we set t. lC= t.rc= O a nd we find lhat L (z /=zt)                              load is Lhe !1vu,ila ble power , on ly if Zs in creascs
+     b etwee n s hort dipoles is then dep ende ll t on ly 011 kd ,                      without limi t !1S (d/A) d ecr eases . O ne other ex-
+     F ig ure 3 gives lh e lran s m.iss ion loss vers us (d/A) fo r                     ample will be used to illus tra te lhe p roblem . T hus
+      th is sp ecial case, a nd t he s,\Ts tem 10 s fo r the ease                       we will ass ullle that t he imp eda ll ce of th e sou l'ee is
+      (1 + t. tc) = (1+ t. TJ = 2, B~T the same m et hod u. cd                          ma tched Lo th e tra nsm iLling a n tc nn a inpu t imp ed ..
+     for deriving (51) i t m ay b e s hown th at i t a ppli es                          an ce: ZS=Z i~ whi le the imped a ll cc of th c load is simu l-
+      also to sm all mag net ic dip oles , i. e., Lo two s ma11 loop                    taneously m a lch ed to Lite ['ecc iv ing n,1l tE' nl! a out put
+      antenn as with the plan es of eac h loop ly ill g ill lite                        impeda nce : Zt=z~u/' III tlti s case we m ay climill E, tc zi
+     sam e pla ne,                                                                      from t he two equatioll s : z /=zt - (s;'') * / ( z~+zn a nd
+                                                                                        zi=za-(s;'.) / (Zt+Zb), fi lld in t his wa~' fi nd t he follow-
+                                                                                        in g cxpr ess ion for Zt = l' t+izl :
+            28
+
+
+            24
+                                                                                                                                                   (55)
+
+            20
+                                                                                        'lYe ma,;'- d ete rmine zs= rs+ ix s f rom (5 5) s imp ly by
+     <fl
+     ...J                                                                               in terchangin g '}'~ and T~ and Xa wit lt Xb' Th e sys tem
+     w
+     <Il    16                                                                          loss for this case m ay now be d etc rmin ed by in t ro-
+     U
+     W                                                                                  ducing the above express ions in (42) :
+     0
+
+     ~ 12
+     0
+     ...J
+
+
+('
+
+
+                                                                                        The above is the general expression for t lte system
+                                                                                        loss when the source is matched to th e inpu t imp ed-
+                                                                                        ance Zln and the load is simultaneously matched to
+             ODI    0,02       OD5       0.1      0.2         0.5
+                                                                                        the outp u t imprdance Zou t - This is, of course, the
+                                               (dlA)
+                                                                                        most favorable condition for the transfer of po\ver
+     F [ GU RE     3. Sy stem lo ss and transmission loss between s mall                from the source to th e lo ad, Equation s (55) and
+                      electr'ic 0 1' 1nagnet'ic dipoles in f7'e e space .               (56) are applicabl e to a ny kind of antennas and we
+                                                                                   59
+see that the system loss depends only on the self
+r esistances r~ and r~ of the two antennas and their
+mutual impedance Zm= II Zm II exp (14) .                        If we assume t.. = 100,000 m (f = 3 kc) ,la= l o= 100 m,
+   When d»A, r, approaches r~ and (56) approaches               i.e., with actual h eights without top loading equal to
+(45 ) since the second terms in (45 ) and in (56)               200 m, and r~ = r~ = 10 ohms, then d(Ls= 3 db) =
+are negligible compared to the first terms; thus                781 m ; since very good ground systems would be
+we conclude that the system loss docs not depend                required to reduce r~ and r~ to only 10 ohms, it
+upon the condition of m atching of the source to the            appears that such a systcm has little promise. This
+input impcdance when d is sufficiently large so that            statem ent should not be interpreted to mean that
+Iz;.1«r~l'~.                                                    low freq uencies are not useful for short range com-
+   The behavior of (55 ) and (56 ) when d«A will de-            munication systems , but merely that su ch systems
+pend markedly upon the particular characteristics               with less than 3-db s~rstem loss will have a very
+of the antennas involved. At su ch short spacings               limited range of operation. The propagation losses
+one would normally be interested only in antennas               encountered at low and medium frequencies are dis-
+with dimensions small with respect to their spacing             cussed in a recent paper by the author [32].
+and thus small with respect to the wavelength; thus,               Finally it is of interest to examine briefly the be-
+when d«t.., we are led to consider the special case of          h avior of the system loss at short spacings (d«A)
+short electric or small magnetic dipoles. When (47),            when the antennas have dimensions which are com-
+(48), (49), and (5 0) are u sed in conjunction with             parable to the wavelength and thus large with
+(55) and (56) we find t hat t h e system 10ss,Ls ( zs =z;~;     respect to their spacing. For this analysis it will be
+z /= Z:ut) , approaches zero when d«A, i. e., when (kd)6        more convenient to express (55) in the following
+«O{6) / {C l + Ll tc)(1 + LlrJ }, even if r~ and r~ are very    form:
+large with respect to their radiation resistance com-
+ponents; see figur e 3 for a graph of th e transmission
+loss and for the system loss with (1 + Ll ,J = (1 + Ll re )                                                          (59)
+ =2 for this type of impedance matching. A system
+with near zero loss is very remarkable, bu t may be
+understood when we note that h/r~) and (rslr~) both             If it is assumed that the transmit ting and receiving
+increase in this case without lirni t as d approaches zero;     antennas are each dipoles (either eler,tri c or magnetic)
+thu s th e power from the source i~rs is mu ch larger than      with idential dimensions (comparable to the wave-
+the power i~r~ dissipated in the transmitting an-               length ) and identical orientations, than as d ap-
+tenna while simultan eously the power i~r, delivered            proaches zero, rm approaches the antenna self r e-
+to the load is very mu ch larger than the power i~r~            sistances r~ = r~. Since the antennas are large, they
+dissipated in the receiving antenna. Although the               may have small reactances and large resistances
+system loss is nearly equal to zero, only about half            (e.g. , half-wave dipoles in free space) ; in this case
+(actually a fraction lr~ / (r~ + r~)]) of th e power is         the load resis tan ce T I and the S011rce resis tance r.
+available in the load while the remaining fraction              will both be very small and, since cf> is pow also very
+[r~ / (r~ + r~)] is dissipated in the impedance of the
+                                                                small, the system loss will bv (56) still be approx-
+source.                                                         imately equal to zero. In this case again the power
+                                                                delivered to the load is much larger th an the power
+   It might appear that a very efficient shor t range           radiated. This unusual situat,ion may be under-
+commun ication system could be developed based                  stood when it is no ted that io~ -i a so ·that the net
+on the above analysis by using sufficiently low fre-            power radiated from two such closely spaced an-
+quencies that A»d; note that the signal-to-noise                tennas is approximately proportional to Cia + ib)2 and
+ratio should be quite favorable since the small                 thus extremely small. It is, of course, well known
+antennas used would pick up very little noise power,            that it is difficult to radiate mu ch power from a
+and this sm all noise power would be in competition             directional antenna consisting of a pair of closely
+essentially with the large power directly available             spaced elem ents with the currents in th e two
+from th e source . Note also that this communication            elements ou t of phase.
+system would create very little interference since the
+power radiated i~ra + i~rb is much smaller than the
+power i~1>~ delivered to the load . However, the dis-           7.   Variations of the System Loss with Time
+tance out to which the system loss is less than 3db
+for such a system is quite small as may be seen from                The instantaneous signal power available on lon g
+the followin g equation which applies when r~»ra                cil"cui ts involving transmission through the iono-
+and r~»rb:                                                      sphere or troposphere will vary with time (i.e., fade)
+                                                                due, in p art, to phase interference between the com-
+                                                                ponents arriving along various transmission paths.
+                                                                Over short p eriods of time, during which transmission
+                                                                conditions may be regarded as constant, the instan-
+                                                                taneous available power may, in some cases, be re-
+If we assumc that the antennas are ground ed vertical           garded as distributed in a Rayleigh distribu tion, to a
+radiators and substitute (11) with Ll ,= 1 for ra and           good approximation . This distribution may be
+1'0 in (57), we obtain                                          expressed
+                                                           60
+                                                       (60)
+                                                                          17
+whe re Pa is Lh e ins Lan taneous available powel', Pa ]S               LOSS FREE
+ t he averaO'e power a nd Q is the probability that Lhe                   ANTENNA
+                                                                                           ANTENNA       TRANSMIS SION
+in s tanLaneou s powel' exeeeds some given value 1/.                        WITH    -       CIRCUIT
+                                                                                                    I---
+                                                                                                             LINE
+                                                                                                                       I---   RECEIVER
+                                                                         EXTERNAL
+A di sc uss ion of Lhe phys ical conditions under which                    NOISE
+th e Rayleigh dis tribuLioll may b e expected to apply,
+together w ith an extension to the case in which a                        (a)                (e)              (t)               (r )
+hrge nonfading component of power is present at
+th e r eceiver terminals, is given in a recent paper by                       fa                              ft                 fr
+NorLon, Vogler, :M ansfield , and Short [9].
+    IL hf1S been found experimentally that Pa varies
+relatively slowly with time, and it is customary to
+d etermine the hourly median values p" which, b y (60 ) ,          FIG U RE    4,. N etwork defining the effective receive?' noise figu1'e
+                                                                                    including the effects of external noise.
+are r elated to Pa by Ph= (loge2)Pa. It h as been
+determined experimentally that the hourly m edian                  denote the noise figure of the receiver itself b y f T'
+val ues, h, for ionospheric or tropospheric propaga-               Using Friis' m eth od for combining the noise figures of
+tion at a given time of day and a given season of the              several networks in tendem, we obtain for the effec-
+year are log-normally distributed [10 , 11 , 12]. It               tive noise figure at the inpu t to the loss-free receiving
+follows from this that the hourly m edian system loss              antenna
+is normally distributed with a standard deviation
+                                                                                                                         (62 )
+which may b e expressed in decibe ls. For example,
+if the distribution of the 30 daily values of the
+                                                                   Finally, if we write Tn for Lhe m inimum signal-to-
+hourly m edian transmission loss for 8 to 9 p.m. in
+June is studied , it is found that these valu es will              noise power raLio wh ich will provide a given gr ade of
+app ear to b e a sample fr om a normal d is tribution of           reception , e.g ., tele type r eception wiLlI an 0.01 per-
+                                                                   cent bi nary errol' rate, then the minimum signal
+sllch values. Thu s a reasonably atisfac tory de-
+scri ption of the expected distribu tion of the hou rly            power ava ilable at the terminals of th e re ceiv in g
+                                                                   anLenna which will provide this g rade of re ception
+m edian (or average) transmission loss for a spe cified            m ay b e expr esse d
+time of day and season of the year can be given in
+terms of the two parameters, Lhe median (of the
+hourly medians from day to day) and the s tandard                                                          (watLs) .                     (63)
+d eviation (of these hourly med ians), both expressed              Expressed in de cibel (63) becomes
+in decibels.
+                                                                                                                                         (64)
+8. Percentage of Time That a Desired Signal
+          is Free of Interference                                  wh ere H n = 10 10gloTn , F = 10 loglof, B = lO 10glOb , and
+                                                                   10 loglo (leBt) = - 204 if we u sc a reference temper-
+    The efl'ective range of a radio sys Lem is deLenuined          ature t = 288.48 ° K .
+when the desired signal b ecomes so weak th at it i                The power P ;a radiated from th e transm iLting
+obscured b y the presenc e of noi se 01' of other t~'pes           anLenna of a desir ed s Lation at a which is requ ired.
+of interfer ence for Loo la rge a percentage of time.              for a s pecified grade of reception by a receive r at b
+Consider first the effect of no ise. T h is is most readily        with a given transmission loss Lab may now b e
+determined b y m ean s of a generalization [13] of                 expr essed
+Friis' definition [14] of the no ise figure of a radio
+rece iver. Consider the network of figure 4. It is
+convenient to compare th e desired sign al power w ith
+t h e noise power in network: (a), i.e. , in the loss-free         If the signal has a well-defined short term fadin g
+receiving antenna. Let Pn denote th e average                      characteristic, e.g., r epresentable b)T Lhe distribution
+external noise power and set                                       corresponding to that of a constant compon ent plus
+                                                                   a Ray leigh-distributed component [9], it is CllStO-
+                                  (watts)             (61 )        mar~T to generalize R n to b e t he mi nimum median-
+                                                                   s ignal to m ed ian -noise ratio r eq uired for a speci:fiecl
+where kB is Bol tzmann's con stant and is equal to                 grad e of r eception of such a fading sig nal In t hi s
+1.38 X IO - 23 , t is t h e absolute temperature in degrees        case (65) gives the req uired radiated power if La/)
+Kelv in, and b is the effective bandwid th in cycles               a nd Fb in (65) arc co nsidered to b e hourly m edian
+pel' second as defined b y Friis [14]. Thus (6 1)                  val ues or, more generally, med.ian val ues over a
+effectively defines the noise fi gure fa of n etwork (a).          sufficiel1 tly shorL p eriod of time that the short term
+Network (c) has a noise fig ure f c= T' /1' which is               variation s of the sig nal and th e noise each have the
+s imply the loss factor of the r eceiving antenna                  characteristics sp ecified in determining R n.            In
+circuit. Similarly the transmission line loss is                   or der to allow for the long-term fading character·
+equivalent to a noise figure ft which is the ratio of              istic, we r ecall that the hourly m edian values of
+the power in-and-ou t of the line. Finally we may                  the transmission loss at a specific time of day, season
+                                                              61
+of the year, and period in the sunspot cycle, tend                 the external noise fa at the location b. Predictions
+to b e normally distributed about their long-term                  of fa over a wide range of frequencies and geogaph-
+median value L rnab with a standard deviation ()Lab'               icallocations were Oliginally published by Crichlow
+Now let A(x) denote a standard normal deviate and                  et al. [16] . Revised predictions of fa are available
+x the probability that a randomly chosen normally                  in a r ecen t report [17] of the Consulting Committee
+distributed variable with unit standard deviation                  on International Radio (C.C .I.R.) . Using the
+will not exceed A(x):                                              results in a rece nt paper by Cottony and JollieI'
+                                                                   [18], values of f a may also readily be determined for
+                        1 f AlX)                                   cosmic radio noise simply by dividing their eq uiva-
+                   X= -          exp (- y2j2)dy.             (66) lent blackbody temperatures by 288.48. It should
+                      .fi;r
+                        -00
+                                                                   be noted tbat f a will usually be somewhat d epend ent
+Note that A(x) varies from - ro to + ro as x varies                upon    the r eceiving an te nna direc tivity and the
+from 0 to 1 a nd that 1. (0.5 ) = 0. Now we may ex- published values of fa quoted above correspond to
+press the value of the hourly median transmission reception on a short vertical electric antenna in
+loss not exceeded with probability x by                            references [16] and [17] and to reception on a hori-
+                                                                   zontal half-wave electri c dipole in [18].
+                                                             (6 7)    It is, of course, possible to determine the instan-
+                                                                   taneous di stribution of the transmission loss by
+Similarly Fb tends to be normally distributed about combilling the s hor t term and long term fading
+its lon g-term m edian value F"'b wi th a standard distributions, and a solution of this problem for
+                                                                   tile case of signals with a Rayleigh distribution over
+devia tion ()Fb :                                                  short periods of time and with a log-normal dis-
+                       Fb(x) = Fmb + <JFb A(x) .             (68) tribution of hourly m edians has been given by
+                                                                   Garner M cCrosse n [19]. However, it is usually
+Equations (67 ) an d (68) are not valid in t he lim it as more convellient to follow the procedure described
+x approaches zero si ll ce Lab and Fb are illh er ently above and absorb the effec ts of the s hor t term fading
+positive, bu t this restriction is unimportan t ill distribution into tile required signal-to-noise ratio .
+practical applications. The r andom variables La b                    To the degree that effici ent use is made of the
+a nd Fb may be corr elated (usually negativel:\o) witll radio spectrum, interference from other radio stations
+correla tion coefficient Pabn sin ce diurnal. seasoll al . rather than noisE' will often limit the effective range
+and sec ular variation s in propagation co nditions of the desired station . It is convenient in formu-
+sometimes cause L ab to decrease at the same time lating this problem to consider initially the inter-
+that they cause Fb to increase . Now the above ference caused at r eceivi ng location b as a r esult of
+results ma~~ be combin ed and th e followin g r elation the operation of a not her system including a trans-
+determined by standard sta ti stical methods :                     mitter at c and a r eceiver at d. This special case
+                                                                   will then be exte nded to determin e the in terference
+                                                                   between additional pairs of stations and ultima tely
+                                                                   to a mobile or other broadcast type of system.
+                                                                   If we write ru for the minimum m edian-signal to
+                                                                   median-interference power ratio at the terminals
+                                                                   of the receiving an tenlla which will provide a given
+In the above, qabn is the percen tage of hours dmillg grade of r eception of a desired signal with appro-
+which the specified (or better) grade of reception of priate allowance for the modulation characteristics
+the signals from station a is possible at station b and the shor t term fading charaeteristics of both
+when noise is the only source of in terference. N ote tIl e desired and undesired carriers, then we find
+that qabn varies from ' O to 100 per cent as th e righ t that the criterion for th e absence of interfer ence at
+hand side of (69 ) varies from - ro to + ro. vVhen the r eceivin g lo cation b from the undesired trans-
+P;a (flab,,) is fix ed, (6 9) may be solved for qab,,; mitter at c ma)T be expressed
+alternatively, by fixing qabn, it is ~o ssible to solve
+ (6 9) for the transmitter power P, a(qabn) required
+to provide the specified (or better ) grade of sprvice                                                               (70 )
+for qabn percent of the hours at a given time of day ,
+season of the year , and period of th e sunspot cycle. In the above Ru= 10 10gloru,L "b, and L eb denote the
+For example, if service is r equired for qabn= 99 hourlv m edian values of tlte transm.ission loss at th e
+percent of the llours, we find from tables of the stand- time [n 9uestion for the paths ab and cb, respectively,
+ard normal deviate [15] that 1. (0.99) = 2.326 and while P 'a and Pte are the powers radia ted from the
+thus 2.3';l6 (()2Lab + ()~b+ 2P abll <JLab()Fb)1!2 db more power transmitting a ntennas at a and c, respectively . Now
+is r equired than would be r equired for qabn = 50 per- let L ",eb denote the long term median value of L cb ,
+cent of the bours since 1.(0.5 ) = 0. If L ",ab, <JLab . ()Leb its standard deviation while Pabeb denotes
+F rnb , () Pb, P abn, and R n are all known as a fun c- the correlation coefficient between the variations of
+tion of time, th en P ;a(qabn) can b e determined as a L ab and L eb . N ow we may determin e from the
+fun ction of time.                                                 following equation the percentage of the hours
+    For a proper determination of Fmb and ()Pb it is qabe at a given time of day, season of the year and
+necessary to know the magnitude and variance of phase of the sunspot cycle, during which r eception
+                                                           62
+  of a given grade or better is possible aL s taLioll b                  a geographical location at \ hich radio noise, rather
+  of ignaJs from sLaLion a on Llle assumption tha t the                  Lhanradio signal s, may be observed. It also follows
+  e ffect of all oLher somccs of interference may be                     from th e above discussion that an efficien t allocation
+  n eglecLed except LhaL from the station at c:                          of broadcast stations necessarily implies the existence
+                                                                         of large areas in which there will be mutual inter-
+  (O"~b   + O";b - 2 PabebO"abO"eb) 1/2),, (0.0 1qabe)                   fcrence between th e stations since otherwise i t would
+                                                                         be possible to observe radio noise, rather than radio
+                             = Lmeb- L mab+ P;a-P;e-Ru.    (7 1)         signals, in these interference regions.
+                                                                             E quations (69), (71), and (72) ar e strictly appli-
+     For the efficient use of the radio spectrum it is                   cable only when a single source of interference, identi-
+  most important to notice t hat the percentage of                       fied by th e last subscript on q, is prcsent at the re-
+  hours qabe free of interference from the undesired                     ceiving location which is identLn.ed by the second
+  station at c depends on t he ratio P;a-P;e of the                      su bscrip t on q. A formal m ethod of extending
+  desired and undesired station powers, whereas the                      th ese results to the case wher e several sources of
+  p er centage of houl's qabn free of interference from                  interference are present with comparable magnitudes
+  noise depends only on P ;a'                                            at t h e receiving location was suggested in [1] a nd the
+     An expression is also required for t he percentage                  use of this method for studying broadcast station
+  of hours qeda of satisfactory reception of station c                   allocations was described in a. paper by Norton,
+  at station d on the assumption that the effects of                     Staras, and Blum [20]. However, because of the
+  all other sources of interference taay be neglected                    complexity of the above formal solu tion, it is seldom
+  except that from the station a:                                        used in practice. Instead, it is usually more practical
+                                                                         to consider that a receiving location is satisfactorily
+  (O";d   + O";tl- 2PedadO"edO"ad) 1/2),, (0.0 1qeda)                    fr ee of in terference providecl the val ues of q for all
+                                                                         of these sources of interference ar e each independently
+                              = L mad-Lmed + P;e-P;a-Ru'   (7 2 )        larger than some predetennined valu e, say 99 percent.
+                                                                             It is of interest to see how t he above interferen ce
+     Now suppose Lhat qabe and qeda ar e both s ufFLc-                   analysis would be applied to the allocaLion of broad-
+  iently large (say greater Lh an 99%) so that satisfa c-                cast stations. In the first place it seems clear Lhat
+  tory service would be available in bo t h systems                      the maximum economically feasible tran smitter
+, except for the effects of noise, i.e., suppose that                    power and antenna height should be used so as to
+  qabn is less than 99 percent and that qcdn is possibly,                overcome the effects of noise for each station over tbe
+  but not necessarily, also less than 99 percent.                        widest possible area. Having fixed the tr ansmiLter
+  In this case we should, if this is feasible, increase                  power and antenna height the stations should then
+  P;a until qabn>99 percent. However, if this is done,                   be located ncar enough together so as to minimize
+  it may cause interference to the reception of station                  the areas between the stations wher e noise may be
+  c by station d since qeda will be decreased by an in-                  observed free of radio signals. In fact, studies have
+  crea e in P;a unless P;e is increased in the sa.me                     b een made [21] which indicate Lhat there are optimum
+  proportion so that P;e - P;a remains constant.                         separations b etween broadcast stations with a fixed
+  The above argument is easily extended to any num-                      power; when the stations are located on a regular
+  ber of station pail'S, and thus we have shown that                     Lriangular lattice these optimum separations are
+  a net improvement in th e use of the spectrum for a                    Cluite large but, in the practical case of irregularly
+  given geographical configuration of radio stations                     located stations, their optimum spacing will be much
+  can always be ob tained by increasing the power                        small er and will be smallest in the case of isolated
+  of all of the stations by the same number of decibels                  pairs of stations.
+  until the power of each of the stations is adequate
+  to reduce the level of the noise well below the level
+  of the interference caused by t he other stations.                     Variations of Path Antenna Gain With Time
+  In practice there will be an economic limit above                          in Ionospheric Scatter Propagation
+  which such horizontal increases in station power
+  are no longer feasible. When this limit is r eached,                      During recent years extensive measurements have
+  then still further improvement of th e use of t he                     been made at the Central Radio Propagation Labora-
+  spectrum can usually be obtained by allocating                         tory on several long transmission paths in the United
+  additional stations or , in the case of a broadcast                    States, Canada, and Alaska of the system loss for
+  or mobile service, by redueing the spacing between                     th e ionospheric scatter mode of propagation. Some
+  the existing sta.tions until the interference between                  of th ese measurements were reported in detail in
+  them is comparable to the interference from noise.                     a paper by Bailey, Bateman , and Kirby [22]. In
+     The above analysis is, of course, only qualitative;                 this section a further analysis will be given of some
+  thus, for example, some types of service might have                    of the data obtained by Bailey, Bateman, and Kirby
+  to be availabl e for much more than 99 p ercent of                     on th e Fargo-Churchill path.
+  time. Nevertheless the principles of efficient alloca-                    The measurements were made in the following way.
+  tion described above appear to be universally appli-                   At the Fargo end of the path, the transmitter power
+  cable and it is concluded that a satisfactory allocation               was switch ed every half hour alternately to a high
+  of facilities to any portion of the spectrum can b e                   gain rhombic antenna and to a half-wave dipole
+  co nsidered to exist only when it is impossible to find                antenna, both at the same h eight above the ground.
+            500986-59- - 5                                          63
+At the Churchill end of the path, continuous record-                        I~ ~--~--~--:i-rr~~;;;;;;~~;;l~
+ings were made of the signals from Fargo as received                                         Measured Cumula tive Disfr ibutions
+                                                                                                                        x ::; Ls   0   =Gpp   0   =Lb
+simul taneously on a high gain rhombic antenna and                          165                                                                                45
+                                                                   If)                                                                                              en
+on a half-wave dipole antenna, both at the same                    -'                                                                                               -'
+                                                                                                                                                                    w
+                                                                   ~ 170                                                                                       40
+h eight a bove the ground. For odd half hours, meas-               u
+                                                                                                                                                                    CD
+                                                                                                                                                                    U
+urements were thus available of the half-hourly                    w
+                                                                   0_ 175 r-~-f>-<>' o-"~-t-r--'k:                                                             J5
+                                                                                                                                                                    w
+                                                                                                                                                                    o
+median system losses L rr and L rh , and for even half             If)
+
+hours measurements wer e available of the median                   If)
+                                                                   g 180
+system losses L "r and L hh , where the first subscript            z
+denotes the transmitting antenna while the second                  5w 185
+subscript denotes the receiving antenna. The half-                 ::;;
+hourly m edian path antenna power gain correspond-                 >- 190
+                                                                   -'
+                                                                                                                                                               20   <I
+                                                                                                                                                                    Z
+                                                                   a::                                                                                              Z
+ing to the use of a half-wave dipole antenna on the                :::J                                                                                             W
+                                                                                                                                                                    f--
+transmitting end of the path and a rhombic antenna                 o 195                                                                                            Z
+                                                                   I
+                                                                                                                                                                    <I
+                                                                       I
+on the receiving end of the path may now be de-                    ~ 200 f----+----f_~l-+-+--+-+--I--+                                                              I
+termined from:                                                     <I
+                                                                                                                                                                    >-
+                                                                   I                                                                                                Ci':
+                                                                           205 f---- j - - - -
+                                                         (73)
+                                                                            210 L----:-:--_ _c"-----c'----':-L J - - ' ---c"---'--- - ' -_ _- - ' -_    _"""   0
+                                                                             0.00 I                                                    Q9                0.999
+In the above the term 4.3 is the assumed path an-
+                                                                                                                    q
+tenna gain between the two loss-less half-wave di-
+poles. On the assumption that the system loss does                FIGURE         5. M easurements of L ., L b , and G pD f or the Fargo-
+not vary appreciably over a p eriod of 1 hr, it is also                    Churchill ionos pheric forward scatter path on Feb. 15, 16, 17,
+possible to estimate the half-hourly median path                           1952; d = 824 statute miles, f = 49.7 NIc.
+antenna power gain corresponding to the use of
+rhombic antennas on both ends of the path from                    10. Transmission Loss for Tropospheric For-
+                                                                    ward Scatter and Ground Wave Propa-
+                                                         (74)       gation
+ where L rr and L h" denote the values of t hese median              As was poin ted out in an earlier paper rl] the
+ system losses in successive half-hour periods of time.           concept of transmission loss is especially appropriate .
+ Only these latter values are analyzed here and in                for describing forward scatter propagation, and this ~
+ what follows we hav e set Gpprr=Gpp, L rr= L . and               idea was developed in some detail in a recent paper
+ L h ,,-4.3= L b. The observed cumulativ e distribu-              by Norton, Rice, and Vogler [12]. R ecently the
+ tions of Gpp , L . and L b as thus defined are given on          author showed [23, 24] that the (r jlo)K J(rJlo) correlation
+figure 5 for a 3-day period in February 1952 . Note               function could be used for describing the physical
+ that each of these three observed quantities appears             nature of atmospheric turbulence and that its use,
+ t o be a sample from a normal distribution , and on              together with an assumed expon ential dependenc e
+ t his assumption we find the following sample sta-               of the gradient of refractive index with height, pro-
+ tistics: Gpp= 25.71 db , O"Gpp = 5.85 db , L s= 176.75 db,       vides a theory of tropospheric forward scattering in
+ <TLs= 6.98 db, L b= 202 .75 db, and O"Lb = 2.47 db. The          good agreement with the available data over a wide
+values of L . and Gpp are highly correlated, t he cor-            range of distances, frequencies, and antenna heights.
+relation coefficient determined from this sample                     R ecently, Bean and Thayer [25] develop ed several
+being p=- 0.94 . On the assumption that L s and Gpp               model tropospheric atmospheres which depend only
+are normally distributed, the random variable                     upon the single parameter , N s the value of the r efrac-
+L b= L s+ Gpp will also b e normally distribu ted with            tivity at the surface of the earth, i.e., (n s - l )· 10- 6
+expected mean L be= L s+ Gpp= 202.46 db and ex-                   where ns is the refractive index at the surface. In
+p ected variance O"lbe= 0"1. + O"bpp+ 2 P O"Ls O"Gpp= (2.48)2.    the present paper use will be made of th e particular
+N ote that these values are in goo d agreement with               B ean and Thayer model in which N decreases linearly
+t h e values of the mean and variance of L b determined           with height for the first kilometer a bove the surface,
+directly from the sample.                                         and exponentially with heigbt above 1 km , having
+    It is seen from the above analysis that the variance          scale h eights dependent on N s fo r the height range
+of the system loss for ionospheric scatter propagation            from 1 to 9 km but having a fixed scale height above
+increases with an increase in the path antenna gain.              9 km. Figure 6 compares the trace of radio rays in
+There is some evidence that this may not be the                   th ese model atmospheres for th e typical values of
+case for tropospheric scatter propagation. For ex-                N .= 250, 301 , 350, and 400 and for several initial
+ample, Bullington, Inkster , and Durkee [33] meas-                angles 8 0 of departure.
+ured the variance of 505- Mc and 4090- M c tropos-                   Using results of this kind, it is possible to use the
+spheric forward scatter over the same path using                  methods of geometrical op tics to calculate t h e
+28-ft parabolic r eflectors in both cases, and thus               groundwave fields expected in su ch atmospheres at
+with much higher gain on the higher frequency, and                points well within the horizon and to use th e method
+found an actually smaller variance for the 4090- Mc               describ ed below for points b eyond the horizon; it is
+t ransmission losses.                                             th en easy to join th ese curves and obtain a solu tion
+
+                                                             64
+                         240
+                                                ~~
+                 I-                         ~                                                                                ~
+                 w                                                                                                     ~
+
+                 w 200
+                 l.L..
+                                                                                                                             "-
+                 l.L..
+                 0
+                 (fl
+                 0
+                 Z
+                         160
+                                                                              T
+                                                                              J
+                                                                                   ,-   ---
+                         120                                                                                t
+                 <t
+
+                                                                                                            ~:0 ~.
+                 (fl
+                 :::J
+                 0
+                 I
+                1--
+                .r:.
+                         80
+                                                             360
+                                                                                         560
+                                                                                               600
+                                                                                                      r-         ~      -'"'-
+                         40                                                                          640
+                  1                                  DISTANCE ,STATUTE MILES                               680
+                .r:.
+                                                                                                                 720
+                          0                                                                                            760
+                               0                                                                                                800
+
+FIGURE   6. Compm'ison of mys in the 1958 CRPL j'efm'ence refractivity atmospheres with those for an earth with no atmosphere and
+                                    an effective radius a c = 5,280 statute miles (a c/a = 4/3) .
+
+for the groundwave fields expected for such n,tmos-                   effective r adius a.. Figure 10 illustrates the geom-
+pheres at any d istance and for any antenna height.                   etry of this more general me(,h od of making allow-
+Furthermore, using the methods outlined in [23] and                   ance for the effects of atmospheric refraction on the
+[24] and to be described more fully in a paper [26] to                 transmission loss between antennas at a and at b.
+be published in this Journal in the near future, the                  If the index of refraction is specified as a function of
+tropospheric forward scattered fields may be cal-                     height above the surface in such a way that ray
+culated. Figures 7, 8, ancl 9 arc examples of the                      tracing methods [25] may be used for eSLablishing
+median basic transmission loss for the groundwave                      the trajectory of the ray, and such a restriction will
+and for the tropospheric scatter modes of propaga-                    r ule out very few atmospheric models that are likely
+t ion over a smoo tll spherical earLh as calculated in                1,0 be proposed, then it is possible to calculate for
+this way. Allowance was made at the higher f re-                      such atmospheres t:.h l and t:.d l as a function of the
+quencies for atmospheric absorption by using the                      hei ght hi and to calculate t:.h2 and t:.cl2 as a function
+results of Bean and Abbott [27]. On figure 8 the                      of the height h2 • Figures 11 and 12 show t:.d and t:.h
+first two oscillations of the fiel([ caused by interference           versus h for the above-described Bean and Thayer
+between a direct and ground-reflected wave are                        model atmospheres for N s = 250, 301, 350, and 400,
+shown for d = 10 and 20 miles, but for the other dis-                 i.e. , for a,=4878.50, 5280, 15896.66, and 6996.67
+tances only one oscillation is shown. The SL,( points                 statute miles, respectively. It may be noted that
+of field maxima are shown for all of the distances as                 these particular model a(~,Tfiospheres have discon-
+circled points. Note that the total number of max-                    tin uities in their gradients at 1 krn above the surface
+ima to be expected (as a function of range for a given                and at 9 km above sea level, but these discontin-
+height or as a function of height at a given range)                   uities cause no difficulties since we have used ray
+for a particular antenna height is equal to the number                tracing methods based on geometrical optjcs. Note
+of half -wavel eng ths contained in this height; in the               that the use of geometrical optics is preferable in
+present example 30 ft contains 6 half-wavelengths                     this particular application; thus the use of a rigorous
+at 100 Mc.                                                            wave treatment of the problem would probably
+   lt is well known that approximate allowance may                    have lead to false conclusions since the actual at-
+be made for the effects of radio refraction in the                    mosphere cannot have such abrupt discontinuities
+troposphere by calculating the fields for an earth                    in its gradient.
+with no atmosphere but with an effective radius a.                       If n were assumed to have a constant gradient
+determined by
+                                                                      (dn/dh) = -n. (~_l) at all heights (as determined
+                                                          (75)                        a a.
+                                                                      by solving (75) for (dn/dh). and then assuming that
+                                                                      this surface gradient is the same at all heights), then
+where a is the actual radius, n. is the value of the                  it is easy to show for such an atmosphere that the
+refraetive index at the surface and (dn/dh). is the                   distance to the radio horizon from a height h is
+gradient (usually negative) of the refractive index                   given by
+at t"!:le surface. We will see that it is a simple matter
+to calculate the transmission loss L at or beyond the
+horizon for a horizontall y homogeneous model at-                                 d=a. arc cos [a./ (a.+h)1~,12a.h                    (76)
+mosphere in terms of the transmission loss L . ex-
+pected for an earth with no atmosphere but with an                    The approximation in the above is valid when h is
+                                                                 65
+            (j)   150
+           Qi
+          .0
+            u
+            Q)
+          0
+                  160
+            (j)
+            (j)
+            0
+           ...J
+            c     170
+            0
+           'Vi
+            (j)
+
+
+            E
+            (j)
+            c     180
+            0
+           ~
+            u
+            (j)
+            0
+          m       190
+            c
+           g
+           -0
+            Q)
+
+           ~
+                  200
+
+
+
+                  210
+
+
+
+                  220
+
+
+
+                  230
+
+
+
+                  240
+
+
+                  250
+                        10   20     50     100    200       500        1,000   2.000   5,000   10,000   20,000   50,000   100,000
+
+                                                        Frequency , Megacycle s
+
+FIGURE  7. M~edian basic transmission loss for the groundwave and tropospheric scatter modes of ]JTOpagation over a smooth spherical
+   earth; over land (}" = O.005 mhos/m, <= 15; horizontal polari zation; transmitting and receiving antennas both 30 ft above the
+   surface.
+
+
+
+
+                                                                  66
+                                                  o   Locot lon of Maximum Fields (min im um transmission losses)
+                                                - - ( Lbd) Ground Wove
+                                                ----- (L bms ) Tropospheric Scatter for Winter Afternoon Hours
+
+
+
+
+                       ?O          ~"A         /1 Ut--
+                             'Zit;--"                    1/
+                 f--
+                 W
+                 W
+                 LL
+
+
+
+                 f--
+                 I
+                 <.9
+                 W
+                 I
+                        2,000                  lL             lllLil E                ..kl I                  If        1/               ill         /         /1 11           II
+                 <!
+                 Z
+                 Z
+                 W
+                                                     { V I~
+                                                    IV II:                                            / I;{i ylr7 1';1-/ IV ~~/I
+                                                                                                                             VI;
+                                                                                                                                 A                               v I / II
+                                                                                                                                                                            I II II
+                                                                                                                                                                                               1.1
+                 f--
+                 Z
+                        1,000      U
+                 <!                                                                                                                                                                      'c1
+                            500                          I!                                                        ;J            II                  Ik    ld
+                                         Iif             /J                       v        II                                                                                       II
+                                               It
+                            200                Ii                   t                           I~                           I   i IY        if,               'rl Ii          II
+                                                     J          If
+                            100
+                                If                  If
+
+                            50                 U              11 ULL              1111                    i        1) 1                       lWei
+                                                         II                  Ii       /1                           ~ ! 111              W'               I I           II
+                                                     .!;:i      I       i'
+
+
+
+
+                                  300                280
+                                                              MEDIAN BASIC TRANSMISSION LOSS ,                                                             DECIBELS
+
+FIGURE 8. lYfedian basic transmission loss for the gr01wdwave and t1'opospheric scatter modes of propagation at 100 Me over a
+   smooth earth in the 1958 CRPL reference refractivity atmosphere with N .=301; h01'i zontal polari zation over land; one antenna
+   at 30 ft and the other antenna at the heights indicated.
+
+
+
+
+                                                                                                     67
+        100
+
+
+       125                                                                                                                         I
+
+
+
+
+        150
+                 ~
+                                 '-!
+                          ~                    ::-!             1
+        175                '{                                 :-;     -l i
+                           ~                                    ,
+                                                                                     -
+                                                                      -,.~
+
+ Ll                                    ....                                  ~
+ -0                                                          r-'-            ,..[
+                      -\                                                                            .,..
+       200
+                                                                -                              --                    --
+                                                              -- -
+                                              "-            ----                                                           ,
+
+                                                                                                                                               j:~C
+                                                                                                                           ,
+                                                                                                                       - +-
+                                                                                                                                                         1-f:: -- :§RMc
+       225                                                                                                                                    I~~ I~-"-'
+                                                                                          --                               1-'"
+                                                                                                                                             H.            c~
+                                                                                                                                                                                            ::-1
+
+                                                                                                                                             :1;;-1;,.      ?Q6 '                                        ~
+                                                                                                                                             IOOOM               t-               c_
+                                                                                                                                                         , c          ~                1                            1
+       250                                                                                                             I
+                                                                                                                           ,                                   -~oOOM .
+                                                                                                                                                               ~I  ',,,-;c
+                                                                                                                                                               5000M
+                                                                                                                                                                , I l"i-!.! C
+                                                                                                                                                               IOOOOr,\
+       27 5                                                                                                                                                         1-"',     C
+                                                                                                                                                                                   1-_
+                                                                                                                                                                                                   1               --
+       300
+                     50         100                   150           200             250         300              350                   400               450                500            ~50     600       650         70()
+                                                                                      DISTAN CE ,               STATUTE MILE S
+
+FIGURE    9. 1I1edian basic transmission loss for the gmundwave and tropospheric scatter modes of propagation over a smooth earth
+      in the 1958 CRPL reference refractivity atmosphere with N .=301; horizontal polarization over land; one antenna at 500 ft
+      and the other antenna at 30 ft above the surface.
+
+
+sufficiently small. Since our model atmosphere has                                                              where
+just such a linear gradient for the first kilometer                                                                                                h; = hl - /lh1 and h~= h2- /lh2
+above the surface, we see why /lh and /ld on figures                                                            or
+11 and 12 are equal to zero for heights h less than 1                                                                             L (d, hi, h2) = L eCd', hi' lI 2) - 10 loglO(d' jeZ)                                  (78)
+km. At larger heights we see by figure 6 or by fig-
+ures 11 and 12 how t1.e distance to the radio horizon                                                           where
+gradually departs from (76) in the model atmos-                                                                                                                 d' = d+ /ld 1+ /ld z
+pheres which are much better approximations to the                                                              Equation (77) was used for determining the median
+actual atmosphere than the assumption of a linear                                                               basic transmission losses for the groundwave as
+gradient at all height.s.                                                                                       shown on figure 8; essen tially these same ray tracing
+   Since the radio waves travel near the surface over                                                           methods were also used for determining the scatter
+that part of the path (of length d s on fig. 10) between                                                        losses shown on figures 7, 8, and 9, but in this case
+th e radio horizons, it is intuitively clear that their                                                         they were used also for tracing the rays up to the
+propagation will be affected only by the refractive                                                             scattering region as well as for tracing the rays from
+index gradient at the surface, and thus this portion                                                            an antenna to its radio horizon.
+of the propagation will b e independent of the other                                                               J . R. Wait, in a paper to be published shortly, has
+characteristics of the atmosphere. Thus it is clear                                                             provided a rigorous basis for our intuitive develop-
+that only those portions of the propagation path                                                                ment of (77) for sufficiently high frequencies and for
+from the antennas to their radio horizons are affected                                                          model atmospheres in which the variation of the re-
+by that part of the atmosphere much above the sur-                                                              fractive index with height is monotonic.
+face, and these can be treated by the methods of                                                                   Millington independently derived the above-
+geometrical optics. In this way the following rela-                                                             described method of allowing for the eff ects of re-
+tions are determined for evaluating the transmission                                                            fraction in a horizontally homogeneous atmosphere,
+loss L(d,hl ,h2) between the points a and b in the                                                              and suggested a formula for adjusting groundwave
+model atmosphere over an earth of radius a in terms                                                             firld strength similar to (78) but omitting the inverse
+of the transmission loss L . expected for an earth                                                              distance factor 10 10glO(d' jd) which is usually nrg-
+with no atmosphere but with an effective radius a.:                                                             ligible r28] .
+                                                                                                                   The groundwave curves in th e C.C.I.R. Atlas r29]
+                                                                                               (77)             have been prepared using the approximately-linear
+                                                                                                           68
+                                                                                                       · Rad io Hori zon Ray
+                                                                                                     in the Model At mos phere
+
+
+                                                                                                       Ra d io Hor izon Ray
+                                                                             ~--- For an Eart h wit h Effe c t ive Rad ius 0e
+                                                                                                       ond No At mos phere
+
+
+
+
+FIGURE:' 100 Geometry illustrating the corrections Lld and Llh in the ray deviations between a model atmosphere and a sphere with no
+                                                                            atmospheTe but with an effective radius eq1wl 10 a .o
+
+
+
+                    1
+             h = Antenna helghlm model atmosphere
+             h' = Antenna helghl With no atmosphere and radius oe
+             h'=h-lIh                                                                                                     1,000 ,-----r--r--r--___r--,----~-___r---_=;:::::j
+                    l                                                                                                     500        d =Distance In model atmosphere + - -
+                                                                                                                                     d': Distance With no atmosphere and radius Oe
+   1xlO' f-----'-                                                                                                         200        d'=d.lld l h,).lId lh 2)      --t-
+I-    10' 1-----+--+----:J,L;n>li7L-...L--L--+---------1                                                             "' IOOI---~'--4------r--~~~~~t_~~~_+--~
+~ Sxllf             I                               "    ~' Ns=400; oe=6997 miles _                                  w
+                                                                                                                     -' 50
+lL                                                      ' Ns = 350; Oe= 5897 mites                                   ~
+~ 1xIOJ - - - --1----/                   ::o... Ns =30 1; oe=5280mlles ------I                                       w     20
+<J     10J f - - - - - - f - -h 4 f---"-'Ns=250; oe=4878m,'es - + - - - - - 1                                        f-
+                                                                                                                     OJ    lO
+     5xl01                                --I--                    ~-         -f--                                   f-
+
+                                                                                                                     '" 5
+                                                                                                                     f-
+     2xlo2                                                         ----+-                                            "'-
+                                                                                                                     '0
+        101 f-----/-;I-tLIt'-- - - - ' c - - - + - - - - - - - - t - - - - - - - - j                                 <l
+                                                                                                                             I
+       50                                                                                                                  O~
+
+       20-                                                          -+- -- .-                                              0.2
+        10~_~L-~              _____              ~_L           _     _ L_ _L__~_~-~
+                                                                                                                           0.1
+       2xlOJ _              10'   2xlO'     5xlO'        105        2xl05      5xl05   106   2xl06      5xlO6               2x 10J
+                                                    h, FEET
+
+FIGU RE     11. Correction Llh to the heights of the radio horizon                                                   F I GURE 120     Corrections Lld to the distances to the radio hori zon
+     rays in the 1958 CRPL refTactivity atmospheres relative to the                                                       rays in the 1958 CR PL Tefractivity atmospheres Telative to the
+     heights they would have fOT spheres with no atmosphere but                                                           distances they would have for spheres with no atmospheTe but
+     with effective radii a eo                                                                                            with effective radii a c .
+
+
+
+
+                                                                                                                69
+Eckersley profile n 2= 1- ?J + Ea 2j(a + h)2 for which the 11 . Range of Tropospheric Forward Scatter
+eff~ctive ra~ius is given by a.= an~j( l-?J) and for                                Systems
+wluch the dIstance to the radio horizon is given by
+(a a.)1/2 arc cos [a j(a+h)]. This horizon distance
+differs only slightly from that given by (76) for the          A~ an example o~ the method of using transmission
+atmosphere wit~ a. linear gradient, but it is necessary,   loss  lr;t system~ desIgn, the problem of estimating the
+for extremely hIgh antennas, to use values of t:.d and eff.ectlve maxlmu::n range of a radio relay system
+t:.h obtained for an appropriate reference atmosph ere usmg troposphenc scatter is considered. As an
+if accurate results are to b e expected . The ground- illustration of typical ranges to be expected, we will
+wave curves in the present C.CJ.R. Atlas do not assUl;ne. that th o terrain is smooth, and will base our
+ extend to sufficient heights to require much adjust- predlCtlOns on the above-described B ean and Thayer
+m ent f~)l' nonlinearity of the atmosphere, but the [25] model atmosphere with N s=301. We will
+ curves m a recent atlas prepared for a linear atmos· assume that either two 28-ft or two 60-ft parabolic
+ phere at the Radio ~ esear?h Laboratories in Japan ant ~nnas arc used at both ends of the path, with
+ [30] extend .to sufficlCr:t hmghts so that a small ad- thClr centers 30 fL above the oTound and connected
+ Justment ':rill be reqUired. It is perhaps desirable in a quadruple diversity ~ystem . With these
+ to emph asIze that these systematic corrections for assumptions, wo may use the methods described in
+ ~ tmospheric ~ endin g ~re not likely to be important
+                                                            t he preceding section to determine the transmission
+ 111 most l~rac.tlCal apphcations, but it is aesthetically
+                                                           loss,    L (9 9), which we would e2\.."])ect one percent of
+ more satlsfymg and occasiona.lly might be important the actual hourly median transmission losses to
+ to h~ve a precise solu.tion to this interesting problem. exceed throughout a p eriod of 1 year ; the use of
+    FIgures 7 and 8 gIve the values of m edian basic thes~ on~ percent . losses implies that the specified
+ transmission loss separately for the diffracted oTound· serVICe WIll b e aVallable for 99 p ercent of the hours.
+ wave and for tropospheric catter. If we "'assume Tables 1 and 2 give for the 28-ft and 60-ft an tennas
+ that the short term variations in the scatter fields th? free space g;ains Gt + GT) and the path antenna
+ arc Ray~eigh distributed, and that the groundwaves gams as a functIOn of frequency and distance, while
+ are relatIvely s te.ady over short periods of time, then tables 3 and 4 g ive L (99) as a function of frequency
+we may determm e the expected combined m edian and distanee.
+ basic transmission loss L bm in terms of the diffracted       Tl:e transmitter power P I required to provide a
+ wa~e basic transmission loss Lbrl and the m edian
+                                                           specIfied type and grade of service for 99 percent of
+ basIC scatter transmission loss L bms as follows:          the hours may be obtained from the equation
+
+                                                                  P t= P;a (99%) + L t = L t + L (99) + R n+F+B-204,
+                                                     (79)                                                         (79)
+
+                                                                  ',:,lter~
+                                                                          L t is ~h~ loss in th e transmitting antenna
+where J{= L bd -L bms+ 1.592 is the ratio in decib els            en'CUlt ~nd thIS ~s set equal to 1 db in the following
+of the avcrage scattered power to the diffracted wave             calculatIOns. Pta (99%) may be determined from
+power, and R(0.5 ). is given graphically and in tables            (?9) and t~is is equal to the right-hand side of (79)
+m [9]. When J{ IS less than -16 .5 db, L bm differs               smce we WIll assum e that the effective receiver noise
+from Lbd by less than 0.1 db , and wh en J{ is greater            figure has the constant value F = 5 10glOjAfc- 5 so
+~t~n 19 .5 db, L bm differs from L bms by less than 0.1           that ClFb = O and L(99 )= L mab + ClLab }.(0.99); it is as-
+                                                                  slUIled that the receiver incorporates gain adequate
+   F inally, to determine the expected values Lb(P)               to en sure that t h e first circuit n oise is detectable.
+not. exceeded by p percent of the hourly medians                  B==1 0 loglo(bo+ bm ) is the effective receiver band-
+d:urmg a year, we may simply subtract V(p, e) as                  width factor with bo and bm expressed in cycles per
+gIven on figure 13 from L bm as calculated from the               second; bo allows for the drift b etween the trans-
+values given on figures 7 or 8 or as given directly on            mitter and receiYer oscillators, while bm allows for
+figure 9. The parameter ~ is the angl~lar. distance fl2]          the band occupied by the modulation.
+and , over a smooth sphen cal earth , IS gIven by                    For th.e calcul:;ttions in this paper, the transmitter
+                                                                  and reCelver oSClllators were each assumed to have
+                                                                  a stability of one pa:-..t in 108 and to vary indep end-
+                    e ds d-d -d l    2,
+                                                      (80)        ently so that bo= .v2 jAfc·10 -2 . Table 5 gives the
+                       a.      a.                                 valu~s of bm as,sumed for the various typ es of service
+                                                                  conslde~'ed. ~ able 5 als~ gives the valu es of R n for
+                                                                  the vanous kmds of serVlCe on the assumption that
+where dl and d2 are th e dis tances to the horizons in            quadruble diversity is used. The value of R n for
+the ~Ilodel atmosp~ere. The angular distance is a                 the F1:'I mu~tichannel system is expected to provide
+pa:r tlcularly convel1len t parameter for making appro-           a serVIce WIth less than an 0.01 percent teletype
+priate al~owan.ce for .the effects of irregularities in           char~cter error rat.e. The FM mul tichannel system
+the terram as IS explamed more fully in [12] and [26]             conslsts of 36 VOIce channels each of which can
+and the curves on figur e 13 may be used for a rough              a~coI?modate sixteen 60 word~ per minute teletype
+earth as well.                                                    Clrcmts. The values of R n given in table 5 were
+                                                             70
+                 45
+                                   ":1 iL : : :j! i                                                        lllll1-In mIfJ l l!n l lllll l~!ltl:t1 11IHIlfIlI IUIIWllillllll1lilllll!JI 1l1l11l1!I II I1[fljnllIlRlfi
+                 40
+                                                                                                                                         ill jltl           I            II     I   ", t     +! H          I
+                 35
+
+                 30                                                                                                                                                      1.
+                                                                                                                                                    Ij J
+                                                                                                                                                        j
+                 25
+                                                                                                                                                                                                                                           "
+                                                                                                                                                                                                                                               i
+                                                                                                                                                                                                                                           II
+                                                                                                                                                                                                                                       1'1
+                 20                                                                                                                                                                          "I
+                                                                                                                                                                                                                                               "
+    (/)
+
+    Q)            15
+    .0
+    u
+    Q)
+    0             10
+                                                                                                                                                                                                           I'    1~
+
+
+en
+                  5
+    a:
+    >
+                  0
+                       If!        Jffi 1ffiit      '~t       j ~ I W'   TIt        .' I "I!l           I                I   em m m' 1                       '1111 Hff Illl ~          ltlli 1m 1 1'1
+                 -5
+                         I' I1J 'tii i:ffiHtIilJ         I   nlim .: J 1                       ,. , 1 .. ; 1111              In I ; I I  JI                   ." fl: ,""                     1      I'         I ,11,   H Iii I            ~ I
+
+
+
+
+               -10
+                                                                                                                                                                                                                         ,1"           I
+               -15
+                     ~"I                                         I/, III II" illl ,:I: ''\' III'I!' "' IIIJ 11'1           j "I'           1 II.'      "uiI,lj'l'lrd U'.I . ,I Iiil2 1!111'                                       II            r
+               -20 11:1 h' ,:tl d 1ITiII' '!ll if I J.1cI1 q !'tl i Ihl , i' lG lLc ' :: ":: Iii Ii l lttt. f, 1'1 I: I
+                                      11'11 "        '1IIIIIj                                                                                     "                                        !.!±Ill
+                   11 ,:,Il j ~~ 11 %11111 111: ' IW iii' ~l :14: H::,,; 1.1: ' ::" :.:i : 'f' I:.' !ll'hiil I: 1111 I Ii::' ':i WI ;11 :Wllllj
+                      Jl1 ,_~:I ! ~ r 1;;":' :I':::,:,II,::~"                                                  1:. J!l, :!::~ ,,':tl :~Ilf-.!~\ f-U
+                                                                                                           " ' 1 , 1 ) ' •...
+                                                                                                                                                                                !i          HI if
+                                                                                                                                                                                             I
+                                                                                                                                                                                                                                  I
+               -25 1.::1 Li:±i ~111 " " j' 1114 '1'1 "'l ljI! It ""'1" ,,,' '                     I'" "'1'1 Pll 'j"" III' "., I'll "1' I'll I I IIi "1114111411                11111 if'- 1I
+                   11:1 f1~: 1--:W t-~ J tj:~ iJ iH I q~ J: ;''; ;1;1 r;:; !", ,:; ';': ! ,: :;:i!fif
+                                                                                                   ,C'
+                                                                                                            !;~, H:+ iu! n:~ !H; .It: :!: I .: Jd ::i, qp nil                  III
+               -30 'B ;iJ1=lillilitlJPH II! ilk fin ::1 :11' ,;i: :i l : ilil :iI: iill 1'1il i l ;i,j iill ::: II: illi iili iii! iiI! ;:!: iii' : : ::i l iii: :W ,,:, }, Idlli I Ill! I III
+                  o                     10             20              30                 40                   50                60                 70                      80           90                                                     100
+                                                                                                                            8 , Millirodions
+                                                         FrC U HE 13.             Variance of transmission loss in tropospheric propagation.
+
+
+
+TABLE 1.           Path antenna gain for 28-ft pambolic antennas 30 ft                                                      TABLE      2. Path antenna gain for 60-ft parabolic antennas
+        above a smooth spherical earth with a CRPL model mdio re-                                                               30 ft above a smooth spherical earth with a CRPL model
+        fractivity atmosphere corresponding to N, =301                                                                          j'adio refractivity atmosphere corresponding to N .=301
+
+                                                                          a.                                                                                                                      a p
+
+          M,           a.+a,                                                                                                    fMc           Gt+G,
+                        d = l00 150 200 300 500 700 1,000                                                                                                   d=lOO         150        200         300            500     700       1,000
+                          lni                                                                                                                                    mi
+-         -       - - - - - - - - - - - - -- -- -                                                                           - - --- --- - -- -- - -                                                              -      ----
+                         db          db          db           db          db         db       db             db                                db                db       db         db           db            db       db            db
+           100           33.02      33.02       33.02        33.02       32.92      32.82    32.72           32.67                100          46.26            46.16    40.16      46.06        45. 86        45.46    45.26          45.16
+           150           40.07      40.07       39.97        39.97       39.87      39.57    39.47           39.37                150          53.31            53,2 1   53. It     52.91        52.51         52.11    51. 56         5 1. 48
+           200           45.06      45,06       44.96        44.86       44.66      44~ 36   44.16           44.06                200          58.30            58. 10   57.90      57.60        57.00         56.30    55.90          55.86
+           300           52. 11     52.03       51. 91       51. 71      51.31      50.81    50.51           50.4 L               300          65.35            &1.95    64.45      63.95        62. 85        62.05    (H. 70         61.90
+           500           60.98      60.75       60.38        60. 08      59,38      58.48    58. 18          58, 18               500          74.22            73.22    72. 67     71. 02       70.22         68.72    68. 12         68. 12
+           700           66. 83     66.35       65.83        65. 23      64.33      63.23    62. 83          62.93                 700         80.07            78.37    77.07      75.87        74. 17        72. 57   71. 67         71. 57
+        1, 000           73.02      72. 12      71. 22       70.42       69.22      67.92    67.32           67.22              1,0uO          86.26            83.46    81. 46     79.96        77. 86        76.26    75.01          74.66
+        1,500            SO. 07     78.32       76.57        75.87       74.27      72.57    71. 67          7 1. 57            1,500          93, 31           88,5 1   85.91      84.0 1       8 1. 51       79. 11   78.21          77. 81
+        2,000            85. 06     82.48       80.66        79.26       77. 16     75.46    74.36           73.86              2,000          98.30            91. 70   88. so     86.60        83.70         81. 10   80.20          79.80
+        3,000            92.11      87. 71      84.21        83,4 1      80.91      78.51    77. 61          77.3 1             3,000         105.35            95,75    92.25      89.65        86.3.5        83.55    82. 85         82.45
+        5, 000         100.98       93,28       90.18        87.68       84.68      82.18    8 1. 28         80.98            5,000           1l4. 22       100. 02      95.62      92.92        89.52         86.52    85.62          8.1. 42
+     7,000             106.83       96.53       92.83        90.03       86.83      84. 12   83.33           82.93            7,000           120.07        102.37       97.87      94. 97       91. 17        88.22    87.57          87.07
+    10, 000            113.02       99. 32      95.22        92.52       89.02      86.02    85.22           84.92           ]0, 000          126. 26       104.56       99.96      96.66        93.06         90.0u    89.26          88.76
+
+
+
+
+                 500980---59-            0                                                                             71
+TABLE    3. Transmission loss L(99) (corresponding to fields ·                                                                                                 TABLE 5
+   exceeded 99 percent of the time) expected between two 28-ft
+   parabolic antennas at a height of 30 ft above a smooth sphe)'ical                                                                                                                                    Post detection
+I' earth with a CRPL model radio refmctivity atmosphere                                            Type of service                                  t-m          R~        Signal bandwidth             signal-to-noise
+   corresponding to N8 = 301                                                                                                                                                                                 ra tio
+
+                                                                                                                                                    cps          db                  cps
+                                                                                                                                                                           0__ __ __ __ __ ___ ___ __         db
+                                  L (99) in decibels                                       Transmission loss                                                       ob
+                                                                                             measurement.
+                                               dmi                                         FM multichannel                                       3, 750, 000      9. 5     36 voice channels 0.01% teletype
+                                                                                            system.                                                                          each capable of          character
+    fM,                                                                                                                                                                      u~e for     sixteen      error rate.
+               100       150        200        300      500     700         1,000                                                                                            60 words per
+                        --- --- --- --- - - - ----                                                                                                                           min telet ype
+                                                                                                                                                                             circuits.
+      100        163       167        170        182      208     233           277
+      150        157       162        165        177      201     226           270        FM music ________ ___                                    150, 000     26. 5     15,000 ___ __________ 50. '
+      200        153       158        161        173      197     222           266
+      300        148       153        157        169      193     217           260        U .S. standard t ele-                                 3,750, 000       32.7     3,750,000 __ __ _____ __ 3O.'
+      500        143       149        153        166      190     214           256          vision.
+       700       140       147        151        165      189     213           254
+    1,000        138       145        150        164      188     213           252           • Ratio between tbe m edian intermediate frequency Rayleigh distributed
+    1,500        136       145        149        165      189     213           254        signal and the rms R a yleigh distributed noise.
+    2, 000       136       144        150        166      190     214           256          b Diversity reception not involved in this caso.
+    3, 000       136       148        152        168      193     218           258          , This ratio will be exceeded with a quadruple diversity system for 99 percent
+                                                                                           of each hour for which the corresponding value of R n is maintained in each
+    5, 000       138       149         156       173      199     223           264        receiver.
+    7, 000       140       153         161       180      207     231           272
+   10, 000       148       163         174       196      224     248           289
+
+
+
+
+TABLE    4. Tmnsmission loss L(99) (coTl'esponding to fields
+   exceeded 99 percent of the time) expected between two 60-ft                                 TABLE             6. Maximum permissible tmnsmission loss LM for
+   pambolic antennas at a height of 30 ft above a smooth spheri-                                                10 kw transmitters using the pammeters of table 5
+   cal earth with a CRPL model mdio refmctivity atmosphere
+   corresponding to N. =301                                                                                                   Transmission                     FMmulti-                                 U.S. standard
+                                                                                                         iM,                  loss measure-                     channel            FM music               television
+                                                                                                                                           mellt
+                                 L (gg) in decibels
+                                                                                           100 ____ ___ ____                                     236.50               162.76                159.74                 139.56
+                                                                                           150 ____ __ _____                                     233. 85              161. 88               158. 86                138.68
+   fM c       d = 100    150         200       300      500     700         1,000          200-. ___ _____ _                                     23l. 98              16l. 26               158. 23                138.06
+                mi                                                                         300 _____ ___ __ _                                    229.34               160. 37               157. 35                137. 17
+                        --- ---------------                                                500_. ____ __ ___                                     226. 01              159.27                156.25                 136.07
+       100        150      154         157       169      195         221           264        700 __________ _                                  223.82               158.54                155.51                 135. 34
+       150        144      149         152       164      188         214           257        1,00o ___ ____ __                                 221. 50              157. 76               154. 74                134. 56
+       200        140      145         148       161      185         210           254        1,500 _________                                   218. 85              156. 88               153.86                 133. 68
+       300        135      141         144       158      182         206           249        2,000 _________                                   216. 98              156. 2,\              153.23                 133. 05
+       500        131      137         142       155      180         204           246        3,000 __ _______                                  214.34               155. 37               152. 35                132.17
+       700        127      136         140        155     179         204           245        5,000 ______ ___                                  211. 01              154. 27               151.25                 131. 07
+    1, 000        127      135         140        156     180         205           244        7,000 ____ __ ___                                 208. 82              153. 53               150.51                 130.33
+    1,500         126      136         14l        157     182         207           248        10,000 _____ ___                                  206. 50              152. 76               149.74                 129.66
+    2, 000        126      136         142        159     184         209           250
+    3,000         128      139         145        163     188         212           253
+     5, 000       131      143         151        169     195         219           260
+     7,000        134      148         156        liB     203         227           268
+    10, 000       142      158         170        192     219         244           285
+
+
+                                                                                                 ~ 1,000
+                                                                                                 ..J
+
+ determined by methods given in a recent report by                                               :E 700
+                                                                                                 w
+ Watt et al. [31]. The value of En for the FM multi-                                             f-
+                                                                                                 ::>     500
+ channel system corresponds to typical fading en-                                                !;:;:
+                                                                                                 f-      400
+ countered at 1,000 Me, and this value of Rn may                                                 Ul_
+
+ change by a few decibels with frequency as the fading                                           w 300
+ changes, but such changes have so far not been                                                  '"
+                                                                                                 Z
+                                                                                                 <1
+                                                                                                 a: 200
+ evaluated quantitatively; furthermore, En will also                                             :<                           /
+                                                                                                                                  /    -
+                                                                                                                                        //
+                                                                                                                                             7
+
+
+ change as the fading changes from hour to hour.                                                 ::> 150
+                                                                                                 ~
+                                                                                                                          /
+                                                                                                                         7- /
+                                                                                                                     /        /
+    Table 6 gives as a function of frequency the maxi-                                           x
+                                                                                                 <1                  / I
+ mum permissible hourly median transmission loss                                                 :;; 100
+                                                                                                               100                    200
+ for a transmitter power of 10 kw: L M = 204 + P t -
+ Lt- R n- F-B corresponding to the kinds of service
+ described above. By combining the information in                                               FIGURE          14. Maximum distance at which satisfa ctory service of
+ tables 3, 4, and 6, we can estimate the maximum                                                         the types indicated may be provided fo r 99 percent of the hours
+ range for a quadruple diversity system with 10-kw                                                       1!sing 10 kw . tmnsmittel's and quadntple diversity ; smooth
+                                                                                                         spherical earth; N ,=301 ; h, = hr=30 ft ; atmospheric absorp-
+ transmitters. These ranges are shown on figure 14                                                       tion and rain attenuation typical of the T¥ashington, D.C.,
+ as a function of the radiofrequency.                                                                    area.
+
+
+                                                                                          72
+                       12. References                                          [20] K . A. Norton, H . Staras and M . Blum , A statistical
+                                                                                       approach to the proble m of mu ltip le radio interference
+                                                                                       to FM and television servi ce, Trans. IRE Professional
+  [1] K ennet h A. Norton, Tra ns mission loss in radio propaga-                       Group on Antennas and Propagation PGAP- l , 43
+          t ion, Proc. IRE 41, 146 (1953).                                             (1952).
+  [2] S. A. Sc he lkunoff, E lectromagnetic waves (D. Va n                     [21] R eport of the Ad Hoc Committee for th e Evaluation of
+          No trand Co. 1943). See also S. A. Schelkunoff an d                          the Radio Propagation F actors Concerning th e T ele-
+          H arald T . Friis, Antennas t heory and practice (John                       vision and Frequency-Modulation Broadcasting Serv-
+          Wiley & Sons, Inc., New York, N.Y., 1952).                                   ices in t he Frequ ency R ange Between 50 and 250 M e,
+  [3] K . A. Norton, The propagation of radio waves over the                           Federal Communications Commission Mim 0 Nos.
+          surface of t he earth and in t he upper at mospher e,                        36728 ; Y[ay 26,1949 ; 36830; May 31,1949; and 54382;
+          Pt. II, Proc. IRE 25, 1203 (1937).                                           Ju ly 7, 1950.
+  [4] J a mes R . ·Wa it, Radiation resistanc e of a s mall circu lar          [22] D . K. Ba iley, R. Bateman, and R. C. KiTb y, R adio
+          loop in the presence of a conducting ground, J. App!.                        t r an smi ssion at VHF by scattering and oth er processes
+          Ph ys. 24, 646 (1953).                                                       in t he lower ionosphere, Proc. IRE 43, 1181 ( 1955).
+  [5] J ames R. Wait and Walter J . Surtees, Impedance of a                    [23] K . A. Norton, Point-to-point radio relaying via t he
+          top-loaded antenna of arbitrary length over a circular                       scatter mode of tropospheric propagation, Transac-
+          grounded screen, J. App!. Ph ys. 25, 553 (1954).                             tions on Communications Syst ems CS-4, No.1, 39
+  [6] J ames R. Wait and ViTo A. Pope, Input resistance of                             (M arch 1956).
+          L. F. unipole aerials, Wireless Engineer 32, 131 (1955).             [24] K . A. Norton, R ecent exp erimental evidenc e favoring
+  [7] J ames R. W ait, Effect of the ground screen on the fi eld                       the pIC [(p) correlation function for describing t he
+          radiated from a monopole, IRE Trans. on Antennas                             turbulence of refractivit y in the troposphere a nd
+          and Propag ation AP- 4, 179 (1956).                                         stratospher e (to be published in the Proc. of t he
+  [8] J a mes R . ViTa it, Trans mission of power in r adio prop-                      Joint Co mmission on Radio M eteorology held und er
+          agation, Electroni c and R adio Engineer 36, 146 (1959).                    t he a usp ices of t he In ternational Scientific Radio Union
+  [9] K . A. Norton, L. E. Vogler, W. V. M ansfi eld, a nd P. J .                     at New York Un iversity, Au gust 1957).
+          Short, TIle proba bility d istribu tion of t he a mplit ud e        [25) B. R . Bea n a nd G. D. Th ayer , On models of t he atmos-
+          of a constan t vector plus a R ayleigh-distribu ted vecto r,                p heric radio refr active index, Proc. IRE 47, 740
+          Proc. IRE 43, 1354 ( 1955).                                                  (1959) .
+[10] Docume nts of t he VIII Plenar y Asse mbl y of the C.C. LR.              [26] P . L . Ri ce, A. G. Longley, and K. A. Norton, Prediction
+          (Warsaw, ) 956) , Pu blished by t he In te rnational                        of t he cumulative distribu tion with t ime of grou nd
+          T eleco mmunication Union , Geneva, 1957.                                   wave and t rop ospheric wave t r ansmission loss (to be
+[11] P . L. Rice a nd F. T. D a niel, Radio t r ansmissio ll loss                     submitted to t his J ournal).
+          versus distance a nd anten na height at 100 Me, Trans.              [27] B. R. Bean and R . L. Abb ott, Oxygen and water vapor
+         IRE PGAP AP- 3, 59 (1955).                                                   absorp tion of r adio waves in the atmo phere, Geo-
+[12] K. A. Norton, P. L . Rice, and L. E. Vogler, The usc of                          physica Pura E Applicata 37, 127 (1957).
+          angular distance in estim ating t ransmi ssion loss and             [28] G. lVIillington, Propagation at great he ights in t he
+         fadin g range for propagation t hrough a t urbu le nt                        at mosp here, Marconi R eview XXI, 143 (4th Quarter
+         atmosphere over irregular terrain , Proc. IRE 43, 1488                       1958).
+          (1955) .                                                            [29] Atlas of Ground-wave Propagation Curves for Fre-
+[13] K. A. N orton and A. C. Omberg, Th e m ax imum range                             quen cies between 30 Mc/s and 300 Mc /s (C.C.LR.
+          of n, radar set, Proc. IRE 35, 4 (1947).                                    R esolution No. 11 , published by t he In ternational
+[14] H . T . F riis, Noise figures of radio receivers, Proe. IRE                      T elecommunications Union, Geneva, 1955).
+         32, 419 (1944) .                                                     [30] Atlas of R adio Wave Propagation Cur ves for Frequencies
+[15] The K elley Statistical T a bles (Harvard University                             between 30 an d 10,000 Mc/s (prep ared by t he R adio
+         Press, Cambridge, Mass., 1948).                                              R esearch Laboratories, Ministry of Postal Services,
+[16] W. Q. Crichlow, D. F . Smith, R. N. Morton a nd W. R.                            T okyo, J apan, J anuary 1958).
+          Corliss, W·orldwid e rad io noise levels expected in t he           [31] A. D . \~T att, E. F. Florman , a nd R . W. Plush , Carrier
+         frequency band from 10 kilocycles to 100 megacyc les,                        to noise r equirements for teletype communicatio ns via
+         NBS Cir. 557 (Au g. 25, 1955) .                                              non-fading or fading UHF carrier, J. Research NBS
+[17] C.C.L R . R epo rt No. 65, R eport on R evision of Atmos-                        (in press).
+         pheric Radio No ise Data (Warsaw, 1956 ava ilable
+         as a separate doc ument fro m t he International T ele-              [32] K. A. Nor to n, Low and m edium frequency radio propa-
+         communications U nion, Gene va, or in Vol. I of t h e                        gation, Proc. of the Inte rnational Congress on t he
+         Documents of the VIIIth Plenar y Assembly of t he                            Prop agation of R adio Waves at Liege, Belgium,
+         C.C.LR. W arsaw, 1956).                                                      October 1958 (to be p ublished by t he Academic Press).
+[18] H. V. Cottony and J . R. Johler, Cosmic radio noise                      [33] K . Bullington, W. J. Inkster, an d A. L . Durkee, R esults
+         intensities i n t he VHF ba nd, Proc. IRE 40, 1053                           of propagat ion tests at 505 M c an d 4090 Mc on beyond-
+         (1952) .                                                                     horizon paths, Proc. IRE 43, 1306 (1955).
+[19] Garner McCrossen, Long-term cumulative distribution
+         of instantaneous power (to be published).                              BOULDER, COLO . (Paper 63DI- 8).
+
+
+
+
+                                                                         73
+
