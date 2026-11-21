@@ -586,7 +586,7 @@ public static class LinkCalc
             if (best.traps && !r.Los && r.LayerFromKm >= 5 && r.LayerFromKm < d - 5)
             {
                 double dE = r.LayerFromKm, hE = 0.5 * (TopAt(r, dE) + BaseAt(r, dE));
-                double numax = double.NegativeInfinity, kmNu = 0;
+                double numax = double.NegativeInfinity, kmNu = 0, hNu = 0, d1Nu = 0, d2Nu = 0; int iNu = -1;
                 for (int i = 1; i < n && dist[i] < dE; i++)
                 {
                     double d1 = dist[i] * 1000, d2 = (dE - dist[i]) * 1000;
@@ -594,9 +594,35 @@ public static class LinkCalc
                     double line = hts + (hE - hts) * dist[i] / dE;
                     double bulge = d1 * d2 / (2 * ae * 1000);                     // rigonfiamento della terra equivalente (m)
                     double nu = (h[i] + bulge - line) * Math.Sqrt(2 / lam * (1 / d1 + 1 / d2));
-                    if (nu > numax) { numax = nu; kmNu = dist[i]; }
+                    if (nu > numax) { numax = nu; kmNu = dist[i]; iNu = i; hNu = h[i] + bulge - line; d1Nu = d1; d2Nu = d2; }
                 }
                 double jT = double.IsNegativeInfinity(numax) ? 0 : J(numax);
+                // ostacolo arrotondato (ITU-R P.526-16 § 4.2): Barsis (NBS 1963) misura su tre lunghi percorsi oltre un
+                // monte perdite 10–20 dB più alte dello spigolo ideale; la curvatura si stima dal terreno a ±1 km dalla cima
+                double rRound = 0, tRound = 0;
+                if (iNu > 0 && numax > -0.78)
+                {
+                    int ia = iNu, ib = iNu;
+                    while (ia > 0 && dist[iNu] - dist[ia] < 1) ia--;
+                    while (ib < n - 1 && dist[ib] - dist[iNu] < 1) ib++;
+                    double da = (dist[iNu] - dist[ia]) * 1000, db = (dist[ib] - dist[iNu]) * 1000;
+                    if (da > 300 && db > 300)
+                    {
+                        double kap = 2 * ((h[ia] - h[iNu]) / da + (h[ib] - h[iNu]) / db) / (da + db);   // curvatura (1/m), negativa sulla cima
+                        if (kap < 0) rRound = Math.Max(200, Math.Min(30000, -1 / kap));
+                    }
+                    if (rRound > 0)
+                    {
+                        double pr = Math.PI * rRound / lam;
+                        double mR = rRound * ((d1Nu + d2Nu) / (d1Nu * d2Nu)) / Math.Pow(pr, 1.0 / 3);
+                        double nR = hNu * Math.Pow(pr, 2.0 / 3) / rRound;
+                        double mn = mR * nR;
+                        tRound = mn <= 4 ? 7.2 * Math.Sqrt(mR) - (2 - 12.5 * nR) * mR + 3.6 * Math.Pow(mR, 1.5) - 0.8 * mR * mR
+                                         : -6 - 20 * Math.Log10(mn) + 7.2 * Math.Sqrt(mR) - (2 - 17 * nR) * mR + 3.6 * Math.Pow(mR, 1.5) - 0.8 * mR * mR;
+                        tRound = Math.Max(0, tRound);
+                        jT += tRound;
+                    }
+                }
                 double jS = SphericalLoss(dE, Math.Max(1, hts - h[0]), Math.Max(1, hE), ae, o.FreqMHz);
                 double entry = Math.Max(jT, jS);
                 double rxOff = Math.Max(0, Math.Max(hrs - TopAt(r, Math.Min(d, r.LayerToKm)), BaseAt(r, Math.Min(d, r.LayerToKm)) - hrs));
@@ -605,7 +631,7 @@ public static class LinkCalc
                 double resid = gamD * (1000 * (d - dE) / ae);
                 r.EntryKm = dE; r.EntryHeightM = hE; r.EntryNu = numax; r.EntryNuKm = kmNu; r.EntryDiffDb = entry;
                 r.LentryDb = r.LfsDb + entry + rxC + resid;
-                CalcLog.W($"ingresso nel condotto: comincia a {dE:0} km, quota media {hE:0} m; diffrazione fino lì: spigolo principale a {kmNu:0.0} km con ν {numax:0.00} → {jT:0.0} dB, terra sferica {jS:0.0} dB → {entry:0.0} dB; " +
+                CalcLog.W($"ingresso nel condotto: comincia a {dE:0} km, quota media {hE:0} m; diffrazione fino lì: spigolo principale a {kmNu:0.0} km con ν {numax:0.00}{(rRound > 0 ? $", raggio della cima {rRound / 1000:0.0} km → arrotondamento T(m,n) {tRound:0.0} dB (P.526 § 4.2)" : "")} → {jT:0.0} dB, terra sferica {jS:0.0} dB → {entry:0.0} dB; " +
                           $"poi nel condotto: γd {resid:0.0} dB, RX {(rxOff > 0 ? $"fuori di {rxOff:0} m" : "dentro")} {rxC:0.0} dB → Lingresso = Lfs {r.LfsDb:0.0} + {entry:0.0} + {rxC:0.0} + {resid:0.0} = {r.LentryDb:0.0} dB");
                 if (r.LentryDb < lpred) { lpred = r.LentryDb; r.Mechanism = "condotto (ingresso per diffrazione)"; }
             }

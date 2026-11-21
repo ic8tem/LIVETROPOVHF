@@ -183,7 +183,13 @@ Se il condotto che intrappola la banda comincia lontano, oltre l'orizzonte della
 \nu = h\,\sqrt{\frac{2}{\lambda}\left(\frac{1}{d_1} + \frac{1}{d_2}\right)}, \qquad J(\nu) = 6,9 + 20\log_{10}\left(\sqrt{(\nu - 0,1)^2 + 1} + \nu - 0,1\right)
 ```
 
-e la confronta con la diffrazione su terra sferica liscia; vale la peggiore. Poi il segnale viaggia nel condotto: spazio libero sull'intera tratta, attenuazione residua γd di P.452 sul tratto nel condotto e accoppiamento del corrispondente (3 dB dentro, 1 dB ogni 10 m fuori). Se questa perdita è più bassa della perdita prevista diventa il meccanismo («condotto (ingresso per diffrazione)»). È la premessa dell'autore sulla geografia italiana: con un ostacolo vicino ben sotto la linea, ν è negativo e l'ingresso costa poco; con una dorsale davanti costa 15–30 dB.
+più l'attenuazione dovuta alla curvatura della cima (ostacolo arrotondato, P.526-16 § 4.2), con il raggio R stimato dal terreno SRTM1 a ±1 km dallo spigolo,
+
+```math
+T(m, n) = 7,2\,m^{1/2} - (2 - 12,5\,n)\,m + 3,6\,m^{3/2} - 0,8\,m^2, \qquad m = R\,\frac{d_1 + d_2}{d_1 d_2}\left(\frac{\pi R}{\lambda}\right)^{-1/3}, \qquad n = h\,\frac{(\pi R/\lambda)^{2/3}}{R}
+```
+
+(per m·n > 4 vale la forma 34b della raccomandazione). Barsis (NBS, 1963) misurò su tre lunghi percorsi oltre un monte (Colorado, Alaska, Europa) perdite mediane 10–20 dB più alte dello spigolo ideale di Fresnel-Kirchhoff: l'arrotondamento ne spiega buona parte (Barsis e Kirby, 1961: Pikes Peak con raggio di circa 11,5 km). Il risultato si confronta con la diffrazione su terra sferica liscia; vale la peggiore. Poi il segnale viaggia nel condotto: spazio libero sull'intera tratta, attenuazione residua γd di P.452 sul tratto nel condotto e accoppiamento del corrispondente (3 dB dentro, 1 dB ogni 10 m fuori). Se questa perdita è più bassa della perdita prevista diventa il meccanismo («condotto (ingresso per diffrazione)»). È la premessa dell'autore sulla geografia italiana: con un ostacolo vicino ben sotto la linea, ν è negativo e l'ingresso costa poco; con una dorsale davanti costa 15–30 dB.
 
 ## 11. Confronto con ITU-R P.452
 
