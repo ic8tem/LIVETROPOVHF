@@ -20,6 +20,44 @@ public static class Lang
         ("zh-tw","中文 (繁體)"),("ja","日本語"),("ko","한국어")
     };
 
+    /// <summary>
+    /// Lingua del sistema operativo, per la prima partenza: si cerca fra le 36 lingue, altrimenti inglese.
+    /// </summary>
+    public static string SystemDefault()
+    {
+        var names = new List<string>();
+        try { names.Add(CultureInfo.CurrentUICulture.Name); } catch { }
+        try { names.Add(CultureInfo.InstalledUICulture.Name); } catch { }
+        foreach (var v in new[] { "LC_ALL", "LC_MESSAGES", "LANG", "LANGUAGE" })
+        {
+            var e = Environment.GetEnvironmentVariable(v);
+            if (!string.IsNullOrEmpty(e)) names.AddRange(e.Split(':'));
+        }
+        foreach (var raw in names)
+        {
+            var c = Match(raw);
+            if (c != null) return c;
+        }
+        return "en";
+    }
+
+    static string Match(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return null;
+        var n = raw.Split('.', '@')[0].Replace('_', '-').ToLowerInvariant();   // it_IT.UTF-8 → it-it
+        if (n == "c" || n == "posix") return null;
+        var p = n.Split('-');
+        var lang = p[0];
+        if (lang == "zh")
+            return n.Contains("hant") || n.EndsWith("-tw") || n.EndsWith("-hk") || n.EndsWith("-mo") ? "zh-tw" : "zh";
+        if (lang == "pt") return n.EndsWith("-br") ? "pt-br" : "pt";
+        if (lang == "no" || lang == "nn" || lang == "nb") return "nb";
+        if (lang == "fil") lang = "tl";
+        if (lang == "iw") lang = "he";
+        if (lang == "in") lang = "id";
+        return All.Any(a => a.code == lang) ? lang : null;
+    }
+
     public static bool IsRtl(string code) => code == "ar" || code == "he" || code == "ur";
 
     static string _current = "it";

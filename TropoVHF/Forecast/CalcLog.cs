@@ -38,7 +38,9 @@ public static class CalcLog
         try { Line?.Invoke(line); } catch { }
     }
 
-    public static void Section(string title) => W("========== " + title + " ==========");
+    /// <summary>Intestazione di ogni calcolo, sempre con la versione del programma e le opzioni del modello.</summary>
+    public static void Section(string title) => W("========== " + title + " ==========  [LIVETROPOVHF " + Core.ErrorLog.Version +
+        (Refractivity.UseCorrections ? "" : ", correzioni meteo spente") + (Refractivity.UseSoftDuct ? "" : ", condotto morbido spento") + "]");
 
     public static string RecentText(int max = 1500)
     {
@@ -50,7 +52,22 @@ public static class CalcLog
     /// <summary>Ultime righe, per il registro degli errori.</summary>
     public static List<string> RecentLines(int n) { lock (Lock) return Recent.Skip(Math.Max(0, Recent.Count - n)).ToList(); }
 
-    static string F(double v, string fmt = "0.0") => double.IsNaN(v) ? "—" : v.ToString(fmt, CultureInfo.InvariantCulture);
+    static string F(double v, string fmt = "0.0") => double.IsNaN(v) ? "—" : (Math.Abs(v) < 0.05 ? 0.0 : v).ToString(fmt, CultureInfo.InvariantCulture);   // niente «-+0.0»
+
+    /// <summary>Errore di rete detto in parole: host non trovato (niente internet, DNS o firewall), tempo scaduto, risposta HTTP.</summary>
+    public static string NetError(Exception ex, string host)
+    {
+        for (var e = ex; e != null; e = e.InnerException)
+        {
+            if (e is System.Net.Sockets.SocketException se)
+                return se.SocketErrorCode == System.Net.Sockets.SocketError.HostNotFound || se.SocketErrorCode == System.Net.Sockets.SocketError.TryAgain
+                    ? (Ui.Lang.Current == "it" ? $"il PC non trova {host}: connessione a internet assente, DNS o firewall che blocca il sito" : $"the PC cannot find {host}: no internet connection, DNS or a firewall blocking the site")
+                    : (Ui.Lang.Current == "it" ? $"connessione a {host} non riuscita ({se.SocketErrorCode})" : $"connection to {host} failed ({se.SocketErrorCode})");
+            if (e is TaskCanceledException || e is TimeoutException)
+                return Ui.Lang.Current == "it" ? $"{host} non risponde (tempo scaduto)" : $"{host} does not answer (timeout)";
+        }
+        return ex.Message;
+    }
 
     /// <summary>Tabella completa di un profilo: livelli, N, M, gradienti, strato migliore, condotto, guadagni per banda.</summary>
     public static void Profile(string where, ProfileResult p)
@@ -82,6 +99,12 @@ public static class CalcLog
         if (p.HasDuct)
             W($"    condotto: base {F(p.DuctBase, "0")} m, cima {F(p.DuctTop, "0")} m, spessore {F(p.DuctThick, "0")} m, deficit ΔM {F(p.DuctDeficit)}{(p.SurfaceDuct ? ", al suolo" : ", elevato")}");
         else W("    nessun condotto (M non cala in nessuno strato)");
+        W($"    stabilità (Misme): ΔW primo km {F(p.DeltaW, "0")} J/kg (standard {Refractivity.DeltaWStd:0}) → {F(p.StabDb, "+0.0;-0.0")} dB" +
+          $"; K al suolo {F(p.KSurf, "0")}, calo di K più forte {F(p.KDrop, "0")} ({(p.KDropLayer == "" ? "—" : p.KDropLayer)})" +
+          $"; velocità verticale 850 hPa {F(p.W850 * 100, "+0.0;-0.0")} cm/s, 700 hPa {F(p.W700 * 100, "+0.0;-0.0")} cm/s" +
+          (p.Subsidence ? " → subsidenza (+1,5 dB)" : p.Ascent ? " → aria in salita (−2 dB)" : "") +
+          $"; vento 850 hPa {F(p.Wind850)} m/s da {F(p.Dir850, "0")}°, T850 {F(p.T850)} °C" + (p.Scirocco ? " → scirocco" : "") +
+          (Refractivity.UseCorrections ? "" : " (correzioni spente)"));
         foreach (var f in new[] { 144.3, 432.2, 1296.2 })
         {
             var bd = p.BestDuct(f);

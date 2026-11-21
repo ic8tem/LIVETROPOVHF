@@ -77,7 +77,7 @@ public sealed partial class MainForm : Form
             }
             StartSplash = null;
             Activate();
-            if (!_st.HasValidCall) AskCall();
+            if (!_st.HasValidCall) AskCall(); else ShowDisclaimer();   // 1.3.2: disclaimer a ogni avvio
         };
 
         _timer = new System.Windows.Forms.Timer { Interval = 1000 };
@@ -158,22 +158,73 @@ public sealed partial class MainForm : Form
     }
 
     /// <summary>Nominativo (obbligatorio per i cluster) e locatore.</summary>
+    static string AppVersion => typeof(MainForm).Assembly.GetName().Version?.ToString(3) ?? "";
+
+    /// <summary>Riquadro del disclaimer (1.3.2) come etichetta che va a capo; restituisce l'altezza usata.</summary>
+    int AddDisclaimer(Control parent, int x, int y, int w, bool full)
+    {
+        var text = full ? Lang.T("u.disc_head") + "\n\n" + Lang.T("u.disc_p1") + "\n\n" + Lang.T("u.disc_p2") + "\n\n" + Lang.T("u.disc_p3") : Lang.T("u.disc_short");
+        var box = new Panel { Location = new Point(x, y), BackColor = C(_th.Accent), Padding = new Padding(1) };
+        var inner = new Panel { Dock = DockStyle.Fill, BackColor = C(_th.Chip), Padding = new Padding(12, 10, 12, 10) };
+        var lbl = new Label { Text = text, ForeColor = C(_th.Text), AutoSize = false, Dock = DockStyle.Fill };
+        var sz = TextRenderer.MeasureText(text, Font, new Size(w - 26, 2000), TextFormatFlags.WordBreak);
+        box.Size = new Size(w, sz.Height + 26);
+        inner.Controls.Add(lbl); box.Controls.Add(inner); parent.Controls.Add(box);
+        return box.Height;
+    }
+
+    void ShowDisclaimer()
+    {
+        using var dlg = new Form
+        {
+            Text = "LIVETROPOVHF", FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false,
+            StartPosition = FormStartPosition.CenterParent, ShowInTaskbar = false, BackColor = C(_th.Panel), Font = Font
+        };
+        var title = new Label { Text = "LIVETROPOVHF", Font = new Font("Georgia", 16f), ForeColor = C(_th.Text), AutoSize = true, Location = new Point(20, 14) };
+        var sub = new Label { Text = $"{_st.Call} · {_st.Loc} · " + string.Format(Lang.T("u.disc_version"), AppVersion), ForeColor = C(_th.Muted), AutoSize = true, Location = new Point(20, 50) };
+        dlg.Controls.Add(title); dlg.Controls.Add(sub);
+        int h = AddDisclaimer(dlg, 20, 76, 520, false);
+        int y = 76 + h + 14;
+        int left = 10;
+        var count = new Label { Text = string.Format(Lang.T("u.disc_autoclose"), left), ForeColor = C(_th.Muted), AutoSize = true, Location = new Point(20, y + 7) };
+        bool openSources = false;
+        var open = Btn(Lang.T("u.disc_open"), null, false); open.AutoSize = true; open.Location = new Point(250, y);
+        var cont = Btn(Lang.T("u.disc_continue"), null, true); cont.Size = new Size(110, 30); cont.Location = new Point(430, y);
+        open.Click += (_, _) => { openSources = true; dlg.Close(); };
+        cont.Click += (_, _) => dlg.Close();
+        dlg.Controls.AddRange(new Control[] { count, open, cont });
+        dlg.ClientSize = new Size(560, y + 46);
+        using var t = new System.Windows.Forms.Timer { Interval = 1000 };
+        t.Tick += (_, _) => { left--; count.Text = string.Format(Lang.T("u.disc_autoclose"), left); if (left <= 0) { t.Stop(); dlg.Close(); } };
+        dlg.Shown += (_, _) => t.Start();
+        dlg.AcceptButton = cont;
+        dlg.ShowDialog(this);
+        t.Stop();
+        if (openSources) ShowTab("doc6");
+    }
+
     void AskCall()
     {
         using var dlg = new Form
         {
             Text = Lang.T("u.ask_call_title"), FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false,
-            StartPosition = FormStartPosition.CenterParent, ShowInTaskbar = false, BackColor = C(_th.Panel), ClientSize = new Size(480, 260), Font = Font
+            StartPosition = FormStartPosition.CenterParent, ShowInTaskbar = false, BackColor = C(_th.Panel), Font = Font
         };
-        var title = new Label { Text = Lang.T("u.ask_call_title"), Font = new Font(Font.FontFamily, 13f, FontStyle.Bold), ForeColor = C(_th.Accent), AutoSize = true, Location = new Point(20, 16) };
-        var text = new Label { Text = Lang.T("u.ask_call_text"), ForeColor = C(_th.Text), AutoSize = false, Bounds = new Rectangle(20, 50, 440, 70) };
-        var l1 = new Label { Text = Lang.T("call"), ForeColor = C(_th.Muted), AutoSize = true, Location = new Point(20, 133) };
-        var call = Box(_st.Call, 200); call.Location = new Point(180, 130); call.CharacterCasing = CharacterCasing.Upper;
-        var l2 = new Label { Text = Lang.T("u.ask_call_loc"), ForeColor = C(_th.Muted), AutoSize = true, Location = new Point(20, 168) };
-        var loc = Box(_st.Loc, 200); loc.Location = new Point(180, 165); loc.CharacterCasing = CharacterCasing.Upper; loc.MaxLength = 6;
-        var err = new Label { ForeColor = C(_th.Bad), AutoSize = true, Location = new Point(20, 198) };
-        var ok = Btn("OK", null, true); ok.Size = new Size(100, 30); ok.Location = new Point(360, 220);
-        var later = Btn(Lang.T("u.later"), null, false); later.Size = new Size(110, 30); later.Location = new Point(240, 220); later.DialogResult = DialogResult.Cancel;
+        var welcome = new Label { Text = Lang.T("u.disc_welcome"), Font = new Font("Georgia", 16f), ForeColor = C(_th.Text), AutoSize = true, Location = new Point(20, 14) };
+        var ver = new Label { Text = string.Format(Lang.T("u.disc_version"), AppVersion), ForeColor = C(_th.Muted), AutoSize = true, Location = new Point(20, 50) };
+        dlg.Controls.Add(welcome); dlg.Controls.Add(ver);
+        int y = 76 + AddDisclaimer(dlg, 20, 76, 520, true) + 14;
+        var title = new Label { Text = Lang.T("u.ask_call_title"), Font = new Font(Font.FontFamily, 11f, FontStyle.Bold), ForeColor = C(_th.Accent), AutoSize = true, Location = new Point(20, y) };
+        var text = new Label { Text = Lang.T("u.ask_call_text"), ForeColor = C(_th.Text), AutoSize = false, Bounds = new Rectangle(20, y + 26, 520, 40) };
+        var l1 = new Label { Text = Lang.T("call"), ForeColor = C(_th.Muted), AutoSize = true, Location = new Point(20, y + 73) };
+        var call = Box(_st.Call, 200); call.Location = new Point(180, y + 70); call.CharacterCasing = CharacterCasing.Upper;
+        var l2 = new Label { Text = Lang.T("u.ask_call_loc"), ForeColor = C(_th.Muted), AutoSize = true, Location = new Point(20, y + 108) };
+        var loc = Box(_st.Loc, 200); loc.Location = new Point(180, y + 105); loc.CharacterCasing = CharacterCasing.Upper; loc.MaxLength = 10;
+        var hint = new Label { Text = Lang.T("u.disc_hint"), ForeColor = C(_th.Muted), AutoSize = false, Bounds = new Rectangle(20, y + 138, 520, 34) };
+        var err = new Label { ForeColor = C(_th.Bad), AutoSize = true, Location = new Point(20, y + 174) };
+        var ok = Btn(Lang.T("u.disc_read"), null, true); ok.AutoSize = true; ok.MinimumSize = new Size(140, 30); ok.Location = new Point(390, y + 196);
+        var later = Btn(Lang.T("u.later"), null, false); later.Size = new Size(110, 30); later.Location = new Point(270, y + 196); later.DialogResult = DialogResult.Cancel;
+        dlg.ClientSize = new Size(560, y + 240);
         bool okDone = false;
         ok.Click += (_, _) =>
         {
@@ -186,7 +237,7 @@ public sealed partial class MainForm : Form
             okDone = true;
             dlg.Close();
         };
-        dlg.Controls.AddRange(new Control[] { title, text, l1, call, l2, loc, err, ok, later });
+        dlg.Controls.AddRange(new Control[] { title, text, l1, call, l2, loc, hint, err, ok, later });
         dlg.AcceptButton = ok; dlg.CancelButton = later;
         dlg.Shown += (_, _) => call.Focus();
         dlg.ShowDialog(this);
@@ -305,7 +356,7 @@ public sealed partial class MainForm : Form
     CheckBox Chk(string text, bool value, Action<bool> changed)
     {
         var c = new CheckBox { Text = text, Checked = value, AutoSize = true, ForeColor = C(_th.Text), BackColor = Color.Transparent, Margin = new Padding(3, 4, 10, 3) };
-        c.CheckedChanged += (_, _) => changed(c.Checked);
+        c.CheckedChanged += (_, _) => { changed(c.Checked); try { _st.Save(); } catch { } };
         return c;
     }
 
@@ -441,6 +492,7 @@ public sealed partial class MainForm : Form
         _tabContent["doc3"] = BuildDoc("tropo.md", "LIVETROPOVHF - Come si forma la tropo");
         _tabContent["doc4"] = BuildDoc("previsioni.md", "LIVETROPOVHF - Manuale delle previsioni");
         _tabContent["doc5"] = BuildDoc("consigli.md", "LIVETROPOVHF - Consigli per l'operatore");
+        _tabContent["doc6"] = BuildDoc("fonti.md", "LIVETROPOVHF - Fonti e formule");
         foreach (var kv in _tabContent) { kv.Value.Dock = DockStyle.Fill; kv.Value.Visible = false; _content.Controls.Add(kv.Value); }
 
         Controls.Add(_content);
@@ -514,7 +566,7 @@ public sealed partial class MainForm : Form
         ("prev", new[] { "fc", "hepburn", "f5len" }),
         ("graves", new[] { "graves" }),
         ("data", new[] { "collect:dx", "collect:psk", "collect:rbn", "collect:udp", "collect:calls", "sus" }),
-        ("guide", new[] { "doc1", "doc2", "doc3", "doc4", "doc5" }),
+        ("guide", new[] { "doc1", "doc2", "doc3", "doc4", "doc5", "doc6" }),
     };
     readonly Dictionary<string, Button> _subTabButtons = new();
     FlowLayoutPanel _subBar;
@@ -552,6 +604,7 @@ public sealed partial class MainForm : Form
             case "sus": return Lang.T("tab.sus");
             case "doc4": return it ? "Manuale previsioni" : "Forecast manual";
             case "doc5": return it ? "Consigli all'operatore" : "Operator tips";
+            case "doc6": return it ? "Fonti e formule" : "Sources and formulas";
             default: return Lang.T("tab." + item);
         }
     }
@@ -750,6 +803,7 @@ public sealed partial class MainForm : Form
 
     void Tick()
     {
+        try { FcAutoCheck(); } catch { }
         var now = Clock.UtcNow;
         if (_clock != null) _clock.Text = now.ToString("dd/MM/yyyy HH:mm:ss") + " UTC";
         if (_ntp != null)

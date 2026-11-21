@@ -57,6 +57,29 @@ public sealed class ProfileResult
     public double Wind10, Blh, Cape;
     public double Lat = double.NaN, Lon = double.NaN;
     public DuctClimate Clim;                  // climatologia P.453 del punto
+    // 1.3.0: moto verticale, vento a 850 hPa, stabilità (Misme), rifrazione potenziale K
+    public double W850 = double.NaN, W700 = double.NaN;   // velocità verticale (m/s, positiva verso l'alto)
+    public double Wind850 = double.NaN, Dir850 = double.NaN, T850 = double.NaN;
+    public double DeltaW = double.NaN;     // lavoro per sollevare adiabaticamente l'aria dal suolo a 1 km (J/kg)
+    public double StabDb;                  // termine di stabilità di Misme (dB, rispetto all'atmosfera standard)
+    public double KSurf = double.NaN, KDrop;  // rifrazione potenziale K al suolo e calo massimo di K fra due livelli
+    public string KDropLayer = "";
+    public bool Subsidence, Ascent, Scirocco;
+    public double VertDb;                  // correzione per moto verticale (dB)
+    public bool Sea;                       // punto sul mare (quota del modello sotto 5 m)
+    public int LowLevels;                  // livelli NOMADS vicini al suolo aggiunti (sul mare)
+    public double Sst = double.NaN;        // temperatura della superficie del mare (°C)
+    public double EvapDuctM;               // altezza del condotto d'evaporazione (m), 0 = assente
+    public double SunElev = double.NaN;    // altezza del sole (°)
+    /// <summary>Giorno su terra con sole alto e strato limite alto o vento: i condotti al suolo sono rimescolati.</summary>
+    public bool DayMix => !Sea && SunElev > 15 && (Blh > 800 || Wind10 > 5);
+    /// <summary>Notte su terra con vento debole e strato limite basso: possibili condotti al suolo da irraggiamento.</summary>
+    public bool NightRad => !Sea && SunElev < -3 && Wind10 < 3 && Blh < 300;
+    public double LayerGainAggrDb;         // come LayerGainDb ma con la soglia classica di super-rifrazione (79 N/km) nello strato basso: stima aggressiva
+    public double CrplDN1km = double.NaN;  // calo normale nel primo km del profilo CRPL per l'Ns del punto (N/km)
+    public double Pmsl = double.NaN;       // pressione ridotta al livello del mare (hPa)
+    public bool HighP;                     // alta pressione estesa (≥ 1020 hPa su quasi tutte le celle vicine) e vento debole nei bassi strati
+    public double HighPDb => Refractivity.UseHighPressure && HighP && !Ascent ? Refractivity.HighPDbBonus : 0;
     public Level[] Levels = Array.Empty<Level>();
     public List<LayerDuct> Layers = new();     // strati con calo di N oltre il normale (condotti risolti o potenziali)
 
@@ -72,15 +95,42 @@ public sealed class ProfileResult
         return 0.3048 * Math.Pow(lamCm / 0.014, 2.0 / 3.0);
     }
 
+    /// <summary>
+    /// Condotto "morbido" (Kerr 1951; Hepburn; VHF/UHF DX Book): il limite λ ≤ λmax non è un taglio netto, anche onde
+    /// fino a circa 3 volte più lunghe sentono molto il condotto. Restituisce lo strato con il fattore migliore
+    /// s = (λmax/λ − 1/3)/(2/3) fra 0 e 1 (1 = intrappola davvero) e il fattore stesso.
+    /// </summary>
+    public (LayerDuct layer, double s) SoftDuct(double freqMHz)
+    {
+        if (!Refractivity.UseSoftDuct) return (null, 0);
+        double lam = 299.792458 / freqMHz;
+        LayerDuct best = null; double bs = 0;
+        foreach (var l in Layers)
+        {
+            if (l.Deficit <= 0 || l.LambdaMax <= 0) continue;
+            double s = Math.Max(0, Math.Min(1, (l.LambdaMax / lam - 1.0 / 3) / (2.0 / 3)));
+            if (s > bs || (s == bs && best != null && l.Deficit > best.Deficit)) { bs = s; best = l; }
+        }
+        return (best, bs);
+    }
+
+    /// <summary>Guadagno di un condotto che intrappola la banda: 20 dB più 1 dB ogni 5 unità M di deficit, al massimo 25.</summary>
+    public static double DuctGain(double deficit) => Math.Min(25, 20 + deficit / 5.0);
+
+    /// <summary>C'è un condotto (pieno o morbido) per la banda: sopra 16 dB i colori di condotto sono ammessi.</summary>
+    public bool DuctLike(double freqMHz) => BestDuct(freqMHz) != null || SoftDuct(freqMHz).s > 0;
+
     /// <summary>Guadagno stimato in dB rispetto al profilo normale, per una frequenza (con le correzioni semplici).</summary>
     public double GainDb(double freqMHz)
     {
         double g = LayerGainDb;
         var bd = BestDuct(freqMHz);
-        if (bd != null) g = Math.Max(g, Math.Min(25, 20 + bd.Deficit / 5.0));
+        var (sl, sf) = bd == null ? SoftDuct(freqMHz) : (null, 0.0);
+        if (bd != null) g = Math.Max(g, DuctGain(bd.Deficit));
+        else if (sf > 0) g = Math.Max(g, 15 + sf * (DuctGain(sl.Deficit) - 15));   // condotto morbido: da 15 verso 20–25 dB
         else if (Layers.Any(l => l.Deficit > 0)) g = Math.Max(g, 15);     // condotto troppo sottile per la banda
         // rimescolamento: vento forte al suolo o strato limite molto alto cancellano i condotti al suolo (Bean e Dutton § 4.4)
-        bool surf = bd != null ? bd.Surface : (HasDuct && SurfaceDuct);
+        bool surf = bd != null ? bd.Surface : sl != null ? sl.Surface : (HasDuct && SurfaceDuct);
         if (surf && g > 10)
         {
             if (Wind10 > 8) g = 10 + (g - 10) * 0.4;
@@ -89,6 +139,16 @@ public sealed class ProfileResult
         }
         // convezione forte: strati rotti
         if (Cape > 1500) g -= 3; else if (Cape > 800) g -= 1.5;
+        if (Refractivity.UseCorrections)
+        {
+            // Misme: la stabilità termica conta quando non c'è un condotto che intrappola la banda (in proporzione col morbido)
+            if (bd == null) g += StabDb * (1 - sf);
+            // Moler e Holden 1960: la subsidenza mantiene gli strati, i moti ascendenti li rompono
+            g += VertDb;
+        }
+        g += HighPDb;
+        // senza condotto il guadagno resta nel giallo: rosso e viola solo per i condotti (pieni o morbidi)
+        if (bd == null && sf <= 0) g = Math.Min(g, Refractivity.NoDuctCapDb);
         return g;
     }
 
@@ -100,6 +160,80 @@ public static class Refractivity
 {
     public static readonly int[] PLevels = { 1000, 975, 950, 925, 900, 850, 800, 700, 600, 500 };
 
+    /// <summary>Correzioni della 1.3.0 (termine di stabilità di Misme e moto verticale): si possono spegnere per confronto.</summary>
+    public static bool UseCorrections = true;
+    /// <summary>Peso del termine di stabilità: dB per J/kg di ΔW oltre l'atmosfera standard (taratura provvisoria).</summary>
+    public const double MismeDbPerJ = 0.07;
+    public const double DeltaWStd = 56;      // ΔW dell'atmosfera standard (Δθ ≈ 3,3 K/km)
+    /// <summary>Tetto del guadagno senza condotto (fine del giallo, «strato forte, nessun condotto»): validazione 1.3.0.</summary>
+    public const double NoDuctCapDb = 16;
+    /// <summary>Condotto morbido (λ fino a 3 volte λmax): 1.3.1, si spegne per confronto nella validazione.</summary>
+    public static bool UseSoftDuct = true;
+    /// <summary>Persistenza: bonus fino a 2 dB se nelle 24 ore precedenti la stessa cella era già sopra 13 dB.</summary>
+    public static bool UsePersistence = true;
+    /// <summary>Equazione parabolica nel calcolo del segnale (solo confronto).</summary>
+    public static bool UseParabolic = true;
+    /// <summary>1.3.2: profilo normale CRPL (Bean e Thayer 1959) con l'Ns del punto al posto di 40 N/km fissi. Alternativa, spenta per difetto.</summary>
+    public static bool UseCrplNormal = false;
+    /// <summary>1.3.2: mappa con la stima aggressiva (soglia ITU di super-rifrazione 79 N/km nello strato basso) invece della prudente (Bean e Dutton, 100 N/km).</summary>
+    public static bool UseItuSuper = false;
+    /// <summary>1.3.2: strati e condotti cercati solo fino a 2500 m sopra il suolo (1500 m toglieva le inversioni invernali da subsidenza).</summary>
+    public static bool UseDuctCeiling = true;
+    public const double DuctCeilingM = 2500;
+    /// <summary>1.3.2: bonus con alta pressione estesa e vento debole nei bassi strati.</summary>
+    public static bool UseHighPressure = true;
+    public const double HighPDbBonus = 1.0, HighPHpa = 1020, HighPWind10 = 5, HighPWind850 = 8;
+    /// <summary>1.3.2: peso del percorso su mare (μ1 di ITU-R P.452) sul guadagno degli strati, fra × 0,8 e × 1,2.</summary>
+    public static bool UseSeaWeight = true;
+    /// <summary>1.3.2: bonus quando la cima dello strato limite supera le creste lungo la tratta (IT9GSF).</summary>
+    public static bool UseBlhRidges = true;
+    /// <summary>1.3.2: calcolo «via monte» (rilievi vicini come diffusori) quando il corrispondente è oltre l'orizzonte.</summary>
+    public static bool UseViaMountain = true;
+    /// <summary>1.3.2: ITM (Longley-Rice, NTIA) come calcolo di confronto in atmosfera normale e per il tratto finale dopo l'uscita dal condotto.</summary>
+    public static bool UseItm = true;
+    /// <summary>Via monte «senza perdita fino al monte»: la stazione è portata sul punto migliore (perdita nulla fra la stazione e il punto).</summary>
+    public static bool ViaIdeal = false;
+    /// <summary>Criterio dell'autore: i rilievi entro NearKm da ciascuna stazione costano al massimo NearCapDb nel troposcatter (0 = spento).</summary>
+    public static double NearCapDb = 6;
+    public const double NearKm = 20;
+    public static bool UseItmTail = true;
+    public const double BlhRidgeDbBonus = 1.5;
+    /// <summary>Calo normale nel primo km del profilo CRPL: −ΔN = 7,32·e^(0,005577·Ns) (NBS Monograph 4).</summary>
+    public static double CrplDN(double ns) => 7.32 * Math.Exp(0.005577 * ns);
+    /// <summary>Calo normale CRPL fra due quote sopra il suolo (m): N(h) = Ns·e^(−c·h), c = −ln(1 − ΔN/Ns) per km.</summary>
+    public static double CrplDrop(double ns, double h1, double h2)
+    {
+        double c = -Math.Log(1 - Math.Min(0.5, CrplDN(ns) / ns));
+        return ns * (Math.Exp(-c * Math.Max(0, h1) / 1000) - Math.Exp(-c * Math.Max(0, h2) / 1000));
+    }
+    public const double PersistMaxDb = 2, PersistThrDb = 13;
+    public const int PersistHours = 24;
+
+    /// <summary>Dati aggiuntivi di un'ora (NaN se la sorgente non li ha).</summary>
+    public struct Extra
+    {
+        public double W850, W700, Wind850, Dir850;
+        /// <summary>1.3.2: temperatura della superficie (sul mare = SST), T e umidità a 80 m e nello strato 30–0 hPa sopra il suolo (solo NOMADS).</summary>
+        public double Sst, T80, Rh80, TL30, RhL30;
+        public DateTime Utc;
+        public static Extra None => new Extra { W850 = double.NaN, W700 = double.NaN, Wind850 = double.NaN, Dir850 = double.NaN,
+                                                Sst = double.NaN, T80 = double.NaN, Rh80 = double.NaN, TL30 = double.NaN, RhL30 = double.NaN };
+    }
+
+    /// <summary>Temperatura potenziale (K).</summary>
+    public static double Theta(double tC, double p) => (tC + 273.15) * Math.Pow(1000.0 / p, 0.2857);
+
+    /// <summary>
+    /// Indice di rifrazione potenziale K (Bean e Dutton § 6; Flavell e Lane): N dell'aria portata adiabaticamente a 1000 hPa,
+    /// con T → θ e la pressione del vapore scalata con la pressione (rapporto di mescolanza costante).
+    /// </summary>
+    public static double K(double p, double tC, double rh)
+    {
+        double th = Theta(tC, p);
+        double e = Math.Max(0, Math.Min(100, rh)) / 100.0 * Es(tC) * 1000.0 / p;
+        return 77.6 / th * (1000 + 4810.0 * e / th);
+    }
+
     /// <summary>Pressione di saturazione del vapore (hPa) sull'acqua, formula di Magnus (ITU-R P.453).</summary>
     public static double Es(double tC) => 6.1121 * Math.Exp(17.502 * tC / (tC + 240.97));
 
@@ -110,6 +244,9 @@ public static class Refractivity
         double e = Math.Max(0, Math.Min(100, rh)) / 100.0 * Es(tC);
         return 77.6 / tk * (pHpa + 4810.0 * e / tk);
     }
+
+    /// <summary>Guadagno dal gradiente: 0 fino al limite del normale, 10 dB alla soglia di super-rifrazione, 15 dB a 157 N/km.</summary>
+    static double Ramp(double grad, double lo, double hi) => grad <= lo ? 0 : grad < hi ? 10 * (grad - lo) / (hi - lo) : 10 + 5 * Math.Min(1, (grad - hi) / Math.Max(1, 157 - hi));
 
     /// <summary>Soglie di Bean e Dutton (tab. 6.5): limite alto del profilo normale e soglia di super-rifrazione (N/km).</summary>
     static (string name, double pTop, double normHi, double superThr) LayerFor(double pMid)
@@ -125,9 +262,11 @@ public static class Refractivity
     /// dalla quota e dalla pressione al suolo, e analizza strati e condotti.
     /// </summary>
     public static ProfileResult Analyze(double elev, double ps, double t2, double rh2, double[] tLev, double[] rhLev,
-                                        double wind10, double blh, double cape, double lat = double.NaN, double lon = double.NaN)
+                                        double wind10, double blh, double cape, double lat = double.NaN, double lon = double.NaN, Extra? extra = null)
     {
-        var r = new ProfileResult { Elev = elev, Wind10 = wind10, Blh = blh, Cape = cape, Lat = lat, Lon = lon };
+        var ex = extra ?? Extra.None;
+        var r = new ProfileResult { Elev = elev, Wind10 = wind10, Blh = blh, Cape = cape, Lat = lat, Lon = lon,
+                                    W850 = ex.W850, W700 = ex.W700, Wind850 = ex.Wind850, Dir850 = ex.Dir850 };
         r.Clim = P453.At(lat, lon);
         if (double.IsNaN(ps) || double.IsNaN(t2) || double.IsNaN(rh2)) return null;
         var lev = new List<Level>();
@@ -147,31 +286,68 @@ public static class Refractivity
             l.N = N(p, l.T, l.RH); l.M = l.N + 157 * l.Z / 1000.0;
             lev.Add(l);
         }
+        // 1.3.2: sul mare (quota del modello sotto 5 m) i livelli NOMADS vicini al suolo (80 m e strato 30–0 hPa) per vedere
+        // il condotto a bassa quota che i livelli di pressione non risolvono; sulla terra no (strati notturni e diurni non validati)
+        bool sea = elev < 5;
+        r.Sea = sea;
+        if (sea && lev.Count >= 2)
+        {
+            double zNext = lev[1].Z;
+            void AddLow(double z, double p, double t, double rh)
+            {
+                if (double.IsNaN(t) || double.IsNaN(rh) || z >= zNext - 10 || z <= z0 + 5) return;
+                var l = new Level { Z = z, P = p, T = t, RH = Math.Max(1, Math.Min(100, rh)) };
+                l.N = N(p, l.T, l.RH); l.M = l.N + 157 * l.Z / 1000.0;
+                lev.Add(l); r.LowLevels++;
+            }
+            double tv0 = Tv(t2, rh2, ps);
+            AddLow(elev + 80, ps * Math.Exp(-9.80665 * 78 / (287.05 * tv0)), ex.T80, ex.Rh80);
+            double pl = ps - 15; AddLow(z0 + 287.05 * tv0 / 9.80665 * Math.Log(ps / pl), pl, ex.TL30, ex.RhL30);
+            lev.Sort((a, b) => a.Z.CompareTo(b.Z));
+        }
+        // 1.3.2: condotto d'evaporazione (profilo logaritmico neutro, come nel modello di Paulus e Jeske senza correzione di
+        // stabilità): N al pelo dell'acqua saturo alla SST (98% per il sale), N a 2 m dal GFS; δ = (Nmare − N2m)/(0,157·ln(2/z0))
+        r.Sst = ex.Sst;
+        if (sea && !double.IsNaN(ex.Sst) && Math.Abs(ex.Sst - t2) < 15)
+        {
+            double nSea = N(ps, ex.Sst, 98);
+            r.EvapDuctM = Math.Max(0, Math.Min(40, (nSea - s.N) / (0.157 * Math.Log(2 / 1.5e-4))));
+        }
+        // ora del giorno: altezza del sole sul punto (avvisi di rimescolamento diurno e di condotti notturni da irraggiamento)
+        if (ex.Utc != default && !double.IsNaN(lat)) r.SunElev = SunElevation(ex.Utc, lat, lon);
         if (lev.Count < 3) return null;
         r.Levels = lev.ToArray();
         r.Ns = lev[0].N;
+        r.CrplDN1km = CrplDN(r.Ns);
+        r.Pmsl = ps * Math.Pow(1 - 0.0065 * elev / (t2 + 0.0065 * elev + 273.15), -5.257);
         r.DN1km = Interp(lev, z0 + 1000) - lev[0].N;
 
         // ---- strati di Bean e Dutton: gradiente più forte fra livelli vicini, classificato con le soglie dello strato
-        double best = 0; string bestName = "";
+        double best = 0, bestAggr = 0; string bestName = "";
         double maxGrad = double.MinValue;
+        // con il profilo CRPL le soglie dello strato basso si spostano di quanto il calo normale locale differisce da 40 N/km
+        double crplShift = UseCrplNormal ? r.CrplDN1km - 40 : 0;
         for (int i = 1; i < lev.Count; i++)
         {
             double dz = (lev[i].Z - lev[i - 1].Z) / 1000.0;
             if (dz <= 0.01) continue;
+            if (UseDuctCeiling && lev[i - 1].Z > z0 + DuctCeilingM) break;
             double g = -(lev[i].N - lev[i - 1].N) / dz;           // −dN/dh in N/km
             if (g > maxGrad) maxGrad = g;
-            var (name, _, normHi, superThr) = LayerFor((lev[i].P + lev[i - 1].P) / 2);
-            double gain;
-            if (g <= normHi) gain = 0;
-            else if (g < superThr) gain = 10 * (g - normHi) / (superThr - normHi);
-            else gain = 10 + 5 * Math.Min(1, (g - superThr) / Math.Max(1, 157 - superThr));
+            var (name, pTop, normHi, superThr) = LayerFor((lev[i].P + lev[i - 1].P) / 2);
+            if (pTop == 850) { normHi += crplShift; superThr += crplShift; }
+            double gain = Ramp(g, normHi, superThr);
+            // stima aggressiva: soglia classica di super-rifrazione di 79 N/km (k ≈ 2; P.453 usa invece −100 N/km nei primi 100 m) nello strato basso (k ≈ 2: 157/(157−79)); prudente = Bean e Dutton 100 N/km
+            double gainA = pTop == 850 ? Ramp(g, Math.Min(normHi, 79 - 19), 79 + crplShift) : gain;
             if (gain > best) { best = gain; bestName = name; }
+            bestAggr = Math.Max(bestAggr, gainA);
         }
         r.MaxGrad = maxGrad;
         // sub-rifrazione: N cresce con la quota nel primo strato sopra il suolo
         if (lev.Count > 1 && lev[1].N > lev[0].N && best < 1) { r.Sub = true; best = -10; bestName = Lang("sub"); }
-        r.LayerGainDb = best; r.LayerName = bestName;
+        r.LayerGainAggrDb = r.Sub ? best : Math.Max(best, bestAggr);
+        if (UseItuSuper && !r.Sub) { r.LayerGainDb = r.LayerGainAggrDb; } else r.LayerGainDb = best;
+        r.LayerName = bestName;
 
         // ---- condotto: strato in cui M cala con la quota (dM/dh < 0); si prende quello con il deficit maggiore
         for (int i = 1; i < lev.Count; i++)
@@ -209,13 +385,15 @@ public static class Refractivity
             var a = lev[i - 1]; var b = lev[i];
             double dz = b.Z - a.Z;
             if (dz < 10) continue;
-            double excess = -(b.N - a.N) - 40 * dz / 1000.0;
+            if (UseDuctCeiling && a.Z > z0 + DuctCeilingM) break;
+            double normal = UseCrplNormal ? CrplDrop(r.Ns, a.Z - z0, b.Z - z0) : 40 * dz / 1000.0;
+            double excess = -(b.N - a.N) - normal;
             if (excess <= 0) continue;
             double qa = Q(a), qb = Q(b);
             double lapse = (a.T - b.T) / (dz / 1000.0);
             var ld = new LayerDuct
             {
-                Key = Array.IndexOf(PLevels, (int)Math.Round(b.P)), Name = (i == 1 ? "suolo" : a.P.ToString("0")) + "–" + b.P.ToString("0") + " hPa",
+                Key = Array.IndexOf(PLevels, (int)Math.Round(b.P)) is int kk && kk >= 0 ? kk : 90, Name = (i == 1 ? "suolo" : a.P.ToString("0")) + "–" + b.P.ToString("0") + " hPa",
                 ZBot = a.Z, ZTop = b.Z, ExcessN = excess, LapseKkm = lapse, QRatio = qa > 0 ? qb / qa : 1
             };
             ld.Inversion = lapse < 3.0 && ld.QRatio < 0.8;
@@ -236,8 +414,71 @@ public static class Refractivity
             }
             r.Layers.Add(ld);
         }
+        Weather(r, lev);
         return r;
     }
+
+    /// <summary>
+    /// Grandezze meteo della 1.3.0: stabilità di Misme (ΔW nel primo km), rifrazione potenziale K e suo calo più forte,
+    /// subsidenza o moti ascendenti (velocità verticale a 850 e 700 hPa) e situazione di scirocco.
+    /// </summary>
+    static void Weather(ProfileResult r, List<Level> lev)
+    {
+        // ΔW = g·∫(θ(z) − θ0)/θ0 dz fra il suolo e 1 km sopra (J/kg): lavoro per sollevare l'aria contro la stabilità
+        double z0 = lev[0].Z, th0 = Theta(lev[0].T, lev[0].P), w = 0;
+        bool reached = false;
+        for (int i = 1; i < lev.Count; i++)
+        {
+            double za = lev[i - 1].Z, zb = lev[i].Z;
+            double ta = Theta(lev[i - 1].T, lev[i - 1].P) - th0, tb = Theta(lev[i].T, lev[i].P) - th0;
+            if (zb > z0 + 1000)
+            {
+                double f = (z0 + 1000 - za) / Math.Max(1, zb - za);
+                double tm = ta + f * (tb - ta);
+                w += (ta + tm) / 2 * (z0 + 1000 - za);
+                reached = true; break;
+            }
+            w += (ta + tb) / 2 * (zb - za);
+        }
+        if (reached)
+        {
+            r.DeltaW = 9.80665 * w / th0;
+            r.StabDb = Math.Max(-4, Math.Min(6, MismeDbPerJ * (r.DeltaW - DeltaWStd)));
+        }
+        // K al suolo e calo più forte fra due livelli consecutivi (aria secca e calda sopra: subsidenza)
+        r.KSurf = K(lev[0].P, lev[0].T, lev[0].RH);
+        for (int i = 1; i < lev.Count; i++)
+        {
+            double drop = K(lev[i - 1].P, lev[i - 1].T, lev[i - 1].RH) - K(lev[i].P, lev[i].T, lev[i].RH);
+            if (drop > r.KDrop) { r.KDrop = drop; r.KDropLayer = (i == 1 ? "suolo" : lev[i - 1].P.ToString("0")) + "–" + lev[i].P.ToString("0") + " hPa"; }
+        }
+        foreach (var l in lev) if (Math.Abs(l.P - 850) < 0.5) r.T850 = l.T;
+        // moto verticale: −1 cm/s = discesa lenta tipica degli anticicloni; +5 cm/s = salita che rompe gli strati
+        double wmin = Min(r.W850, r.W700), wmax = Max(r.W850, r.W700);
+        bool inv = r.Layers.Any(l => l.Inversion || l.Resolved);
+        r.Subsidence = !double.IsNaN(wmin) && wmax < -0.01 && (inv || r.KDrop >= 15);
+        r.Ascent = !double.IsNaN(wmax) && wmax > 0.05;
+        r.VertDb = r.Subsidence ? 1.5 : r.Ascent ? -2 : 0;
+        // scirocco: vento da 100–200° a 850 hPa di almeno 7 m/s con aria calda (T850 ≥ 16 °C) sul Mediterraneo
+        r.Scirocco = !double.IsNaN(r.Dir850) && r.Dir850 >= 100 && r.Dir850 <= 200 && r.Wind850 >= 7 && r.T850 >= 16 &&
+                     r.Lat >= 28 && r.Lat <= 47 && r.Lon >= -10 && r.Lon <= 37;
+    }
+
+    /// <summary>Altezza del sole in gradi (formule NOAA semplificate, errore sotto 1°).</summary>
+    public static double SunElevation(DateTime utc, double lat, double lon)
+    {
+        double d = (utc - new DateTime(2000, 1, 1, 12, 0, 0, DateTimeKind.Utc)).TotalDays;
+        double g = (357.529 + 0.98560028 * d) * Math.PI / 180, q = 280.459 + 0.98564736 * d;
+        double lam = (q + 1.915 * Math.Sin(g) + 0.020 * Math.Sin(2 * g)) * Math.PI / 180, eps = (23.439 - 0.00000036 * d) * Math.PI / 180;
+        double dec = Math.Asin(Math.Sin(eps) * Math.Sin(lam));
+        double ra = Math.Atan2(Math.Cos(eps) * Math.Sin(lam), Math.Cos(lam));
+        double gmst = (18.697374558 + 24.06570982441908 * d) % 24 * 15 * Math.PI / 180;
+        double ha = gmst + lon * Math.PI / 180 - ra, la = lat * Math.PI / 180;
+        return Math.Asin(Math.Sin(la) * Math.Sin(dec) + Math.Cos(la) * Math.Cos(dec) * Math.Cos(ha)) * 180 / Math.PI;
+    }
+
+    static double Min(double a, double b) => double.IsNaN(a) ? b : double.IsNaN(b) ? a : Math.Min(a, b);
+    static double Max(double a, double b) => double.IsNaN(a) ? b : double.IsNaN(b) ? a : Math.Max(a, b);
 
     /// <summary>Lunghezza d'onda massima intrappolata (m), Kerr 1951 eq. 17 con calo lineare di M nel condotto.</summary>
     public static double Kerr(double deficitM, double depthM) => deficitM > 0 && depthM > 0 ? 2 * Math.Sqrt(2) * (2.0 / 3.0) * Math.Sqrt(deficitM * 1e-6) * depthM : 0;
@@ -304,8 +545,54 @@ public static class Refractivity
     }
 }
 
+/// <summary>Sorgente dei profili: GFS da Open-Meteo e/o NOMADS (stesso modello), oppure ICON-EU o ECMWF per tutta la griglia.</summary>
+public enum WxSource { Auto, OpenMeteo, Nomads, IconEu, Ecmwf, IconItalia }
+
+public static class WxSources
+{
+    public static readonly WxSource[] All = { WxSource.Auto, WxSource.OpenMeteo, WxSource.Nomads, WxSource.IconEu, WxSource.Ecmwf, WxSource.IconItalia };
+    public static string Name(WxSource s) => s switch
+    {
+        WxSource.Auto => "GFS: NOMADS (NOAA); Open-Meteo solo se NOMADS non risponde",
+        WxSource.OpenMeteo => "GFS da Open-Meteo",
+        WxSource.Nomads => "GFS da NOMADS (NOAA)",
+        WxSource.IconEu => "ICON-EU (DWD) da Open-Meteo",
+        WxSource.Ecmwf => "ECMWF IFS 0,25° da Open-Meteo",
+        WxSource.IconItalia => "ICON-2I Italia 2 km (ItaliaMeteo-ARPAE) da Open-Meteo",
+        _ => s.ToString()
+    };
+    public static string Short(WxSource s) => s switch { WxSource.IconEu => "ICON-EU", WxSource.Ecmwf => "ECMWF", WxSource.IconItalia => "ICON-2I", _ => "GFS" };
+    public static bool IsGfs(WxSource s) => s == WxSource.Auto || s == WxSource.OpenMeteo || s == WxSource.Nomads;
+    /// <summary>Parametro models= di Open-Meteo.</summary>
+    public static string OmModel(WxSource s) => s == WxSource.IconEu ? "icon_eu" : s == WxSource.Ecmwf ? "ecmwf_ifs025" : s == WxSource.IconItalia ? "italia_meteo_arpae_icon_2i" : "gfs_seamless";
+    /// <summary>Metadati della corsa su Open-Meteo.</summary>
+    public static string MetaUrl(WxSource s) => "https://api.open-meteo.com/data/" +
+        (s == WxSource.IconEu ? "dwd_icon_eu" : s == WxSource.Ecmwf ? "ecmwf_ifs025" : s == WxSource.IconItalia ? "italia_meteo_arpae_icon_2i" : "ncep_gfs025") + "/static/meta.json";
+    public static string CacheName(WxSource s) => s == WxSource.IconEu ? "iconeu" : s == WxSource.Ecmwf ? "ecmwf" : s == WxSource.IconItalia ? "icon2i" : "gfs";
+    public static WxSource Parse(string v) => Enum.TryParse<WxSource>(v ?? "", out var r) ? r : WxSource.Auto;
+}
+
+/// <summary>Un caso storico da rivedere con l'archivio delle previsioni di Open-Meteo (QST, The World Above 50 MHz).</summary>
+public sealed class HistCase
+{
+    public string Name = "", Note = "";
+    public DateTime StartUtc; public int Days;
+    public double LatMin, LatMax, LonMin, LonMax;
+    public double FreqMHz = 144.3;
+
+    public static readonly HistCase[] Known =
+    {
+        new HistCase { Name = "14–15 ago 2022 · Manitoba–Kansas/Missouri", StartUtc = new DateTime(2022, 8, 13, 0, 0, 0, DateTimeKind.Utc), Days = 4,
+                       LatMin = 34, LatMax = 54, LonMin = -104, LonMax = -86, FreqMHz = 1296,
+                       Note = "QST nov. 2022: apertura sotto un'alta pressione da 144 a 1296 MHz quasi tutta in FT8; record canadese a 10 GHz di 1228,56 km in Q65, segnali fino a 1941 km" },
+        new HistCase { Name = "29 dic 2021 – 2 gen 2022 · Tirreno e Mediterraneo occidentale", StartUtc = new DateTime(2021, 12, 29, 0, 0, 0, DateTimeKind.Utc), Days = 5,
+                       LatMin = 35, LatMax = 47, LonMin = -2, LonMax = 20, FreqMHz = 144.3,
+                       Note = "rapporti IC8TEM su MMMonVHF: 29/12 prime aperture (ODX IK1PAG JN35TB 737 km), 30/12 secondo giorno, 31/12 apertura più ampia (IT9GSF–EB5EA 1217 km), 1/1/2022 grande apertura fra Italia, Sicilia e Spagna; quasi tutto in FT8 a 144 MHz" },
+    };
+}
+
 /// <summary>
-/// Previsione propria su una griglia: profili GFS (Open-Meteo) dal suolo a 500 hPa, ogni ora per 78 ore.
+/// Previsione propria su una griglia: profili dal suolo a 500 hPa, ogni ora per 78 ore (GFS, ICON-EU o ECMWF).
 /// Per contenere le richieste a Open-Meteo la quota dei livelli si ricava con l'equazione ipsometrica invece di scaricarla.
 /// </summary>
 public sealed class OwnForecast
@@ -318,16 +605,25 @@ public sealed class OwnForecast
     public string Status = "";
     public DateTime UpdatedUtc;
     public string LastTiming = "";            // tempi dell'ultimo aggiornamento della griglia
-    public DateTime RunUtc, RunAvailableUtc;  // corsa GFS usata e quando Open-Meteo l'ha resa disponibile
+    public DateTime RunUtc, RunAvailableUtc;  // corsa usata e quando Open-Meteo l'ha resa disponibile
+    /// <summary>Sorgente scelta (vale per tutta la griglia e per i percorsi).</summary>
+    public static WxSource Source = WxSource.Auto;
+    /// <summary>Caso storico in corso (null = previsione attuale).</summary>
+    public HistCase Hist;
+    public WxSource UsedSource = WxSource.Auto;   // sorgente della griglia mostrata
+    public string UsedDetail = "";                // es. "Open-Meteo 180 punti, NOMADS 60 punti"
 
-    /// <summary>Corsa GFS più recente su Open-Meteo (metadati del modello GFS 0,25°); non blocca se non risponde.</summary>
+    /// <summary>Corsa più recente del modello scelto su Open-Meteo (metadati); non blocca se non risponde.</summary>
     public async Task GfsRunInfo(HttpClient http, CancellationToken ct)
     {
+        RunUtc = default; RunAvailableUtc = default;
+        if (Hist != null) return;
+        var src = Source;
         try
         {
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(15000);
-            using var mresp = await http.GetAsync("https://api.open-meteo.com/data/ncep_gfs025/static/meta.json", cts.Token);
+            using var mresp = await http.GetAsync(WxSources.MetaUrl(src), cts.Token);
             mresp.EnsureSuccessStatusCode();
             var json = await Compat.ReadString(mresp.Content, cts.Token);
             using var doc = JsonDocument.Parse(json);
@@ -335,21 +631,52 @@ public sealed class OwnForecast
             DateTime U(string k) => root.TryGetProperty(k, out var v) && v.ValueKind == JsonValueKind.Number ? DateTimeOffset.FromUnixTimeSeconds(v.GetInt64()).UtcDateTime : default;
             RunUtc = U("last_run_initialisation_time"); RunAvailableUtc = U("last_run_availability_time");
             if (RunUtc != default)
-                CalcLog.W($"GFS: corsa delle {RunUtc:dd/MM HH:mm} UTC, disponibile su Open-Meteo dalle {RunAvailableUtc:HH:mm} UTC " +
+                CalcLog.W($"{WxSources.Short(src)}: corsa delle {RunUtc:dd/MM HH:mm} UTC, disponibile su Open-Meteo dalle {RunAvailableUtc:HH:mm} UTC " +
                           $"(ritardo dalla corsa {CalcLog.Dur((RunAvailableUtc - RunUtc).TotalMilliseconds)}, età dei dati adesso {CalcLog.Dur((DateTime.UtcNow - RunUtc).TotalMilliseconds)})");
         }
-        catch (Exception ex) when (!ct.IsCancellationRequested) { CalcLog.W("GFS: metadati della corsa non disponibili (" + ex.Message + ")"); }
+        catch (Exception ex) when (!ct.IsCancellationRequested)
+        {
+            CalcLog.W($"{WxSources.Short(src)}: metadati della corsa non disponibili (" + ex.Message + ")");
+            if (WxSources.IsGfs(src)) RunUtc = Nomads.Floor6(DateTime.UtcNow.AddHours(-5));   // per NOMADS e per la cache
+        }
     }
     public bool Busy;
+    DateTime _autoLastTry;
+
+    /// <summary>
+    /// 1.3.2: aggiornamento senza clic. Vero se non c'è ancora una griglia, se su NOMADS è uscita una corsa più nuova
+    /// (circa 5 ore dopo l'ora della corsa) o se la zona visibile esce per più di un quarto dalla griglia scaricata.
+    /// Mai con un caso storico o durante uno scaricamento; al massimo un tentativo ogni 15 minuti.
+    /// </summary>
+    public bool NeedsAutoUpdate(double la1, double la2, double lo1, double lo2)
+    {
+        if (Busy || Hist != null || DateTime.UtcNow - _autoLastTry < TimeSpan.FromMinutes(15)) return false;
+        bool need;
+        if (Grid.Length == 0) need = true;
+        else if (WxSources.IsGfs(Source) && Nomads.Floor6(DateTime.UtcNow.AddHours(-5)) > RunUtc) need = true;
+        else
+        {
+            double ia = Math.Max(0, Math.Min(la2, LatMax) - Math.Max(la1, LatMin)) * Math.Max(0, Math.Min(lo2, LonMax) - Math.Max(lo1, LonMin));
+            double ba = Math.Max(1e-6, (la2 - la1) * (lo2 - lo1));
+            need = ia / ba < 0.75;
+        }
+        if (need) _autoLastTry = DateTime.UtcNow;
+        return need;
+    }
     readonly object _lock = new();
 
     public const int Hours = 78;
     static readonly string[] SurfVars = { "surface_pressure", "temperature_2m", "relative_humidity_2m", "wind_speed_10m", "boundary_layer_height", "cape" };
+    /// <summary>Variabili aggiunte nella 1.3.0: vento a 850 hPa (scirocco) e velocità verticale (subsidenza).</summary>
+    public static readonly string[] ExtraVars = { "wind_speed_850hPa", "wind_direction_850hPa", "vertical_velocity_850hPa", "vertical_velocity_700hPa", "surface_temperature" };
+    /// <summary>Solo da NOMADS: livelli vicini al suolo per il condotto sul mare a bassa quota.</summary>
+    public static readonly string[] NomadsLowVars = { "temperature_80m", "relative_humidity_80m", "temperature_pbl30", "relative_humidity_pbl30" };
 
     public static string HourlyVars()
     {
         var v = new List<string>(SurfVars);
         foreach (var p in Refractivity.PLevels) { v.Add($"temperature_{p}hPa"); v.Add($"relative_humidity_{p}hPa"); }
+        v.AddRange(ExtraVars);
         return string.Join(",", v);
     }
 
@@ -358,62 +685,149 @@ public sealed class OwnForecast
         public double Lat, Lon, Elev;
         public DateTime[] Times;
         public ProfileResult[] Profiles;
+        public string From = "";
     }
 
-    /// <summary>Scarica e analizza una lista di punti (al massimo 80 per richiesta, con una pausa fra le richieste).</summary>
     /// <summary>Limite di Open-Meteo raggiunto: messaggio chiaro (minuto, ora o giorno) per l'utente.</summary>
-    public sealed class RateLimitException : Exception { public RateLimitException(string m) : base(m) { } }
+    public sealed class RateLimitException : Exception
+    {
+        public bool MinuteOnly;
+        public RateLimitException(string m, bool minute = false) : base(m) { MinuteOnly = minute; }
+    }
 
-    /// <summary>Cartella della cache dei profili per una corsa GFS (un file per punto della griglia).</summary>
-    static string CacheDir(DateTime run) => Path.Combine(Settings.DataDir, "cache-gfs", run.ToString("yyyyMMddHH", CultureInfo.InvariantCulture));
+    /// <summary>Cartella della cache dei profili per una corsa (un file per punto della griglia), separata per modello.</summary>
+    static string CacheRoot => Path.Combine(Settings.DataDir, "cache-gfs");
+    static string Prefix(WxSource s) => "v2-" + WxSources.CacheName(s) + "-";
+    static string CacheDir(DateTime run, WxSource s) => Path.Combine(CacheRoot, Prefix(s) + run.ToString("yyyyMMddHH", CultureInfo.InvariantCulture));
     static string CacheKey(LatLon p) => p.Lat.ToString("0.###", CultureInfo.InvariantCulture) + "_" + p.Lon.ToString("0.###", CultureInfo.InvariantCulture) + ".json";
 
-    /// <summary>Tiene solo le cache delle ultime due corse.</summary>
-    static void CleanCache(DateTime run)
+    /// <summary>Tiene solo le cache delle ultime due corse di ogni modello (e cancella quelle del formato vecchio).</summary>
+    static void CleanCache(DateTime run, WxSource s)
     {
         try
         {
-            var root = Path.Combine(Settings.DataDir, "cache-gfs");
-            if (!Directory.Exists(root)) return;
-            var keep = new[] { run.ToString("yyyyMMddHH", CultureInfo.InvariantCulture), run.AddHours(-6).ToString("yyyyMMddHH", CultureInfo.InvariantCulture) };
-            foreach (var d in Directory.GetDirectories(root))
-                if (!keep.Contains(Path.GetFileName(d))) try { Directory.Delete(d, true); } catch { }
+            if (!Directory.Exists(CacheRoot)) return;
+            string pre = Prefix(s);
+            var keep = new[] { pre + run.ToString("yyyyMMddHH", CultureInfo.InvariantCulture), pre + run.AddHours(-6).ToString("yyyyMMddHH", CultureInfo.InvariantCulture) };
+            foreach (var d in Directory.GetDirectories(CacheRoot))
+            {
+                var n = Path.GetFileName(d);
+                bool old = !n.StartsWith("v2-", StringComparison.Ordinal);
+                if (old || (n.StartsWith(pre, StringComparison.Ordinal) && !keep.Contains(n))) try { Directory.Delete(d, true); } catch { }
+            }
         }
         catch { }
     }
 
     /// <summary>
-    /// Profili GFS dei punti. Con la corsa nota (run) i punti già scaricati per quella corsa si leggono dal disco e si
-    /// chiedono a Open-Meteo solo quelli mancanti, a lotti di 60 con 20 s di pausa. Un rifiuto per limite si legge:
-    /// al minuto si attende e si riprova, all'ora o al giorno ci si ferma subito con un messaggio chiaro.
+    /// Profili dei punti. Con la corsa nota (run) i punti già scaricati per quella corsa si leggono dal disco e si chiedono
+    /// solo quelli mancanti. Open-Meteo a lotti di 60 con 20 s di pausa; con la scelta automatica, al primo rifiuto per
+    /// limite (minuto, ora o giorno) i punti mancanti si prendono da NOMADS, che dà lo stesso GFS. Con hist (caso storico)
+    /// si usa l'archivio delle previsioni di Open-Meteo, senza cache.
     /// </summary>
-    public static async Task<List<PointSeries>> FetchPoints(HttpClient http, IList<LatLon> pts, Action<string> progress, CancellationToken ct, FetchStats st = null, DateTime run = default)
+    public static async Task<List<PointSeries>> FetchPoints(HttpClient http, IList<LatLon> pts, Action<string> progress, CancellationToken ct, FetchStats st = null,
+                                                            DateTime run = default, WxSource? source = null, HistCase hist = null, Action<string> used = null,
+                                                            double gridStep = 0.25, DateTime? onlyUtc = null)
     {
         st ??= new FetchStats();
+        var src = source ?? Source;
+        if (hist != null && src == WxSource.Nomads) src = WxSource.OpenMeteo;     // NOMADS tiene solo gli ultimi giorni
+        CalcLog.W($"sorgente dei profili: {WxSources.Name(src)}" + (hist != null ? $" — archivio, caso {hist.Name}" : "") + $", {pts.Count} punti");
         var sw = new System.Diagnostics.Stopwatch();
         var raw = new string[pts.Count];
-        string cdir = run != default ? CacheDir(run) : null;
+        var origin = new string[pts.Count];
+        string cdir = run != default && hist == null ? CacheDir(run, src) : null;
         if (cdir != null)
         {
-            CleanCache(run);
+            CleanCache(run, src);
             for (int i = 0; i < pts.Count; i++)
             {
                 var f = Path.Combine(cdir, CacheKey(pts[i]));
-                if (File.Exists(f)) try { raw[i] = File.ReadAllText(f); } catch { raw[i] = null; }
+                if (File.Exists(f)) try { raw[i] = File.ReadAllText(f); origin[i] = "cache"; } catch { raw[i] = null; }
             }
         }
         var missing = Enumerable.Range(0, pts.Count).Where(i => raw[i] == null).ToList();
         st.Cached = pts.Count - missing.Count;
-        if (st.Cached > 0) CalcLog.W($"GFS: {st.Cached} punti su {pts.Count} già scaricati per la corsa delle {run:dd/MM HH} UTC (cache su disco), da scaricare {missing.Count}");
+        if (st.Cached > 0) CalcLog.W($"{WxSources.Short(src)}: {st.Cached} punti su {pts.Count} già scaricati per la corsa delle {run:dd/MM HH} UTC (cache su disco), da scaricare {missing.Count}");
+        void Save(int i)
+        {
+            if (cdir == null || raw[i] == null) return;
+            try { Directory.CreateDirectory(cdir); File.WriteAllText(Path.Combine(cdir, CacheKey(pts[i])), raw[i]); } catch { }
+        }
+
+        // GFS: prima NOMADS (nessun limite giornaliero, ritagli GRIB2 della zona), poi Open-Meteo per i punti che mancano.
+        // Con l'archivio storico (hist) NOMADS non serve: tiene solo gli ultimi giorni.
+        async Task FromNomads()
+        {
+            var sub = missing.Select(i => pts[i]).ToList();
+            var (nr, nrun) = await Nomads.FetchPoints(http, sub, Hours, run, progress, ct, st, Nomads.ResFor(gridStep), onlyUtc);
+            bool sameRun = (run == default || nrun == run) && !onlyUtc.HasValue;   // un'ora sola (percorso) non va nella cache
+            for (int k = 0; k < sub.Count; k++)
+            {
+                raw[missing[k]] = nr[k];
+                if (nr[k] != null) { origin[missing[k]] = "NOMADS"; if (sameRun) Save(missing[k]); }
+            }
+            missing = Enumerable.Range(0, pts.Count).Where(i => raw[i] == null).ToList();
+        }
+        bool nomadsDown = false;
+        if ((src == WxSource.Nomads || src == WxSource.Auto) && missing.Count > 0 && hist == null)
+        {
+            if (src == WxSource.Nomads) await FromNomads();
+            else
+                try { await FromNomads(); }
+                catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
+                catch (Exception ex)
+                {
+                    CalcLog.W("NOMADS non disponibile (" + ex.Message + ") → i punti mancanti si prendono da Open-Meteo (stesso GFS)");
+                    progress?.Invoke("NOMADS non risponde: continuo con Open-Meteo…");
+                    nomadsDown = true;
+                    missing = Enumerable.Range(0, pts.Count).Where(i => raw[i] == null).ToList();
+                }
+            if (src == WxSource.Auto && missing.Count > 0 && !nomadsDown) CalcLog.W($"NOMADS: {missing.Count} punti mancanti (restano senza profilo: dalla 1.3.2 la sorgente automatica usa Open-Meteo solo se NOMADS non risponde)");
+        }
+        // 1.3.2: con la sorgente automatica Open-Meteo serve solo se NOMADS non risponde, e per i casi storici
+        if (src != WxSource.Nomads && missing.Count > 0 && (src != WxSource.Auto || nomadsDown || hist != null))
+        {
+            await FromOpenMeteo(http, pts, missing, raw, origin, Save, progress, ct, st, src, hist, false);
+            missing = Enumerable.Range(0, pts.Count).Where(i => raw[i] == null).ToList();
+        }
+        // analisi dei profili (anche di quelli letti dal disco)
+        sw.Restart();
+        var res = new List<PointSeries>();
+        for (int i = 0; i < pts.Count; i++)
+        {
+            if (raw[i] == null) continue;
+            using var d = JsonDocument.Parse(raw[i]);
+            var ps = ParsePoint(d.RootElement, pts[i]);
+            ps.From = origin[i] ?? "";
+            res.Add(ps);
+        }
+        st.ParseMs += sw.Elapsed.TotalMilliseconds;
+        var groups = origin.Where(x => x != null).GroupBy(x => x).Select(g => $"{g.Key} {g.Count()}");
+        used?.Invoke(string.Join(", ", groups));
+        return res;
+    }
+
+    static async Task FromOpenMeteo(HttpClient http, IList<LatLon> pts, List<int> missing, string[] raw, string[] origin, Action<int> save,
+                                    Action<string> progress, CancellationToken ct, FetchStats st, WxSource src, HistCase hist, bool switchOnLimit)
+    {
+        var sw = new System.Diagnostics.Stopwatch();
         const int batch = 60;
         var vars = HourlyVars();
+        bool sstDropped = false; int dropped = 0;
+        string tail = hist == null
+            ? $"&forecast_hours={Hours}"
+            : $"&start_date={hist.StartUtc:yyyy-MM-dd}&end_date={hist.StartUtc.AddDays(hist.Days - 1):yyyy-MM-dd}";
+        string host = hist == null ? "https://api.open-meteo.com/v1/forecast" : "https://historical-forecast-api.open-meteo.com/v1/forecast";
+        string model = WxSources.OmModel(src);
         for (int i = 0; i < missing.Count; i += batch)
         {
             var idx = missing.Skip(i).Take(batch).ToList();
             var part = idx.Select(k => pts[k]).ToList();
             var lat = string.Join(",", part.Select(p => p.Lat.ToString("0.###", CultureInfo.InvariantCulture)));
             var lon = string.Join(",", part.Select(p => p.Lon.ToString("0.###", CultureInfo.InvariantCulture)));
-            var url = $"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly={vars}&models=gfs_seamless&forecast_hours={Hours}&wind_speed_unit=ms&timezone=GMT";
+            string Url() => $"{host}?latitude={lat}&longitude={lon}&hourly={vars}&models={model}{tail}&wind_speed_unit=ms&timezone=GMT";
+            var url = Url();
             string json = null;
             for (int attempt = 0; attempt < 3 && json == null; attempt++)
             {
@@ -436,64 +850,73 @@ public sealed class OwnForecast
                         throw new RateLimitException($"limite orario di Open-Meteo raggiunto: riprova dopo le {DateTime.Now.AddHours(1):HH}:00 (la griglia già scaricata resta salvata)");
                     if (low.Contains("daily") || low.Contains("day"))
                         throw new RateLimitException("limite giornaliero di Open-Meteo raggiunto: riprova domani (la griglia già scaricata resta salvata)");
+                    if (switchOnLimit) throw new RateLimitException("limite al minuto di Open-Meteo", true);
                     progress?.Invoke("Open-Meteo: limite al minuto, attendo 60 s…");
                     sw.Restart(); await Task.Delay(60000, ct); st.WaitMs += sw.Elapsed.TotalMilliseconds; continue;
+                }
+                if ((int)resp.StatusCode == 400)
+                {
+                    string body = ""; try { body = await Compat.ReadString(resp.Content, ct); } catch { }
+                    // non tutti i modelli hanno tutte le variabili (SST, strato limite…): si toglie quella rifiutata e si riprova
+                    var bad = vars.Split(',').FirstOrDefault(v => v.Length > 0 && body.Contains(v));
+                    if (bad == null && !sstDropped && vars.Contains(",surface_temperature")) bad = "surface_temperature";
+                    if (bad != null && dropped < 8)
+                    {
+                        dropped++; if (bad == "surface_temperature") sstDropped = true;
+                        vars = string.Join(",", vars.Split(',').Where(v => v != bad)); url = Url(); attempt--;
+                        CalcLog.W($"Open-Meteo {model}: la variabile {bad} non c'è per questo modello, richiesta ripetuta senza");
+                        continue;
+                    }
+                    throw new HttpRequestException("Open-Meteo ha rifiutato la richiesta (400): " + (body.Length > 300 ? body.Substring(0, 300) : body));
                 }
                 resp.EnsureSuccessStatusCode();
                 json = await Compat.ReadString(resp.Content, ct);
                 st.NetMs += sw.Elapsed.TotalMilliseconds; st.Batches++; st.Bytes += json.Length;
             }
-            if (json == null) throw new RateLimitException("Open-Meteo continua a rifiutare per il limite al minuto: riprova fra qualche minuto");
+            if (json == null) throw new RateLimitException("Open-Meteo continua a rifiutare per il limite al minuto: riprova fra qualche minuto", true);
             using (var doc = JsonDocument.Parse(json))
             {
                 var items = doc.RootElement.ValueKind == JsonValueKind.Array ? doc.RootElement.EnumerateArray().ToList() : new List<JsonElement> { doc.RootElement };
                 for (int k = 0; k < items.Count && k < idx.Count; k++)
                 {
-                    raw[idx[k]] = items[k].GetRawText();
-                    if (cdir != null)
-                        try { Directory.CreateDirectory(cdir); File.WriteAllText(Path.Combine(cdir, CacheKey(pts[idx[k]])), raw[idx[k]]); } catch { }
+                    raw[idx[k]] = items[k].GetRawText(); origin[idx[k]] = "Open-Meteo";
+                    save(idx[k]);
                 }
             }
-            progress?.Invoke($"GFS: {Math.Min(missing.Count, i + batch) + st.Cached} / {pts.Count} punti");
-            CalcLog.W($"Open-Meteo GFS: lotto di {part.Count} punti letto ({json.Length / 1024} kB), {Hours} ore, 26 variabili (suolo + T e UR a 1000–500 hPa)");
+            int done = Math.Min(missing.Count, i + batch);
+            progress?.Invoke($"{WxSources.Short(src)}: {done} / {missing.Count} punti da scaricare");
+            CalcLog.W($"Open-Meteo {model}: lotto di {part.Count} punti letto ({json.Length / 1024} kB), {(hist == null ? Hours + " ore" : hist.Days + " giorni d'archivio")}, {HourlyVars().Split(',').Length} variabili");
             if (i + batch < missing.Count)
             {
-                progress?.Invoke($"GFS: {Math.Min(missing.Count, i + batch) + st.Cached} / {pts.Count} punti — pausa di 20 s per il limite di Open-Meteo");
-                sw.Restart(); await Task.Delay(20000, ct); st.WaitMs += sw.Elapsed.TotalMilliseconds;   // circa 160 richieste equivalenti per lotto: si resta sotto 600 al minuto
+                progress?.Invoke($"{WxSources.Short(src)}: {done} / {missing.Count} punti — pausa di 20 s per il limite di Open-Meteo");
+                sw.Restart(); await Task.Delay(20000, ct); st.WaitMs += sw.Elapsed.TotalMilliseconds;
             }
         }
-        // analisi dei profili (anche di quelli letti dal disco)
-        sw.Restart();
-        var res = new List<PointSeries>();
-        for (int i = 0; i < pts.Count; i++)
-        {
-            if (raw[i] == null) continue;
-            using var d = JsonDocument.Parse(raw[i]);
-            res.Add(ParsePoint(d.RootElement, pts[i]));
-        }
-        st.ParseMs += sw.Elapsed.TotalMilliseconds;
-        return res;
     }
 
-    static PointSeries ParsePoint(JsonElement it, LatLon p)
+    internal static PointSeries ParsePoint(JsonElement it, LatLon p)
     {
         var h = it.GetProperty("hourly");
         var times = h.GetProperty("time").EnumerateArray()
             .Select(t => DateTime.SpecifyKind(DateTime.Parse(t.GetString(), CultureInfo.InvariantCulture), DateTimeKind.Utc)).ToArray();
         double elev = it.TryGetProperty("elevation", out var ev) && ev.ValueKind == JsonValueKind.Number ? ev.GetDouble() : 0;
-        double[] A(string name) => h.TryGetProperty(name, out var a)
+        double[] A(string name) => h.TryGetProperty(name, out var a) && a.ValueKind == JsonValueKind.Array
             ? a.EnumerateArray().Select(x => x.ValueKind == JsonValueKind.Number ? x.GetDouble() : double.NaN).ToArray()
             : Enumerable.Repeat(double.NaN, times.Length).ToArray();
         var ps = A("surface_pressure"); var t2 = A("temperature_2m"); var rh2 = A("relative_humidity_2m");
         var w = A("wind_speed_10m"); var blh = A("boundary_layer_height"); var cape = A("cape");
         var tl = Refractivity.PLevels.Select(pl => A($"temperature_{pl}hPa")).ToArray();
         var rl = Refractivity.PLevels.Select(pl => A($"relative_humidity_{pl}hPa")).ToArray();
+        var ws85 = A("wind_speed_850hPa"); var wd85 = A("wind_direction_850hPa"); var vv85 = A("vertical_velocity_850hPa"); var vv70 = A("vertical_velocity_700hPa");
+        var sst = A("surface_temperature"); var t80 = A("temperature_80m"); var rh80 = A("relative_humidity_80m"); var tl30 = A("temperature_pbl30"); var rhl30 = A("relative_humidity_pbl30");
         var prof = new ProfileResult[times.Length];
         for (int t = 0; t < times.Length; t++)
         {
             var tt = new double[tl.Length]; var rr = new double[rl.Length];
             for (int j = 0; j < tl.Length; j++) { tt[j] = t < tl[j].Length ? tl[j][t] : double.NaN; rr[j] = t < rl[j].Length ? rl[j][t] : double.NaN; }
-            prof[t] = Refractivity.Analyze(elev, At(ps, t), At(t2, t), At(rh2, t), tt, rr, At(w, t), At(blh, t), At(cape, t), p.Lat, p.Lon);
+            var ex = new Refractivity.Extra { W850 = At(vv85, t), W700 = At(vv70, t), Wind850 = At(ws85, t), Dir850 = At(wd85, t),
+                                              Sst = At(sst, t), T80 = At(t80, t), Rh80 = At(rh80, t), TL30 = At(tl30, t), RhL30 = At(rhl30, t), Utc = times[t] };
+            prof[t] = Refractivity.Analyze(elev, At(ps, t), At(t2, t), At(rh2, t), tt, rr, At(w, t), At(blh, t), At(cape, t), p.Lat, p.Lon, ex);
         }
         return new PointSeries { Lat = p.Lat, Lon = p.Lon, Elev = elev, Times = times, Profiles = prof };
     }
@@ -518,25 +941,45 @@ public sealed class OwnForecast
             int rows = (int)Math.Ceiling((la2 - latMin) / step) + 1, cols = (int)Math.Ceiling((lo2 - lonMin) / step) + 1;
             var pts = new List<LatLon>();
             for (int r = 0; r < rows; r++) for (int c = 0; c < cols; c++) pts.Add(new LatLon(latMin + r * step, lonMin + c * step));
-            Status = $"GFS: scarico {pts.Count} punti (passo {step:0.##}°)…"; changed?.Invoke();
+            var src = Source; var hist = Hist;
+            Status = $"{WxSources.Short(src)}: scarico {pts.Count} punti (passo {step:0.##}°)" + (hist != null ? $" — caso storico {hist.Name}" : "") + "…"; changed?.Invoke();
             var tm = new Timing();
             await GfsRunInfo(http, ct);
-            tm.Lap("metadati GFS");
+            tm.Lap("metadati della corsa");
             var fs = new FetchStats();
-            var series = await FetchPoints(http, pts, m => { Status = m; changed?.Invoke(); }, ct, fs, RunUtc);
+            string detail = "";
+            var series = await FetchPoints(http, pts, m => { Status = m; changed?.Invoke(); }, ct, fs, RunUtc, src, hist, d => detail = d, step);
             tm.Lap("scaricamento e analisi");
-            var times = series.FirstOrDefault(s => s.Times != null && s.Times.Length > 0)?.Times ?? Array.Empty<DateTime>();
+            // ore: quelle della serie più lunga; ogni punto si colloca per ora (i punti della cache possono partire prima)
+            var times = series.Where(s => s.Times != null).OrderByDescending(s => s.Times.Length).FirstOrDefault()?.Times ?? Array.Empty<DateTime>();
+            var tix = new Dictionary<DateTime, int>();
+            for (int t = 0; t < times.Length; t++) tix[times[t]] = t;
             var grid = new ProfileResult[times.Length][,];
             for (int t = 0; t < times.Length; t++) grid[t] = new ProfileResult[rows, cols];
-            for (int i = 0; i < series.Count && i < pts.Count; i++)
+            var key = new Dictionary<(double, double), int>();
+            for (int i = 0; i < pts.Count; i++) key[(Math.Round(pts[i].Lat, 3), Math.Round(pts[i].Lon, 3))] = i;
+            foreach (var ser in series)
             {
+                if (!key.TryGetValue((Math.Round(ser.Lat, 3), Math.Round(ser.Lon, 3)), out int i)) continue;
                 int r = i / cols, c = i % cols;
-                for (int t = 0; t < times.Length && t < series[i].Profiles.Length; t++) grid[t][r, c] = series[i].Profiles[t];
+                for (int k = 0; k < ser.Times.Length && k < ser.Profiles.Length; k++)
+                    if (tix.TryGetValue(ser.Times[k], out int t)) grid[t][r, c] = ser.Profiles[k];
+                // serie ogni 3 ore (NOMADS a 0,5° o 1°) in una griglia oraria: le ore mancanti prendono il profilo più vicino entro 90 minuti
+                if (ser.Times.Length > 1 && (ser.Times[1] - ser.Times[0]).TotalHours > 1.5)
+                    for (int t = 0; t < times.Length; t++)
+                    {
+                        if (grid[t][r, c] != null) continue;
+                        int bk = -1; double bd = 91;
+                        for (int k = 0; k < ser.Times.Length && k < ser.Profiles.Length; k++) { double dm = Math.Abs((ser.Times[k] - times[t]).TotalMinutes); if (dm < bd && ser.Profiles[k] != null) { bd = dm; bk = k; } }
+                        if (bk >= 0) grid[t][r, c] = ser.Profiles[bk];
+                    }
             }
+            MarkHighPressure(grid, rows, cols);
+            UsedSource = src; UsedDetail = detail;
             lock (_lock)
             {
                 LatMin = latMin; LonMin = lonMin; LatMax = latMin + (rows - 1) * step; LonMax = lonMin + (cols - 1) * step;
-                Step = step; Rows = rows; Cols = cols; Times = times; Grid = grid;
+                Step = step; Rows = rows; Cols = cols; Times = times; Grid = grid; _persist.Clear();
             }
             UpdatedUtc = DateTime.UtcNow;
             {
@@ -556,13 +999,19 @@ public sealed class OwnForecast
             tm.Lap("griglia e riepilogo");
             LastTiming = $"pronta in {CalcLog.Dur(tm.TotalMs)}: {fs.Summary()}";
             CalcLog.W($"TEMPI griglia ({pts.Count} punti): totale {CalcLog.Dur(tm.TotalMs)} — {tm.Summary()}; {fs.Summary()}");
-            Status = $"Previsione propria: GFS {UpdatedUtc:dd/MM HH:mm} UTC" + (RunUtc != default ? $" (corsa {RunUtc:HH} UTC)" : "") +
-                     $", {pts.Count} punti, passo {step:0.##}° · {LastTiming}";
+            Status = (hist != null ? $"Caso storico {hist.Name}: {WxSources.Short(src)} dall'archivio di Open-Meteo"
+                                   : $"Previsione propria: {WxSources.Short(src)} {UpdatedUtc:dd/MM HH:mm} UTC" + (RunUtc != default ? $" (corsa {RunUtc:HH} UTC)" : "")) +
+                     $", {pts.Count} punti, passo {step:0.##}°" + (detail != "" ? $" ({detail})" : "") + $" · {LastTiming}";
             return true;
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested) { Status = "Previsione propria: interrotta"; return false; }
         catch (OperationCanceledException) { Status = "Previsione propria: tempo scaduto nello scaricamento, riprova"; CalcLog.W(Status); return false; }
-        catch (RateLimitException ex) { Status = "Previsione propria: " + ex.Message; CalcLog.W(Status); return false; }
+        catch (RateLimitException ex)
+        {
+            Status = "Previsione propria: " + ex.Message + (WxSources.IsGfs(Source) && Source != WxSource.Auto && Hist == null
+                ? " — scegli «GFS: NOMADS» o «GFS da NOMADS» in Sorgente dei dati per continuare senza Open-Meteo" : "");
+            CalcLog.W(Status); return false;
+        }
         catch (Exception ex) { Status = "Previsione propria non riuscita: " + ex.Message; CalcLog.W("ERRORE: " + ex); Core.ErrorLog.Write(ex, "previsione propria (griglia)"); return false; }
         finally { Busy = false; changed?.Invoke(); }
     }
@@ -605,7 +1054,9 @@ public sealed class OwnForecast
             {
                 var p = Grid[t][r, c];
                 if (p == null || w <= 0) return;
-                sum += w * p.Index(freqMHz); wsum += w;
+                double g = p.GainDb(freqMHz);
+                double pb = PersistBonus(t, r, c, freqMHz, g, p);
+                sum += w * Math.Max(0, Math.Min(10, (g + pb) / 2.5)); wsum += w;
             }
             Add(r0, c0, (1 - tr) * (1 - tc)); Add(r0, c0 + 1, (1 - tr) * tc); Add(r0 + 1, c0, tr * (1 - tc)); Add(r0 + 1, c0 + 1, tr * tc);
             return wsum < 0.25 ? double.NaN : sum / wsum;
@@ -613,4 +1064,94 @@ public sealed class OwnForecast
     }
 
     public bool HasData { get { lock (_lock) return Rows > 0 && Times.Length > 0; } }
+
+    // persistenza: frazione delle 24 ore precedenti in cui la cella era sopra 13 dB (cache per ora e frequenza)
+    readonly Dictionary<(int t, double f, bool corr, bool soft), double[,]> _persist = new();
+
+    /// <summary>
+    /// Bonus di persistenza (VHF/UHF DX Book: le aperture maggiori arrivano dopo giorni di alta pressione; Biancomano e
+    /// Leyshon 1998: persistenza a 12 ore): fino a +2 dB in proporzione alle ore delle 24 precedenti con guadagno ≥ 13 dB,
+    /// solo se la cella è già sopra 10 dB. Senza condotto il totale resta entro 16 dB.
+    /// </summary>
+    double PersistBonus(int t, int r, int c, double f, double g, ProfileResult p)
+    {
+        if (!Refractivity.UsePersistence || !Refractivity.UseCorrections || g < 10 || t <= 0) return 0;
+        var key = (t, f, Refractivity.UseCorrections, Refractivity.UseSoftDuct);
+        if (!_persist.TryGetValue(key, out var arr))
+        {
+            arr = new double[Rows, Cols];
+            int t0 = Math.Max(0, t - Refractivity.PersistHours);
+            for (int rr = 0; rr < Rows; rr++)
+                for (int cc = 0; cc < Cols; cc++)
+                {
+                    int n = 0, hi = 0;
+                    for (int k = t0; k < t; k++)
+                    {
+                        var q = Grid[k][rr, cc]; if (q == null) continue;
+                        n++; if (q.GainDb(f) >= Refractivity.PersistThrDb) hi++;
+                    }
+                    arr[rr, cc] = n > 0 ? (double)hi / Math.Max(n, Math.Min(Refractivity.PersistHours, 12)) : 0;
+                }
+            if (_persist.Count > 400) _persist.Clear();
+            _persist[key] = arr;
+        }
+        double b = Refractivity.PersistMaxDb * arr[r, c];
+        if (!p.DuctLike(f)) b = Math.Max(0, Math.Min(b, Refractivity.NoDuctCapDb - g));
+        return b;
+    }
+
+    /// <summary>Persistenza della cella più vicina (frazione 0–1 delle 24 ore precedenti sopra 13 dB), per il calcolo sul percorso.</summary>
+    public double PersistAt(double lat, double lon, DateTime utc, double f)
+    {
+        lock (_lock)
+        {
+            int t = TimeIndex(utc);
+            if (t <= 0 || Rows == 0) return 0;
+            int r = (int)Math.Round((lat - LatMin) / Step), c = (int)Math.Round((lon - LonMin) / Step);
+            if (r < 0 || c < 0 || r >= Rows || c >= Cols || Grid[t][r, c] == null) return 0;
+            PersistBonus(t, r, c, f, 99, Grid[t][r, c]);
+            return _persist.TryGetValue((t, f, Refractivity.UseCorrections, Refractivity.UseSoftDuct), out var a) ? a[r, c] : 0;
+        }
+    }
+
+    /// <summary>Celle della griglia all'ora più vicina (per i segni meteo sulla mappa).</summary>
+    /// <summary>
+    /// Alta pressione estesa: almeno 7 delle 9 celle (la cella e le vicine) con pressione ridotta al mare ≥ 1020 hPa,
+    /// e vento debole nei bassi strati nella cella (10 m &lt; 5 m/s, 850 hPa &lt; 8 m/s). Anticiclone stabile: strati che durano.
+    /// </summary>
+    static void MarkHighPressure(ProfileResult[][,] grid, int rows, int cols)
+    {
+        foreach (var g in grid)
+            for (int r = 0; r < rows; r++)
+                for (int c = 0; c < cols; c++)
+                {
+                    var p = g[r, c]; if (p == null) continue;
+                    int hi = 0, n = 0;
+                    for (int dr = -1; dr <= 1; dr++)
+                        for (int dc = -1; dc <= 1; dc++)
+                        {
+                            int rr = r + dr, cc = c + dc;
+                            if (rr < 0 || cc < 0 || rr >= rows || cc >= cols || g[rr, cc] == null || double.IsNaN(g[rr, cc].Pmsl)) continue;
+                            n++; if (g[rr, cc].Pmsl >= Refractivity.HighPHpa) hi++;
+                        }
+                    bool calm = !(p.Wind10 >= Refractivity.HighPWind10) && !(p.Wind850 >= Refractivity.HighPWind850);
+                    p.HighP = n >= 4 && hi >= Math.Ceiling(n * 7.0 / 9) && calm;
+                }
+    }
+
+    public List<(double lat, double lon, ProfileResult p)> Cells(DateTime utc)
+    {
+        var res = new List<(double, double, ProfileResult)>();
+        lock (_lock)
+        {
+            int t = TimeIndex(utc);
+            if (t < 0) return res;
+            for (int r = 0; r < Rows; r++) for (int c = 0; c < Cols; c++)
+            {
+                var p = Grid[t][r, c];
+                if (p != null) res.Add((LatMin + r * Step, LonMin + c * Step, p));
+            }
+        }
+        return res;
+    }
 }

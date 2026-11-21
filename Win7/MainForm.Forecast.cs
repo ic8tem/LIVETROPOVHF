@@ -15,7 +15,7 @@ namespace TropoVHF.Win7;
 public sealed partial class MainForm
 {
     readonly OwnForecast _own = new();
-    // client dedicato: i riquadri SRTM1 sono di 6–7 MB e su linee lente superano i tempi del client generale
+    // client dedicato: i riquadri DEM 30 m sono di 15–30 MB e su linee lente superano i tempi del client generale
     static readonly HttpClient FcHttp = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
     Srtm _srtm;
     MapView _fcMap;
@@ -38,7 +38,7 @@ public sealed partial class MainForm
 
     double FcFreq => _st.S.Get("fc_band", "144") switch { "432" => 432.2, "1296" => 1296.2, _ => 144.3 };
     int FcHours { get => _st.S.GetInt("fc_hours", 0); set => _st.S.SetInt("fc_hours", value); }
-    DateTime FcTime { get { var n = Clock.UtcNow; return new DateTime(n.Year, n.Month, n.Day, n.Hour, 0, 0, DateTimeKind.Utc).AddHours(FcHours); } }
+    DateTime FcTime { get { var n = Clock.UtcNow; var b = _own?.Hist != null ? _own.Hist.StartUtc : new DateTime(n.Year, n.Month, n.Day, n.Hour, 0, 0, DateTimeKind.Utc); return b.AddHours(FcHours); } }
 
     double Num(string key, double def)
     {
@@ -95,7 +95,9 @@ public sealed partial class MainForm
                 catch (Exception ex)
                 {
                     ErrorLog.Write(ex, "scaricamento P.453");
-                    p4.Text = L("Scaricamento dall'ITU non riuscito: ", "ITU download failed: ") + ex.Message; p4.ForeColor = C(_th.Bad); dl.Enabled = true;
+                    var why = CalcLog.NetError(ex, "www.itu.int");
+                    CalcLog.W("P.453: scaricamento non riuscito: " + why);
+                    p4.Text = L("Scaricamento dall'ITU non riuscito: ", "ITU download failed: ") + why + L(". Si può scaricare a mano dalla pagina dell'ITU (manuale delle previsioni, § 6).", ". You can download it manually from the ITU page (forecast manual, § 6)."); p4.ForeColor = C(_th.Bad); dl.Enabled = true;
                 }
             }, false);
             Add(col, dl);
@@ -130,7 +132,9 @@ public sealed partial class MainForm
         ov.Controls.Add(Ov("fc_ov_low", "Mostra anche 3–7 dB (tratteggio)", "Also show 3–7 dB (hatched)", "Tratteggio grigio leggero fra 3 e 7 dB; i colori non cambiano. Manuale delle previsioni, § 4.", "Light grey hatch for 3–7 dB; colours unchanged. Forecast manual, § 4."));
         ov.Controls.Add(Ov("fc_ov_iso", "Isobare (GFS)", "Isobars (GFS)", "Pressione al livello del mare ogni 4 hPa dal GFS (Open-Meteo). Manuale delle previsioni, § 5.", "Sea-level pressure every 4 hPa from GFS (Open-Meteo). Forecast manual, § 5."));
         ov.Controls.Add(Ov("fc_ov_inv", "Inversione termica (curve)", "Temperature inversion (contours)", "Quanto l'aria a 925 o 850 hPa è più calda di quella a 2 m (1, 3, 5, 8 °C). Manuale delle previsioni, § 5.", "How much warmer air at 925 or 850 hPa is than at 2 m (1, 3, 5, 8 °C). Forecast manual, § 5."));
+        ov.Controls.Add(Ov("fc_ov_wx", "Segni meteo (S ↓ ↑)", "Weather marks (S ↓ ↑)", "↓ verde = subsidenza, FAVOREVOLE (+1,5 dB); ↑ rosso = aria in salita, SFAVOREVOLE (−2 dB); S arancio = scirocco, indizio favorevole. Passa con il mouse su un segno per il fumetto. Manuale delle previsioni, § 9 bis.", "green ↓ = subsidence, GOOD (+1.5 dB); red ↑ = rising air, BAD (−2 dB); orange S = scirocco, good sign. Hover a mark for the bubble. Forecast manual, § 9 bis."));
         Add(col, ov);
+        FcSourceBox(col);
         _fcCorr = WrapLbl("", 8.5f, _th.Muted);
         _fcTips.SetToolTip(_fcCorr, L("Correlazione di Pearson fra guadagno stimato e pressione, e fra guadagno e inversione, sulla zona visibile. Manuale delle previsioni, § 5.", "Pearson correlation between gain and pressure, and gain and inversion, over the visible area. Forecast manual, § 5."));
         Add(col, _fcCorr);
@@ -138,6 +142,9 @@ public sealed partial class MainForm
         var upd = Row();
         upd.Controls.Add(Btn(L("Aggiorna previsione (zona visibile)", "Update forecast (visible area)"), FcUpdateGrid, true));
         upd.Controls.Add(Btn("Stop", () => _fcCts?.Cancel(), false));
+        var auto = Chk(L("Aggiorna da sola", "Update by itself"), FcAuto, v => FcAuto = v);
+        _fcTips.SetToolTip(auto, L("Scarica la previsione senza clic: all'apertura, a ogni nuova corsa GFS su NOMADS e quando la zona visibile esce dalla griglia. Mai con un caso storico.", "Downloads the forecast without clicking: at start, at each new GFS run on NOMADS and when the visible area leaves the grid. Never with a historical case."));
+        upd.Controls.Add(auto);
         Add(col, upd);
         _fcStatus = WrapLbl(_own.Status == "" ? L("Previsione propria non ancora scaricata.", "Own forecast not downloaded yet.") : _own.Status, 9f, _th.Sub);
         Add(col, _fcStatus);
@@ -170,7 +177,7 @@ public sealed partial class MainForm
             try { if (_locBox != null && (_locBox.Text ?? "").Trim().ToUpperInvariant() != v) _locBox.Text = v; } finally { _fcSyncing = false; }
             _fcMap?.InvalidateVisual(); _map.InvalidateVisual();
         };
-        Add(me, FRow(L("Locatore (4–10 caratteri; 8–10 = punto preciso su SRTM1)", "Locator (4–10 chars; 8–10 = exact point on SRTM1)"), _fcTxLoc));
+        Add(me, FRow(L("Locatore (4–10 caratteri; 8–10 = punto preciso su DEM 30 m)", "Locator (4–10 chars; 8–10 = exact point on DEM 30 m)"), _fcTxLoc));
         Add(me, FRow(L("Antenna dal suolo, m (locatore 8–10)", "Antenna above ground, m (8–10 locator)"), Field("fc_tx_agl", "10")));
         Add(me, FRow(L("Antenna sul mare, m (locatore 4–6: fondamentale)", "Antenna above sea, m (4–6 locator: required)"), Field("fc_tx_asl", "0")));
         Add(me, FRow(L("Potenza, W", "Power, W"), Field("fc_tx_w", "100")));
@@ -203,7 +210,7 @@ public sealed partial class MainForm
 
         var act = Row();
         act.Controls.Add(Btn(L("Calcola il segnale", "Compute signal"), FcComputeLink, true));
-        act.Controls.Add(Btn(L("Copertura in ottica (SRTM1)", "Line-of-sight coverage (SRTM1)"), FcComputeLos, false));
+        act.Controls.Add(Btn(L("Copertura in ottica (DEM 30 m)", "Line-of-sight coverage (DEM 30 m)"), FcComputeLos, false));
         Add(col, act);
         _fcProfile = new ProfileView { Th = _th };
         _fcProfileHost = new AC.ControlHost(_fcProfile) { Height = 190, BackColor = C(_th.MapSea), Margin = new Padding(3, 6, 3, 6) };
@@ -308,7 +315,7 @@ public sealed partial class MainForm
     {
         if (_fcTime == null) return;
         var t = FcTime;
-        _fcTime.Text = $"{Lang.DayNames()[(int)t.DayOfWeek]} {t:dd/MM HH}:00 UTC (+{FcHours} h)";
+        _fcTime.Text = $"{Lang.DayNames()[(int)t.DayOfWeek]} {(_own.Hist != null ? t.ToString("dd/MM/yyyy HH") : t.ToString("dd/MM HH"))}:00 UTC (+{FcHours} h)";
     }
 
     void FcRefreshNoise()
@@ -329,6 +336,73 @@ public sealed partial class MainForm
         _fcGrx.Text = $"{Dl6wu.GainDbi(Num("fc_rx_boom", 2), f):0.0} dBi";
     }
 
+    /// <summary>Sorgente dei dati, caso storico e correzioni meteo della 1.3.0.</summary>
+    void FcSourceBox(TableLayoutPanel col)
+    {
+        OwnForecast.Source = WxSources.Parse(_st.S.Get("fc_source", "Auto"));
+        Refractivity.UseCorrections = _st.S.GetBool("fc_corr", true);
+        Refractivity.ViaIdeal = _st.S.GetBool("fc_via_ideal", false);
+        var r1 = Row();
+        var l1 = Lbl(L("Sorgente dei dati", "Data source"), 8.5f, _th.Muted); l1.AutoSize = false; l1.Width = 120; l1.Height = 28; l1.TextAlign = ContentAlignment.MiddleLeft;
+        var src = Combo(WxSources.All.Select(WxSources.Name), Math.Max(0, Array.IndexOf(WxSources.All, OwnForecast.Source)), 320, i =>
+        {
+            OwnForecast.Source = WxSources.All[i];
+            _st.S.Set("fc_source", OwnForecast.Source.ToString()); _st.Dirty = true;
+            FcSetStatus(L("Sorgente scelta: ", "Source: ") + WxSources.Name(OwnForecast.Source) + L(". Premi «Aggiorna previsione» per scaricare la griglia.", ". Press «Update forecast» to download the grid."));
+        });
+        _fcTips.SetToolTip(src, L("Automatica (consigliata): GFS prima da NOMADS (NOAA, file GRIB2 della zona, nessun limite giornaliero), poi da Open-Meteo per i punti che mancano: è lo stesso modello e la stessa corsa. ICON-EU (solo Europa) ed ECMWF valgono per tutta la griglia: modelli diversi non si mescolano. Manuale delle previsioni, § 3 bis.",
+                                  "Automatic (recommended): GFS first from NOMADS (NOAA, GRIB2 files of the area, no daily limit), then from Open-Meteo for any missing points: same model and run. ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis."));
+        r1.Controls.Add(l1); r1.Controls.Add(src);
+        Add(col, r1);
+
+        var r2 = Row();
+        var l2 = Lbl(L("Caso storico", "Historical case"), 8.5f, _th.Muted); l2.AutoSize = false; l2.Width = 120; l2.Height = 28; l2.TextAlign = ContentAlignment.MiddleLeft;
+        var cases = new List<string> { L("previsione attuale", "current forecast") };
+        cases.AddRange(HistCase.Known.Select(h => h.Name));
+        var hc = Combo(cases, _own.Hist == null ? 0 : Array.IndexOf(HistCase.Known, _own.Hist) + 1, 320, i =>
+        {
+            _own.Hist = i == 0 ? null : HistCase.Known[i - 1];
+            if (_own.Hist != null)
+            {
+                var h = _own.Hist;
+                _fcMap?.ShowBox(h.LatMin, h.LatMax, h.LonMin, h.LonMax);
+                _st.S.Set("fc_band", h.FreqMHz >= 1000 ? "1296" : h.FreqMHz >= 400 ? "432" : "144");
+                FcBandLook(); FcRefreshGains();
+                FcSetStatus(L("Caso storico: ", "Historical case: ") + h.Name + " — " + h.Note + L(". Premi «Aggiorna previsione» per scaricare i profili d'archivio.", ". Press «Update forecast» to download the archive profiles."));
+            }
+            else FcSetStatus(L("Previsione attuale: premi «Aggiorna previsione».", "Current forecast: press «Update forecast»."));
+            FcTimeLabel(); _fcMap?.InvalidateVisual();
+        });
+        _fcTips.SetToolTip(hc, L("Rivede un'apertura documentata (QST) con le previsioni GFS d'archivio di Open-Meteo. Manuale delle previsioni, § 3 ter.", "Replays a documented opening (QST) with Open-Meteo archived GFS forecasts. Forecast manual, § 3 ter."));
+        r2.Controls.Add(l2); r2.Controls.Add(hc);
+        Add(col, r2);
+
+        var corr = Chk(L("Correzioni meteo: stabilità (Misme), subsidenza e persistenza", "Weather corrections: stability (Misme), subsidence and persistence"), Refractivity.UseCorrections, v =>
+        {
+            Refractivity.UseCorrections = v; _st.S.SetBool("fc_corr", v); _st.Dirty = true; _fcMap?.InvalidateVisual();
+        });
+        _fcTips.SetToolTip(corr, L("Termine di stabilità di Misme (solo senza condotto, da −4 a +6 dB, taratura provvisoria) e moto verticale: +1,5 dB con subsidenza, −2 dB con aria in salita. Manuale delle previsioni, § 9 bis.",
+                                   "Misme stability term (only without a duct, −4 to +6 dB, provisional) and vertical motion: +1.5 dB with subsidence, −2 dB with rising air. Forecast manual, § 9 bis."));
+        Add(col, corr);
+        var vi = Chk(L("Via monte senza perdita fino al monte (stazione portata sul punto)", "Via mountain lossless to the peak (station moved to the point)"), Refractivity.ViaIdeal, v =>
+        {
+            Refractivity.ViaIdeal = v; _st.S.SetBool("fc_via_ideal", v); _st.Dirty = true;
+        });
+        _fcTips.SetToolTip(vi, L("Quando il corrispondente è chiuso da un rilievo vicino, il giro d'orizzonte cerca il punto migliore da cui rilanciare il segnale. Con questa casella la perdita fra la tua stazione e il punto è considerata nulla: è come portare la stazione sulla cima (antenna a 10 m, stessa potenza e antenna) e conta solo la tratta dal punto al corrispondente. Il punto è dato con il locatore a 10 caratteri. Limite ottimistico. Manuale delle previsioni, § 10 bis.", "When the other station is blocked by nearby terrain, the horizon sweep looks for the best point to relaunch the signal. With this box the loss between your station and the point is taken as zero: as if you moved the station to the summit (antenna 10 m, same power and antenna); only the leg from the point to the other station counts. The point is given with a 10-character locator. Optimistic bound. Forecast manual, § 10 bis."));
+        Add(col, vi);
+    }
+
+    bool FcAuto { get => _st.S.GetBool("fc_auto", true); set => _st.S.SetBool("fc_auto", value); }
+    int _fcAutoTick;
+    /// <summary>Chiamata ogni secondo dal timer: ogni 30 s controlla se serve aggiornare la previsione (1.3.2).</summary>
+    void FcAutoCheck()
+    {
+        if (++_fcAutoTick % 30 != 0 || !FcAuto || _fcMap == null) return;
+        var (la1, la2, lo1, lo2) = _fcMap.Box;
+        if (la2 - la1 < 0.5 || lo2 - lo1 < 0.5) return;      // mappa non ancora disposta
+        if (_own.NeedsAutoUpdate(la1, la2, lo1, lo2)) { CalcLog.W("aggiornamento automatico della previsione"); FcUpdateGrid(); }
+    }
+
     void FcUpdateGrid()
     {
         if (_fcMap == null) return;
@@ -336,6 +410,7 @@ public sealed partial class MainForm
         _fcCts?.Cancel(); _fcCts = new CancellationTokenSource();
         var ct = _fcCts.Token;
         var (la1, la2, lo1, lo2) = _fcMap.Box;
+        if (_own.Hist != null) { la1 = _own.Hist.LatMin; la2 = _own.Hist.LatMax; lo1 = _own.Hist.LonMin; lo2 = _own.Hist.LonMax; }
         CalcLog.Section("Aggiornamento della previsione propria");
         CalcLog.W($"zona visibile {la1:0.##}–{la2:0.##} N, {lo1:0.##}–{lo2:0.##} E");
         Task.Run(async () =>
@@ -377,8 +452,8 @@ public sealed partial class MainForm
             NoiseEnv = _st.S.Get("fc_rx_env", "quiet"), ManualTaK = Num("fc_rx_ta", 300)
         };
         _srtm.Progress = FcSetStatus;
-        FcResultMessage(L("Calcolo in corso… La prima volta si scaricano i riquadri SRTM1 del percorso (6–7 MB l'uno) e i profili GFS: può volerci qualche minuto. L'avanzamento è nel registro qui sotto.",
-                          "Computing… The first time the path's SRTM1 tiles (6–7 MB each) and GFS profiles are downloaded: it can take a few minutes. Progress is in the log below."), _th.Muted);
+        FcResultMessage(L("Calcolo in corso… La prima volta si scaricano i riquadri DEM 30 m del percorso (15–30 MB l'uno) e i profili GFS: può volerci qualche minuto. L'avanzamento è nel registro qui sotto.",
+                          "Computing… The first time the path's DEM 30 m tiles (15–30 MB each) and GFS profiles are downloaded: it can take a few minutes. Progress is in the log below."), _th.Muted);
         Task.Run(async () =>
         {
             try
@@ -390,11 +465,12 @@ public sealed partial class MainForm
                 var pp = Geo.GreatCircle(tx.Pos, rx.Pos, n - 1);
                 var prof = pp.Select(p => _own.At(p.Lat, p.Lon, opt.Utc)).ToList();
                 CalcLog.W($"percorso {d:0.0} km: {n} punti di previsione; dalla griglia già scaricata {prof.Count(p => p != null)}");
-                if (prof.Count(p => p != null) < prof.Count * 0.8)
+                if (prof.Count(p => p != null) < prof.Count * 0.8 || (_own.HasData && _own.Step > 1.0 && _own.Hist == null))
                 {
+                    if (_own.Step > 1.0) CalcLog.W($"la griglia ha passo {_own.Step:0.##}°, troppo largo per il percorso: scarico i profili dei {n} punti della tratta");
                     FcSetStatus(L("GFS: scarico i profili lungo il percorso…", "GFS: downloading profiles along the path…"));
                     fs = new FetchStats();
-                    var ser = await OwnForecast.FetchPoints(FcHttp, pp, FcSetStatus, ct, fs, _own.RunUtc);
+                    var ser = await OwnForecast.FetchPoints(FcHttp, pp, FcSetStatus, ct, fs, _own.RunUtc, null, _own.Hist, null, 0.25, opt.Utc);
                     prof = ser.Select(s =>
                     {
                         int best = -1; double bd = double.MaxValue;
@@ -403,6 +479,7 @@ public sealed partial class MainForm
                     }).ToList();
                 }
                 tm.Lap(fs != null ? "profili GFS scaricati" : "profili dalla griglia");
+                if (_own.HasData) opt.PersistFrac = pp.Average(p => _own.PersistAt(p.Lat, p.Lon, opt.Utc, opt.FreqMHz));
                 var r = await LinkCalc.Compute(tx, rx, opt, _srtm, prof, ct);
                 tm.Lap("calcolo sul percorso");
                 r.Times.Laps.Insert(0, tm.Laps[0]);
@@ -413,7 +490,7 @@ public sealed partial class MainForm
                                                              $"other antenna height estimated: SRTM ground at the centre of {rx.Loc} + {rx.AglM:0} m"));
                 CalcLog.W($"TEMPI dal clic al risultato: {CalcLog.Dur(tm.TotalMs)}");
                 _fcLast = r;
-                FcSetStatus(L("Calcolo completato.", "Done.") + (r.TilesMissing > 0 ? " " + L("Riquadri SRTM1 mancanti: ", "Missing SRTM1 tiles: ") + r.TilesMissing : ""));
+                FcSetStatus(L("Calcolo completato.", "Done.") + (r.TilesMissing > 0 ? " " + L("Riquadri DEM 30 m mancanti: ", "Missing DEM 30 m tiles: ") + r.TilesMissing : ""));
                 Ui(() =>
                 {
                     FcShowResult(r);
@@ -439,7 +516,7 @@ public sealed partial class MainForm
         _fcResults.SuspendLayout();
         _fcResults.Controls.Clear(); _fcResults.RowStyles.Clear(); _fcResults.RowCount = 0;
         Add(_fcResults, Lbl(ForecastText.Header(r, FcTime), 11f, _th.Accent, true));
-        foreach (var (label, value, tone, bold) in ForecastText.Lines(r, Num("fc_req_ssb", 6), Num("fc_req_cw", 0), Num("fc_req_ft8", -21)))
+        foreach (var (label, value, tone, bold) in ForecastText.Lines(r, Num("fc_req_ssb", 6), Num("fc_req_cw", 0), Num("fc_req_ft8", -21), _own))
         {
             var col = tone switch
             {
@@ -451,6 +528,7 @@ public sealed partial class MainForm
             var row = Row(); row.WrapContents = false;
             var a = Lbl(label + (tip != null ? " ⓘ" : ""), 9f, _th.Muted); a.AutoSize = false; a.Width = 210; a.Height = 20;
             var b = Lbl(value, 9f, col, bold, true);
+            b.AutoSize = true; b.MaximumSize = new System.Drawing.Size(Math.Max(220, _fcResults.ClientSize.Width - 240), 0);   // a capo invece di tagliare
             row.Controls.Add(a); row.Controls.Add(b);
             if (tip != null) { _fcTips.SetToolTip(a, tip); _fcTips.SetToolTip(b, tip); }
             Add(_fcResults, row);

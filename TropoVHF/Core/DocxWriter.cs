@@ -42,6 +42,7 @@ public static class DocxWriter
         var body = new StringBuilder();
         var lines = md.Replace("\r", "").Split('\n');
         bool code = false, math = false, first = true;
+        int eqNo = 0;
         var block = new List<string>();
         var table = new List<string[]>();
 
@@ -85,9 +86,15 @@ public static class DocxWriter
                     foreach (var b in block.Where(x => x.Trim().Length > 0))
                     {
                         if (math)
-                            body.Append("<w:p><w:pPr><w:pStyle w:val=\"Formula\"/></w:pPr><m:oMathPara><m:oMath>")
+                        {
+                            // formula al centro e numero a destra (stile LaTeX) con due tabulazioni
+                            bool numbered = !b.Contains("\\notag");
+                            body.Append("<w:p><w:pPr><w:pStyle w:val=\"FormulaNum\"/></w:pPr><w:r><w:tab/></w:r><m:oMath>")
                                 .Append(Omml(MathParser.Parse(b.Trim())))
-                                .Append("</m:oMath></m:oMathPara></w:p>");
+                                .Append("</m:oMath>");
+                            if (numbered) body.Append($"<w:r><w:tab/><w:t>({++eqNo})</w:t></w:r>");
+                            body.Append("</w:p>");
+                        }
                         else
                             body.Append("<w:p><w:pPr><w:pStyle w:val=\"Codice\"/></w:pPr><w:r><w:t xml:space=\"preserve\">").Append(X(b)).Append("</w:t></w:r></w:p>");
                     }
@@ -104,6 +111,7 @@ public static class DocxWriter
 
             if (l.StartsWith("# ")) { body.Append(Para("Titolo", l.Substring(2))); first = false; }
             else if (l.StartsWith("## ")) body.Append(Para("Titolo1", l.Substring(3)));
+            else if (l.StartsWith("### ")) body.Append(Para("Titolo2", l.Substring(4)));
             else if (l.StartsWith("- ")) body.Append(Para("Elenco", "•\t" + l.Substring(2)));
             else if (char.IsDigit(l[0]) && l.Contains(". ") && l.IndexOf(". ") <= 3)
             {
@@ -153,7 +161,27 @@ public static class DocxWriter
         return sb.ToString();
     }
 
+    static readonly Regex Inline = new(@"\*\*(.+?)\*\*|(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])|`([^`]+)`|\[([^\]]+)\]\((https?://[^)\s]+)\)", RegexOptions.Compiled);
+
+    /// <summary>Markdown in linea: **grassetto**, *corsivo*, `codice`, [testo](indirizzo) → testo sottolineato blu.</summary>
     static void Plain(StringBuilder sb, string t, string rpr)
+    {
+        if (t.Length == 0) return;
+        int pos = 0;
+        foreach (Match m in Inline.Matches(t))
+        {
+            PlainRaw(sb, t.Substring(pos, m.Index - pos), rpr);
+            string inner = rpr.Replace("<w:rPr>", "").Replace("</w:rPr>", "");
+            if (m.Groups[1].Success) PlainRaw(sb, m.Groups[1].Value, "<w:rPr>" + inner + "<w:b/></w:rPr>");
+            else if (m.Groups[2].Success) PlainRaw(sb, m.Groups[2].Value, "<w:rPr>" + inner + "<w:i/></w:rPr>");
+            else if (m.Groups[3].Success) PlainRaw(sb, m.Groups[3].Value, "<w:rPr><w:rFonts w:ascii=\"Consolas\" w:hAnsi=\"Consolas\"/>" + inner + "</w:rPr>");
+            else PlainRaw(sb, m.Groups[4].Value + " (" + m.Groups[5].Value + ")", "<w:rPr>" + inner + "<w:color w:val=\"1E5FB8\"/></w:rPr>");
+            pos = m.Index + m.Length;
+        }
+        PlainRaw(sb, t.Substring(pos), rpr);
+    }
+
+    static void PlainRaw(StringBuilder sb, string t, string rpr)
     {
         if (t.Length == 0) return;
         var parts = t.Split('\t');
@@ -213,11 +241,13 @@ public static class DocxWriter
         "<w:pPrDefault><w:pPr><w:spacing w:after=\"120\" w:line=\"288\" w:lineRule=\"auto\"/></w:pPr></w:pPrDefault></w:docDefaults>" +
         "<w:style w:type=\"paragraph\" w:default=\"1\" w:styleId=\"Normale\"><w:name w:val=\"Normal\"/><w:qFormat/></w:style>" +
         "<w:style w:type=\"paragraph\" w:styleId=\"Occhiello\"><w:name w:val=\"Occhiello\"/><w:basedOn w:val=\"Normale\"/><w:rPr><w:b/><w:caps/><w:color w:val=\"5A6B85\"/><w:sz w:val=\"17\"/><w:spacing w:val=\"10\"/></w:rPr></w:style>" +
-        "<w:style w:type=\"paragraph\" w:styleId=\"Titolo\"><w:name w:val=\"Title\"/><w:basedOn w:val=\"Normale\"/><w:next w:val=\"Normale\"/><w:qFormat/><w:pPr><w:spacing w:after=\"160\"/></w:pPr><w:rPr><w:b/><w:color w:val=\"1F3A7A\"/><w:sz w:val=\"52\"/><w:szCs w:val=\"52\"/></w:rPr></w:style>" +
-        "<w:style w:type=\"paragraph\" w:styleId=\"Titolo1\"><w:name w:val=\"heading 1\"/><w:basedOn w:val=\"Normale\"/><w:next w:val=\"Normale\"/><w:qFormat/><w:pPr><w:keepNext/><w:pBdr><w:bottom w:val=\"single\" w:sz=\"6\" w:space=\"4\" w:color=\"C9D3E6\"/></w:pBdr><w:spacing w:before=\"360\" w:after=\"160\"/><w:outlineLvl w:val=\"0\"/></w:pPr><w:rPr><w:b/><w:color w:val=\"1F3A7A\"/><w:sz w:val=\"32\"/><w:szCs w:val=\"32\"/></w:rPr></w:style>" +
+        "<w:style w:type=\"paragraph\" w:styleId=\"Titolo\"><w:name w:val=\"Title\"/><w:basedOn w:val=\"Normale\"/><w:next w:val=\"Normale\"/><w:qFormat/><w:pPr><w:spacing w:after=\"160\"/></w:pPr><w:rPr><w:rFonts w:ascii=\"Georgia\" w:hAnsi=\"Georgia\"/><w:color w:val=\"1F3A7A\"/><w:sz w:val=\"52\"/><w:szCs w:val=\"52\"/></w:rPr></w:style>" +
+        "<w:style w:type=\"paragraph\" w:styleId=\"Titolo1\"><w:name w:val=\"heading 1\"/><w:basedOn w:val=\"Normale\"/><w:next w:val=\"Normale\"/><w:qFormat/><w:pPr><w:keepNext/><w:pBdr><w:bottom w:val=\"single\" w:sz=\"6\" w:space=\"4\" w:color=\"C9D3E6\"/></w:pBdr><w:spacing w:before=\"360\" w:after=\"160\"/><w:outlineLvl w:val=\"0\"/></w:pPr><w:rPr><w:rFonts w:ascii=\"Georgia\" w:hAnsi=\"Georgia\"/><w:color w:val=\"1F3A7A\"/><w:sz w:val=\"32\"/><w:szCs w:val=\"32\"/></w:rPr></w:style>" +
         "<w:style w:type=\"paragraph\" w:styleId=\"Elenco\"><w:name w:val=\"Elenco\"/><w:basedOn w:val=\"Normale\"/><w:pPr><w:tabs><w:tab w:val=\"left\" w:pos=\"426\"/></w:tabs><w:spacing w:after=\"80\"/><w:ind w:left=\"426\" w:hanging=\"426\"/></w:pPr></w:style>" +
         "<w:style w:type=\"paragraph\" w:styleId=\"Tabella\"><w:name w:val=\"Testo tabella\"/><w:basedOn w:val=\"Normale\"/><w:pPr><w:spacing w:before=\"40\" w:after=\"40\" w:line=\"252\" w:lineRule=\"auto\"/></w:pPr><w:rPr><w:sz w:val=\"19\"/><w:szCs w:val=\"19\"/></w:rPr></w:style>" +
         "<w:style w:type=\"paragraph\" w:styleId=\"Codice\"><w:name w:val=\"Codice\"/><w:basedOn w:val=\"Normale\"/><w:pPr><w:shd w:val=\"clear\" w:color=\"auto\" w:fill=\"F4F6FA\"/><w:spacing w:after=\"0\"/></w:pPr><w:rPr><w:rFonts w:ascii=\"Consolas\" w:hAnsi=\"Consolas\"/><w:sz w:val=\"19\"/></w:rPr></w:style>" +
+        "<w:style w:type=\"paragraph\" w:styleId=\"Titolo2\"><w:name w:val=\"heading 2\"/><w:basedOn w:val=\"Normale\"/><w:next w:val=\"Normale\"/><w:qFormat/><w:pPr><w:keepNext/><w:spacing w:before=\"240\" w:after=\"100\"/><w:outlineLvl w:val=\"1\"/></w:pPr><w:rPr><w:rFonts w:ascii=\"Georgia\" w:hAnsi=\"Georgia\"/><w:b/><w:color w:val=\"1F3A7A\"/><w:sz w:val=\"26\"/><w:szCs w:val=\"26\"/></w:rPr></w:style>" +
+        "<w:style w:type=\"paragraph\" w:styleId=\"FormulaNum\"><w:name w:val=\"Formula numerata\"/><w:basedOn w:val=\"Normale\"/><w:pPr><w:tabs><w:tab w:val=\"center\" w:pos=\"4819\"/><w:tab w:val=\"right\" w:pos=\"9638\"/></w:tabs><w:spacing w:before=\"80\" w:after=\"120\"/></w:pPr><w:rPr><w:rFonts w:ascii=\"Cambria Math\" w:hAnsi=\"Cambria Math\"/><w:sz w:val=\"24\"/></w:rPr></w:style>" +
         "<w:style w:type=\"paragraph\" w:styleId=\"Formula\"><w:name w:val=\"Formula\"/><w:basedOn w:val=\"Normale\"/><w:pPr><w:jc w:val=\"center\"/><w:spacing w:before=\"80\" w:after=\"120\"/></w:pPr><w:rPr><w:rFonts w:ascii=\"Cambria Math\" w:hAnsi=\"Cambria Math\"/><w:sz w:val=\"24\"/></w:rPr></w:style>" +
         "</w:styles>";
 }

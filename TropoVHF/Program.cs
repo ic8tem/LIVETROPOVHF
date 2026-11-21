@@ -60,6 +60,10 @@ public static class Program
         Core.ErrorLog.Context = () => Forecast.CalcLog.RecentLines(50);
         AppDomain.CurrentDomain.UnhandledException += (_, e) => Core.ErrorLog.Write(e.ExceptionObject as Exception, "AppDomain", e.IsTerminating);
         TaskScheduler.UnobservedTaskException += (_, e) => { Core.ErrorLog.Write(e.Exception, "attività in background"); e.SetObserved(); };
+        int pf = Array.IndexOf(args, "--prova-fonti");
+        if (pf >= 0) { Environment.ExitCode = Forecast.SourceTest.Run(pf + 1 < args.Length ? args[pf + 1] : "prova-fonti.txt"); return; }
+        int pv = Array.IndexOf(args, "--valida");
+        if (pv >= 0 && pv + 2 < args.Length) { Environment.ExitCode = Forecast.Validation.Run(args[pv + 1], args[pv + 2]); return; }
         try
         {
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);

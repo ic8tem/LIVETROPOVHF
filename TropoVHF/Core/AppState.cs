@@ -83,7 +83,8 @@ public sealed class AppState
         Call = S.Get("call", "");
         Loc = S.Get("loc", "");
         ThemeKey = S.Get("theme", "chiaro");
-        LangCode = S.Get("lang", "it");
+        LangCode = S.Get("lang", "");
+        if (string.IsNullOrEmpty(LangCode)) LangCode = TropoVHF.Ui.Lang.SystemDefault();   // prima partenza: lingua del sistema, altrimenti inglese
         Band = S.Get("band", "144");
         if (!Bands.All.Contains(Band)) Band = "144";     // 50 e 70 MHz non ci sono più
         WindowMin = S.GetInt("window", 15);
@@ -98,12 +99,14 @@ public sealed class AppState
         // GB7RAU non è più una fonte: le sue impostazioni salvate (indirizzo, utente, password) si cancellano
         if (S.Get("dxc2_host", "").Contains("gb7rau", StringComparison.OrdinalIgnoreCase))
             foreach (var k in new[] { "host", "port", "login", "password", "cmds", "recon", "auto" }) S.Remove("dxc2_" + k);
+        // S50CLX ha cambiato dominio (s50clx.infrax.si non risolve più): si aggiorna l'indirizzo salvato
+        if (S.Get("dxc3_host", "").Trim().Equals("s50clx.infrax.si", StringComparison.OrdinalIgnoreCase)) S.Set("dxc3_host", "s50clx.si");
         Feeds = new[]
         {
             NewFeed("dxc", "DXC", "on0dxk.dyndns.org", 8000, "set/filter dxbm/pass 6", true),
             // seconda fonte: 9A0DXC (Zagabria) e S50CLX (Slovenia), login con il proprio nominativo
             NewFeed("dxc2", "DXC", "9a0dxc.hamradio.hr", 8000, "", true),
-            NewFeed("dxc3", "DXC", "s50clx.infrax.si", 41112, "", true),
+            NewFeed("dxc3", "DXC", "s50clx.si", 41112, "", true),
             NewFeed("rbn", "RBN", "telnet.reversebeacon.net", 7001, "", true),
             NewFeed("psk", "PSK", "dm4x.ddns.net", 8500, "", false),
         };
@@ -528,9 +531,9 @@ public sealed class AppState
 
     // ------------------------------------------------ aggiornamento di CALL3.TXT da MMMonVHF
 
-    public const string Call3Url = "https://www.mmmonvhf.de/dl.php?dl=call3.txt";
+    public static readonly string Call3Url = string.Join("  ·  ", Call3Sources.Sources.Select(x => x.Name));
     public bool Call3Auto { get => S.GetBool("call3_auto", false); set { S.Set("call3_auto", value ? "1" : "0"); Dirty = true; } }
-    public int Call3AutoDays = 7;
+    public int Call3AutoDays = 14;
     public DateTime Call3Last
     {
         get => DateTime.TryParse(S.Get("call3_last", ""), System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal, out var d) ? d : DateTime.MinValue;
@@ -551,19 +554,11 @@ public sealed class AppState
         void St(string m) { Call3Status = m; Call3StatusChanged?.Invoke(m); }
         try
         {
-            St("Scarico CALL3.TXT da mmmonvhf.de…");
             using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
-            http.DefaultRequestHeaders.UserAgent.ParseAdd("LIVETROPOVHF/" + (typeof(AppState).Assembly.GetName().Version?.ToString(3) ?? "0"));
-            var bytes = await http.GetByteArrayAsync(Call3Url);
-            var text = Compat.Latin1.GetString(bytes);
-            int ok = 0;
-            foreach (var line in text.Split('\n'))
-            {
-                if (line.StartsWith("//")) continue;
-                var p = line.Split(',');
-                if (p.Length >= 2 && p[0].Length >= 3 && Locator.IsValid(p[1].Trim())) ok++;
-            }
-            if (ok < 100_000) { St($"File scaricato non valido ({ok} righe utili): CALL3.TXT non cambiato."); return false; }
+            http.DefaultRequestHeaders.UserAgent.ParseAdd("LIVETROPOVHF/" + (typeof(AppState).Assembly.GetName().Version?.ToString(3) ?? "0") + " (+https://github.com/ic8tem/LIVETROPOVHF)");
+            var prev = CallDb.PathUsed != "" ? CallDb.PathUsed : Path.Combine(Settings.AppDir, "CALL3.TXT");
+            var (text, summary, total) = await Call3Sources.BuildAsync(http, prev, St);
+            var bytes = Compat.Latin1.GetBytes(text);
             var dest = CallDb.PathUsed != "" ? CallDb.PathUsed : Path.Combine(Settings.AppDir, "CALL3.TXT");
             var tmp = dest + ".nuovo";
             await Compat.WriteBytes(tmp, bytes, CancellationToken.None);
@@ -581,7 +576,7 @@ public sealed class AppState
             Save();
             Dirty = true;
             CallDbLoaded?.Invoke();
-            St($"CALL3.TXT aggiornato: {CallDb.Count:N0} nominativi ({DateTime.Now:dd/MM/yyyy HH:mm}). Il precedente è in CALL3.bak.");
+            St($"CALL3.TXT riscritto: {CallDb.Count:N0} nominativi ({DateTime.Now:dd/MM/yyyy HH:mm}) — {summary}. Il precedente è in CALL3.bak.");
             return true;
         }
         catch (Exception ex)

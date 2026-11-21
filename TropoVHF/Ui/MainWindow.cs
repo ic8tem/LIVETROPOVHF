@@ -59,7 +59,8 @@ public sealed partial class MainWindow : Window
             if (IsVisible) await dlg.ShowDialog(this);
         });
         // senza nominativo i cluster non partono: lo si chiede appena la finestra è aperta
-        Opened += async (_, _) => { if (!_st.HasValidCall) await AskCall(); };
+        // 1.3.2: al primo avvio il disclaimer sta nella finestra di nominativo e locatore; poi compare da solo a ogni avvio
+        Opened += async (_, _) => { if (!_st.HasValidCall) await AskCall(); else await ShowDisclaimer(); };
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1000) };
         _timer.Tick += (_, _) => Tick();
@@ -221,11 +222,66 @@ public sealed partial class MainWindow : Window
         return result;
     }
 
+    static readonly FontFamily DiscSerif = new("Georgia, Cambria, Times New Roman, DejaVu Serif, serif");
+    static string AppVersion => typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "";
+    static TextBlock Wrap12(TextBlock t) { t.TextWrapping = TextWrapping.Wrap; return t; }
+
+    /// <summary>Riquadro del disclaimer (1.3.2): testo completo al primo avvio, breve agli avvii successivi.</summary>
+    Control DisclaimerBox(bool full)
+    {
+        var sp = new StackPanel { Spacing = 8 };
+        if (full)
+        {
+            sp.Children.Add(TB("ⓘ  " + Lang.T("u.disc_head"), 13, _th.Accent, true));
+            foreach (var k in new[] { "u.disc_p1", "u.disc_p2", "u.disc_p3" }) sp.Children.Add(Wrap12(TB(Lang.T(k), 13, _th.Text)));
+        }
+        else sp.Children.Add(Wrap12(TB(Lang.T("u.disc_short"), 13, _th.Text)));
+        return new Border { Background = B(_th.Chip), BorderBrush = B(_th.Accent), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(14, 12), Child = sp };
+    }
+
+    /// <summary>Agli avvii successivi (nominativo già salvato): disclaimer breve, si chiude da solo dopo 10 s.</summary>
+    async Task ShowDisclaimer()
+    {
+        var dlg = new Window
+        {
+            Title = "LIVETROPOVHF", Width = 580, SizeToContent = SizeToContent.Height, CanResize = false,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = B(_th.Panel), ShowInTaskbar = false,
+            FlowDirection = Lang.IsRtl(Lang.Current) ? FlowDirection.RightToLeft : FlowDirection.LeftToRight
+        };
+        bool openSources = false;
+        int left = 10;
+        var count = TB(string.Format(Lang.T("u.disc_autoclose"), left), 12, _th.Muted);
+        count.VerticalAlignment = VerticalAlignment.Center;
+        var timer = new Avalonia.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        timer.Tick += (_, _) => { left--; count.Text = string.Format(Lang.T("u.disc_autoclose"), left); if (left <= 0) { timer.Stop(); dlg.Close(); } };
+        var bar = new DockPanel { LastChildFill = false };
+        DockPanel.SetDock(count, Dock.Left); bar.Children.Add(count);
+        var btns = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 };
+        btns.Children.Add(OutlineButton(Lang.T("u.disc_open"), () => { openSources = true; dlg.Close(); }));
+        btns.Children.Add(PrimaryButton(Lang.T("u.disc_continue"), () => dlg.Close()));
+        DockPanel.SetDock(btns, Dock.Right); bar.Children.Add(btns);
+        dlg.Content = new StackPanel
+        {
+            Margin = new Thickness(20), Spacing = 10,
+            Children =
+            {
+                new TextBlock { Text = "LIVETROPOVHF", FontFamily = DiscSerif, FontSize = 24, Foreground = B(_th.Text) },
+                TB($"{_st.Call} · {_st.Loc} · " + string.Format(Lang.T("u.disc_version"), AppVersion), 12, _th.Muted),
+                DisclaimerBox(false),
+                bar
+            }
+        };
+        dlg.Opened += (_, _) => timer.Start();
+        dlg.Closed += (_, _) => timer.Stop();
+        await dlg.ShowDialog(this);
+        if (openSources) ShowTab("doc6");
+    }
+
     async Task AskCall()
     {
         var dlg = new Window
         {
-            Title = Lang.T("u.ask_call_title"), Width = 460, SizeToContent = SizeToContent.Height, CanResize = false,
+            Title = Lang.T("u.ask_call_title"), Width = 580, SizeToContent = SizeToContent.Height, CanResize = false,
             WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = B(_th.Panel), ShowInTaskbar = false,
             FlowDirection = Lang.IsRtl(Lang.Current) ? FlowDirection.RightToLeft : FlowDirection.LeftToRight
         };
@@ -246,7 +302,7 @@ public sealed partial class MainWindow : Window
         }
         call.KeyDown += (_, e) => { if (e.Key == Avalonia.Input.Key.Enter) Confirm(); };
         loc.KeyDown += (_, e) => { if (e.Key == Avalonia.Input.Key.Enter) Confirm(); };
-        var okBtn = PrimaryButton("OK", Confirm);
+        var okBtn = PrimaryButton(Lang.T("u.disc_read"), Confirm);
         var later = OutlineButton(Lang.T("u.later"), () => dlg.Close());
         var text = TB(Lang.T("u.ask_call_text"), 13, _th.Text); text.TextWrapping = TextWrapping.Wrap;
         dlg.Content = new StackPanel
@@ -254,10 +310,14 @@ public sealed partial class MainWindow : Window
             Margin = new Thickness(20), Spacing = 10,
             Children =
             {
-                TB(Lang.T("u.ask_call_title"), 18, _th.Accent, true),
+                new TextBlock { Text = Lang.T("u.disc_welcome"), FontFamily = DiscSerif, FontSize = 24, Foreground = B(_th.Text), TextWrapping = TextWrapping.Wrap },
+                TB(string.Format(Lang.T("u.disc_version"), AppVersion), 12, _th.Muted),
+                DisclaimerBox(true),
+                TB(Lang.T("u.ask_call_title"), 15, _th.Accent, true),
                 text,
                 new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, Children = { new Border { Width = 150, Child = TB(Lang.T("call"), 13, _th.Muted) }, call } },
                 new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, Children = { new Border { Width = 150, Child = TB(Lang.T("u.ask_call_loc"), 13, _th.Muted) }, loc } },
+                Wrap12(TB(Lang.T("u.disc_hint"), 12, _th.Muted)),
                 err,
                 new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, HorizontalAlignment = HorizontalAlignment.Right, Children = { later, okBtn } }
             }
@@ -595,7 +655,8 @@ public sealed partial class MainWindow : Window
     CheckBox Check(string text, bool value, Action<bool> changed)
     {
         var c = new CheckBox { Content = text, IsChecked = value, Foreground = B(_th.Text), VerticalAlignment = VerticalAlignment.Center };
-        c.Click += (_, _) => changed(c.IsChecked == true);
+        // la scelta si salva subito: se il programma non si chiude in modo ordinato (riavvio per aggiornamento, spegnimento) non va persa
+        c.Click += (_, _) => { changed(c.IsChecked == true); try { _st.Save(); } catch { } };
         return c;
     }
 
@@ -627,6 +688,7 @@ public sealed partial class MainWindow : Window
         _tabContent["doc3"] = DocView.Build(DocView.LoadResource("tropo.md"), _th, "LIVETROPOVHF - Come si forma la tropo");
         _tabContent["doc4"] = DocView.Build(DocView.LoadResource("previsioni.md"), _th, "LIVETROPOVHF - Manuale delle previsioni");
         _tabContent["doc5"] = DocView.Build(DocView.LoadResource("consigli.md"), _th, "LIVETROPOVHF - Consigli per l'operatore");
+        _tabContent["doc6"] = DocView.Build(DocView.LoadResource("fonti.md"), _th, "LIVETROPOVHF - Fonti e formule");
         foreach (var kv in _tabContent) content.Children.Add(kv.Value);
         root.Children.Add(content);
 
@@ -704,7 +766,7 @@ public sealed partial class MainWindow : Window
         ("prev", new[] { "fc", "hepburn", "f5len" }),
         ("graves", new[] { "graves" }),
         ("data", new[] { "collect:dx", "collect:psk", "collect:rbn", "collect:udp", "collect:calls", "sus" }),
-        ("guide", new[] { "doc1", "doc2", "doc3", "doc4", "doc5" }),
+        ("guide", new[] { "doc1", "doc2", "doc3", "doc4", "doc5", "doc6" }),
     };
     readonly Dictionary<string, Button> _subTabButtons = new();
     StackPanel _subBarItems; Border _subBar; TextBox _guideSearch;
@@ -742,6 +804,7 @@ public sealed partial class MainWindow : Window
             "sus" => Lang.T("tab.sus"),
             "doc4" => it ? "Manuale previsioni" : "Forecast manual",
             "doc5" => it ? "Consigli all'operatore" : "Operator tips",
+            "doc6" => it ? "Fonti e formule" : "Sources and formulas",
             _ => Lang.T("tab." + item),
         };
     }
@@ -791,7 +854,7 @@ public sealed partial class MainWindow : Window
         return new StackPanel { Children = { band, _subBar } };
     }
 
-    static readonly Dictionary<string, string> _docFiles = new() { ["doc1"] = "funzionamento.md", ["doc2"] = "mappa.md", ["doc3"] = "tropo.md", ["doc4"] = "previsioni.md", ["doc5"] = "consigli.md" };
+    static readonly Dictionary<string, string> _docFiles = new() { ["doc1"] = "funzionamento.md", ["doc2"] = "mappa.md", ["doc3"] = "tropo.md", ["doc4"] = "previsioni.md", ["doc5"] = "consigli.md", ["doc6"] = "fonti.md" };
     readonly Dictionary<string, string> _docText = new();
 
     /// <summary>Ricerca nelle guide: ogni sotto-linguetta mostra quante volte compare il testo; Invio apre la prima che lo contiene.</summary>
@@ -2109,6 +2172,7 @@ public sealed partial class MainWindow : Window
 
     void Tick()
     {
+        try { FcAutoCheck(); } catch { }
         var now = Clock.UtcNow;
         if (_clock != null) _clock.Text = now.ToString("dd/MM/yyyy HH:mm:ss") + " UTC";
         if (_ntp != null)

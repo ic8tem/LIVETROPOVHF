@@ -16,6 +16,10 @@ public static class DocView
     static readonly IBrush CodeBg = new SolidColorBrush(Color.Parse("#F4F6FA"));
     static readonly IBrush TableHead = new SolidColorBrush(Color.Parse("#EEF2F8"));
     static readonly FontFamily Mono = new("Consolas, Menlo, DejaVu Sans Mono, monospace");
+    /// <summary>Titoli in carattere con grazie, come nei documenti di Claude.</summary>
+    static readonly FontFamily Serif = new("Georgia, Cambria, Times New Roman, DejaVu Serif, serif");
+    static readonly FontFamily MathNum = new("Cambria Math, STIX Two Math, Latin Modern Math, Times New Roman, serif");
+    static readonly IBrush LinkBrush = new SolidColorBrush(Color.Parse("#1E5FB8"));
 
     public static string LoadResource(string fileName)
     {
@@ -35,6 +39,7 @@ public static class DocView
         var codeLines = new List<string>();
         Grid table = null;
         int tableRow = 0;
+        int eqNo = 0;                       // numerazione delle formule come in LaTeX: (1), (2), …
 
         void EndTable() { table = null; tableRow = 0; }
 
@@ -46,12 +51,22 @@ public static class DocView
                 if (code && math)
                 {
                     // formule in stile editor di equazioni, una per riga, centrate
-                    var eqs = new StackPanel { Spacing = 14, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 6, 0, 8) };
+                    var eqs = new StackPanel { Spacing = 14, Margin = new Thickness(0, 6, 0, 8) };
                     foreach (var eq in codeLines.Where(x => x.Trim().Length > 0))
                     {
-                        var m = MathView.Build(eq.Trim(), 19, Body);
+                        var src = eq.Trim();
+                        bool numbered = !src.Contains("\\notag");
+                        var m = MathView.Build(src, 19, Body);
                         m.HorizontalAlignment = HorizontalAlignment.Center;
-                        eqs.Children.Add(m);
+                        // formula al centro, numero a destra fra parentesi (stile LaTeX)
+                        var row = new Grid { ColumnDefinitions = new ColumnDefinitions("56,*,56") };
+                        Grid.SetColumn(m, 1); row.Children.Add(m);
+                        if (numbered)
+                        {
+                            var num = new TextBlock { Text = $"({++eqNo})", FontFamily = MathNum, FontSize = 16, Foreground = Body, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
+                            Grid.SetColumn(num, 2); row.Children.Add(num);
+                        }
+                        eqs.Children.Add(row);
                     }
                     sheet.Children.Add(eqs);
                     codeLines.Clear();
@@ -88,7 +103,7 @@ public static class DocView
                     {
                         BorderBrush = new SolidColorBrush(Color.Parse("#D4DCE8")), BorderThickness = new Thickness(1),
                         Background = tableRow == 0 ? TableHead : Brushes.White, Padding = new Thickness(8, 5),
-                        Child = new TextBlock { Text = cells[i], TextWrapping = TextWrapping.Wrap, FontSize = 13, Foreground = tableRow == 0 ? Blue : Body, FontWeight = tableRow == 0 ? FontWeight.SemiBold : FontWeight.Normal, MaxWidth = i == cells.Length - 1 ? double.PositiveInfinity : 260 }
+                        Child = Rich(new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 13, Foreground = tableRow == 0 ? Blue : Body, FontWeight = tableRow == 0 ? FontWeight.SemiBold : FontWeight.Normal, MaxWidth = i == cells.Length - 1 ? double.PositiveInfinity : 260 }, cells[i])
                     };
                     Grid.SetRow(b, tableRow); Grid.SetColumn(b, i);
                     table.Children.Add(b);
@@ -101,15 +116,19 @@ public static class DocView
             if (l.Length == 0) continue;
             if (l.StartsWith("# "))
             {
-                sheet.Children.Add(new TextBlock { Text = l.Substring(2), FontSize = 28, FontWeight = FontWeight.Bold, Foreground = Blue, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 0) });
+                sheet.Children.Add(new TextBlock { Text = l.Substring(2), FontFamily = Serif, FontSize = 32, FontWeight = FontWeight.Normal, Foreground = Blue, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 0) });
             }
             else if (l.StartsWith("## "))
             {
                 sheet.Children.Add(new Border
                 {
                     BorderBrush = Rule, BorderThickness = new Thickness(0, 0, 0, 1), Padding = new Thickness(0, 0, 0, 6), Margin = new Thickness(0, 18, 0, 2),
-                    Child = new TextBlock { Text = l.Substring(3), FontSize = 21, FontWeight = FontWeight.Bold, Foreground = Blue, TextWrapping = TextWrapping.Wrap }
+                    Child = new TextBlock { Text = l.Substring(3), FontFamily = Serif, FontSize = 23, FontWeight = FontWeight.Normal, Foreground = Blue, TextWrapping = TextWrapping.Wrap }
                 });
+            }
+            else if (l.StartsWith("### "))
+            {
+                sheet.Children.Add(new TextBlock { Text = l.Substring(4), FontFamily = Serif, FontSize = 18, FontWeight = FontWeight.SemiBold, Foreground = Blue, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 10, 0, 0) });
             }
             else if (l.StartsWith("- "))
             {
@@ -123,11 +142,11 @@ public static class DocView
             else
             {
                 bool kicker = sheet.Children.Count == 0;
-                sheet.Children.Add(new TextBlock
+                sheet.Children.Add(Rich(new TextBlock
                 {
-                    Text = l, TextWrapping = TextWrapping.Wrap, FontSize = kicker ? 12 : 14, LineHeight = kicker ? 16 : 23,
+                    TextWrapping = TextWrapping.Wrap, FontSize = kicker ? 12 : 14, LineHeight = kicker ? 16 : 23,
                     Foreground = kicker ? Grey : Body, FontWeight = kicker ? FontWeight.SemiBold : FontWeight.Normal
-                });
+                }, l));
             }
         }
 
@@ -165,11 +184,33 @@ public static class DocView
         return new ScrollViewer { Content = outer, Background = th.B(th.Page), HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled };
     }
 
+    static readonly System.Text.RegularExpressions.Regex InlineRx =
+        new(@"\*\*(.+?)\*\*|(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])|`([^`]+)`|\[([^\]]+)\]\((https?://[^)\s]+)\)", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    /// <summary>Testo con **grassetto**, *corsivo*, `codice` e [collegamenti](https://…) del Markdown.</summary>
+    static TextBlock Rich(TextBlock tb, string text)
+    {
+        if (!InlineRx.IsMatch(text)) { tb.Text = text; return tb; }
+        tb.Inlines = new Avalonia.Controls.Documents.InlineCollection();
+        int pos = 0;
+        foreach (System.Text.RegularExpressions.Match m in InlineRx.Matches(text))
+        {
+            if (m.Index > pos) tb.Inlines.Add(new Avalonia.Controls.Documents.Run(text.Substring(pos, m.Index - pos)));
+            if (m.Groups[1].Success) tb.Inlines.Add(new Avalonia.Controls.Documents.Run(m.Groups[1].Value) { FontWeight = FontWeight.Bold });
+            else if (m.Groups[2].Success) tb.Inlines.Add(new Avalonia.Controls.Documents.Run(m.Groups[2].Value) { FontStyle = FontStyle.Italic });
+            else if (m.Groups[3].Success) tb.Inlines.Add(new Avalonia.Controls.Documents.Run(m.Groups[3].Value) { FontFamily = Mono, Background = CodeBg });
+            else tb.Inlines.Add(new Avalonia.Controls.Documents.Run(m.Groups[4].Value) { Foreground = LinkBrush, TextDecorations = TextDecorations.Underline });
+            pos = m.Index + m.Length;
+        }
+        if (pos < text.Length) tb.Inlines.Add(new Avalonia.Controls.Documents.Run(text.Substring(pos)));
+        return tb;
+    }
+
     static Control Item(string bullet, string text)
     {
         var g = new Grid { ColumnDefinitions = new ColumnDefinitions("30,*") };
         var b = new TextBlock { Text = bullet, FontWeight = FontWeight.Bold, Foreground = new SolidColorBrush(Color.Parse("#1F2A3A")), FontSize = 14 };
-        var t = new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, FontSize = 14, LineHeight = 23, Foreground = Body };
+        var t = Rich(new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 14, LineHeight = 23, Foreground = Body }, text);
         Grid.SetColumn(t, 1);
         g.Children.Add(b); g.Children.Add(t);
         return g;
