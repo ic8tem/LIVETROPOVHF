@@ -84,14 +84,14 @@ public static class SourceTest
             var ring = new List<LatLon>(); int nr = (int)(60 / 0.3);
             for (int a = 0; a < 360; a += 10) for (int k = 1; k <= nr; k++) ring.Add(Geo.Destination(sp, a, k * 0.3));
             var hr = srtm.Heights(ring, ct).GetAwaiter().GetResult().h;
-            var sb = new StringBuilder("  orizzonte dal Vesuvio (gradi):");
+            var hsb = new StringBuilder("  orizzonte dal Vesuvio (gradi):");
             for (int a = 0; a < 36; a++)
             {
                 double hor = double.MinValue;
                 for (int k = 1; k <= nr; k++) { double dk = k * 0.3; hor = Math.Max(hor, Math.Atan((hr[a * nr + k - 1] - dk * dk / (2 * ae) * 1000 - hl[bi] - 10) / (dk * 1000)) * 180 / Math.PI); }
-                sb.Append(string.Format(CultureInfo.InvariantCulture, " {0}°:{1:+0.0;-0.0}", a * 10, hor));
+                hsb.Append(string.Format(CultureInfo.InvariantCulture, " {0}°:{1:+0.0;-0.0}", a * 10, hor));
             }
-            W(sb.ToString());
+            W(hsb.ToString());
             var peak = new Station { Loc = LocatorX.To10(sp.Lat, sp.Lon), Pos = sp, Precise = true, AglM = 10, BoomM = 9, PowerW = 400 };
             var opt = new LinkCalc.Options { Utc = DateTime.UtcNow };
             double lam = 299.792458 / 144.3;
