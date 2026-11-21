@@ -250,5 +250,17 @@
  "close.title": "Programm beenden",
  "close.thanks": "Danke, dass du mich benutzt hast: ich hoffe, ich war dir nützlich.",
  "yes": "Ja",
- "no": "Nein"
+ "no": "Nein",
+ "u.disc_welcome": "Willkommen bei LIVETROPOVHF",
+ "u.disc_head": "Was das Programm macht",
+ "u.disc_p1": "LIVETROPOVHF berechnet die troposphärische Ausbreitung auf VHF und UHF halb-probabilistisch. Es nutzt die Vertikalprofile des Wettermodells GFS (NOAA) und die Theorie der wissenschaftlichen Arbeiten im Handbuch «Quellen und Formeln»: Die Indizes stammen aus der Physik der Ducts, Schwellen und Wahrscheinlichkeiten sind an echten Verbindungen kalibriert.",
+ "u.disc_p2": "Ist die gewünschte Richtung durch nahe Hindernisse versperrt, zeigt es auch die wahrscheinlichsten Antennenrichtungen, also Berge, die das Signal streuen können.",
+ "u.disc_p3": "Ziel ist, Ducting-Öffnungen zu erwischen. Eine Garantie ist es nicht: Die Bedingungen ändern sich in Minuten, und die Spots von DX-Cluster und PSKReporter bleiben die Echtzeit-Kontrolle.",
+ "u.disc_short": "Halb-probabilistische Berechnung troposphärischer Ducts aus GFS-Profilen nach der Theorie der wissenschaftlichen Quellen im Handbuch, mit den wahrscheinlichsten Richtungen bei versperrten Richtungen. Hilft, Öffnungen zu erwischen, garantiert sie aber nicht; Echtzeit-Spots bleiben die Kontrolle.",
+ "u.disc_hint": "Das Rufzeichen dient zur Anmeldung an den Clustern; ein 8–10-stelliger Locator macht die Geländeberechnung genauer.",
+ "u.disc_read": "Gelesen, weiter",
+ "u.disc_continue": "Weiter",
+ "u.disc_open": "«Quellen und Formeln» öffnen",
+ "u.disc_autoclose": "Schließt sich in {0} s",
+ "u.disc_version": "Version {0}"
 }

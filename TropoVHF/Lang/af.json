@@ -250,5 +250,17 @@
  "close.title": "Sluit die program",
  "close.thanks": "Dankie dat jy my gebruik het: ek hoop ek was vir jou nuttig.",
  "yes": "Ja",
- "no": "Nee"
+ "no": "Nee",
+ "u.disc_welcome": "Welkom by LIVETROPOVHF",
+ "u.disc_head": "Wat die program doen",
+ "u.disc_p1": "LIVETROPOVHF maak 'n semi-probabilistiese berekening van troposferiese voortplanting op VHF en UHF. Dit gebruik die vertikale profiele van die weermodel GFS (NOAA) en die teorie van die wetenskaplike artikels in die handleiding «Bronne en formules»: die indekse kom uit die fisika van ducts, terwyl drempels en waarskynlikhede op werklike kontakte gekalibreer is.",
+ "u.disc_p2": "As die gewenste rigting deur nabye hindernisse versper word, wys dit ook die waarskynlikste antennarigtings, dus die berge wat die sein kan versprei.",
+ "u.disc_p3": "Die doel is om jou te help om duct-openinge te vang. Dit is geen waarborg nie: toestande verander binne minute, en spots van DX-cluster en PSKReporter bly die intydse kontrole.",
+ "u.disc_short": "Semi-probabilistiese berekening van troposferiese ducts uit GFS-profiele volgens die teorie van die wetenskaplike bronne in die handleiding, met die waarskynlikste rigtings vir versperde rigtings. Help om openinge te vang sonder om dit te waarborg; intydse spots bly die kontrole.",
+ "u.disc_hint": "Die roepsein word gebruik om by die clusters aan te meld; 'n lokaliseerder van 8–10 karakters maak die terreinberekening akkurater.",
+ "u.disc_read": "Gelees, gaan voort",
+ "u.disc_continue": "Gaan voort",
+ "u.disc_open": "Maak «Bronne en formules» oop",
+ "u.disc_autoclose": "Sluit vanself oor {0} s",
+ "u.disc_version": "weergawe {0}"
 }

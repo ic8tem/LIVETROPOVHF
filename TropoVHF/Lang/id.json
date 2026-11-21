@@ -250,5 +250,17 @@
  "close.title": "Menutup program",
  "close.thanks": "Terima kasih telah memakai saya: semoga saya bermanfaat bagimu.",
  "yes": "Ya",
- "no": "Tidak"
+ "no": "Tidak",
+ "u.disc_welcome": "Selamat datang di LIVETROPOVHF",
+ "u.disc_head": "Apa yang dilakukan program",
+ "u.disc_p1": "LIVETROPOVHF membuat perhitungan semi-probabilistik propagasi troposfer di VHF dan UHF. Program ini memakai profil vertikal model cuaca GFS (NOAA) dan teori dari artikel ilmiah dalam manual «Sumber dan rumus»: indeks berasal dari fisika duct, sedangkan ambang dan probabilitas dikalibrasi dengan kontak nyata.",
+ "u.disc_p2": "Jika arah yang diinginkan terhalang rintangan dekat, program juga menunjukkan arah antena yang paling mungkin, yaitu gunung yang dapat menghamburkan sinyal.",
+ "u.disc_p3": "Tujuannya membantu Anda menangkap pembukaan duct. Ini bukan jaminan: kondisi berubah dalam hitungan menit, dan spot DX cluster serta PSKReporter tetap menjadi pemeriksaan waktu nyata.",
+ "u.disc_short": "Perhitungan semi-probabilistik duct troposfer dari profil GFS menurut teori sumber ilmiah dalam manual, dengan arah antena paling mungkin untuk arah yang terhalang. Membantu menangkap pembukaan tanpa menjaminnya; spot waktu nyata tetap menjadi pemeriksaan.",
+ "u.disc_hint": "Callsign dipakai untuk masuk ke cluster; lokator 8–10 karakter membuat perhitungan medan lebih tepat.",
+ "u.disc_read": "Sudah dibaca, lanjutkan",
+ "u.disc_continue": "Lanjutkan",
+ "u.disc_open": "Buka «Sumber dan rumus»",
+ "u.disc_autoclose": "Menutup sendiri dalam {0} dtk",
+ "u.disc_version": "versi {0}"
 }

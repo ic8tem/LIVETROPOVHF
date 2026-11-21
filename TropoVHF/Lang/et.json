@@ -250,5 +250,17 @@
  "close.title": "Programmi sulgemine",
  "close.thanks": "Aitäh, et mind kasutasid: loodan, et olin sulle kasulik.",
  "yes": "Jah",
- "no": "Ei"
+ "no": "Ei",
+ "u.disc_welcome": "Tere tulemast LIVETROPOVHF-i",
+ "u.disc_head": "Mida programm teeb",
+ "u.disc_p1": "LIVETROPOVHF teeb VHF- ja UHF-sagedustel troposfäärilevi poolprobabilistliku arvutuse. See kasutab ilmamudeli GFS (NOAA) vertikaalprofiile ja käsiraamatus «Allikad ja valemid» loetletud teadusartiklite teooriat: indeksid tulevad juhtekanalite füüsikast, läved ja tõenäosused on kalibreeritud päris sidede põhjal.",
+ "u.disc_p2": "Kui soovitud suund on lähedaste takistuste tõttu suletud, näitab see ka kõige tõenäolisemaid antennisuundi ehk mägesid, mis võivad signaali hajutada.",
+ "u.disc_p3": "Eesmärk on aidata sul tabada juhtekanali avanemisi. See ei ole garantii: olud muutuvad minutitega ning DX-klastri ja PSKReporteri spotid jäävad reaalaja kontrolliks.",
+ "u.disc_short": "Troposfääri juhtekanalite poolprobabilistlik arvutus GFS-profiilidest käsiraamatu teadusallikate teooria järgi, kõige tõenäolisemate suundadega suletud suundade puhul. Aitab avanemisi tabada, kuid ei taga neid; reaalaja spotid jäävad kontrolliks.",
+ "u.disc_hint": "Kutsungiga logitakse klastritesse; 8–10-märgiline lokaator teeb maastikuarvutuse täpsemaks.",
+ "u.disc_read": "Loetud, jätka",
+ "u.disc_continue": "Jätka",
+ "u.disc_open": "Ava «Allikad ja valemid»",
+ "u.disc_autoclose": "Sulgub ise {0} s pärast",
+ "u.disc_version": "versioon {0}"
 }

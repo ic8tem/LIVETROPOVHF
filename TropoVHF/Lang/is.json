@@ -250,5 +250,17 @@
  "close.title": "Forritinu lokað",
  "close.thanks": "Takk fyrir að nota mig: ég vona að ég hafi komið þér að gagni.",
  "yes": "Já",
- "no": "Nei"
+ "no": "Nei",
+ "u.disc_welcome": "Velkomin í LIVETROPOVHF",
+ "u.disc_head": "Hvað forritið gerir",
+ "u.disc_p1": "LIVETROPOVHF reiknar veðrahvolfsútbreiðslu á VHF og UHF á hálf-líkindalegan hátt. Það notar lóðrétt snið veðurlíkansins GFS (NOAA) og kenningu vísindagreinanna í handbókinni «Heimildir og formúlur»: vísarnir koma úr eðlisfræði rása, en þröskuldar og líkur eru stilltir eftir raunverulegum samböndum.",
+ "u.disc_p2": "Þegar óskuð stefna er lokuð af nálægum hindrunum sýnir það einnig líklegustu loftnetsstefnurnar, það er fjöllin sem geta dreift merkinu.",
+ "u.disc_p3": "Markmiðið er að hjálpa þér að ná rásaopnunum. Þetta er engin trygging: aðstæður breytast á mínútum og blettir frá DX-klasa og PSKReporter eru áfram rauntímaprófið.",
+ "u.disc_short": "Hálf-líkindalegur útreikningur á veðrahvolfsrásum út frá GFS-sniðum samkvæmt kenningu vísindaheimilda handbókarinnar, með líklegustu stefnum að lokuðum áttum. Hjálpar að ná opnunum án þess að tryggja þær; rauntímablettir eru áfram prófið.",
+ "u.disc_hint": "Kallmerkið er notað til að skrá sig inn á klasana; 8–10 stafa lókator gerir landslagsútreikninginn nákvæmari.",
+ "u.disc_read": "Lesið, halda áfram",
+ "u.disc_continue": "Halda áfram",
+ "u.disc_open": "Opna «Heimildir og formúlur»",
+ "u.disc_autoclose": "Lokast sjálfkrafa eftir {0} s",
+ "u.disc_version": "útgáfa {0}"
 }

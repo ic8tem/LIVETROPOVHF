@@ -242,5 +242,17 @@
  "close.title": "Zamykanie programu",
  "close.thanks": "Dziękuję za korzystanie ze mnie: mam nadzieję, że się przydałem.",
  "yes": "Tak",
- "no": "Nie"
+ "no": "Nie",
+ "u.disc_welcome": "Witaj w LIVETROPOVHF",
+ "u.disc_head": "Co robi program",
+ "u.disc_p1": "LIVETROPOVHF wykonuje półprobabilistyczne obliczenie propagacji troposferycznej na VHF i UHF. Korzysta z profili pionowych modelu pogody GFS (NOAA) i z teorii artykułów naukowych wymienionych w podręczniku «Źródła i wzory»: wskaźniki pochodzą z fizyki duktów, a progi i prawdopodobieństwa są skalibrowane na rzeczywistych łącznościach.",
+ "u.disc_p2": "Gdy żądany kierunek jest zasłonięty przez bliskie przeszkody, wskazuje także najbardziej prawdopodobne kierunki anteny, czyli góry, które mogą rozproszyć sygnał.",
+ "u.disc_p3": "Celem jest pomóc ci wyłapać otwarcia duktowe. To nie jest gwarancja: warunki zmieniają się w ciągu minut, a spoty z DX clustera i PSKReportera pozostają sprawdzianem w czasie rzeczywistym.",
+ "u.disc_short": "Półprobabilistyczne obliczenie duktów troposferycznych z profili GFS według teorii źródeł naukowych z podręcznika, z najbardziej prawdopodobnymi kierunkami przy zasłoniętych kierunkach. Pomaga wyłapać otwarcia, ale ich nie gwarantuje; spoty w czasie rzeczywistym pozostają sprawdzianem.",
+ "u.disc_hint": "Znak wywoławczy służy do logowania w clusterach; lokator 8–10-znakowy zwiększa dokładność obliczeń terenu.",
+ "u.disc_read": "Przeczytałem, dalej",
+ "u.disc_continue": "Dalej",
+ "u.disc_open": "Otwórz «Źródła i wzory»",
+ "u.disc_autoclose": "Zamknie się sam za {0} s",
+ "u.disc_version": "wersja {0}"
 }

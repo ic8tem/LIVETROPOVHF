@@ -242,5 +242,17 @@
  "close.title": "Închiderea programului",
  "close.thanks": "Mulțumesc că m-ai folosit: sper că ți-am fost util.",
  "yes": "Da",
- "no": "Nu"
+ "no": "Nu",
+ "u.disc_welcome": "Bine ai venit în LIVETROPOVHF",
+ "u.disc_head": "Ce face programul",
+ "u.disc_p1": "LIVETROPOVHF face un calcul semi-probabilistic al propagării troposferice în VHF și UHF. Folosește profilele verticale ale modelului meteo GFS (NOAA) și teoria articolelor științifice din manualul «Surse și formule»: indicii provin din fizica ductelor, iar pragurile și probabilitățile sunt calibrate pe legături reale.",
+ "u.disc_p2": "Când direcția dorită este blocată de obstacole apropiate, arată și orientările cele mai probabile, adică munții care pot împrăștia semnalul.",
+ "u.disc_p3": "Scopul este să te ajute să prinzi deschiderile prin duct. Nu este o garanție: condițiile se schimbă în câteva minute, iar spoturile din DX cluster și PSKReporter rămân verificarea în timp real.",
+ "u.disc_short": "Calcul semi-probabilistic al ductelor troposferice din profilele GFS, după teoria surselor științifice din manual, cu orientările cele mai probabile spre direcțiile blocate. Ajută la prinderea deschiderilor fără a le garanta; spoturile în timp real rămân verificarea.",
+ "u.disc_hint": "Indicativul servește la conectarea la clustere; un locator de 8–10 caractere face calculul terenului mai precis.",
+ "u.disc_read": "Am citit, continuă",
+ "u.disc_continue": "Continuă",
+ "u.disc_open": "Deschide «Surse și formule»",
+ "u.disc_autoclose": "Se închide singură în {0} s",
+ "u.disc_version": "versiunea {0}"
 }

@@ -250,5 +250,17 @@
  "close.title": "Lukking av programmet",
  "close.thanks": "Takk for at du brukte meg: jeg håper jeg har vært til nytte.",
  "yes": "Ja",
- "no": "Nei"
+ "no": "Nei",
+ "u.disc_welcome": "Velkommen til LIVETROPOVHF",
+ "u.disc_head": "Hva programmet gjør",
+ "u.disc_p1": "LIVETROPOVHF gjør en semi-probabilistisk beregning av troposfærisk utbredelse på VHF og UHF. Det bruker de vertikale profilene fra værmodellen GFS (NOAA) og teorien fra de vitenskapelige artiklene i håndboken «Kilder og formler»: indeksene kommer fra duct-fysikken, mens terskler og sannsynligheter er kalibrert mot ekte forbindelser.",
+ "u.disc_p2": "Når ønsket retning er blokkert av nære hindringer, viser det også de mest sannsynlige antenneretningene, altså fjellene som kan spre signalet.",
+ "u.disc_p3": "Målet er å hjelpe deg å fange duct-åpninger. Det er ingen garanti: forholdene endrer seg i løpet av minutter, og spots fra DX-cluster og PSKReporter er fortsatt kontrollen i sanntid.",
+ "u.disc_short": "Semi-probabilistisk beregning av troposfæriske ducts fra GFS-profiler etter teorien i håndbokens vitenskapelige kilder, med de mest sannsynlige retningene mot blokkerte retninger. Hjelper deg å fange åpninger uten å garantere dem; sanntidsspots er fortsatt kontrollen.",
+ "u.disc_hint": "Kallesignalet brukes til å logge på clusterne; en lokator på 8–10 tegn gjør terrengberegningen mer presis.",
+ "u.disc_read": "Lest, fortsett",
+ "u.disc_continue": "Fortsett",
+ "u.disc_open": "Åpne «Kilder og formler»",
+ "u.disc_autoclose": "Lukkes av seg selv om {0} s",
+ "u.disc_version": "versjon {0}"
 }

@@ -59,7 +59,8 @@ public sealed partial class MainWindow : Window
             if (IsVisible) await dlg.ShowDialog(this);
         });
         // senza nominativo i cluster non partono: lo si chiede appena la finestra è aperta
-        Opened += async (_, _) => { if (!_st.HasValidCall) await AskCall(); };
+        // 1.3.2: al primo avvio il disclaimer sta nella finestra di nominativo e locatore; poi compare da solo a ogni avvio
+        Opened += async (_, _) => { if (!_st.HasValidCall) await AskCall(); else await ShowDisclaimer(); };
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1000) };
         _timer.Tick += (_, _) => Tick();
@@ -221,11 +222,66 @@ public sealed partial class MainWindow : Window
         return result;
     }
 
+    static readonly FontFamily DiscSerif = new("Georgia, Cambria, Times New Roman, DejaVu Serif, serif");
+    static string AppVersion => typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "";
+    static TextBlock Wrap12(TextBlock t) { t.TextWrapping = TextWrapping.Wrap; return t; }
+
+    /// <summary>Riquadro del disclaimer (1.3.2): testo completo al primo avvio, breve agli avvii successivi.</summary>
+    Control DisclaimerBox(bool full)
+    {
+        var sp = new StackPanel { Spacing = 8 };
+        if (full)
+        {
+            sp.Children.Add(TB("ⓘ  " + Lang.T("u.disc_head"), 13, _th.Accent, true));
+            foreach (var k in new[] { "u.disc_p1", "u.disc_p2", "u.disc_p3" }) sp.Children.Add(Wrap12(TB(Lang.T(k), 13, _th.Text)));
+        }
+        else sp.Children.Add(Wrap12(TB(Lang.T("u.disc_short"), 13, _th.Text)));
+        return new Border { Background = B(_th.Chip), BorderBrush = B(_th.Accent), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(14, 12), Child = sp };
+    }
+
+    /// <summary>Agli avvii successivi (nominativo già salvato): disclaimer breve, si chiude da solo dopo 10 s.</summary>
+    async Task ShowDisclaimer()
+    {
+        var dlg = new Window
+        {
+            Title = "LIVETROPOVHF", Width = 580, SizeToContent = SizeToContent.Height, CanResize = false,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = B(_th.Panel), ShowInTaskbar = false,
+            FlowDirection = Lang.IsRtl(Lang.Current) ? FlowDirection.RightToLeft : FlowDirection.LeftToRight
+        };
+        bool openSources = false;
+        int left = 10;
+        var count = TB(string.Format(Lang.T("u.disc_autoclose"), left), 12, _th.Muted);
+        count.VerticalAlignment = VerticalAlignment.Center;
+        var timer = new Avalonia.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        timer.Tick += (_, _) => { left--; count.Text = string.Format(Lang.T("u.disc_autoclose"), left); if (left <= 0) { timer.Stop(); dlg.Close(); } };
+        var bar = new DockPanel { LastChildFill = false };
+        DockPanel.SetDock(count, Dock.Left); bar.Children.Add(count);
+        var btns = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 };
+        btns.Children.Add(OutlineButton(Lang.T("u.disc_open"), () => { openSources = true; dlg.Close(); }));
+        btns.Children.Add(PrimaryButton(Lang.T("u.disc_continue"), () => dlg.Close()));
+        DockPanel.SetDock(btns, Dock.Right); bar.Children.Add(btns);
+        dlg.Content = new StackPanel
+        {
+            Margin = new Thickness(20), Spacing = 10,
+            Children =
+            {
+                new TextBlock { Text = "LIVETROPOVHF", FontFamily = DiscSerif, FontSize = 24, Foreground = B(_th.Text) },
+                TB($"{_st.Call} · {_st.Loc} · " + string.Format(Lang.T("u.disc_version"), AppVersion), 12, _th.Muted),
+                DisclaimerBox(false),
+                bar
+            }
+        };
+        dlg.Opened += (_, _) => timer.Start();
+        dlg.Closed += (_, _) => timer.Stop();
+        await dlg.ShowDialog(this);
+        if (openSources) ShowTab("doc6");
+    }
+
     async Task AskCall()
     {
         var dlg = new Window
         {
-            Title = Lang.T("u.ask_call_title"), Width = 460, SizeToContent = SizeToContent.Height, CanResize = false,
+            Title = Lang.T("u.ask_call_title"), Width = 580, SizeToContent = SizeToContent.Height, CanResize = false,
             WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = B(_th.Panel), ShowInTaskbar = false,
             FlowDirection = Lang.IsRtl(Lang.Current) ? FlowDirection.RightToLeft : FlowDirection.LeftToRight
         };
@@ -246,7 +302,7 @@ public sealed partial class MainWindow : Window
         }
         call.KeyDown += (_, e) => { if (e.Key == Avalonia.Input.Key.Enter) Confirm(); };
         loc.KeyDown += (_, e) => { if (e.Key == Avalonia.Input.Key.Enter) Confirm(); };
-        var okBtn = PrimaryButton("OK", Confirm);
+        var okBtn = PrimaryButton(Lang.T("u.disc_read"), Confirm);
         var later = OutlineButton(Lang.T("u.later"), () => dlg.Close());
         var text = TB(Lang.T("u.ask_call_text"), 13, _th.Text); text.TextWrapping = TextWrapping.Wrap;
         dlg.Content = new StackPanel
@@ -254,10 +310,14 @@ public sealed partial class MainWindow : Window
             Margin = new Thickness(20), Spacing = 10,
             Children =
             {
-                TB(Lang.T("u.ask_call_title"), 18, _th.Accent, true),
+                new TextBlock { Text = Lang.T("u.disc_welcome"), FontFamily = DiscSerif, FontSize = 24, Foreground = B(_th.Text), TextWrapping = TextWrapping.Wrap },
+                TB(string.Format(Lang.T("u.disc_version"), AppVersion), 12, _th.Muted),
+                DisclaimerBox(true),
+                TB(Lang.T("u.ask_call_title"), 15, _th.Accent, true),
                 text,
                 new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, Children = { new Border { Width = 150, Child = TB(Lang.T("call"), 13, _th.Muted) }, call } },
                 new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, Children = { new Border { Width = 150, Child = TB(Lang.T("u.ask_call_loc"), 13, _th.Muted) }, loc } },
+                Wrap12(TB(Lang.T("u.disc_hint"), 12, _th.Muted)),
                 err,
                 new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, HorizontalAlignment = HorizontalAlignment.Right, Children = { later, okBtn } }
             }

@@ -250,5 +250,17 @@
  "close.title": "Closing the program",
  "close.thanks": "Thank you for using me: I hope I have been useful to you.",
  "yes": "Yes",
- "no": "No"
+ "no": "No",
+ "u.disc_welcome": "Welcome to LIVETROPOVHF",
+ "u.disc_head": "What the program does",
+ "u.disc_p1": "LIVETROPOVHF makes a semi-probabilistic calculation of tropospheric propagation at VHF and UHF. It uses the vertical profiles of the GFS weather model (NOAA) and the theory of the scientific papers listed in the «Sources and formulas» manual: the indices come from the physics of ducts, while thresholds and probabilities are calibrated on real contacts.",
+ "u.disc_p2": "When the wanted direction is blocked by nearby obstacles, it also shows the most likely headings, that is the mountains that can scatter the signal.",
+ "u.disc_p3": "The aim is to help you catch duct openings. It is not a guarantee: conditions change within minutes, and DX cluster and PSKReporter spots remain the real-time check.",
+ "u.disc_short": "Semi-probabilistic calculation of tropospheric ducts from GFS profiles, following the theory of the scientific sources in the manual, with the most likely headings towards blocked directions. It helps you catch openings but does not guarantee them; real-time spots remain the check.",
+ "u.disc_hint": "The callsign is used to log in to the clusters; an 8–10 character locator makes the terrain calculation more precise.",
+ "u.disc_read": "I've read it, continue",
+ "u.disc_continue": "Continue",
+ "u.disc_open": "Open «Sources and formulas»",
+ "u.disc_autoclose": "Closes by itself in {0} s",
+ "u.disc_version": "version {0}"
 }

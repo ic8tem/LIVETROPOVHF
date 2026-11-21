@@ -250,5 +250,17 @@
  "close.title": "Programos uždarymas",
  "close.thanks": "Ačiū, kad mane naudojote: tikiuosi, buvau naudinga.",
  "yes": "Taip",
- "no": "Ne"
+ "no": "Ne",
+ "u.disc_welcome": "Sveiki atvykę į LIVETROPOVHF",
+ "u.disc_head": "Ką daro programa",
+ "u.disc_p1": "LIVETROPOVHF atlieka pusiau tikimybinį troposferinio sklidimo VHF ir UHF dažniuose skaičiavimą. Naudoja orų modelio GFS (NOAA) vertikalius profilius ir mokslinių straipsnių, išvardytų vadove «Šaltiniai ir formulės», teoriją: indeksai kyla iš kanalų fizikos, o slenksčiai ir tikimybės kalibruoti pagal tikrus ryšius.",
+ "u.disc_p2": "Kai norimą kryptį uždengia artimos kliūtys, nurodo ir labiausiai tikėtinas antenos kryptis, t. y. kalnus, kurie gali išsklaidyti signalą.",
+ "u.disc_p3": "Tikslas – padėti pagauti kanalų atsivėrimus. Tai ne garantija: sąlygos keičiasi per kelias minutes, o DX klasterio ir PSKReporter taškai lieka patikrinimu realiuoju laiku.",
+ "u.disc_short": "Pusiau tikimybinis troposferinių kanalų skaičiavimas iš GFS profilių pagal vadovo mokslinių šaltinių teoriją, su labiausiai tikėtinomis kryptimis į uždengtas kryptis. Padeda pagauti atsivėrimus, bet jų negarantuoja; taškai realiuoju laiku lieka patikrinimu.",
+ "u.disc_hint": "Šaukinys naudojamas prisijungti prie klasterių; 8–10 simbolių lokatorius tiksliau apskaičiuoja reljefą.",
+ "u.disc_read": "Perskaičiau, tęsti",
+ "u.disc_continue": "Tęsti",
+ "u.disc_open": "Atverti «Šaltiniai ir formulės»",
+ "u.disc_autoclose": "Užsidarys po {0} s",
+ "u.disc_version": "versija {0}"
 }

@@ -250,5 +250,17 @@
  "close.title": "Cierre del programa",
  "close.thanks": "Gracias por usarme: espero haberte sido útil.",
  "yes": "Sí",
- "no": "No"
+ "no": "No",
+ "u.disc_welcome": "Bienvenido a LIVETROPOVHF",
+ "u.disc_head": "Qué hace el programa",
+ "u.disc_p1": "LIVETROPOVHF hace un cálculo semiprobabilístico de la propagación troposférica en VHF y UHF. Usa los perfiles verticales del modelo meteorológico GFS (NOAA) y la teoría de los artículos científicos del manual «Fuentes y fórmulas»: los índices vienen de la física de los conductos, y los umbrales y probabilidades están calibrados con contactos reales.",
+ "u.disc_p2": "Cuando la dirección deseada está bloqueada por obstáculos cercanos, indica también los apuntamientos más probables, es decir, las montañas que pueden dispersar la señal.",
+ "u.disc_p3": "El objetivo es ayudarte a aprovechar las aperturas por conducto. No es una garantía: las condiciones cambian en minutos, y los spots del DX cluster y de PSKReporter siguen siendo la comprobación en tiempo real.",
+ "u.disc_short": "Cálculo semiprobabilístico de los conductos troposféricos a partir de los perfiles GFS, según la teoría de las fuentes científicas del manual, con los apuntamientos más probables hacia las direcciones bloqueadas. Ayuda a aprovechar las aperturas sin garantizarlas; los spots en tiempo real siguen siendo la comprobación.",
+ "u.disc_hint": "El indicativo sirve para conectarse a los clusters; un locator de 8–10 caracteres hace más preciso el cálculo del terreno.",
+ "u.disc_read": "Leído, continuar",
+ "u.disc_continue": "Continuar",
+ "u.disc_open": "Abrir «Fuentes y fórmulas»",
+ "u.disc_autoclose": "Se cierra sola en {0} s",
+ "u.disc_version": "versión {0}"
 }

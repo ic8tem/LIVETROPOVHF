@@ -250,5 +250,17 @@
  "close.title": "Pagsasara ng programa",
  "close.thanks": "Salamat sa paggamit mo sa akin: sana ay nakatulong ako sa iyo.",
  "yes": "Oo",
- "no": "Hindi"
+ "no": "Hindi",
+ "u.disc_welcome": "Maligayang pagdating sa LIVETROPOVHF",
+ "u.disc_head": "Ano ang ginagawa ng programa",
+ "u.disc_p1": "Gumagawa ang LIVETROPOVHF ng semi-probabilistikong kalkulasyon ng tropospheric propagation sa VHF at UHF. Ginagamit nito ang mga patayong profile ng weather model na GFS (NOAA) at ang teorya ng mga siyentipikong artikulong nakalista sa manwal na «Mga pinagmulan at pormula»: ang mga index ay mula sa pisika ng duct, at ang mga threshold at probabilidad ay naka-calibrate sa tunay na kontak.",
+ "u.disc_p2": "Kapag nakaharang ang nais na direksyon dahil sa malapit na balakid, ipinapakita rin nito ang pinakamalamang na direksyon ng antena, ibig sabihin ang mga bundok na makapagkakalat ng signal.",
+ "u.disc_p3": "Layunin nitong tulungan kang mahuli ang pagbukas ng duct. Hindi ito garantiya: nagbabago ang kondisyon sa loob ng ilang minuto, at ang mga spot ng DX cluster at PSKReporter pa rin ang real-time na pagsusuri.",
+ "u.disc_short": "Semi-probabilistikong kalkulasyon ng tropospheric duct mula sa mga profile ng GFS ayon sa teorya ng mga siyentipikong pinagmulan sa manwal, kasama ang pinakamalamang na direksyon ng antena para sa nakaharang na direksyon. Tumutulong mahuli ang pagbukas pero hindi ito ginagarantiya; ang real-time na spot pa rin ang pagsusuri.",
+ "u.disc_hint": "Ginagamit ang callsign para mag-log in sa mga cluster; ang locator na may 8–10 karakter ay nagpapatumpak sa kalkulasyon ng terrain.",
+ "u.disc_read": "Nabasa ko na, magpatuloy",
+ "u.disc_continue": "Magpatuloy",
+ "u.disc_open": "Buksan ang «Mga pinagmulan at pormula»",
+ "u.disc_autoclose": "Kusang magsasara sa loob ng {0} s",
+ "u.disc_version": "bersiyon {0}"
 }

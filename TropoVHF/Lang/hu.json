@@ -242,5 +242,17 @@
  "close.title": "A program bezárása",
  "close.thanks": "Köszönöm, hogy használtál: remélem, hasznos voltam.",
  "yes": "Igen",
- "no": "Nem"
+ "no": "Nem",
+ "u.disc_welcome": "Üdvözöl a LIVETROPOVHF",
+ "u.disc_head": "Mit csinál a program",
+ "u.disc_p1": "A LIVETROPOVHF félig valószínűségi számítást végez a troposzférikus terjedésről VHF-en és UHF-en. A GFS (NOAA) időjárási modell függőleges profiljait és a «Források és képletek» kézikönyvben felsorolt tudományos cikkek elméletét használja: az indexek a duktusok fizikájából származnak, a küszöbök és valószínűségek valódi összeköttetésekre vannak kalibrálva.",
+ "u.disc_p2": "Ha a kívánt irányt közeli akadályok takarják, a legvalószínűbb antennairányokat is megmutatja, vagyis azokat a hegyeket, amelyek szórhatják a jelet.",
+ "u.disc_p3": "A cél, hogy segítsen elkapni a duktusos nyitásokat. Ez nem garancia: a viszonyok percek alatt változnak, és a DX cluster és a PSKReporter spotjai maradnak a valós idejű ellenőrzés.",
+ "u.disc_short": "A troposzférikus duktusok félig valószínűségi számítása GFS-profilokból, a kézikönyv tudományos forrásainak elmélete szerint, a takart irányok legvalószínűbb antennairányaival. Segít elkapni a nyitásokat, de nem garantálja őket; a valós idejű spotok maradnak az ellenőrzés.",
+ "u.disc_hint": "A hívójel a clusterekbe való belépéshez kell; a 8–10 karakteres lokátor pontosabbá teszi a terepszámítást.",
+ "u.disc_read": "Elolvastam, tovább",
+ "u.disc_continue": "Tovább",
+ "u.disc_open": "«Források és képletek» megnyitása",
+ "u.disc_autoclose": "{0} mp múlva magától bezárul",
+ "u.disc_version": "{0}. verzió"
 }

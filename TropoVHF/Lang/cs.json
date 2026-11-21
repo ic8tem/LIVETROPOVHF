@@ -242,5 +242,17 @@
  "close.title": "Ukončení programu",
  "close.thanks": "Děkuji, že jsi mě používal: doufám, že jsem ti byl užitečný.",
  "yes": "Ano",
- "no": "Ne"
+ "no": "Ne",
+ "u.disc_welcome": "Vítejte v LIVETROPOVHF",
+ "u.disc_head": "Co program dělá",
+ "u.disc_p1": "LIVETROPOVHF provádí poloprobabilistický výpočet troposférického šíření na VKV a UKV. Používá vertikální profily meteorologického modelu GFS (NOAA) a teorii vědeckých článků uvedených v příručce «Zdroje a vzorce»: indexy vycházejí z fyziky duktů, prahy a pravděpodobnosti jsou kalibrovány na skutečných spojeních.",
+ "u.disc_p2": "Když je požadovaný směr zakryt blízkými překážkami, ukáže také nejpravděpodobnější směry antény, tedy hory, které mohou signál rozptýlit.",
+ "u.disc_p3": "Cílem je pomoci vám zachytit duktová otevření. Není to záruka: podmínky se mění během minut a spoty z DX clusteru a PSKReporteru zůstávají kontrolou v reálném čase.",
+ "u.disc_short": "Poloprobabilistický výpočet troposférických duktů z profilů GFS podle teorie vědeckých zdrojů v příručce, s nejpravděpodobnějšími směry pro zakryté směry. Pomáhá zachytit otevření, ale nezaručuje je; spoty v reálném čase zůstávají kontrolou.",
+ "u.disc_hint": "Volací znak slouží k přihlášení do clusterů; lokátor s 8–10 znaky zpřesní výpočet terénu.",
+ "u.disc_read": "Přečteno, pokračovat",
+ "u.disc_continue": "Pokračovat",
+ "u.disc_open": "Otevřít «Zdroje a vzorce»",
+ "u.disc_autoclose": "Zavře se samo za {0} s",
+ "u.disc_version": "verze {0}"
 }

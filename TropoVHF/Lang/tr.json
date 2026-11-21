@@ -250,5 +250,17 @@
  "close.title": "Programı kapatma",
  "close.thanks": "Beni kullandığın için teşekkürler: umarım işine yaramışımdır.",
  "yes": "Evet",
- "no": "Hayır"
+ "no": "Hayır",
+ "u.disc_welcome": "LIVETROPOVHF'e hoş geldiniz",
+ "u.disc_head": "Program ne yapar",
+ "u.disc_p1": "LIVETROPOVHF, VHF ve UHF'de troposferik yayılımın yarı olasılıksal bir hesabını yapar. GFS (NOAA) hava modelinin dikey profillerini ve «Kaynaklar ve formüller» kılavuzunda listelenen bilimsel makalelerin teorisini kullanır: endeksler kanal fiziğinden gelir, eşikler ve olasılıklar ise gerçek bağlantılarla ayarlanmıştır.",
+ "u.disc_p2": "İstenen yön yakın engellerle kapalıysa, en olası anten yönlerini, yani sinyali saçabilecek dağları da gösterir.",
+ "u.disc_p3": "Amaç, kanal açılımlarını yakalamanıza yardım etmektir. Bu bir garanti değildir: koşullar dakikalar içinde değişir ve DX cluster ile PSKReporter spotları gerçek zamanlı doğrulama olmaya devam eder.",
+ "u.disc_short": "Kılavuzdaki bilimsel kaynakların teorisine göre GFS profillerinden troposferik kanalların yarı olasılıksal hesabı, kapalı yönler için en olası anten yönleriyle. Açılımları yakalamaya yardım eder ama garanti etmez; gerçek zamanlı spotlar doğrulama olmaya devam eder.",
+ "u.disc_hint": "Çağrı işareti cluster'lara giriş için kullanılır; 8–10 karakterli lokatör arazi hesabını daha hassas yapar.",
+ "u.disc_read": "Okudum, devam",
+ "u.disc_continue": "Devam",
+ "u.disc_open": "«Kaynaklar ve formüller»i aç",
+ "u.disc_autoclose": "{0} sn sonra kendiliğinden kapanır",
+ "u.disc_version": "sürüm {0}"
 }
