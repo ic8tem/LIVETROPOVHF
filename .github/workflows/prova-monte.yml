@@ -13,7 +13,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Orizzonte
         shell: bash
-        run: python3 .github/orizzonte.py
+        run: |
+          pip install -q rasterio
+          python3 .github/confronto_dem.py
       - name: Salva
         if: always()
         shell: bash
