@@ -245,13 +245,13 @@ A 144 MHz, con un rilievo a 20 km e una yagi da 15°, la via monte costa circa 4
 - Rumore esterno secondo ITU-R P.372 [13]: galattico (Fa = 52 − 23 log f) più artificiale secondo l'ambiente (città, residenziale, rurale, rurale tranquillo) oppure una temperatura d'antenna scritta a mano.
 - Tsys = Ta + 290(Lc − 1) + 290(F − 1)·Lc ai morsetti dell'antenna, con Lc la perdita del cavo e F la cifra di rumore.
 - S/N in SSB, CW e FT8 nella banda di ciascun modo, confrontato con la soglia impostata.
-- Probabilità per periodo (dalla 1.3.2): l'evanescenza lenta si tratta come una distribuzione normale dello S/N attorno al valore previsto, con σ = 5 dB oltre 160 km (Bray, QST novembre 1961: ±7 dB oltre 100 miglia; ARRL Antenna Book; GEKO 69), 3 dB fra 50 e 160 km e 2 dB sotto. La probabilità che un periodo superi la soglia del modo è
+- Probabilità per periodo (dalla 1.3.2): l'evanescenza entro l'ora si tratta come una distribuzione normale dello S/N attorno al valore medio orario previsto. Bray (QST, novembre 1961, p. 39, sulle curve di Norton 1959) dà un'ampiezza di 13,5 dB oltre circa 100 miglia, cioè circa 7 dB sotto e 7 sopra la media, che cala quasi in linea retta sotto le 100 miglia (3,5 dB a 50 miglia); per un collegamento «solido» toglie 7 dB dal bilancio. Preso ±7 dB come ±2σ: σ = 3,4 dB oltre 160 km, proporzionale alla distanza sotto. La probabilità che un periodo superi la soglia del modo è
 
 ```math
 P = \Phi\left(\frac{S/N - S/N_{soglia}}{\sigma}\right)
 ```
 
-  con Φ la funzione di ripartizione normale: margine 0 dB = 50%, +σ = 84%, +2σ = 98%. Non comprende l'incertezza del modello, che è più grande.
+  con Φ la funzione di ripartizione normale: margine 0 dB = 50%, +3,4 dB = 84%, +7 dB (il margine «solido» di Bray) = 98%. Non comprende l'incertezza del modello, che è più grande.
 - Modi digitali: lo S/N in 2500 Hz confrontato con le soglie misurate di FT4 (−17,5 dB) e FT8 (−21 dB, ma −18,6 dB con l'evanescenza tipica del troposcatter) [21], Q65-30A (−24 dB) e JT65A (−25 dB) [22]. Quando il meccanismo è troposcatter la soglia FT8 usata è −18,6 dB.
 
 ## 13. Tempi di risposta e dati
