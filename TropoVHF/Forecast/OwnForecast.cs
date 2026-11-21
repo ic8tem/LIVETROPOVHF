@@ -495,8 +495,9 @@ public static class Refractivity
             r.SeaT2 = lev[0].T - r.Sst;
             foreach (var pl in new[] { 925.0, 950.0 })
             {
-                var l = lev.FirstOrDefault(x => Math.Abs(x.P - pl) < 0.5);
-                if (l == null) continue;
+                int li = lev.FindIndex(x => Math.Abs(x.P - pl) < 0.5);
+                if (li < 0) continue;
+                var l = lev[li];
                 r.SeaAirC = (l.T + 273.15) * Math.Pow(1000 / l.P, 0.2857) - 273.15 - r.Sst;
                 r.Rh925 = l.RH; break;
             }
