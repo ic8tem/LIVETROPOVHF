@@ -66,7 +66,7 @@ public sealed class ProfileResult
     public string KDropLayer = "";
     public bool Subsidence, Ascent, Scirocco;
     public double VertDb;                  // correzione per moto verticale (dB)
-    public double LayerGainAggrDb;         // come LayerGainDb ma con la soglia ITU di super-rifrazione (79 N/km) nello strato basso: stima aggressiva
+    public double LayerGainAggrDb;         // come LayerGainDb ma con la soglia classica di super-rifrazione (79 N/km) nello strato basso: stima aggressiva
     public double CrplDN1km = double.NaN;  // calo normale nel primo km del profilo CRPL per l'Ns del punto (N/km)
     public double Pmsl = double.NaN;       // pressione ridotta al livello del mare (hPa)
     public bool HighP;                     // alta pressione estesa (≥ 1020 hPa su quasi tutte le celle vicine) e vento debole nei bassi strati
@@ -285,7 +285,7 @@ public static class Refractivity
             var (name, pTop, normHi, superThr) = LayerFor((lev[i].P + lev[i - 1].P) / 2);
             if (pTop == 850) { normHi += crplShift; superThr += crplShift; }
             double gain = Ramp(g, normHi, superThr);
-            // stima aggressiva: soglia ITU-R P.453 di 79 N/km nello strato basso (k ≈ 2: 157/(157−79)); prudente = Bean e Dutton 100 N/km
+            // stima aggressiva: soglia classica di super-rifrazione di 79 N/km (k ≈ 2; P.453 usa invece −100 N/km nei primi 100 m) nello strato basso (k ≈ 2: 157/(157−79)); prudente = Bean e Dutton 100 N/km
             double gainA = pTop == 850 ? Ramp(g, Math.Min(normHi, 79 - 19), 79 + crplShift) : gain;
             if (gain > best) { best = gain; bestName = name; }
             bestAggr = Math.Max(bestAggr, gainA);

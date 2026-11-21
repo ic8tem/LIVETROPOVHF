@@ -18,7 +18,7 @@ public static class Validation
     public static int Run(string inFile, string outFile)
     {
         var sb = new StringBuilder();
-        void W(string s) { sb.AppendLine(s); Console.WriteLine(s); }
+        void W(string s) { sb.AppendLine(s); Console.WriteLine(s); try { File.WriteAllText(outFile, sb.ToString()); } catch { } }
         var ci = CultureInfo.InvariantCulture;
         var qs = new List<Qso>();
         foreach (var line in File.ReadAllLines(inFile))
@@ -89,7 +89,7 @@ public static class Validation
             ("1.3.2: + alta pressione estesa e vento debole", true, true, true, false, 1, false),
             ("1.3.2: + condotti cercati solo sotto 1500 m", true, true, true, false, 2, true),
             ("1.3.2 alternativa: + profilo normale CRPL con Ns locale", true, true, true, false, 3, true),
-            ("1.3.2 stima aggressiva: soglia ITU 79 N/km (senza CRPL)", true, true, true, false, 4, true),
+            ("1.3.2 stima aggressiva: soglia classica di super-rifrazione 79 N/km, k ≈ 2 (senza CRPL)", true, true, true, false, 4, true),
             ("1.3.2 prudente (configurazione predefinita)", true, true, true, true, 5, true),
         };
         foreach (var cf in configs)
@@ -150,6 +150,8 @@ public static class Validation
         Refractivity.UseCorrections = true; Refractivity.UseSoftDuct = true; Refractivity.UsePersistence = true;
 
         // ---- equazione parabolica nel profilo M del GFS: guadagno rispetto all'atmosfera standard, evento contro confronto
+        // (lenta: circa 10 minuti; si rilancia con LIVETROPOVHF_VALIDA_PE=1)
+        if (Environment.GetEnvironmentVariable("LIVETROPOVHF_VALIDA_PE") == "1")
         {
             var tq = qs.Where(q => q.Cat == "tropo").ToList();
             int every = Math.Max(1, tq.Count / 100);

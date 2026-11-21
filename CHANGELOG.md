@@ -5,7 +5,7 @@ Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole 
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
 ## 1.3.2 — 21/11/2026
-- Previsioni: due stime affiancate nel calcolo punto-punto, prudente (soglia di super-rifrazione di Bean e Dutton, 100 N/km nello strato basso) e aggressiva (soglia ITU-R P.453, 79 N/km). La mappa usa la prudente.
+- Previsioni: due stime affiancate nel calcolo punto-punto, prudente (soglia di super-rifrazione di Bean e Dutton, 100 N/km nello strato basso) e aggressiva (soglia classica di super-rifrazione, 79 N/km). La mappa usa la prudente.
 - Previsioni: strati e condotti cercati solo fino a 1500 m sopra il suolo.
 - Previsioni: +1 dB con alta pressione estesa (almeno 7 celle su 9 a 1020 hPa o più) e vento debole nei bassi strati (10 m sotto 5 m/s, 850 hPa sotto 8 m/s).
 - Calcolo punto-punto: peso del percorso su mare con il μ1 di ITU-R P.452 (× 0,8–1,2); quota delle due stazioni confrontata con base e cima del condotto anche quando copre solo parte della tratta; +1,5 dB al massimo quando la cima dello strato limite del GFS supera le creste lungo la tratta (osservazione di IT9GSF).

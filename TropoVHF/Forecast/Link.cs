@@ -120,7 +120,7 @@ public sealed class LinkResult
     public double PeLossDb = double.NaN, PeStdDb = double.NaN, PeTotalDb = double.NaN;
     public double PeGainDb => PeStdDb - PeLossDb;
     public double PersistFrac = double.NaN;           // persistenza media lungo la tratta (0–1)
-    // 1.3.2: stima aggressiva (soglia ITU 79 N/km), μ1 di P.452 sul tratto di terra, aggancio delle stazioni al condotto, strato limite e creste
+    // 1.3.2: stima aggressiva (soglia classica 79 N/km), μ1 di P.452 sul tratto di terra, aggancio delle stazioni al condotto, strato limite e creste
     public double AggrGainDb = double.NaN, LpredAggrDb = double.NaN;
     public double Mu1 = double.NaN, SeaWeight = 1, DtmKm;
     public double DuctCouplingF = double.NaN;
@@ -497,7 +497,7 @@ public static class LinkCalc
                 bool landMatters = r.LandKm >= 0.1 * d && !double.IsNaN(r.LandCov);
                 r.FracUsed = landMatters ? Math.Min(r.LayerFrac, r.LandCov) : r.LayerFrac;
                 g = gl * r.FracUsed;
-                // stima aggressiva: stessa catena con la soglia ITU di 79 N/km nello strato basso (solo senza condotto pieno)
+                // stima aggressiva: stessa catena con la soglia classica di 79 N/km nello strato basso (solo senza condotto pieno)
                 if (!best.traps)
                 {
                     double da = Enumerable.Range(best.a, best.b - best.a + 1).Average(i => Math.Max(0, prof[i].LayerGainAggrDb - prof[i].LayerGainDb));
@@ -570,7 +570,7 @@ public static class LinkCalc
             else if (best.key >= 0 && g >= 3 && !r.Los) r.Mechanism = best.traps ? "tropo (condotto parziale)" : "tropo (super-rifrazione)";
             r.LpredDb = Math.Max(r.LfsDb, lpred);
             if (!double.IsNaN(r.AggrGainDb)) r.LpredAggrDb = Math.Max(r.LfsDb, Math.Min(r.LpredDb, r.LbaseDb - r.AggrGainDb));
-            if (!double.IsNaN(r.LpredAggrDb)) CalcLog.W($"stima prudente (Bean e Dutton, 100 N/km) {r.LpredDb:0.00} dB; stima aggressiva (ITU-R P.453, 79 N/km) {r.LpredAggrDb:0.00} dB");
+            if (!double.IsNaN(r.LpredAggrDb)) CalcLog.W($"stima prudente (Bean e Dutton, 100 N/km) {r.LpredDb:0.00} dB; stima aggressiva (79 N/km, k ≈ 2) {r.LpredAggrDb:0.00} dB");
             CalcLog.W($"perdita prevista {r.LpredDb:0.00} dB, meccanismo: {r.Mechanism}");
         }
         else r.Notes.Add("nessuna previsione GFS sul percorso: calcolo con atmosfera normale (k = 4/3)");

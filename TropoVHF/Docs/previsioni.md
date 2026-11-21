@@ -143,7 +143,7 @@ Validazione (paragrafo 14): sui 593 collegamenti a 144 MHz fra il 29 dicembre 20
 
 ## 9 ter. Novità 1.3.2: due stime, soffitto, alta pressione, mare, stazioni, creste
 
-**Stima prudente e aggressiva.** Il guadagno dal gradiente cresce da 0 dB al limite del normale fino a 10 dB alla soglia di super-rifrazione. Nello strato 1000–850 hPa la soglia prudente è quella di Bean e Dutton (100 N/km); quella aggressiva è la soglia ITU-R P.453 di 79 N/km, che con k50 = 157/(157 − ΔN) vale k ≈ 2 (k = 2,5 corrisponde a circa 94 N/km). Il calcolo punto-punto mostra le due perdite affiancate; con un condotto che intrappola la banda coincidono. La mappa usa la prudente.
+**Stima prudente e aggressiva.** Il guadagno dal gradiente cresce da 0 dB al limite del normale fino a 10 dB alla soglia di super-rifrazione. Nello strato 1000–850 hPa la soglia prudente è quella di Bean e Dutton (100 N/km); quella aggressiva è la soglia classica di super-rifrazione di 79 N/km (k ≈ 2; P.453 usa invece −100 N/km nei primi 100 m), che con k50 = 157/(157 − ΔN) vale k ≈ 2 (k = 2,5 corrisponde a circa 94 N/km). Il calcolo punto-punto mostra le due perdite affiancate; con un condotto che intrappola la banda coincidono. La mappa usa la prudente.
 
 **Soffitto di 1500 m.** Strati e condotti si cercano solo fino a 1500 m sopra il suolo: più in alto le antenne dei radioamatori non li sfruttano.
 
