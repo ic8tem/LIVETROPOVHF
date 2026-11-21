@@ -530,9 +530,9 @@ public sealed class AppState
 
     // ------------------------------------------------ aggiornamento di CALL3.TXT da MMMonVHF
 
-    public const string Call3Url = "https://www.mmmonvhf.de/dl.php?dl=call3.txt";
+    public static readonly string Call3Url = string.Join("  ·  ", Call3Sources.Sources.Select(x => x.Name));
     public bool Call3Auto { get => S.GetBool("call3_auto", false); set { S.Set("call3_auto", value ? "1" : "0"); Dirty = true; } }
-    public int Call3AutoDays = 7;
+    public int Call3AutoDays = 14;
     public DateTime Call3Last
     {
         get => DateTime.TryParse(S.Get("call3_last", ""), System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal, out var d) ? d : DateTime.MinValue;
@@ -553,19 +553,11 @@ public sealed class AppState
         void St(string m) { Call3Status = m; Call3StatusChanged?.Invoke(m); }
         try
         {
-            St("Scarico CALL3.TXT da mmmonvhf.de…");
             using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
-            http.DefaultRequestHeaders.UserAgent.ParseAdd("LIVETROPOVHF/" + (typeof(AppState).Assembly.GetName().Version?.ToString(3) ?? "0"));
-            var bytes = await http.GetByteArrayAsync(Call3Url);
-            var text = Compat.Latin1.GetString(bytes);
-            int ok = 0;
-            foreach (var line in text.Split('\n'))
-            {
-                if (line.StartsWith("//")) continue;
-                var p = line.Split(',');
-                if (p.Length >= 2 && p[0].Length >= 3 && Locator.IsValid(p[1].Trim())) ok++;
-            }
-            if (ok < 100_000) { St($"File scaricato non valido ({ok} righe utili): CALL3.TXT non cambiato."); return false; }
+            http.DefaultRequestHeaders.UserAgent.ParseAdd("LIVETROPOVHF/" + (typeof(AppState).Assembly.GetName().Version?.ToString(3) ?? "0") + " (+https://github.com/ic8tem/LIVETROPOVHF)");
+            var prev = CallDb.PathUsed != "" ? CallDb.PathUsed : Path.Combine(Settings.AppDir, "CALL3.TXT");
+            var (text, summary, total) = await Call3Sources.BuildAsync(http, prev, St);
+            var bytes = Compat.Latin1.GetBytes(text);
             var dest = CallDb.PathUsed != "" ? CallDb.PathUsed : Path.Combine(Settings.AppDir, "CALL3.TXT");
             var tmp = dest + ".nuovo";
             await Compat.WriteBytes(tmp, bytes, CancellationToken.None);
@@ -583,7 +575,7 @@ public sealed class AppState
             Save();
             Dirty = true;
             CallDbLoaded?.Invoke();
-            St($"CALL3.TXT aggiornato: {CallDb.Count:N0} nominativi ({DateTime.Now:dd/MM/yyyy HH:mm}). Il precedente è in CALL3.bak.");
+            St($"CALL3.TXT riscritto: {CallDb.Count:N0} nominativi ({DateTime.Now:dd/MM/yyyy HH:mm}) — {summary}. Il precedente è in CALL3.bak.");
             return true;
         }
         catch (Exception ex)
