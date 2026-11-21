@@ -38,9 +38,6 @@ for sid, name in ST.items():
     except Exception as ex:
         out.append(f"{name}: errore {ex}"); continue
     stat = collections.defaultdict(lambda: [0, 0, 0, 0]); cnt = [0]
-    for j, x in enumerate(txt):
-        if x.startswith('#') and x[13:17] == '2020' and x[24:26] in ('00', '23', '12', '11'):
-            out.append('   CAMPIONE ' + x); out.extend('   |' + y for y in txt[j + 1:j + 9]); break
     i = 0
     while i < len(txt):
         h = txt[i]
@@ -55,16 +52,23 @@ for sid, name in ST.items():
         for L in body:
             if len(L) < 39: continue
             t2 = L[1]; p = num(L[9:15]); z = num(L[16:21]); t = num(L[22:27]); rh = num(L[28:33]); dp = num(L[34:39])
-            if p is None or z is None or t is None: continue
+            if p is None or t is None: continue
             if dp is not None: td = t / 10 - dp / 10
             elif rh is not None and rh > 0:
                 tc = t / 10; a = math.log(rh / 1000) + 17.67 * tc / (tc + 243.5); td = 243.5 * a / (17.67 - a)
             else: continue
-            rec = (z, p / 100, t / 10, td)
+            rec = (0.0, p / 100, t / 10, td)
             if t2 == "1": surf = rec
-            elif surf is not None: lev.append(rec)
+            elif surf is not None and p / 100 < surf[1]: lev.append(rec)
         if surf is None or len(lev) < 2: continue
-        lev.sort(key=lambda r: r[0])
+        # quote sopra il suolo con l'equazione ipsometrica (i livelli significativi non hanno la quota)
+        lev.sort(key=lambda r: -r[1])
+        zz = 0.0; prev = surf; lev2 = []
+        for r in lev:
+            tm = (prev[2] + r[2]) / 2 + 273.15
+            zz += 287.05 * tm / 9.80665 * math.log(prev[1] / r[1])
+            lev2.append((zz, r[1], r[2], r[3])); prev = r
+        lev = lev2
         inv, duct, sup = analyze([surf] + lev)
         k = (SEAS[mo], hr); st = stat[k]
         st[0] += 1; st[1] += inv; st[2] += duct; st[3] += sup
