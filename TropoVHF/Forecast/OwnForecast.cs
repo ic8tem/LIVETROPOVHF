@@ -560,6 +560,7 @@ public sealed class OwnForecast
         st ??= new FetchStats();
         var src = source ?? Source;
         if (hist != null && src == WxSource.Nomads) src = WxSource.OpenMeteo;     // NOMADS tiene solo gli ultimi giorni
+        CalcLog.W($"sorgente dei profili: {WxSources.Name(src)}" + (hist != null ? $" — archivio, caso {hist.Name}" : "") + $", {pts.Count} punti");
         var sw = new System.Diagnostics.Stopwatch();
         var raw = new string[pts.Count];
         var origin = new string[pts.Count];
@@ -798,7 +799,12 @@ public sealed class OwnForecast
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested) { Status = "Previsione propria: interrotta"; return false; }
         catch (OperationCanceledException) { Status = "Previsione propria: tempo scaduto nello scaricamento, riprova"; CalcLog.W(Status); return false; }
-        catch (RateLimitException ex) { Status = "Previsione propria: " + ex.Message; CalcLog.W(Status); return false; }
+        catch (RateLimitException ex)
+        {
+            Status = "Previsione propria: " + ex.Message + (WxSources.IsGfs(Source) && Source != WxSource.Auto && Hist == null
+                ? " — scegli «GFS (Open-Meteo, poi NOMADS…)» o «GFS da NOMADS» in Sorgente dei dati per continuare senza Open-Meteo" : "");
+            CalcLog.W(Status); return false;
+        }
         catch (Exception ex) { Status = "Previsione propria non riuscita: " + ex.Message; CalcLog.W("ERRORE: " + ex); Core.ErrorLog.Write(ex, "previsione propria (griglia)"); return false; }
         finally { Busy = false; changed?.Invoke(); }
     }
