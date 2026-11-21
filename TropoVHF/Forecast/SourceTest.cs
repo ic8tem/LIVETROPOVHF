@@ -33,6 +33,22 @@ public static class SourceTest
                 ("mare a N della stazione (0)", 40.5650, 14.2342), ("Monte Solaro (589 m)", 40.5486, 14.2208), ("Vesuvio (circa 1280 m)", 40.8213, 14.4261) }).TrimEnd());
         }
         catch (Exception ex) { W("Copernicus: prova non riuscita: " + ex.Message); fails++; }
+        // tratta di prova dalla stazione dell'autore (atmosfera normale, senza previsione): orizzonti e perdite col nuovo terreno
+        try
+        {
+            CalcLog.Enabled = true;
+            var srtm = new Srtm(new HttpClient { Timeout = TimeSpan.FromSeconds(300) });
+            foreach (var (rl, rn) in new[] { ("JN45ls27tg", "Lombardia 722 km"), ("JN33qs43wc", "Nizza 677 km"), ("IM98re20no", "Alicante 1300 km") })
+            {
+                LocatorX.TryParse("JN70CN83CL", out var tp); LocatorX.TryParse(rl, out var rp);
+                var tx = new Station { Loc = "JN70CN83CL", Pos = tp, Precise = true, AglM = 8, PowerW = 400, BoomM = 9 };
+                var rx = new Station { Loc = rl, Pos = rp, Precise = true, AglM = 10, BoomM = 9 };
+                var lr = LinkCalc.Compute(tx, rx, new LinkCalc.Options { Utc = DateTime.UtcNow }, srtm, null, CancellationToken.None, sub: true).GetAwaiter().GetResult();
+                W(string.Format(CultureInfo.InvariantCulture, "tratta JN70CN83CL → {0} ({1}): suolo TX {2:0} m, orizzonti TX {3:0.0} / RX {4:0.0} mrad, θ {5:0.0} mrad, P.452 senza tropo {6:0.0} dB, ITM 50% {7:0.0} dB",
+                    rl, rn, tx.GroundM, lr.ThetaTx, lr.ThetaRx, lr.ThetaMrad, lr.LbaseDb, lr.ItmDb));
+            }
+        }
+        catch (Exception ex) { W("tratta di prova non riuscita: " + ex.Message); }
         using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(120) };
         http.DefaultRequestHeaders.UserAgent.ParseAdd("LIVETROPOVHF-prova/1.3");
         var pts = new List<LatLon> { new LatLon(41.0, 14.0), new LatLon(41.0, 14.5), new LatLon(45.5, 9.0), new LatLon(40.0, -5.0) };
