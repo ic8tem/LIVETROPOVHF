@@ -5,6 +5,7 @@ Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole 
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
 ## 1.3.2 — 21/11/2026
+- Accordo guadagno–pressione: se il livello delle isobare non è caricato si usa la pressione al mare della previsione propria (prima il registro dava «0 punti»).
 - Registro: niente più «-+0.0 cm/s»; se il sito dell'ITU non si raggiunge il messaggio dice perché (internet, DNS o firewall) invece di stampare l'errore tecnico; dimensione dei riquadri SRTM1 corretta (7–13 MB).
 - Via monte: locatore a 10 caratteri per ogni punto e nuova casella «Via monte senza perdita fino al monte», che porta la stazione sul punto migliore e calcola solo la tratta dal punto al corrispondente (segnale e S/N).
 - Risultati: i valori lunghi vanno a capo invece di essere tagliati, spazio per la barra di scorrimento; perdite oltre 300 dB scritte «> 300 dB» con «direzione chiusa da un ostacolo vicino»; niente più «-+0,0»; la curvatura della terra sul mare non è più chiamata «ostacolo 0 m». Profilo: fumetto sul raggio diretto rosso/verde e sui punti rossi della zona di Fresnel.

@@ -447,6 +447,7 @@ public sealed class ForecastPainter
                 double la = lat0 + r * step, lo = lon0 + c * step;
                 double v = Own.Index(la, lo, t, f); if (double.IsNaN(v)) continue;
                 double p = St.Pressure.ValueAt(new LatLon(la, lo), t), inv = St.Pressure.InversionAt(new LatLon(la, lo), t);
+                if (double.IsNaN(p)) p = Own.At(la, lo, t)?.Pmsl ?? double.NaN;   // senza il livello isobare si usa la pressione della previsione propria
                 if (!double.IsNaN(p)) gp.Add((v * 2.5, p));
                 if (!double.IsNaN(inv)) gi.Add((v * 2.5, inv));
             }
