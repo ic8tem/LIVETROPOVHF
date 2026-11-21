@@ -53,7 +53,7 @@ public sealed partial class MainWindow
 
     double FcFreq => _st.S.Get("fc_band", "144") switch { "432" => 432.2, "1296" => 1296.2, _ => 144.3 };
     int FcHours { get => _st.S.GetInt("fc_hours", 0); set => _st.S.SetInt("fc_hours", value); }
-    DateTime FcTime { get { var n = Clock.UtcNow; return new DateTime(n.Year, n.Month, n.Day, n.Hour, 0, 0, DateTimeKind.Utc).AddHours(FcHours); } }
+    DateTime FcTime { get { var n = Clock.UtcNow; var b = _own?.Hist != null ? _own.Hist.StartUtc : new DateTime(n.Year, n.Month, n.Day, n.Hour, 0, 0, DateTimeKind.Utc); return b.AddHours(FcHours); } }
 
     double Num(string key, double def)
     {
@@ -169,9 +169,14 @@ public sealed partial class MainWindow
                 new Border { Width = 10 },
                 Ov("fc_ov_inv", "Inversione termica (curve)", "Temperature inversion (contours)",
                    "Curve tratteggiate di quanto l'aria a 925 o 850 hPa è più calda di quella a 2 m (1, 3, 5, 8 °C), dal GFS via Open-Meteo. Un'inversione senza calo di umidità piega poco: Bean e Dutton § 4.4. Manuale delle previsioni, § 5.",
-                   "Dashed contours of how much warmer air at 925 or 850 hPa is than at 2 m (1, 3, 5, 8 °C), GFS via Open-Meteo. An inversion without a humidity drop bends little: Bean & Dutton § 4.4. Forecast manual, § 5.")
+                   "Dashed contours of how much warmer air at 925 or 850 hPa is than at 2 m (1, 3, 5, 8 °C), GFS via Open-Meteo. An inversion without a humidity drop bends little: Bean & Dutton § 4.4. Forecast manual, § 5."),
+                new Border { Width = 10 },
+                Ov("fc_ov_wx", "Segni meteo (S ↓ ↑)", "Weather marks (S ↓ ↑)",
+                   "Su ogni cella della griglia: S = scirocco (vento da SE–S a 850 hPa con aria calda, ARRL Handbook § 19.4), ↓ = subsidenza (aria che scende con inversione, Moler e Holden 1960), ↑ = aria in salita che rompe gli strati. Visibili quando le celle sono abbastanza larghe. Manuale delle previsioni, § 9 bis.",
+                   "On each grid cell: S = scirocco (SE–S wind at 850 hPa with warm air, ARRL Handbook § 19.4), ↓ = subsidence (sinking air with an inversion, Moler & Holden 1960), ↑ = rising air breaking the layers. Shown when cells are wide enough. Forecast manual, § 9 bis.")
             }
         });
+        col.Children.Add(FcSourceBox());
         _fcCorr = TB("", 11, _th.Muted); _fcCorr.TextWrapping = TextWrapping.Wrap;
         ToolTip.SetTip(_fcCorr, L("Coefficiente di correlazione di Pearson fra il guadagno stimato e la pressione al livello del mare, e fra il guadagno e l'inversione termica, sui punti della zona visibile all'ora scelta. 1 = vanno insieme, 0 = nessun legame, −1 = opposti. Manuale delle previsioni, § 5.",
                                   "Pearson correlation between estimated gain and sea-level pressure, and between gain and temperature inversion, over the visible points at the chosen hour. 1 = together, 0 = unrelated, −1 = opposite. Forecast manual, § 5."));
@@ -314,7 +319,7 @@ public sealed partial class MainWindow
     {
         if (_fcTime == null) return;
         var t = FcTime;
-        _fcTime.Text = $"{Lang.DayNames()[(int)t.DayOfWeek]} {t:dd/MM HH}:00 UTC (+{FcHours} h)";
+        _fcTime.Text = $"{Lang.DayNames()[(int)t.DayOfWeek]} {(_own.Hist != null ? t.ToString("dd/MM/yyyy HH") : t.ToString("dd/MM HH"))}:00 UTC (+{FcHours} h)";
     }
 
     TextBlock _fcNoise;
@@ -471,6 +476,7 @@ public sealed partial class MainWindow
         _fcCts?.Cancel(); _fcCts = new CancellationTokenSource();
         var ct = _fcCts.Token;
         var (la1, la2, lo1, lo2) = _fcMap.Box;
+        if (_own.Hist != null) { la1 = _own.Hist.LatMin; la2 = _own.Hist.LatMax; lo1 = _own.Hist.LonMin; lo2 = _own.Hist.LonMax; }
         CalcLog.Section("Aggiornamento della previsione propria");
         CalcLog.W($"zona visibile {la1:0.##}–{la2:0.##} N, {lo1:0.##}–{lo2:0.##} E");
         Task.Run(async () =>
@@ -528,7 +534,7 @@ public sealed partial class MainWindow
                 {
                     FcSetStatus(L("GFS: scarico i profili lungo il percorso…", "GFS: downloading profiles along the path…"));
                     fs = new FetchStats();
-                    var ser = await OwnForecast.FetchPoints(FcHttp, pp, FcSetStatus, ct, fs, _own.RunUtc);
+                    var ser = await OwnForecast.FetchPoints(FcHttp, pp, FcSetStatus, ct, fs, _own.RunUtc, null, _own.Hist);
                     prof = ser.Select(s =>
                     {
                         int best = -1; double bd = double.MaxValue;
@@ -572,7 +578,7 @@ public sealed partial class MainWindow
         _fcProgress = null;
         _fcResults.Children.Clear();
         _fcResults.Children.Add(TB(ForecastText.Header(r, FcTime), 14, _th.Accent, true));
-        foreach (var (label, value, tone, bold) in ForecastText.Lines(r, Num("fc_req_ssb", 6), Num("fc_req_cw", 0), Num("fc_req_ft8", -21)))
+        foreach (var (label, value, tone, bold) in ForecastText.Lines(r, Num("fc_req_ssb", 6), Num("fc_req_cw", 0), Num("fc_req_ft8", -21), _own))
         {
             var col = tone switch
             {
@@ -589,6 +595,66 @@ public sealed partial class MainWindow
             sp.Children.Add(TB(value, 12, col, bold, true));
             _fcResults.Children.Add(sp);
         }
+    }
+
+    /// <summary>Sorgente dei dati, caso storico e correzioni meteo della 1.3.0.</summary>
+    Control FcSourceBox()
+    {
+        OwnForecast.Source = WxSources.Parse(_st.S.Get("fc_source", "Auto"));
+        Refractivity.UseCorrections = _st.S.GetBool("fc_corr", true);
+        var box = new StackPanel { Spacing = 6 };
+        var src = new ComboBox { Width = 330, ItemsSource = WxSources.All.Select(WxSources.Name).ToList(), SelectedIndex = Array.IndexOf(WxSources.All, OwnForecast.Source) };
+        src.SelectionChanged += (_, _) =>
+        {
+            if (src.SelectedIndex < 0) return;
+            OwnForecast.Source = WxSources.All[src.SelectedIndex];
+            _st.S.Set("fc_source", OwnForecast.Source.ToString()); _st.Dirty = true;
+            FcSetStatus(L("Sorgente scelta: ", "Source: ") + WxSources.Name(OwnForecast.Source) + L(". Premi «Aggiorna previsione» per scaricare la griglia.", ". Press «Update forecast» to download the grid."));
+        };
+        ToolTip.SetTip(src, L("Automatica: GFS da Open-Meteo; al primo rifiuto per limite i punti mancanti arrivano da NOMADS (NOAA), che dà lo stesso GFS in file GRIB2. " +
+                              "ICON-EU (solo Europa) ed ECMWF valgono per tutta la griglia: modelli diversi non si mescolano. Manuale delle previsioni, § 3 bis.",
+                              "Automatic: GFS from Open-Meteo; at the first rate-limit refusal the missing points come from NOMADS (NOAA), the same GFS as GRIB2 files. " +
+                              "ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis."));
+        var sp1 = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        sp1.Children.Add(new TextBlock { Text = L("Sorgente dei dati", "Data source"), Width = 120, FontSize = 12, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
+        sp1.Children.Add(src);
+        box.Children.Add(sp1);
+
+        var cases = new List<string> { L("previsione attuale", "current forecast") };
+        cases.AddRange(HistCase.Known.Select(h => h.Name));
+        var hc = new ComboBox { Width = 330, ItemsSource = cases, SelectedIndex = _own.Hist == null ? 0 : Array.IndexOf(HistCase.Known, _own.Hist) + 1 };
+        hc.SelectionChanged += (_, _) =>
+        {
+            if (hc.SelectedIndex < 0) return;
+            _own.Hist = hc.SelectedIndex == 0 ? null : HistCase.Known[hc.SelectedIndex - 1];
+            if (_own.Hist != null)
+            {
+                var h = _own.Hist;
+                _fcMap?.ShowBox(h.LatMin, h.LatMax, h.LonMin, h.LonMax);
+                _st.S.Set("fc_band", h.FreqMHz >= 1000 ? "1296" : h.FreqMHz >= 400 ? "432" : "144");
+                foreach (var x in _fcBandBtns) x.IsChecked = (string)x.Content == _st.S.Get("fc_band", "144") + " MHz"; FcRefreshGains();
+                FcSetStatus(L("Caso storico: ", "Historical case: ") + h.Name + " — " + h.Note + L(". Premi «Aggiorna previsione» per scaricare i profili d'archivio.", ". Press «Update forecast» to download the archive profiles."));
+            }
+            else FcSetStatus(L("Previsione attuale: premi «Aggiorna previsione».", "Current forecast: press «Update forecast»."));
+            FcTimeLabel(); _fcMap?.InvalidateVisual();
+        };
+        ToolTip.SetTip(hc, L("Rivede un'apertura documentata (QST, «The World Above 50 MHz») con le previsioni GFS d'archivio di Open-Meteo, per confrontare il modello con quello che è successo. L'ora parte dal primo giorno del caso. Manuale delle previsioni, § 3 ter.",
+                             "Replays a documented opening (QST, «The World Above 50 MHz») with Open-Meteo archived GFS forecasts, to compare the model with what happened. Time starts at the first day of the case. Forecast manual, § 3 ter."));
+        var sp2 = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        sp2.Children.Add(new TextBlock { Text = L("Caso storico", "Historical case"), Width = 120, FontSize = 12, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
+        sp2.Children.Add(hc);
+        box.Children.Add(sp2);
+
+        var corr = new CheckBox { Content = L("Correzioni meteo: stabilità (Misme) e subsidenza", "Weather corrections: stability (Misme) and subsidence"), IsChecked = Refractivity.UseCorrections, FontSize = 12 };
+        corr.IsCheckedChanged += (_, _) =>
+        {
+            Refractivity.UseCorrections = corr.IsChecked == true; _st.S.SetBool("fc_corr", Refractivity.UseCorrections); _st.Dirty = true;
+            _fcMap?.InvalidateVisual();
+        };
+        ToolTip.SetTip(corr, L("Aggiunge al guadagno il termine di stabilità di Misme (solo senza condotto, da −4 a +6 dB, taratura provvisoria) e la correzione per il moto verticale: +1,5 dB con subsidenza, −2 dB con aria in salita. Toglila per vedere il modello della 1.2. Manuale delle previsioni, § 9 bis.",
+                               "Adds Misme's stability term (only without a duct, −4 to +6 dB, provisional calibration) and the vertical-motion correction: +1.5 dB with subsidence, −2 dB with rising air. Untick to see the 1.2 model. Forecast manual, § 9 bis."));
+        box.Children.Add(corr);
+        return box;
     }
 
     void FcComputeLos()

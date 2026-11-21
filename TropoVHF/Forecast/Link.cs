@@ -107,6 +107,10 @@ public sealed class LinkResult
     // terzo calcolo: ITU-R P.452-16 § 4.5 (condotti e riflessione su strati) con ΔN del GFS e p = 20% come calibrazione
     public double P452DeltaN, P452K50, P452Beta, P452Lba, P452Lbs, P452Lb, P452Alf, P452Ast, P452Asr, P452Act, P452Acr, P452Ag;
     public bool P452Ok;
+    // 1.3.0: troposcatter con tre modelli affiancati (come TropoLink) e loro dispersione come incertezza
+    public double P617Db = double.NaN, P617F, P617N0, P617DeltaN, RsgbDb = double.NaN, ScatSpreadDb;
+    // situazione meteo lungo la tratta (frazione dei profili)
+    public double SubsFrac, AscentFrac, SciroccoFrac, StabDbMean;
     public string TxVsDuct = "", RxVsDuct = "";
     public double FresnelMinRatio = double.NaN;        // minimo di (spazio libero sopra il terreno) / raggio della 1ª zona di Fresnel
     public List<(double km, double hM, double ratio, double nu)> Obstacles = new();
@@ -328,6 +332,7 @@ public static class LinkCalc
         r.LscatDb = 190.1 + lf + 20 * Math.Log10(d) + 0.573 * Math.Max(0, r.ThetaMrad) - 0.15 * n0 + lc;
         CalcLog.W($"angoli d'orizzonte: TX {thT:0.00} mrad, RX {thR:0.00} mrad; θ = 1000 d/ae + θt + θr = {r.ThetaMrad:0.00} mrad");
         CalcLog.W($"troposcatter P.452 eq. 45 (p = 50%): Lf {lf:0.00}, N0 {n0:0.0}, Lc = 0,051·e^(0,055(Gt+Gr)) {lc:0.00} → Lbs = {r.LscatDb:0.00} dB (Gt {r.GtxDbi:0.0} dBi, Gr {r.GrxDbi:0.0} dBi, DL6WU)");
+        Scatter3(r, h, good, o.FreqMHz);
 
         // ---- combinazione (somma delle potenze) senza tropo
         r.LbaseDb = -10 * Math.Log10(Math.Pow(10, -r.LdiffDb / 10) + Math.Pow(10, -r.LscatDb / 10));
@@ -419,6 +424,14 @@ public static class LinkCalc
             {
                 double gl = best.traps ? Math.Min(25, 20 + r.DeficitMean / 5.0)
                                        : Enumerable.Range(best.a, best.b - best.a + 1).Average(i => prof[i].LayerGainDb);
+                if (Refractivity.UseCorrections)
+                {
+                    // 1.3.0: stabilità di Misme (solo senza condotto) e moto verticale lungo il tratto dello strato
+                    var rng = Enumerable.Range(best.a, best.b - best.a + 1).Select(i => prof[i]).ToList();
+                    double corr = rng.Average(p => p.VertDb + (best.traps ? 0 : p.StabDb));
+                    if (Math.Abs(corr) >= 0.05) CalcLog.W($"correzioni meteo sullo strato: {(best.traps ? "moto verticale" : "stabilità di Misme + moto verticale")} {corr:+0.0;-0.0} dB");
+                    gl += corr;
+                }
                 // CSIRO 2026: sul mare il condotto c'è quasi sempre, la ricezione la decide il tratto su terra
                 bool landMatters = r.LandKm >= 0.1 * d && !double.IsNaN(r.LandCov);
                 r.FracUsed = landMatters ? Math.Min(r.LayerFrac, r.LandCov) : r.LayerFrac;
@@ -491,6 +504,41 @@ public static class LinkCalc
         r.Times.Lap("bilancio e rumore");
         CalcLog.W($"TEMPI del calcolo sul percorso: {CalcLog.Dur(r.Times.TotalMs)} — {r.Times.Summary()}");
         return r;
+    }
+
+    /// <summary>
+    /// Troposcatter con altri due modelli, solo per confronto e incertezza (come TropoLink):
+    /// ITU-R P.617-5 (mediana) L = F + 22 log f + 35 log θ + 17 log d + Lc, con F = 0,18·N0·e^(−hs/7,35) − 0,23·ΔN e
+    /// Lc = 0,07·e^(0,055(Gt+Gr)); qui 0,18·N0·e^(−hs/7,35) usa direttamente Ns dei profili e ΔN il calo del primo km
+    /// del GFS, così il troposcatter segue l'ora invece della climatologia. Formula del VHF/UHF Handbook RSGB
+    /// (DL2FZN): L = Lfs + 24,44 + 4,283 ln f + 0,06656 d.
+    /// </summary>
+    static void Scatter3(LinkResult r, double[] h, List<ProfileResult> good, double fMHz)
+    {
+        double d = r.DistKm;
+        r.RsgbDb = r.LfsDb + 24.44 + 4.283 * Math.Log(fMHz) + 0.06656 * d;
+        if (r.ThetaMrad > 0.1)
+        {
+            double ns = good.Count > 0 ? good.Average(p => p.Ns) : 315;
+            double dn = good.Count > 0 ? -good.Average(p => p.DN1km) : 40;
+            double hs = Math.Max(0, h.Average()) / 1000;
+            r.P617N0 = ns * Math.Exp(hs / 7.35); r.P617DeltaN = dn;
+            r.P617F = 0.18 * ns - 0.23 * dn;
+            double lc = 0.07 * Math.Exp(0.055 * (r.GtxDbi + r.GrxDbi));
+            r.P617Db = r.P617F + 22 * Math.Log10(fMHz) + 35 * Math.Log10(r.ThetaMrad) + 17 * Math.Log10(d) + lc;
+        }
+        var all = new[] { r.LscatDb, r.P617Db, r.RsgbDb }.Where(x => !double.IsNaN(x)).ToList();
+        r.ScatSpreadDb = all.Count > 1 ? all.Max() - all.Min() : 0;
+        CalcLog.W($"troposcatter, altri modelli: P.617-5 F = 0,18·Ns {(good.Count > 0 ? "(GFS)" : "(tipico)")} − 0,23·ΔN = {r.P617F:0.0} (Ns→N0 {r.P617N0:0}, ΔN {r.P617DeltaN:0} N/km) → {(double.IsNaN(r.P617Db) ? "—" : r.P617Db.ToString("0.0"))} dB; " +
+                  $"RSGB (DL2FZN) {r.RsgbDb:0.0} dB; P.452 {r.LscatDb:0.0} dB → dispersione fra i modelli {r.ScatSpreadDb:0.0} dB");
+        if (good.Count > 0)
+        {
+            r.SubsFrac = good.Count(p => p.Subsidence) / (double)good.Count;
+            r.AscentFrac = good.Count(p => p.Ascent) / (double)good.Count;
+            r.SciroccoFrac = good.Count(p => p.Scirocco) / (double)good.Count;
+            r.StabDbMean = good.Average(p => p.StabDb);
+            CalcLog.W($"meteo lungo la tratta: subsidenza {r.SubsFrac * 100:0}% dei profili, aria in salita {r.AscentFrac * 100:0}%, scirocco {r.SciroccoFrac * 100:0}%; termine di stabilità medio {r.StabDbMean:+0.0;-0.0} dB");
+        }
     }
 
     /// <summary>Spessore minimo di uno strato per contare come corridoio continuo (CSIRO 2026: strati sotto 40 m scartati).</summary>

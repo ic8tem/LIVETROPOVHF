@@ -184,6 +184,18 @@ public sealed class MapView : Control
         InvalidateVisual();
     }
 
+    /// <summary>Inquadra un riquadro geografico (es. la zona di un caso storico).</summary>
+    public void ShowBox(double la1, double la2, double lo1, double lo2)
+    {
+        if (_fitScale <= 0) UpdateProjection();
+        if (!Proj.Project(la1, lo1, out var x1, out var y1) || !Proj.Project(la2, lo2, out var x2, out var y2)) return;
+        double w = Math.Max(100, Bounds.Width), h = Math.Max(100, Bounds.Height);
+        _cx = (x1 + x2) / 2; _cy = (y1 + y2) / 2;
+        double s = Math.Min(w / Math.Max(1e-9, Math.Abs(x2 - x1)), h / Math.Max(1e-9, Math.Abs(y2 - y1)));
+        _scale = _fitScale > 0 ? Math.Clamp(s, _fitScale * 0.4, _fitScale * 80) : s;
+        InvalidateVisual();
+    }
+
     public string ZoomPercent => _fitScale > 0 ? $"{_scale / _fitScale * 100:0}%" : "100%";
 
     // ------------------------------------------------ input

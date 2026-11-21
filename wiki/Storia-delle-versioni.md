@@ -4,6 +4,19 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
+## 1.3.0 — 21/11/2026
+Previsioni (sempre sperimentali):
+- Seconda sorgente dei dati: con la scelta automatica, quando Open-Meteo rifiuta per un limite, i punti mancanti arrivano da NOMADS (NOAA), lo stesso GFS in file GRIB2 letti dal programma. Si può anche scegliere solo Open-Meteo o solo NOMADS.
+- Altri modelli per tutta la griglia: ICON-EU (DWD) ed ECMWF IFS 0,25° da Open-Meteo, per confrontarli con il GFS. Cache separata per modello; la sorgente usata è scritta nei risultati.
+- Casi storici: si rivede un'apertura documentata con le previsioni d'archivio di Open-Meteo. Primo caso: 14–15 agosto 2022, Manitoba–Kansas/Missouri (QST novembre 2022), da 144 a 1296 MHz.
+- Correzioni meteo (si possono spegnere): termine di stabilità di Misme e moto verticale del GFS: +1,5 dB con subsidenza negli anticicloni, −2 dB con aria in salita (Moler e Holden 1960). Indice di rifrazione potenziale K nel registro.
+- Scirocco: segnalato sulla mappa e nei risultati quando a 850 hPa arriva aria calda da sud-est sul Mediterraneo.
+- Casella Segni meteo: S scirocco, ↓ subsidenza, ↑ aria in salita sulle celle della griglia.
+- Troposcatter con tre modelli affiancati: P.452, ITU-R P.617-5 con N0 e ΔN del GFS ora per ora, formula RSGB (DL2FZN); la differenza è mostrata come incertezza.
+- Modi digitali nei risultati: FT4, FT8, Q65 e JT65 con le soglie misurate; in troposcatter la soglia FT8 tiene conto dell'evanescenza (−18,6 dB).
+- Le ore della griglia ora combaciano anche quando alcuni punti vengono dalla cache scaricata un'ora prima.
+- Consigli per l'operatore: situazioni meteo (anticicloni, fronti, brezza di terra, foehn, scirocco) dall'ARRL Handbook. Fumetto delle Yagi con il confronto con le misure NBS.
+
 ## 1.2.3 — 20/11/2026
 - Linguette riordinate da 12 a 5: Mappa e spot, Previsioni (Propria β · Hepburn · F5LEN), GRAVES, Dati e fonti (DX cluster · PSKReporter · Reverse Beacon · UDP · Nominativi · Segnalazioni sospette), Guide (cinque documenti, con la ricerca). Ogni gruppo ricorda l'ultima sotto-linguetta.
 - Windows 7 e 8.1: anche qui la linguetta Previsioni (sperimentale), con lo stesso motore, gli stessi testi, fumetti e disegni della versione normale; manuale delle previsioni e consigli per l'operatore.

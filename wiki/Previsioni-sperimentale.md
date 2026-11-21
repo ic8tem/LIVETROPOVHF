@@ -5,7 +5,8 @@ Dalla 1.2.0 la linguetta Previsioni calcola da sé la propagazione troposferica,
 ## Cosa fa
 - Mappa del guadagno stimato rispetto all'atmosfera normale, dai profili verticali del modello GFS (Open-Meteo), per 144, 432 e 1296 MHz, fino a 72 ore avanti.
 - Calcolo del segnale fra la propria stazione e un corrispondente sul terreno reale SRTM1: diffrazione, troposcatter, strato continuo lungo la tratta, condotti, rumore del ricevitore, S/N in SSB, CW e FT8.
-- Linee opzionali: curve di guadagno, isobare, inversione termica.
+- Linee opzionali: curve di guadagno, isobare, inversione termica; dalla 1.3.0 anche i segni meteo (S scirocco, ↓ subsidenza, ↑ aria in salita).
+- Dalla 1.3.0: sorgente dei dati a scelta (GFS da Open-Meteo con passaggio automatico a NOMADS al limite, solo NOMADS, ICON-EU, ECMWF), casi storici dall'archivio di Open-Meteo, correzioni per stabilità e subsidenza, troposcatter con tre modelli e incertezza, soglie di FT4, Q65 e JT65.
 
 ## Colori
 | Guadagno | Colore |

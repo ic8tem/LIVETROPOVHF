@@ -82,6 +82,12 @@ public static class CalcLog
         if (p.HasDuct)
             W($"    condotto: base {F(p.DuctBase, "0")} m, cima {F(p.DuctTop, "0")} m, spessore {F(p.DuctThick, "0")} m, deficit ΔM {F(p.DuctDeficit)}{(p.SurfaceDuct ? ", al suolo" : ", elevato")}");
         else W("    nessun condotto (M non cala in nessuno strato)");
+        W($"    stabilità (Misme): ΔW primo km {F(p.DeltaW, "0")} J/kg (standard {Refractivity.DeltaWStd:0}) → {F(p.StabDb, "+0.0;-0.0")} dB" +
+          $"; K al suolo {F(p.KSurf, "0")}, calo di K più forte {F(p.KDrop, "0")} ({(p.KDropLayer == "" ? "—" : p.KDropLayer)})" +
+          $"; velocità verticale 850 hPa {F(p.W850 * 100, "+0.0;-0.0")} cm/s, 700 hPa {F(p.W700 * 100, "+0.0;-0.0")} cm/s" +
+          (p.Subsidence ? " → subsidenza (+1,5 dB)" : p.Ascent ? " → aria in salita (−2 dB)" : "") +
+          $"; vento 850 hPa {F(p.Wind850)} m/s da {F(p.Dir850, "0")}°, T850 {F(p.T850)} °C" + (p.Scirocco ? " → scirocco" : "") +
+          (Refractivity.UseCorrections ? "" : " (correzioni spente)"));
         foreach (var f in new[] { 144.3, 432.2, 1296.2 })
         {
             var bd = p.BestDuct(f);

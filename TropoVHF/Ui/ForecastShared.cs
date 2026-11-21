@@ -37,6 +37,10 @@ public static class ForecastText
         [L("Spazio libero", "Free space")] = L("Lfs = 92,44 + 20 log f(GHz) + 20 log d(km), ITU-R P.525. Manuale delle previsioni, § 8.", "Lfs = 92.44 + 20 log f(GHz) + 20 log d(km), ITU-R P.525. Forecast manual, § 8."),
         [L("Diffrazione (Bullington)", "Diffraction (Bullington)")] = L("Bullington sul profilo reale più la correzione di terra sferica «delta-Bullington» (ITU-R P.452-16 § 4.2, eq. 161–164) con la perdita sferica di ITU-R P.526 § 3. Manuale delle previsioni, § 8.", "Bullington on the real profile plus the spherical-earth delta-Bullington correction (ITU-R P.452-16 § 4.2, eq. 161–164) with ITU-R P.526 § 3 spherical loss. Forecast manual, § 8."),
         [L("Troposcatter (P.452)", "Troposcatter (P.452)")] = L("ITU-R P.452-16 eq. 45 al 50% del tempo, con distanza angolare θ dagli orizzonti, N0 dai profili GFS e perdita d'accoppiamento d'apertura dai guadagni DL6WU. Manuale delle previsioni, § 8.", "ITU-R P.452-16 eq. 45 at 50% of time, angular distance θ from the horizons, N0 from GFS profiles and aperture coupling loss from DL6WU gains. Forecast manual, § 8."),
+        [L("Troposcatter, altri modelli", "Troposcatter, other models")] = L("ITU-R P.617-5 (mediana) con N0 e ΔN presi ogni ora dai profili GFS invece che dalle mappe climatologiche, e la formula del VHF/UHF Handbook RSGB (DL2FZN). La differenza fra i tre modelli, P.452 compreso, è mostrata come incertezza, come fa TropoLink. Solo confronto. Manuale delle previsioni, § 8 bis.", "ITU-R P.617-5 (median) with N0 and ΔN taken hourly from GFS profiles instead of the climatological maps, and the RSGB VHF/UHF Handbook formula (DL2FZN). The spread of the three models, P.452 included, is shown as uncertainty, as TropoLink does. Check only. Forecast manual, § 8 bis."),
+        [L("Meteo lungo la tratta", "Weather along path")] = L("Subsidenza: aria che scende (velocità verticale GFS a 850 e 700 hPa sotto −1 cm/s) con inversione o forte calo di K, +1,5 dB (Moler e Holden, J. Res. NBS 64D, 1960); aria in salita oltre +5 cm/s, −2 dB. Stabilità di Misme: ΔW del primo km rispetto all'atmosfera standard (Bean e Dutton cap. 6), solo senza condotto. Scirocco: vento da SE–S a 850 hPa di almeno 7 m/s con T850 ≥ 16 °C sul Mediterraneo (ARRL Handbook § 19.4). Manuale delle previsioni, § 9 bis.", "Subsidence: sinking air (GFS vertical velocity at 850 and 700 hPa below −1 cm/s) with an inversion or a strong K drop, +1.5 dB (Moler & Holden, J. Res. NBS 64D, 1960); rising air above +5 cm/s, −2 dB. Misme stability: first-km ΔW against the standard atmosphere (Bean & Dutton ch. 6), only without a duct. Scirocco: SE–S wind at 850 hPa of at least 7 m/s with T850 ≥ 16 °C over the Mediterranean (ARRL Handbook § 19.4). Forecast manual, § 9 bis."),
+        [L("Modi digitali", "Digital modes")] = L("S/N in 2500 Hz confrontato con le soglie misurate: FT8 −21 dB (−18,6 dB con evanescenza, usata in troposcatter), FT4 −17,5 dB (Franke, Somerville e Taylor, QEX 2020), Q65-30A −24 dB, JT65A −25 dB (W3SZ 2019). ✓ sopra la soglia, ✗ sotto. Manuale delle previsioni, § 12.", "S/N in 2500 Hz against measured thresholds: FT8 −21 dB (−18.6 dB with fading, used for troposcatter), FT4 −17.5 dB (Franke, Somerville & Taylor, QEX 2020), Q65-30A −24 dB, JT65A −25 dB (W3SZ 2019). ✓ above, ✗ below. Forecast manual, § 12."),
+        [L("Sorgente dei dati", "Data source")] = L("Modello e servizio che hanno dato i profili: GFS da Open-Meteo o da NOMADS (NOAA, file GRIB2), ICON-EU (DWD) o ECMWF IFS da Open-Meteo, oppure l'archivio delle previsioni per i casi storici. Manuale delle previsioni, § 3 bis.", "Model and service that supplied the profiles: GFS from Open-Meteo or NOMADS (NOAA, GRIB2 files), ICON-EU (DWD) or ECMWF IFS from Open-Meteo, or the forecast archive for historical cases. Forecast manual, § 3 bis."),
         [L("Senza tropo", "Without tropo")] = L("Somma delle potenze di diffrazione e troposcatter, mai sotto lo spazio libero: la perdita con atmosfera normale. Manuale delle previsioni, § 8.", "Power sum of diffraction and troposcatter, never below free space: loss in a normal atmosphere. Forecast manual, § 8."),
         [L("Strato fondante", "Governing layer")] = L("Lo strato di pressione che resta continuo più a lungo lungo la tratta, con condotti di almeno 40 m (Indermuehle e Suzuki, PASA 2026). Soglie per strato: Bean e Dutton, NBS Monograph 92, tab. 6.5. Manuale delle previsioni, § 9.", "The pressure layer that stays continuous longest along the path, with ducts at least 40 m thick (Indermuehle & Suzuki, PASA 2026). Layer thresholds: Bean & Dutton, NBS Monograph 92, table 6.5. Forecast manual, § 9."),
         [L("Continuità sulla tratta", "Continuity along path")] = L("Tratto più lungo in cui lo stesso strato è presente su punti GFS consecutivi; la frazione moltiplica il guadagno. Manuale delle previsioni, § 9.", "Longest stretch where the same layer is present at consecutive GFS points; the fraction multiplies the gain. Forecast manual, § 9."),
@@ -66,12 +70,18 @@ public static class ForecastText
     /// <summary>Intestazione dei risultati.</summary>
     public static string Header(LinkResult r, DateTime t) => L("Risultato", "Result") + $" · {r.FreqMHz:0.#} MHz · {t:dd/MM HH}:00 UTC";
 
+    /// <summary>Riga della sorgente dei dati (da mettere in testa ai risultati).</summary>
+    public static (string Label, string Value) SourceLine(OwnForecast own) =>
+        (L("Sorgente dei dati", "Data source"), own == null ? "—" :
+            (own.Hist != null ? L("archivio Open-Meteo, caso ", "Open-Meteo archive, case ") + own.Hist.Name + " · " : "") + WxSources.Name(own.UsedSource) + (own.UsedDetail != "" ? $" ({own.UsedDetail})" : ""));
+
     /// <summary>Righe dei risultati (etichetta, valore, tono, grassetto) uguali per tutte le finestre; le note hanno l'etichetta vuota.</summary>
-    public static List<(string Label, string Value, FcTone Tone, bool Bold)> Lines(LinkResult r, double reqSsb, double reqCw, double reqFt8)
+    public static List<(string Label, string Value, FcTone Tone, bool Bold)> Lines(LinkResult r, double reqSsb, double reqCw, double reqFt8, OwnForecast own = null)
     {
         var res = new List<(string, string, FcTone, bool)>();
         void Line(string a, string b, FcTone c = FcTone.Normal, bool bold = false) => res.Add((a, b, c, bold));
         void Note(string n) => res.Add(("", n, FcTone.Muted, false));
+        if (own != null && r.ForecastUsed) { var (sl, sv) = SourceLine(own); Line(sl, sv, own.Hist != null ? FcTone.Accent : FcTone.Normal); }
         Line(L("Distanza / azimut", "Distance / azimuth"), $"{r.DistKm:0.0} km / {r.AzDeg:0}°");
         Line(L("Antenne sul mare TX / RX", "Antennas above sea TX / RX"), $"{r.HtxAsl:0} m / {r.HrxAsl:0} m");
         Line(L("Raggio equivalente k", "Effective radius k"), $"{r.K:0.00}" + (r.ForecastUsed ? " (GFS)" : " (4/3)"));
@@ -81,6 +91,8 @@ public static class ForecastText
         Line(L("Spazio libero", "Free space"), $"{r.LfsDb:0.0} dB");
         Line(L("Diffrazione (Bullington)", "Diffraction (Bullington)"), $"{r.LdiffDb:0.0} dB (+{r.LbullDb:0.0})");
         Line(L("Troposcatter (P.452)", "Troposcatter (P.452)"), $"{r.LscatDb:0.0} dB (θ {r.ThetaMrad:0.0} mrad)");
+        if (!double.IsNaN(r.RsgbDb))
+            Line(L("Troposcatter, altri modelli", "Troposcatter, other models"), (double.IsNaN(r.P617Db) ? "" : $"P.617 {r.P617Db:0.0} · ") + $"RSGB {r.RsgbDb:0.0} dB · " + L("incertezza", "uncertainty") + $" ±{r.ScatSpreadDb / 2:0.0} dB");
         Line(L("Senza tropo", "Without tropo"), $"{r.LbaseDb:0.0} dB");
         if (r.ForecastUsed)
         {
@@ -104,6 +116,12 @@ public static class ForecastText
             }
             else Line(L("Strato fondante", "Governing layer"), L("nessuno strato continuo", "no continuous layer"));
             Line(L("Guadagno tropo", "Tropo gain"), $"{r.TropoGainDb:+0.0;-0.0} dB");
+            var wx = new List<string>();
+            if (r.SubsFrac > 0) wx.Add(L("subsidenza", "subsidence") + $" {r.SubsFrac * 100:0}%");
+            if (r.AscentFrac > 0) wx.Add(L("aria in salita", "rising air") + $" {r.AscentFrac * 100:0}%");
+            if (r.SciroccoFrac > 0) wx.Add(L("scirocco", "scirocco") + $" {r.SciroccoFrac * 100:0}%");
+            wx.Add("Misme " + $"{r.StabDbMean:+0.0;-0.0} dB" + (Refractivity.UseCorrections ? "" : L(" (spento)", " (off)")));
+            Line(L("Meteo lungo la tratta", "Weather along path"), string.Join(" · ", wx), r.SciroccoFrac > 0 || r.SubsFrac > 0.3 ? FcTone.Accent : FcTone.Normal);
         }
         Line(L("Perdita prevista", "Predicted loss"), $"{r.LpredDb:0.0} dB · {r.Mechanism}", FcTone.Strong, true);
         if (r.P452Ok) Line(L("Confronto P.452 (p 20%)", "P.452 check (p 20%)"), $"{r.P452Lb:0.0} dB ({r.P452Lb - r.LpredDb:+0.0;-0.0}) · ΔN {r.P452DeltaN:0} · Lba {r.P452Lba:0.0} dB" + (r.P452Alf > 0 ? $" (Alf {r.P452Alf:0.0})" : ""));
@@ -120,7 +138,14 @@ public static class ForecastText
         FcTone V(double snr, double req) => snr >= req ? FcTone.Ok : snr >= req - 6 ? FcTone.Warn : FcTone.Bad;
         Line("S/N SSB", $"{r.SnrSsb:+0.0;-0.0} dB", V(r.SnrSsb, reqSsb), true);
         Line("S/N CW", $"{r.SnrCw:+0.0;-0.0} dB", V(r.SnrCw, reqCw), true);
-        Line("S/N FT8", $"{r.SnrFt8:+0.0;-0.0} dB", V(r.SnrFt8, reqFt8), true);
+        bool scatter = r.Mechanism == "troposcatter";
+        double ft8 = scatter ? Math.Max(reqFt8, -18.6) : reqFt8;
+        Line("S/N FT8", $"{r.SnrFt8:+0.0;-0.0} dB" + (scatter && ft8 > reqFt8 ? L(" (soglia −18,6 con evanescenza)", " (−18.6 threshold with fading)") : ""), V(r.SnrFt8, ft8), true);
+        {
+            string M(string n, double thr) => $"{n} {(r.SnrFt8 >= thr ? "✓" : "✗")}";
+            bool any = r.SnrFt8 >= -25;
+            Line(L("Modi digitali", "Digital modes"), string.Join(" · ", M("FT4", -17.5), M("FT8", ft8), M("Q65", -24), M("JT65", -25)), any ? FcTone.Ok : FcTone.Bad);
+        }
         foreach (var n in r.Notes) Note("• " + n);
         return res;
     }
@@ -232,7 +257,32 @@ public sealed class ForecastPainter
             foreach (var lv in new[] { 1.0, 3.0, 5.0, 8.0 })
                 Contour(ctx, g, lat0, lon0, step, lv, new Pen(new SolidColorBrush(col), lv >= 5 ? 2.0 : 1.4, new DashStyle(new double[] { 5, 3 }, 0)), $"+{lv:0} °C", col, placed);
         }
+        if (St.S.GetBool("fc_ov_wx", false) && Own.HasData) DrawWeatherMarks(ctx, t);
         Correlation(lat0, lon0, step, nr, nc, t, f);
+    }
+
+    /// <summary>Segni meteo sulle celle della griglia: S scirocco, ↓ subsidenza, ↑ aria in salita (solo se le celle sono abbastanza larghe).</summary>
+    void DrawWeatherMarks(DrawingContext ctx, DateTime t)
+    {
+        var cells = Own.Cells(t);
+        if (cells.Count == 0) return;
+        Map.Screen(new LatLon(cells[0].lat, cells[0].lon), out var p0);
+        Map.Screen(new LatLon(cells[0].lat, cells[0].lon + Own.Step), out var p1);
+        if (Math.Abs(p1.X - p0.X) < 16) return;
+        var tf = new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.Bold);
+        var halo = new SolidColorBrush(Th.Panel);
+        foreach (var (la, lo, pr) in cells)
+        {
+            string txt = pr.Scirocco ? "S" : pr.Subsidence ? "↓" : pr.Ascent ? "↑" : null;
+            if (txt == null) continue;
+            var col = pr.Scirocco ? Color.Parse("#D35400") : pr.Subsidence ? Color.Parse("#1F6FB2") : Color.Parse("#7F8C8D");
+            Map.Screen(new LatLon(la, lo), out var sp);
+            if (sp.X < 0 || sp.Y < 0 || sp.X > Map.Bounds.Width || sp.Y > Map.Bounds.Height) continue;
+            var ft = new FormattedText(txt, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, tf, 12, new SolidColorBrush(col));
+            var rc = new Rect(sp.X - ft.Width / 2 - 2, sp.Y - ft.Height / 2, ft.Width + 4, ft.Height);
+            ctx.DrawRectangle(halo, null, rc, 3, 3);
+            ctx.DrawText(ft, new Point(rc.X + 2, rc.Y));
+        }
     }
 
     /// <summary>Accordo fra il guadagno stimato e la pressione / l'inversione sulla zona visibile (Pearson), nel log una volta per ora e banda.</summary>

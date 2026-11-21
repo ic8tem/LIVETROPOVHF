@@ -14,19 +14,38 @@ Non è una misura: è una stima fatta su un modello meteorologico con livelli di
 - Ora: il cursore sposta la previsione da adesso fino a 72 ore avanti, a passi di 3 ore.
 - Aggiorna previsione (zona visibile): scarica i profili GFS su una griglia di al massimo 240 punti che copre la mappa visibile. Il passo della griglia (0,5° o più) dipende dall'ingrandimento.
 - Stop: interrompe uno scaricamento o un calcolo.
-- Curve di guadagno, Isobare, Inversione termica: linee opzionali sopra i colori (paragrafo 5). I colori restano sempre.
+- Curve di guadagno, Isobare, Inversione termica, Segni meteo: linee e segni opzionali sopra i colori (paragrafi 5 e 9 bis). I colori restano sempre.
+- Sorgente dei dati e Caso storico: da dove arrivano i profili e quale giorno si guarda (paragrafi 3 bis e 3 ter).
+- Correzioni meteo: accende o spegne il termine di stabilità di Misme e la correzione per subsidenza (paragrafo 9 bis).
 - La mia stazione e il corrispondente: locatore, antenne, potenza, cavi, rumore (paragrafi 7 e 12).
 - Calcola il segnale e Copertura in ottica: i due calcoli sul terreno (paragrafi 8–13).
 - Registro dei calcoli: ogni passo con i numeri usati, anche nel file Dati/previsioni-calcoli.log.
 
 ## 3. Dai dati GFS al profilo
 
-Per ogni punto della griglia e ogni ora si leggono da Open-Meteo [2] la pressione al suolo, temperatura e umidità a 2 m, il vento a 10 m, l'altezza dello strato limite, il CAPE e temperatura e umidità relativa a 1000, 975, 950, 925, 900, 850, 800, 700, 600 e 500 hPa.
+Per ogni punto della griglia e ogni ora si leggono la pressione al suolo, temperatura e umidità a 2 m, il vento a 10 m, l'altezza dello strato limite, il CAPE e temperatura e umidità relativa a 1000, 975, 950, 925, 900, 850, 800, 700, 600 e 500 hPa. Dalla 1.3.0 si leggono anche il vento a 850 hPa e la velocità verticale a 850 e 700 hPa (paragrafo 9 bis).
 
 Le quote dei livelli si calcolano con la formula ipsometrica e la temperatura virtuale; i livelli sotto il suolo si scartano. Per ogni livello:
 
 - N = 77,6/T · (P + 4810·e/T), con T in kelvin, P ed e in hPa, e dalla formula di Magnus (ITU-R P.453 [4]).
 - M = N + 157·h, con h in km: la rifrattività modificata. Dove M cala salendo c'è un condotto.
+
+## 3 bis. Sorgente dei dati
+
+Il menu Sorgente dei dati sceglie da dove arrivano i profili:
+
+- Automatica (consigliata): GFS da Open-Meteo [2]. Al primo rifiuto per limite (al minuto, all'ora o al giorno) i punti che mancano si prendono da NOMADS [14], il servizio della NOAA che distribuisce lo stesso GFS: per ogni ora il programma chiede due ritagli della zona in formato GRIB2 e li legge da sé. Le due sorgenti danno lo stesso modello e la stessa corsa, quindi si possono mescolare nella stessa griglia.
+- GFS da Open-Meteo: solo Open-Meteo, come nella 1.2 (al limite al minuto si attende).
+- GFS da NOAA NOMADS: solo NOMADS. Più lento da scaricare (due file per ora, mezzo secondo fra una richiesta e l'altra per non superare il limite della NOAA), ma non consuma il limite di Open-Meteo.
+- ICON-EU (DWD) ed ECMWF IFS 0,25°, da Open-Meteo: modelli diversi dal GFS, che valgono per tutta la griglia e per i percorsi. Non si mescolano con il GFS: confrontare due modelli sulla stessa ora è un modo semplice per vedere quanto la previsione è incerta. ICON-EU copre solo l'Europa; ECMWF non ha tutti i livelli di pressione del GFS (i livelli mancanti si saltano) e può non avere lo strato limite.
+
+La sorgente usata è scritta nella riga di stato e nella prima riga dei risultati (Sorgente dei dati), con quanti punti sono arrivati da ciascun servizio e quanti dalla cache. La cache su disco è separata per modello.
+
+## 3 ter. Casi storici
+
+Il menu Caso storico rivede un'apertura documentata con le previsioni GFS d'archivio di Open-Meteo [15]: la mappa si sposta sulla zona del caso, la banda si imposta da sola e il cursore dell'ora parte dal primo giorno del caso. Premendo Aggiorna previsione si scaricano i profili di quei giorni; il calcolo del segnale funziona come per la previsione attuale. Serve a confrontare il modello con quello che è successo davvero.
+
+Il primo caso è quello del 14–15 agosto 2022 raccontato in QST (novembre 2022, «The World Above 50 MHz» [23]): un'apertura sotto un'alta pressione fra Manitoba e Kansas/Missouri, da 144 a 1296 MHz quasi tutta in FT8, con il record canadese a 10 GHz di 1228,56 km in Q65 e segnali fino a 1941 km. Per i casi più vecchi (per esempio settembre 2000) l'archivio di Open-Meteo non ha dati.
 
 ## 4. L'indice e i colori
 
@@ -84,6 +103,15 @@ Il profilo della tratta si campiona su SRTM1 ogni 30 m (più largo oltre 120 km)
 - Troposcatter: ITU-R P.452-16 eq. 45 al 50% del tempo [6], con la distanza angolare dagli orizzonti e N0 dai profili.
 - Senza tropo: somma delle potenze di diffrazione e troposcatter, mai sotto lo spazio libero.
 
+## 8 bis. Troposcatter: tre modelli e incertezza
+
+Accanto a P.452 il programma calcola il troposcatter con altri due modelli, come fa il programma TropoLink [16], e mostra la loro differenza come incertezza:
+
+- ITU-R P.617-5 [17], mediana: L = F + 22 log f + 35 log θ + 17 log d + Lc, con f in MHz, θ in mrad, d in km, F = 0,18·N0·e^(−hs/7,35) − 0,23·ΔN e Lc = 0,07·e^(0,055(Gt+Gr)). Di solito N0 e ΔN si prendono dalle mappe climatologiche dell'ITU; qui si usano ogni ora i profili GFS (N0·e^(−hs/7,35) è la rifrattività al suolo, ΔN il calo nel primo km), così anche il troposcatter segue il tempo.
+- Formula del VHF/UHF Handbook della RSGB, ripresa da DL2FZN [18]: L = Lfs + 24,44 + 4,283 ln f + 0,06656 d. La pendenza con la distanza è quasi uguale a quella di PROPBER (0,067 dB/km).
+
+La riga Troposcatter, altri modelli mostra le due perdite e l'incertezza come metà della differenza fra il modello più ottimista e il più pessimista. Sono solo confronti: la perdita senza tropo resta quella di P.452.
+
 ## 9. Lo strato fondante lungo la tratta
 
 È il cuore del calcolo del segnale. Lungo la tratta si prendono i profili GFS ogni 25 km circa. Per ogni strato di pressione si cerca il tratto più lungo in cui lo stesso strato è presente su punti consecutivi; contano come condotto solo strati spessi almeno 40 m [10]. Si misurano:
@@ -94,6 +122,16 @@ Il profilo della tratta si campiona su SRTM1 ogni 30 m (più largo oltre 120 km)
 - terra coperta: sul mare il condotto c'è quasi sempre, decide il tratto di terra [10]. Se la terra supera il 10% della tratta, la frazione usata è il minimo fra continuità e copertura della terra.
 
 Il guadagno tropo è il guadagno dello strato per la frazione usata. Se più di metà dei profili è sub-rifrattiva il guadagno è negativo.
+
+## 9 bis. Correzioni meteo: stabilità, subsidenza, scirocco
+
+Dalla 1.3.0 il profilo dà anche tre informazioni meteorologiche, che si vedono nel registro (riga «stabilità (Misme)»), nella riga Meteo lungo la tratta dei risultati e, con la casella Segni meteo, sulla mappa.
+
+- Stabilità di Misme [5, cap. 6]. Misme lega il campo oltre l'orizzonte a un parametro composto: M = a·(ge − 40 + b·ΔW), con a = 0,5 dB per N/km, il gradiente equivalente ge e la stabilità termica ΔW, il lavoro per sollevare l'aria di 1 km. Il programma calcola ΔW = g·∫(θ − θ0)/θ0 dz fra il suolo e 1 km sopra, con θ la temperatura potenziale; l'atmosfera standard vale circa 56 J/kg. Il termine aggiunto al guadagno è 0,07 dB per J/kg oltre lo standard, limitato fra −4 e +6 dB, e conta solo dove nessun condotto intrappola la banda (il gradiente è già nell'indice di Bean e Dutton). La taratura è provvisoria: va verificata con i rapporti (paragrafo 14).
+- Subsidenza e aria in salita [19]. Moler e Holden trovarono rinforzi di 20 dB e oltre, per ore, sulle tratte VHF/UHF oltre l'orizzonte quando l'aria scende negli anticicloni, e affievolimenti profondi quando sale. Il GFS dà la velocità verticale a 850 e 700 hPa. Se a entrambi i livelli l'aria scende di più di 1 cm/s e c'è un'inversione o un forte calo dell'indice di rifrazione potenziale K (N riportato adiabaticamente a 1000 hPa, che mette in evidenza l'aria secca e calda scesa dall'alto [5]), si aggiungono 1,5 dB; se l'aria sale di più di 5 cm/s se ne tolgono 2. Sulla mappa: ↓ subsidenza, ↑ aria in salita.
+- Scirocco [20]. Aria calda e secca dal Sahara sopra aria marina più fresca dà inversioni fortissime dal Mediterraneo orientale a Gibilterra. Il segno S compare dove a 850 hPa il vento arriva da 100–200° con almeno 7 m/s e la temperatura è almeno 16 °C, sul Mediterraneo. È solo un'indicazione: il guadagno lo decidono gli strati del profilo.
+
+La casella Correzioni meteo spegne le prime due correzioni per vedere il modello della 1.2.
 
 ## 10. Condotto su tutta la tratta
 
@@ -113,12 +151,13 @@ La riga Confronto P.452 applica il metodo ITU per condotti e riflessione su stra
 - Rumore esterno secondo ITU-R P.372 [13]: galattico (Fa = 52 − 23 log f) più artificiale secondo l'ambiente (città, residenziale, rurale, rurale tranquillo) oppure una temperatura d'antenna scritta a mano.
 - Tsys = Ta + 290(Lc − 1) + 290(F − 1)·Lc ai morsetti dell'antenna, con Lc la perdita del cavo e F la cifra di rumore.
 - S/N in SSB, CW e FT8 nella banda di ciascun modo, confrontato con la soglia impostata.
+- Modi digitali: lo S/N in 2500 Hz confrontato con le soglie misurate di FT4 (−17,5 dB) e FT8 (−21 dB, ma −18,6 dB con l'evanescenza tipica del troposcatter) [21], Q65-30A (−24 dB) e JT65A (−25 dB) [22]. Quando il meccanismo è troposcatter la soglia FT8 usata è −18,6 dB.
 
 ## 13. Tempi di risposta e dati
 
 Ogni calcolo misura i propri tempi: profili GFS (rete, analisi, pause obbligate di 20 s fra i lotti per il limite di Open-Meteo), terreno SRTM1 (con lo scaricamento dei riquadri, 6–7 MB l'uno, solo la prima volta), calcolo. La riga Tempo di risposta li riassume; nel registro le righe cominciano con TEMPI. All'aggiornamento della griglia il registro riporta anche la corsa GFS usata, quando è diventata disponibile e quanto sono vecchi i dati.
 
-Le richieste a Open-Meteo hanno limiti al minuto, all'ora e al giorno per ogni indirizzo internet. I profili scaricati si salvano sul disco (Dati/cache-gfs) per ogni corsa del modello: con la stessa corsa, che cambia ogni 6 ore, i punti già scaricati non si chiedono di nuovo. Se Open-Meteo rifiuta per il limite orario o giornaliero, il programma si ferma subito e dice quando riprovare.
+Le richieste a Open-Meteo hanno limiti al minuto, all'ora e al giorno per ogni indirizzo internet. I profili scaricati si salvano sul disco (Dati/cache-gfs) per ogni corsa e ogni modello: con la stessa corsa, che cambia ogni 6 ore, i punti già scaricati non si chiedono di nuovo. Con la sorgente automatica, se Open-Meteo rifiuta per un limite il programma continua con NOMADS; con la sola Open-Meteo, al limite orario o giornaliero si ferma subito e dice quando riprovare. I casi storici non si salvano nella cache.
 
 ## 14. Validare il modello
 
@@ -139,3 +178,13 @@ La previsione va confrontata con i collegamenti reali. Il registro dei calcoli c
 11. D. E. Kerr, Propagation of Short Radio Waves, MIT Radiation Laboratory Series vol. 13, 1951: eq. 17 e 18.
 12. G. Hoch DL6WU, Yagi antennas with extended boom, tabelle di guadagno per lunghezza del boom.
 13. ITU-R P.372, Radio noise: rumore galattico e artificiale per ambiente.
+14. NOAA/NCEP, NOMADS, filtro GRIB del GFS 0,25° orario (nomads.ncep.noaa.gov); formato WMO GRIB2, impacchettamento complesso con differenze spaziali.
+15. Open-Meteo, Historical Forecast API (archivio delle previsioni dei modelli dal 2021 circa).
+16. LukiBox, TropoLink, progettazione di tratte troposcatter con P.617, NBS TN101 e ITM affiancati (GitHub, licenza Apache 2.0).
+17. ITU-R P.617-5, Propagation prediction techniques and data required for the design of trans-horizon radio-relay systems, 2019.
+18. RSGB, VHF/UHF Handbook; implementazione di DL2FZN (andi-f/troposcatter su GitHub, 2013).
+19. W. F. Moler, D. B. Holden, Journal of Research of the NBS 64D, 1960: rinforzi sulle tratte oltre l'orizzonte e moto verticale dell'aria negli anticicloni.
+20. ARRL Handbook 2022 (99ª ed.), § 19.4.3–19.4.4: situazioni meteo e propagazione troposferica.
+21. S. Franke, B. Somerville, J. Taylor, The FT4 and FT8 Communication Protocols, QEX luglio/agosto 2020.
+22. W3SZ, soglie dei modi digitali lenti (JT65, JT9, QRA64) e scelta del modo secondo la propagazione, 2019.
+23. QST, «The World Above 50 MHz», novembre 2022: apertura del 14–15 agosto 2022 fra Manitoba e Kansas/Missouri.
