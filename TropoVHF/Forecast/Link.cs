@@ -1007,7 +1007,7 @@ public static class LinkCalc
         int nb = (int)(backKm / stepKm);
         var bpts = new List<LatLon>(cands.Count * nb);
         foreach (var c in cands) { double az2 = Geo.Azimuth(c.pos, rx.Pos); for (int sIdx = 1; sIdx <= nb; sIdx++) bpts.Add(Geo.Destination(c.pos, az2, sIdx * stepKm)); }
-        var (hb, _) = cands.Count > 0 ? await srtm.Heights(bpts, ct) : (new double[0], 0);
+        var (hb, _) = cands.Count > 0 ? await srtm.Heights(bpts, ct) : (new double[0], new bool[0]);
         double Conv(double r1) => 10 * Math.Log10(lam * lam / (4 * Math.PI * Math.Pow(10, sigma0Db / 10) * Math.Min(2e7, Math.Pow(r1 * bw, 2))));
         var scored = new List<(double az, double km, double hM, LatLon pos, double quick, double horDeg)>();
         for (int ci = 0; ci < cands.Count; ci++)
