@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\TropoVHF.csproj (in 15.18 sec).
+D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\Forecast\Link.cs(1010,23): error CS0173: Type of conditional expression cannot be determined because there is no implicit conversion between '(double[] h, bool[] ok)' and '(double[], int)' [D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\TropoVHF.csproj]
+D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\Forecast\Link.cs(1010,23): error CS8131: Deconstruct assignment requires an expression with a type on the right-hand-side. [D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\TropoVHF.csproj]
+D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\Forecast\Link.cs(1010,14): error CS8130: Cannot infer the type of implicitly-typed deconstruction variable 'hb'. [D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\TropoVHF.csproj]
+D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\Forecast\Link.cs(1010,18): error CS8130: Cannot infer the type of implicitly-typed deconstruction variable '_'. [D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\TropoVHF.csproj]
+D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\Forecast\Link.cs(1010,18): error CS8183: Cannot infer the type of implicitly-typed discard. [D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\TropoVHF.csproj]
+D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\Ui\MainWindow.Forecast.cs(37,18): warning CS0414: The field 'MainWindow._fcPath' is assigned but its value is never used [D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\TropoVHF.csproj]
+D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\Core\Updater.cs(173,19): warning CA1416: This call site is reachable on: 'Windows' 10.0.17763.0 and later. 'File.SetUnixFileMode(string, UnixFileMode)' is unsupported on: 'windows' all versions. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416) [D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\TropoVHF.csproj]

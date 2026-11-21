@@ -1,0 +1,5 @@
+D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\Forecast\Link.cs(1010,14): error CS8130: Cannot infer the type of implicitly-typed deconstruction variable 'hb'. [D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\TropoVHF.csproj]
+D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\Forecast\Link.cs(1010,18): error CS8130: Cannot infer the type of implicitly-typed deconstruction variable '_'. [D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\TropoVHF.csproj]
+D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\Forecast\Link.cs(1010,18): error CS8183: Cannot infer the type of implicitly-typed discard. [D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\TropoVHF.csproj]
+D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\Forecast\Link.cs(1010,23): error CS0173: Type of conditional expression cannot be determined because there is no implicit conversion between '(double[] h, bool[] ok)' and '(double[], int)' [D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\TropoVHF.csproj]
+D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\Forecast\Link.cs(1010,23): error CS8131: Deconstruct assignment requires an expression with a type on the right-hand-side. [D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\TropoVHF.csproj]
