@@ -1,0 +1,179 @@
+== MMMonVHF robots: HTTP 200 814
+User-agent: GPTBot
+Disallow: /
+
+User-agent: OAI-SearchBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Claude-User
+Disallow: /
+
+User-agent: Claude-SearchBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: Perplexity-User
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: AI2Bot
+Disallow: /
+
+User-
+== MMMonVHF disclaimer: HTTP 200 14623
+<!DOCTYPE 
+    Disclaimer - MMMonVHF   Login   |     Register Toggle navigation Make More Miles on VHF - push your bounderies HOME NEWS View Latest Post New Update Review Review Map DXP Gallery PROPAGATION ES Summary ES Evaluation MUF Map TR Summary TR Alert System TR Forecast Map EME MS AU PROJECTS Real-Time Lightning Beacons Beacons Map MMMonVHF Contests 144 MHz ODX Data eMWS eMWDXCC eMWStates KNOWLEDGE Radio Propagation Theory Operation Techniques Contact Validation Code of Conduct Specialised Software VHF-DATABASE Search -FULL- Search -LATEST- EME Activity Map Edit my data Download DOWNLOAD EDITORS FORUM CONTACT Disclaimer Last updated: 27 July 2026 1. General information MMMonVHF is a non-commercial amateur-radio information service. The website contains observations, calculated values, forecasts, maps, graphs, database records and contributions from members of the amateur-radio community. This information is provided for general information, education and experimental amateur-radio use. 2. Accuracy and use of information We take reasonable care when collecting, processing and publishing information. Nevertheless, radio-propagation conditions and other data can change rapidly, and information may be incomplete, delayed or incorrect. MMMonVHF does not guarantee the accuracy, completeness, timeliness or continuous availability of the website or its content. Forecasts, maps, graphs and calculated values are estimates and not guarantees of actual radio conditions or results. Users remain r
+== MMMonVHF giorno 29/12/2021: HTTP 200 17189
+<!DOCTYPE 
+   lunghezza testo 1695
+ 
+ MMMonVHF 
+   Login   |     Register 
+ Toggle navigation 
+ Make More Miles on VHF - push your bounderies 
+ HOME 
+ NEWS 
+ View Latest 
+ Post New 
+ Update 
+ Review 
+ Review Map 
+ DXP Gallery 
+ PROPAGATION 
+ ES Summary 
+ ES Evaluation 
+ MUF Map 
+ TR Summary 
+ TR Alert System 
+ TR Forecast Map 
+ EME 
+ MS 
+ AU 
+ PROJECTS 
+ Real-Time Lightning 
+ Beacons 
+ Beacons Map 
+ MMMonVHF Contests 
+ 144 MHz ODX Data 
+ eMWS 
+ eMWDXCC 
+ eMWStates 
+ KNOWLEDGE 
+ Radio Propagation Theory 
+ Operation Techniques 
+ Contact Validation 
+ Code of Conduct 
+ Specialised Software 
+ VHF-DATABASE 
+ Search -FULL- 
+ Search -LATEST- 
+ EME Activity Map 
+ Edit my data 
+ Download 
+ DOWNLOAD 
+ EDITORS 
+ FORUM 
+ CONTACT 
+ Tropo Summary 
+ Send your report 
+ Tropo Summary 
+ TR Alert System 
+ TR Forecast Map 
+ Please log in to send your report. 
+ Select Database entry 
+ Last update: 26. Oct 2026 at 21:03 UTC 
+ Year: 
+ 1999 | 2001 | 2007 | 2008 | 2009 | 2010 | 2011 | 2012 | 2013 | 2014 | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026 
+ Month: 
+ Feb | Mar | May | June | July | Aug | Sept | Oct | Nov | Dec 
+ Day: 
+ 15 | 16 | 19 | 20 | 22 | 29 | 30 | 31 
+ 29. Dec 2021 
+ Tropo 
+ IC8TEM 
+ IC8TEM, Costy - JN70CN Rig: K3 DB6NT 500W 10ELM DJ9BV-OPT ODX: IK1PAG JN35TB 737 Log: 29/12/2021 15:47 IK5DFE JN53MU
+29/12/2021 16:00 IZ1CBQ JN34WT
+29/12/2021 16:03 IU8MHG JM78TF
+29/12/2021 17:05 IW1EYZ JN44LK 
+29/12/2021 17:18 IK3BNO JN65GV
+29/12/2021 17:23 IK6RJU JN62TU
+29/12/2021 17:26 IU4CHE JN64GB
+29/12/2021 17:27 IK1PAG JN35TB
+29/12/2021 17:29 IK0RMR JN61IS Comment: First sights of tropo of next days 
+ Disclaimer | Imprint | Privacy Policy | Contact 
+ 2007 - 2021 by Make More Miles on VHF
+
+== MMMonVHF mirror .eu: HTTP 200 18305
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MMM
+== IGRA2 data-y2d elenco: HTTP 200 149184
+<!DOCTYPE 
+ITM00016332-data-beg2026.txt.zip
+== IGRA2 data-por elenco: HTTP 200 489081
+<!DOCTYPE 
+ITM00016320-data.txt.zip
+ITM00016332-data.txt.zip
+ITM00016037-data.txt.zip ITM00016044-data.txt.zip ITM00016045-data.txt.zip ITM00016064-data.txt.zip ITM00016080-data.txt.zip ITM00016113-data.txt.zip ITM00016144-data.txt.zip ITM00016242-data.txt.zip ITM00016245-data.txt.zip ITM00016320-data.txt.zip ITM00016332-data.txt.zip ITM00016420-data.txt.zip ITM00016429-data.txt.zip ITM00016546-data.txt.zip ITM00016560-data.txt.zip 
+== IGRA2 Brindisi intero: 46427999 byte
+== GFS d'archivio lungo JN70CN -> JN35TB
+ ora 2021-12-29T06:00
+   punto 0 (40.56,14.21) quota 0 m, Ps 1008, vento 11.0, BLH None, w850 0.0: -dN/dh max 53 N/km (1008-1000); nessuna inversione
+   punto 1 (41.46,12.89) quota 26 m, Ps 1005, vento 9.0, BLH None, w850 -0.04: -dN/dh max 86 N/km (1005-1000); inversione 975-950 hPa +0.2°C, UR 77->74%
+   punto 2 (42.36,11.57) quota 22 m, Ps 1005, vento 6.9, BLH None, w850 -0.02: -dN/dh max 85 N/km (850-800); inversione 850-800 hPa +0.8°C, UR 94->33%
+   punto 3 (43.26,10.26) quota 0 m, Ps 1007, vento 41.7, BLH None, w850 -0.02: -dN/dh max 104 N/km (1007-1000); inversione 900-850 hPa +0.4°C, UR 95->47%
+   punto 4 (44.16,8.94) quota 0 m, Ps 1007, vento 1.1, BLH None, w850 -0.04: -dN/dh max 113 N/km (1007-1000); inversione 900-850 hPa +0.3°C, UR 48->22%
+   punto 5 (45.06,7.62) quota 268 m, Ps 976, vento 1.1, BLH None, w850 -0.05: -dN/dh max 62 N/km (976-950); inversione 976-950 hPa +3.6°C, UR 86->63%
+ ora 2021-12-29T12:00
+   punto 0 (40.56,14.21) quota 0 m, Ps 1009, vento 7.1, BLH None, w850 0.0: -dN/dh max 60 N/km (850-800); nessuna inversione
+   punto 1 (41.46,12.89) quota 26 m, Ps 1006, vento 11.2, BLH None, w850 -0.03: -dN/dh max 111 N/km (1006-1000); inversione 900-850 hPa +0.6°C, UR 85->35%
+   punto 2 (42.36,11.57) quota 22 m, Ps 1007, vento 5.9, BLH None, w850 -0.02: -dN/dh max 85 N/km (900-850); inversione 900-850 hPa +0.5°C, UR 76->29%
+   punto 3 (43.26,10.26) quota 0 m, Ps 1010, vento 16.4, BLH None, w850 0.0: -dN/dh max 99 N/km (900-850); inversione 900-850 hPa +0.5°C, UR 93->31%
+   punto 4 (44.16,8.94) quota 0 m, Ps 1010, vento 5.6, BLH None, w850 -0.03: -dN/dh max 65 N/km (975-950); nessuna inversione
+   punto 5 (45.06,7.62) quota 268 m, Ps 978, vento 5.2, BLH None, w850 -0.01: -dN/dh max 110 N/km (978-975); inversione 978-975 hPa +0.3°C, UR 68->64%
+ ora 2021-12-29T16:00
+   punto 0 (40.56,14.21) quota 0 m, Ps 1010, vento 11.3, BLH None, w850 0.0: -dN/dh max 68 N/km (900-850); nessuna inversione
+   punto 1 (41.46,12.89) quota 26 m, Ps 1006, vento 11.9, BLH None, w850 0.0: -dN/dh max 91 N/km (900-850); inversione 1006-1000 hPa +0.3°C, UR 86->83%
+   punto 2 (42.36,11.57) quota 22 m, Ps 1007, vento 4.3, BLH None, w850 0.02: -dN/dh max 72 N/km (900-850); nessuna inversione
+   punto 3 (43.26,10.26) quota 0 m, Ps 1010, vento 17.3, BLH None, w850 0.02: -dN/dh max 75 N/km (1010-1000); inversione 925-900 hPa +0.2°C, UR 93->82%
+   punto 4 (44.16,8.94) quota 0 m, Ps 1010, vento 4.8, BLH None, w850 -0.01: -dN/dh max 73 N/km (975-950); inversione 950-925 hPa +0.5°C, UR 43->32%
+   punto 5 (45.06,7.62) quota 268 m, Ps 978, vento 2.3, BLH None, w850 0.03: -dN/dh max 167 N/km (978-975); inversione 978-975 hPa +1.8°C, UR 76->65%
+ ora 2021-12-30T00:00
+   punto 0 (40.56,14.21) quota 0 m, Ps 1012, vento 8.3, BLH None, w850 -0.06: -dN/dh max 66 N/km (925-900); nessuna inversione
+   punto 1 (41.46,12.89) quota 26 m, Ps 1010, vento 7.0, BLH None, w850 0.02: -dN/dh max 70 N/km (900-850); inversione 1010-1000 hPa +1.0°C, UR 83->75%
+   punto 2 (42.36,11.57) quota 22 m, Ps 1011, vento 8.4, BLH None, w850 -0.02: -dN/dh max 58 N/km (900-850); inversione 1000-975 hPa +1.0°C, UR 85->79%
+   punto 3 (43.26,10.26) quota 0 m, Ps 1013, vento 9.4, BLH None, w850 -0.05: -dN/dh max 95 N/km (925-900); inversione 925-900 hPa +0.9°C, UR 90->63%
+   punto 4 (44.16,8.94) quota 0 m, Ps 1013, vento 8.9, BLH None, w850 -0.06: -dN/dh max 125 N/km (1013-1000); inversione 950-925 hPa +1.0°C, UR 55->42%
+   punto 5 (45.06,7.62) quota 268 m, Ps 982, vento 1.8, BLH None, w850 -0.03: -dN/dh max 103 N/km (982-975); inversione 982-975 hPa +2.2°C, UR 87->73%
