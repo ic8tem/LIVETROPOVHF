@@ -142,6 +142,20 @@ Volume comune (dalla 1.3.1): è il punto in cui si incrociano i raggi radenti de
 
 La riga Troposcatter, altri modelli mostra le due perdite e l'incertezza come metà della differenza fra il modello più ottimista e il più pessimista. Sono solo confronti: la perdita senza tropo resta quella di P.452.
 
+## 8 ter. Troposcatter pomeridiano oltre i rilievi (interpretazione adottata)
+
+IK3XTV, da Thiene (JN55, con le Alpi a 10 km), lavora nei pomeriggi d'estate la Germania meridionale a 400–500 km, senza visuale, con segnali forti ma con evanescenza rapida e profonda; l'autore li attribuiva a «celle convettive allineate come un treno di lenti». L'osservazione è confermata; la spiegazione adottata nel programma è un'altra, fisicamente più solida.
+
+Nel pomeriggio il sole rimescola l'aria sopra i rilievi e lo strato limite sale a 2–3 km. Alla sua cima l'aria umida di sotto incontra l'aria secca di sopra: lì la turbolenza dell'indice di rifrazione (la grandezza che governa il troposcatter) è massima. Quando quella cima arriva all'altezza del volume comune della tratta, che su 400–500 km sta a circa 2–3 km, il troposcatter si rinforza. Questo spiega l'orario pomeridiano, l'alta pressione (cielo sereno, riscaldamento forte) e l'evanescenza rapida, tipica della diffusione e non dei condotti. Le celle convettive non fanno da lenti: producono turbolenza, ed è la turbolenza alla cima dello strato rimescolato che diffonde il segnale.
+
+Conseguenze per la lettura delle previsioni:
+
+- sulla terra il primo pomeriggio è il momento peggiore per i condotti e gli strati bassi, ma non per il troposcatter oltre le montagne: le due cose vanno lette separatamente;
+- il programma ha già i due dati che servono, l'altezza dello strato limite prevista dal modello e la quota del volume comune della tratta (riga «Volume comune» nei risultati): quando sono vicine, una tratta di montagna di pomeriggio può andare meglio di quanto dica il calcolo in atmosfera normale;
+- per ora è un criterio di lettura, non una correzione in dB: la soglia e il guadagno vanno tarati con i collegamenti reali.
+
+Fonti: osservazioni di F. Egano IK3XTV (Radio Rivista e www.qsl.net/ik3xtv, «Propagazione sui 2 metri», «Celle convettive», «Troposcatter over the Alps»), fonti § 13.
+
 ## 9. Lo strato fondante lungo la tratta
 
 È il cuore del calcolo del segnale. Lungo la tratta si prendono i profili GFS ogni 25 km circa. Per ogni strato di pressione si cerca il tratto più lungo in cui lo stesso strato è presente su punti consecutivi; contano come condotto solo strati spessi almeno 40 m [10]. Si misurano:

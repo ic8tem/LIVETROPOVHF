@@ -4,6 +4,9 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
+## In preparazione
+- Manuale delle previsioni: § 8 ter sul troposcatter pomeridiano oltre i rilievi (interpretazione adottata delle osservazioni di IK3XTV), richiamato nei consigli e nelle fonti.
+
 ## 1.3.3 — 21/11/2026
 - Seconda fonte di cluster: DXMAPS (dxmaps.com:7300, con gli spot dello skimmer RBN) al posto di 9A0DXC, che non risponde più; l'indirizzo salvato si aggiorna da solo. Cluster PSKReporter (dm4x) connesso all'avvio e CALL3.TXT aggiornato da solo ogni giorno, di default.
 - Linguetta Previsioni: caselle per il profilo a terra piatta, tutte le righe del calcolo (di default solo la sintesi) e il registro dei calcoli (di default nascosto); fumetti su tutti i bottoni; il cursore dell'ora segue l'orologio.

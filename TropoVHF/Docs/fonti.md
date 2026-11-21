@@ -494,6 +494,8 @@ Condotto sul mare a bassa quota (100–200 m) che i livelli GFS non vedono (stud
 
 Senza contenuto utile per l'indice: *Communications Quarterly*, autunno 1991 (nessun articolo sulla tropo; l'articolo di Atkins sullo scatter è nel numero dell'inverno 1991).
 
+- Adottata (21 novembre, dopo la 1.3.3) l'interpretazione delle aperture transalpine pomeridiane di IK3XTV: non «celle convettive come lenti», ma troposcatter rinforzato dalla turbolenza alla cima dello strato rimescolato quando questa raggiunge la quota del volume comune (manuale delle previsioni, § 8 ter). Per ora criterio di lettura, senza correzione in dB. Scartate dagli stessi articoli: l'«auto-amplificazione» dei segnali oltre le Alpi (con la soglia di JT65 e 2 W si tollerano circa 225 dB, compatibili con diffrazione e troposcatter), la neve che «migliora la diffrazione» (più probabile lo strato stabile sopra la neve, con meno evanescenza).
+
 ## 13. Dagli articoli di IK3XTV
 
 I due articoli di Flavio Egano IK3XTV (Radio Rivista: "Propagazione sui 2 metri" e "Propagazione VHF – celle convettive e onde gravitazionali") aggiungono due cose che i modelli di condotto non coprono: le aperture transalpine del pomeriggio dovute alla convezione, e regole pratiche su dove e quando si formano i condotti in Italia. Sono osservazioni da stazione, non misure: vanno trattate come ipotesi da verificare con gli spot.
