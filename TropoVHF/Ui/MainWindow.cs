@@ -1402,7 +1402,7 @@ public sealed partial class MainWindow : Window
         var f = _st.Feeds.ToDictionary(x => x.Id);
 
         var content = new Grid();
-        // DX cluster: ON0DXK e la seconda fonte, 9A0DXC e S50CLX
+        // DX cluster: ON0DXK e la seconda fonte, DXMAPS e S50CLX
         var dxc3 = FeedSection(f["dxc3"], Lang.T("u.3_second_dx_cluster"), Lang.T("u.s50clx_help"), 3);
         dxc3.Margin = new Thickness(7, 0, 7, 14);
         _subContent["dx"] = Wrap(new StackPanel { Children =

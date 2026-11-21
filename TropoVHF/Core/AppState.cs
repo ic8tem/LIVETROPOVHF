@@ -107,14 +107,20 @@ public sealed class AppState
             foreach (var k in new[] { "host", "port", "login", "password", "cmds", "recon", "auto" }) S.Remove("dxc2_" + k);
         // S50CLX ha cambiato dominio (s50clx.infrax.si non risolve più): si aggiorna l'indirizzo salvato
         if (S.Get("dxc3_host", "").Trim().Equals("s50clx.infrax.si", StringComparison.OrdinalIgnoreCase)) S.Set("dxc3_host", "s50clx.si");
+        // 9A0DXC non risponde più (il nodo dietro il server è fermo): la seconda fonte passa a DXMAPS (EA6VQ), con gli spot RBN
+        if (S.Get("dxc2_host", "").Trim().Equals("9a0dxc.hamradio.hr", StringComparison.OrdinalIgnoreCase))
+        {
+            S.Set("dxc2_host", "dxmaps.com"); S.SetInt("dxc2_port", 7300);
+            if (S.Get("dxc2_cmds", "").Trim() == "") S.Set("dxc2_cmds", "set/skimmer");
+        }
         Feeds = new[]
         {
             NewFeed("dxc", "DXC", "on0dxk.dyndns.org", 8000, "set/filter dxbm/pass 6", true),
-            // seconda fonte: 9A0DXC (Zagabria) e S50CLX (Slovenia), login con il proprio nominativo
-            NewFeed("dxc2", "DXC", "9a0dxc.hamradio.hr", 8000, "", true),
+            // seconda fonte: DXMAPS (EA6VQ, spot VHF e skimmer RBN con set/skimmer) e S50CLX (Slovenia), login con il proprio nominativo
+            NewFeed("dxc2", "DXC", "dxmaps.com", 7300, "set/skimmer", true),
             NewFeed("dxc3", "DXC", "s50clx.si", 41112, "", true),
             NewFeed("rbn", "RBN", "telnet.reversebeacon.net", 7001, "", true),
-            NewFeed("psk", "PSK", "dm4x.ddns.net", 8500, "", false),
+            NewFeed("psk", "PSK", "dm4x.ddns.net", 8500, "", true),
         };
 
         Mqtt.Host = S.Get("mqtt_host", "mqtt.pskreporter.info");
@@ -538,8 +544,8 @@ public sealed class AppState
     // ------------------------------------------------ aggiornamento di CALL3.TXT da MMMonVHF
 
     public static readonly string Call3Url = string.Join("  ·  ", Call3Sources.Sources.Select(x => x.Name));
-    public bool Call3Auto { get => S.GetBool("call3_auto", false); set { S.Set("call3_auto", value ? "1" : "0"); Dirty = true; } }
-    public int Call3AutoDays = 14;
+    public bool Call3Auto { get => S.GetBool("call3_auto", true); set { S.Set("call3_auto", value ? "1" : "0"); Dirty = true; } }
+    public int Call3AutoDays = 1;
     public DateTime Call3Last
     {
         get => DateTime.TryParse(S.Get("call3_last", ""), System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal, out var d) ? d : DateTime.MinValue;

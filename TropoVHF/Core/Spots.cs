@@ -140,7 +140,7 @@ public sealed class SpotStore
 
     /// <summary>
     /// Conferma umana: la stazione è data attiva su quella banda, entro ±minutes, da uno spot di un DX cluster umano
-    /// (sorgente DXC: ON0DXK, 9A0DXC, S50CLX… non dm4x, RBN o altre fonti automatiche), come DX o come chi spotta,
+    /// (sorgente DXC: ON0DXK, DXMAPS, S50CLX… non dm4x, RBN o altre fonti automatiche), come DX o come chi spotta,
     /// in uno spot fatto da un nominativo diverso da quello escluso.
     /// </summary>
     public bool HumanConfirmed(string call, string band, DateTime t, int minutes = 30, string excludeSpotter = "")

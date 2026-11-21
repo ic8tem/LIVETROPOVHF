@@ -11,7 +11,7 @@ LIVETROPOVHF puts on one map the tropo forecast and what is really happening on 
 
 ## What it does / Che cosa fa
 - **Forecast** – Hepburn and F5LEN tropo maps, merged worldwide; isobars, 850 hPa isotherms and thermal inversion (Open-Meteo).
-- **Live** – spots from DX clusters (ON0DXK, 9A0DXC, S50CLX), RBN and DM4X, PSKReporter (MQTT), your own WSJT-X / JTDX / MSHV decodes (UDP), QSOs inferred from RR73/73.
+- **Live** – spots from DX clusters (ON0DXK, DXMAPS with RBN skimmer, S50CLX), RBN and DM4X, PSKReporter (MQTT), your own WSJT-X / JTDX / MSHV decodes (UDP), QSOs inferred from RR73/73.
 - **Clean data** – only 144 MHz and up (GRAVES 143.050 kept); meteor scatter, EME, QO-100 and fake listeners filtered out; paths over 1000 km held until confirmed.
 - **Locators** – always 6 characters: CALL3.TXT, manual entries, layered files, automatic corrections from DM4X/RBN, MMMonVHF updates and G7VRD as last source.
 - **Own forecast (experimental, 1.2.0)** – gain map computed from GFS vertical profiles (Bean & Dutton, Kerr), signal prediction between two stations over Copernicus GLO-30 terrain (SRTM1 before 1.3.2) (diffraction, troposcatter, ducts, ITU-R P.372 noise), optional gain contours, isobars and inversion lines. Also in the Windows 7 build from 1.2.3.
