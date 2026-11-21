@@ -275,7 +275,7 @@ public sealed partial class MainWindow
         });
         _fcProfile = new ProfileView { Height = 190, Th = _th };
         col.Children.Add(new Border { BorderBrush = B(_th.Line), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), ClipToBounds = true, Child = _fcProfile });
-        _fcResults = new StackPanel { Spacing = 3 };
+        _fcResults = new StackPanel { Spacing = 3, Margin = new Thickness(0, 0, 16, 10) };   // spazio per la barra di scorrimento
         col.Children.Add(_fcResults);
         if (_fcLast != null) FcShowResult(_fcLast); else _fcResults.Children.Add(TB(L("Nessun calcolo ancora.", "No computation yet."), 12, _th.Muted));
         col.Children.Add(FcLegend());
@@ -615,9 +615,10 @@ public sealed partial class MainWindow
             var sp = new DockPanel { Background = Brushes.Transparent };
             var a = label;
             if (ForecastText.Tip(label) is string tip) { ToolTip.SetTip(sp, tip); ToolTip.SetShowDelay(sp, 250); a += " ⓘ"; }
-            var ta = TB(a, 12, _th.Muted); DockPanel.SetDock(ta, Dock.Left); ta.Width = 210;
+            var ta = TB(a, 12, _th.Muted); DockPanel.SetDock(ta, Dock.Left); ta.Width = 210; ta.VerticalAlignment = VerticalAlignment.Top;
             sp.Children.Add(ta);
-            sp.Children.Add(TB(value, 12, col, bold, true));
+            var tv = TB(value, 12, col, bold, true); tv.TextWrapping = TextWrapping.Wrap;   // a capo invece di tagliare il testo
+            sp.Children.Add(tv);
             _fcResults.Children.Add(sp);
         }
     }

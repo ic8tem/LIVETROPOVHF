@@ -100,6 +100,8 @@ Il profilo della tratta si campiona su SRTM1 ogni 30 m (più largo oltre 120 km)
 - Spazio libero: Lfs = 92,44 + 20 log f(GHz) + 20 log d(km) [8].
 - Diffrazione: metodo di Bullington sul profilo reale più la correzione di terra sferica delta-Bullington di ITU-R P.452-16 § 4.2 [6], con la perdita sferica di ITU-R P.526 [9].
 - Prima zona di Fresnel: raggio √(λ·d1·d2/d); libera se il terreno lascia almeno 0,6 del raggio. Per ogni ostacolo si mostrano il parametro ν e la perdita J(ν) del bordo a coltello [9].
+- Nel disegno del profilo il raggio diretto è verde in vista ottica e rosso se passa sotto il terreno o sotto la curvatura della terra; i punti rossi sono gli ostacoli che invadono la 1ª zona di Fresnel (linea tratteggiata viola). Sul mare il «punto rosso» a quota 0 m non è un monte: è il mare che sale per la curvatura. Passando con il mouse sul raggio o su un punto compare un fumetto con la spiegazione e i valori.
+- Quando un rilievo vicino all'antenna chiude la direzione (per esempio un orizzonte di decine di gradi), diffrazione e troposcatter danno perdite di centinaia di dB: sopra 300 dB il programma scrive «> 300 dB» e «direzione chiusa da un ostacolo vicino», il segnale «< −230 dBm» e i rapporti S/N «< −60 dB». In quel caso conviene guardare «Puntamento consigliato» e «Via monte».
 - Troposcatter: ITU-R P.452-16 eq. 45 al 50% del tempo [6], con la distanza angolare dagli orizzonti e N0 dai profili.
 - Senza tropo: somma delle potenze di diffrazione e troposcatter, mai sotto lo spazio libero.
 

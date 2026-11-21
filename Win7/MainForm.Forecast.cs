@@ -519,6 +519,7 @@ public sealed partial class MainForm
             var row = Row(); row.WrapContents = false;
             var a = Lbl(label + (tip != null ? " ⓘ" : ""), 9f, _th.Muted); a.AutoSize = false; a.Width = 210; a.Height = 20;
             var b = Lbl(value, 9f, col, bold, true);
+            b.AutoSize = true; b.MaximumSize = new System.Drawing.Size(Math.Max(220, _fcResults.ClientSize.Width - 240), 0);   // a capo invece di tagliare
             row.Controls.Add(a); row.Controls.Add(b);
             if (tip != null) { _fcTips.SetToolTip(a, tip); _fcTips.SetToolTip(b, tip); }
             Add(_fcResults, row);
