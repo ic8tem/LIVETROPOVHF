@@ -37,6 +37,7 @@ Dall'esperienza raccolta nell'ARRL Handbook (§ 19.4.3) e negli studi del NBS:
 3. Guardare se le antenne sono dentro, sopra o sotto il condotto: da un'antenna molto sopra la cima il segnale entra male.
 4. Confrontare il S/N con la soglia del modo: se in SSB non basta, FT8 può bastare con 20 dB in meno.
 5. Se la previsione è buona ma la tratta tace, provare a puntare un po' a lato: il condotto può essere spostato rispetto al cerchio massimo.
+6. Se la tratta attraversa un'isola montuosa (Sardegna, Corsica), provare qualche grado verso il tratto di mare libero, per esempio le Bocche di Bonifacio; con vento forte nello stretto il varco rende poco. Approfondimento nel manuale delle previsioni, § 10 quinquies.
 
 ## Durante l'apertura
 

@@ -267,6 +267,25 @@ L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,	heta_{condotto} + A_{ITM}(d_{uscita
 
 dove A_TX è l'accoppiamento dell'antenna (3 dB dentro, 1 dB ogni 10 m fuori) se il condotto parte vicino, altrimenti la diffrazione d'ingresso del § 10 ter. È il limite che l'autore si è dato: continuità dello strato più, al massimo, l'attenuazione residua. Se è più bassa della perdita prevista diventa il meccanismo («condotto (uscita e tratto finale ITM)»).
 
+## 10 quinquies. Approfondimento: isole, strettoie e discontinuità terra-mare
+
+Un esempio dal golfo di Napoli (Anacapri, JN70CN) verso il Mediterraneo occidentale mostra dove le tratte attraversano le isole:
+
+| Destinazione | Azimut | Dove attraversa le isole | Ostacolo |
+| --- | --- | --- | --- |
+| Barcellona | 279° | nord della Sardegna (Gallura) a 41,05° N, fra 420 e 490 km | circa 30 km a sud delle Bocche di Bonifacio; il Limbara (1359 m) a una ventina di km dalla linea |
+| Bocche di Bonifacio | 282° | lo stretto a 41,3° N | varco di circa 11 km |
+| Marsiglia | 296° | Corsica centrale a 42,2° N | montagne fino a 2700 m: un condotto sotto i 2 km lì si interrompe |
+| Valencia, Baleari | 260–265° | Sardegna centrale | rilievi interni |
+
+Per Barcellona basta puntare a 282° invece di 279° perché l'asse passi dalle Bocche: 3°, dentro il fascio di una normale yagi.
+
+**Le Bocche sono una strettoia?** Per i condotti bassi, sotto qualche centinaio di metri, sì: le isole fanno da muro, e sopra la terra, di giorno, il riscaldamento rompe l'inversione. Lo stretto di per sé è largo abbastanza: circa 11 km, contro una prima zona di Fresnel larga meno di un chilometro a metà di una tratta di 1000 km in 144 MHz. Il problema è meteorologico. Le Bocche sono un imbuto per il vento: ponente e maestrale accelerano e rimescolano lo strato basso. Spesso il varco è aperto come geometria ma disturbato come atmosfera. Con un anticiclone fermo e poco vento può invece essere il passaggio buono.
+
+**Discontinuità terra-mare.** Contano. Un condotto formato sul Tirreno si interrompe sulla costa sarda: il segnale esce dal condotto (il tratto dopo l'uscita, § 10 quater) e deve rientrare in un altro condotto sul mare delle Baleari, pagando di nuovo l'accoppiamento. I condotti in quota, sopra i 1500 m, passano sopra la Gallura senza accorgersene; per la Corsica centrale non vale.
+
+In pratica: se il percorso attraversa un'isola montuosa, prova qualche grado di correzione verso il tratto di mare libero, ma non contare sul varco con vento forte nello stretto.
+
 ## 11. Confronto con ITU-R P.452
 
 La riga Confronto P.452 applica il metodo ITU per condotti e riflessione su strati (P.452-16 § 4.5 [6]) con il ΔN mediano del GFS al posto di quello climatologico e p = 20% come costante di calibrazione, come nello studio CSIRO [10]. Comprende la perdita d'accoppiamento empirica Alf sotto 0,5 GHz (circa 28 dB a 144 MHz, 3,5 dB a 432 MHz), la schermatura dei siti, l'accoppiamento sul mare e l'assorbimento dei gas. È solo un confronto: la perdita prevista resta quella del paragrafo 9.
