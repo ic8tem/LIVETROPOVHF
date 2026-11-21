@@ -66,6 +66,15 @@ public sealed class ProfileResult
     public string KDropLayer = "";
     public bool Subsidence, Ascent, Scirocco;
     public double VertDb;                  // correzione per moto verticale (dB)
+    public bool Sea;                       // punto sul mare (quota del modello sotto 5 m)
+    public int LowLevels;                  // livelli NOMADS vicini al suolo aggiunti (sul mare)
+    public double Sst = double.NaN;        // temperatura della superficie del mare (°C)
+    public double EvapDuctM;               // altezza del condotto d'evaporazione (m), 0 = assente
+    public double SunElev = double.NaN;    // altezza del sole (°)
+    /// <summary>Giorno su terra con sole alto e strato limite alto o vento: i condotti al suolo sono rimescolati.</summary>
+    public bool DayMix => !Sea && SunElev > 15 && (Blh > 800 || Wind10 > 5);
+    /// <summary>Notte su terra con vento debole e strato limite basso: possibili condotti al suolo da irraggiamento.</summary>
+    public bool NightRad => !Sea && SunElev < -3 && Wind10 < 3 && Blh < 300;
     public double LayerGainAggrDb;         // come LayerGainDb ma con la soglia classica di super-rifrazione (79 N/km) nello strato basso: stima aggressiva
     public double CrplDN1km = double.NaN;  // calo normale nel primo km del profilo CRPL per l'Ns del punto (N/km)
     public double Pmsl = double.NaN;       // pressione ridotta al livello del mare (hPa)
@@ -178,6 +187,8 @@ public static class Refractivity
     public static bool UseSeaWeight = true;
     /// <summary>1.3.2: bonus quando la cima dello strato limite supera le creste lungo la tratta (IT9GSF).</summary>
     public static bool UseBlhRidges = true;
+    /// <summary>1.3.2: calcolo «via monte» (rilievi vicini come diffusori) quando il corrispondente è oltre l'orizzonte.</summary>
+    public static bool UseViaMountain = true;
     public const double BlhRidgeDbBonus = 1.5;
     /// <summary>Calo normale nel primo km del profilo CRPL: −ΔN = 7,32·e^(0,005577·Ns) (NBS Monograph 4).</summary>
     public static double CrplDN(double ns) => 7.32 * Math.Exp(0.005577 * ns);
@@ -194,7 +205,11 @@ public static class Refractivity
     public struct Extra
     {
         public double W850, W700, Wind850, Dir850;
-        public static Extra None => new Extra { W850 = double.NaN, W700 = double.NaN, Wind850 = double.NaN, Dir850 = double.NaN };
+        /// <summary>1.3.2: temperatura della superficie (sul mare = SST), T e umidità a 80 m e nello strato 30–0 hPa sopra il suolo (solo NOMADS).</summary>
+        public double Sst, T80, Rh80, TL30, RhL30;
+        public DateTime Utc;
+        public static Extra None => new Extra { W850 = double.NaN, W700 = double.NaN, Wind850 = double.NaN, Dir850 = double.NaN,
+                                                Sst = double.NaN, T80 = double.NaN, Rh80 = double.NaN, TL30 = double.NaN, RhL30 = double.NaN };
     }
 
     /// <summary>Temperatura potenziale (K).</summary>
@@ -263,6 +278,35 @@ public static class Refractivity
             l.N = N(p, l.T, l.RH); l.M = l.N + 157 * l.Z / 1000.0;
             lev.Add(l);
         }
+        // 1.3.2: sul mare (quota del modello sotto 5 m) i livelli NOMADS vicini al suolo (80 m e strato 30–0 hPa) per vedere
+        // il condotto a bassa quota che i livelli di pressione non risolvono; sulla terra no (strati notturni e diurni non validati)
+        bool sea = elev < 5;
+        r.Sea = sea;
+        if (sea && lev.Count >= 2)
+        {
+            double zNext = lev[1].Z;
+            void AddLow(double z, double p, double t, double rh)
+            {
+                if (double.IsNaN(t) || double.IsNaN(rh) || z >= zNext - 10 || z <= z0 + 5) return;
+                var l = new Level { Z = z, P = p, T = t, RH = Math.Max(1, Math.Min(100, rh)) };
+                l.N = N(p, l.T, l.RH); l.M = l.N + 157 * l.Z / 1000.0;
+                lev.Add(l); r.LowLevels++;
+            }
+            double tv0 = Tv(t2, rh2, ps);
+            AddLow(elev + 80, ps * Math.Exp(-9.80665 * 78 / (287.05 * tv0)), ex.T80, ex.Rh80);
+            double pl = ps - 15; AddLow(z0 + 287.05 * tv0 / 9.80665 * Math.Log(ps / pl), pl, ex.TL30, ex.RhL30);
+            lev.Sort((a, b) => a.Z.CompareTo(b.Z));
+        }
+        // 1.3.2: condotto d'evaporazione (profilo logaritmico neutro, come nel modello di Paulus e Jeske senza correzione di
+        // stabilità): N al pelo dell'acqua saturo alla SST (98% per il sale), N a 2 m dal GFS; δ = (Nmare − N2m)/(0,157·ln(2/z0))
+        r.Sst = ex.Sst;
+        if (sea && !double.IsNaN(ex.Sst) && Math.Abs(ex.Sst - t2) < 15)
+        {
+            double nSea = N(ps, ex.Sst, 98);
+            r.EvapDuctM = Math.Max(0, Math.Min(40, (nSea - s.N) / (0.157 * Math.Log(2 / 1.5e-4))));
+        }
+        // ora del giorno: altezza del sole sul punto (avvisi di rimescolamento diurno e di condotti notturni da irraggiamento)
+        if (ex.Utc != default && !double.IsNaN(lat)) r.SunElev = SunElevation(ex.Utc, lat, lon);
         if (lev.Count < 3) return null;
         r.Levels = lev.ToArray();
         r.Ns = lev[0].N;
@@ -341,7 +385,7 @@ public static class Refractivity
             double lapse = (a.T - b.T) / (dz / 1000.0);
             var ld = new LayerDuct
             {
-                Key = Array.IndexOf(PLevels, (int)Math.Round(b.P)), Name = (i == 1 ? "suolo" : a.P.ToString("0")) + "–" + b.P.ToString("0") + " hPa",
+                Key = Array.IndexOf(PLevels, (int)Math.Round(b.P)) is int kk && kk >= 0 ? kk : 90, Name = (i == 1 ? "suolo" : a.P.ToString("0")) + "–" + b.P.ToString("0") + " hPa",
                 ZBot = a.Z, ZTop = b.Z, ExcessN = excess, LapseKkm = lapse, QRatio = qa > 0 ? qb / qa : 1
             };
             ld.Inversion = lapse < 3.0 && ld.QRatio < 0.8;
@@ -410,6 +454,19 @@ public static class Refractivity
         // scirocco: vento da 100–200° a 850 hPa di almeno 7 m/s con aria calda (T850 ≥ 16 °C) sul Mediterraneo
         r.Scirocco = !double.IsNaN(r.Dir850) && r.Dir850 >= 100 && r.Dir850 <= 200 && r.Wind850 >= 7 && r.T850 >= 16 &&
                      r.Lat >= 28 && r.Lat <= 47 && r.Lon >= -10 && r.Lon <= 37;
+    }
+
+    /// <summary>Altezza del sole in gradi (formule NOAA semplificate, errore sotto 1°).</summary>
+    public static double SunElevation(DateTime utc, double lat, double lon)
+    {
+        double d = (utc - new DateTime(2000, 1, 1, 12, 0, 0, DateTimeKind.Utc)).TotalDays;
+        double g = (357.529 + 0.98560028 * d) * Math.PI / 180, q = 280.459 + 0.98564736 * d;
+        double lam = (q + 1.915 * Math.Sin(g) + 0.020 * Math.Sin(2 * g)) * Math.PI / 180, eps = (23.439 - 0.00000036 * d) * Math.PI / 180;
+        double dec = Math.Asin(Math.Sin(eps) * Math.Sin(lam));
+        double ra = Math.Atan2(Math.Cos(eps) * Math.Sin(lam), Math.Cos(lam));
+        double gmst = (18.697374558 + 24.06570982441908 * d) % 24 * 15 * Math.PI / 180;
+        double ha = gmst + lon * Math.PI / 180 - ra, la = lat * Math.PI / 180;
+        return Math.Asin(Math.Sin(la) * Math.Sin(dec) + Math.Cos(la) * Math.Cos(dec) * Math.Cos(ha)) * 180 / Math.PI;
     }
 
     static double Min(double a, double b) => double.IsNaN(a) ? b : double.IsNaN(b) ? a : Math.Min(a, b);
@@ -580,7 +637,9 @@ public sealed class OwnForecast
     public const int Hours = 78;
     static readonly string[] SurfVars = { "surface_pressure", "temperature_2m", "relative_humidity_2m", "wind_speed_10m", "boundary_layer_height", "cape" };
     /// <summary>Variabili aggiunte nella 1.3.0: vento a 850 hPa (scirocco) e velocità verticale (subsidenza).</summary>
-    public static readonly string[] ExtraVars = { "wind_speed_850hPa", "wind_direction_850hPa", "vertical_velocity_850hPa", "vertical_velocity_700hPa" };
+    public static readonly string[] ExtraVars = { "wind_speed_850hPa", "wind_direction_850hPa", "vertical_velocity_850hPa", "vertical_velocity_700hPa", "surface_temperature" };
+    /// <summary>Solo da NOMADS: livelli vicini al suolo per il condotto sul mare a bassa quota.</summary>
+    public static readonly string[] NomadsLowVars = { "temperature_80m", "relative_humidity_80m", "temperature_pbl30", "relative_humidity_pbl30" };
 
     public static string HourlyVars()
     {
@@ -721,6 +780,7 @@ public sealed class OwnForecast
         var sw = new System.Diagnostics.Stopwatch();
         const int batch = 60;
         var vars = HourlyVars();
+        bool sstDropped = false;
         string tail = hist == null
             ? $"&forecast_hours={Hours}"
             : $"&start_date={hist.StartUtc:yyyy-MM-dd}&end_date={hist.StartUtc.AddDays(hist.Days - 1):yyyy-MM-dd}";
@@ -732,7 +792,8 @@ public sealed class OwnForecast
             var part = idx.Select(k => pts[k]).ToList();
             var lat = string.Join(",", part.Select(p => p.Lat.ToString("0.###", CultureInfo.InvariantCulture)));
             var lon = string.Join(",", part.Select(p => p.Lon.ToString("0.###", CultureInfo.InvariantCulture)));
-            var url = $"{host}?latitude={lat}&longitude={lon}&hourly={vars}&models={model}{tail}&wind_speed_unit=ms&timezone=GMT";
+            string Url() => $"{host}?latitude={lat}&longitude={lon}&hourly={vars}&models={model}{tail}&wind_speed_unit=ms&timezone=GMT";
+            var url = Url();
             string json = null;
             for (int attempt = 0; attempt < 3 && json == null; attempt++)
             {
@@ -762,6 +823,13 @@ public sealed class OwnForecast
                 if ((int)resp.StatusCode == 400)
                 {
                     string body = ""; try { body = await Compat.ReadString(resp.Content, ct); } catch { }
+                    // la temperatura della superficie (SST) non c'è per tutti i modelli: si riprova senza
+                    if (!sstDropped && vars.Contains(",surface_temperature"))
+                    {
+                        sstDropped = true; vars = vars.Replace(",surface_temperature", ""); url = Url(); attempt--;
+                        CalcLog.W($"Open-Meteo {model}: niente temperatura della superficie per questo modello, richiesta ripetuta senza");
+                        continue;
+                    }
                     throw new HttpRequestException("Open-Meteo ha rifiutato la richiesta (400): " + (body.Length > 300 ? body.Substring(0, 300) : body));
                 }
                 resp.EnsureSuccessStatusCode();
@@ -803,12 +871,14 @@ public sealed class OwnForecast
         var tl = Refractivity.PLevels.Select(pl => A($"temperature_{pl}hPa")).ToArray();
         var rl = Refractivity.PLevels.Select(pl => A($"relative_humidity_{pl}hPa")).ToArray();
         var ws85 = A("wind_speed_850hPa"); var wd85 = A("wind_direction_850hPa"); var vv85 = A("vertical_velocity_850hPa"); var vv70 = A("vertical_velocity_700hPa");
+        var sst = A("surface_temperature"); var t80 = A("temperature_80m"); var rh80 = A("relative_humidity_80m"); var tl30 = A("temperature_pbl30"); var rhl30 = A("relative_humidity_pbl30");
         var prof = new ProfileResult[times.Length];
         for (int t = 0; t < times.Length; t++)
         {
             var tt = new double[tl.Length]; var rr = new double[rl.Length];
             for (int j = 0; j < tl.Length; j++) { tt[j] = t < tl[j].Length ? tl[j][t] : double.NaN; rr[j] = t < rl[j].Length ? rl[j][t] : double.NaN; }
-            var ex = new Refractivity.Extra { W850 = At(vv85, t), W700 = At(vv70, t), Wind850 = At(ws85, t), Dir850 = At(wd85, t) };
+            var ex = new Refractivity.Extra { W850 = At(vv85, t), W700 = At(vv70, t), Wind850 = At(ws85, t), Dir850 = At(wd85, t),
+                                              Sst = At(sst, t), T80 = At(t80, t), Rh80 = At(rh80, t), TL30 = At(tl30, t), RhL30 = At(rhl30, t), Utc = times[t] };
             prof[t] = Refractivity.Analyze(elev, At(ps, t), At(t2, t), At(rh2, t), tt, rr, At(w, t), At(blh, t), At(cape, t), p.Lat, p.Lon, ex);
         }
         return new PointSeries { Lat = p.Lat, Lon = p.Lon, Elev = elev, Times = times, Profiles = prof };

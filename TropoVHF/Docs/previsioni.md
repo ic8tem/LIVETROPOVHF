@@ -155,6 +155,18 @@ Validazione (paragrafo 14): sui 593 collegamenti a 144 MHz fra il 29 dicembre 20
 
 **Strato limite e creste.** Se la cima dello strato limite del GFS (quota del suolo del modello più boundary_layer_height) supera le creste della tratta (massimi locali oltre 300 m, se la più alta supera 500 m), lo strato passa sopra i monti senza spezzarsi: +1,5 dB per la frazione di creste coperte. È l'osservazione di IT9GSF sulle aperture dalla Sicilia alla Germania con Tirreno favorevole.
 
+**Livelli vicini al suolo sul mare.** Con la sorgente NOMADS il programma scarica anche la temperatura della superficie (sul mare è la SST), temperatura e umidità a 80 m e nello strato 30–0 hPa sopra il suolo. Sui punti di mare (quota del modello sotto 5 m) questi livelli si aggiungono al profilo, sotto il primo livello di pressione, per vedere il condotto a 100–200 m che i livelli di pressione non risolvono. Sulla terra non si usano: gli strati notturni e diurni non sono ancora validati. Open-Meteo dà solo la temperatura della superficie.
+
+**Condotto d'evaporazione.** Dalla SST, dalla temperatura e dall'umidità a 2 m si stima l'altezza δ del condotto d'evaporazione con il profilo logaritmico neutro (come nel modello di Paulus e Jeske, senza la correzione di stabilità): l'aria al pelo dell'acqua è satura alla SST (98% per il sale), quindi
+
+```math
+\delta = \frac{N_{mare} - N_{2m}}{0,157\,\ln(2/z_0)}, \qquad z_0 = 1,5\times10^{-4}\ \mathrm{m}
+```
+
+limitata fra 0 e 40 m. Per intrappolare 144 MHz servirebbero circa 180 m (Kerr), quindi a 144 MHz il condotto d'evaporazione rinforza poco; dai 432 MHz in su, con antenne basse sul mare, molto (paragrafo 11 bis). Entra nell'equazione parabolica e nella riga Correzioni 1.3.2.
+
+**Ora del giorno (avvisi).** Il programma calcola l'altezza del sole su ogni punto. Di giorno sulla terra, con il sole oltre 15° e strato limite oltre 800 m o vento oltre 5 m/s, avvisa che i condotti al suolo sono rimescolati; di notte, con sole sotto −3°, vento sotto 3 m/s e strato limite sotto 300 m, avvisa che con cielo sereno sono possibili condotti da irraggiamento, che cadono dopo l'alba. Sul mare no. Per ora sono avvisi, non numeri: la validazione di dicembre non ha abbastanza giorni d'estate per tararli. Sono due punti che l'autore ritiene importanti, dall'osservazione quotidiana.
+
 **Profilo normale CRPL (alternativa).** Invece di 40 N/km fissi il calo normale segue l'atmosfera di riferimento esponenziale CRPL: N(h) = Ns·e^(−c·h), con −ΔN nel primo km = 7,32·e^(0,005577·Ns) (Bean e Thayer 1959). Con aria umida (Ns alto) il normale è più ripido e serve un gradiente più forte per dare guadagno; in quota è più dolce. Spento per difetto finché la validazione non dice che aiuta.
 
 ## 10. Condotto su tutta la tratta
@@ -171,7 +183,49 @@ La riga Confronto P.452 applica il metodo ITU per condotti e riflessione su stra
 
 La riga Equazione parabolica è un quarto calcolo, solo di confronto, fatto come i programmi professionali per i condotti (PETOOL; il framework wave-propagation di M. Lytaev, licenza MIT): invece di stimare il guadagno dagli strati, si fa avanzare l'onda lungo la tratta con il metodo split-step di Fourier dentro il profilo di rifrattività modificata M del GFS, preso dal punto di previsione più vicino a ogni distanza. Ai livelli del GFS si aggiungono i salti stimati dei condotti potenziali (calcolo A, 50 m a metà strato). Il terreno SRTM1 entra a gradini (sotto il suolo il campo è nullo), il suolo è conduttore e il fascio dell'antenna è una gaussiana con l'apertura stimata dal guadagno. Il calcolo vede da sé i condotti, quelli che perdono, la diffrazione e l'accoppiamento delle antenne; non vede il troposcatter, che si somma a parte. Accanto si mostra il «guadagno del profilo»: la stessa tratta con atmosfera standard meno quella con il profilo previsto.
 
-Limiti: il profilo verticale resta quello dei livelli GFS, quindi i condotti sottili restano invisibili; il terreno a gradini è approssimato; il metodo ad angolo stretto vale per angoli di pochi gradi.
+Dalla 1.3.2:
+
+- il propagatore è ad angolo largo, con la fase esatta dello spazio libero:
+
+```math
+\hat{u}(x + \Delta x, p) = \hat{u}(x, p)\, e^{\, i \Delta x \left( \sqrt{k^2 - p^2} - k \right)}
+```
+
+- il fondo sul mare e sulla pianura costiera a quota zero riflette con il coefficiente di Fresnel in polarizzazione orizzontale, εc = εr − j·60·λ·σ (mare εr = 81 e σ = 5 S/m; campagna 13 e 0,006 S/m), all'angolo radente della tratta:
+
+```math
+\Gamma_h = \frac{\sin\psi - \sqrt{\varepsilon_c - \cos^2\psi}}{\sin\psi + \sqrt{\varepsilon_c - \cos^2\psi}}
+```
+
+- la rugosità del mare riduce la riflessione coerente secondo Miller e Brown, con l'altezza efficace delle onde dal vento a 10 m (σh = 0,0051·U²):
+
+```math
+\rho = \exp\left[-2\left(k\,\sigma_h \sin\psi\right)^2\right]
+```
+
+- sul mare il profilo M comprende il condotto d'evaporazione (paragrafo 9 ter) con il profilo logaritmico neutro:
+
+```math
+M(z) = M_s + 0,125\left[(z - z_s) - \delta\,\ln\frac{z + z_0}{z_s + z_0}\right], \qquad z_0 = 1,5\times10^{-4}\ \mathrm{m}
+```
+
+Prove con il prototipo (antenne a 10 m sul mare, guadagno sull'atmosfera standard a 100–300 km): con δ = 10–30 m il condotto d'evaporazione dà 1–3 dB a 144 MHz, 8–37 dB a 432 MHz e 21–66 dB a 1296 MHz. A 144 MHz in polarizzazione orizzontale il mare riflette quasi come un metallo (|Γ| oltre 0,99 a pochi decimi di grado) e la rugosità conta poco: il fondo nuovo cambia pochi decimi di dB; conta di più dai 432 MHz in su.
+
+Limiti: sopra la terra il profilo verticale resta quello dei livelli GFS, quindi i condotti sottili restano invisibili; il terreno a gradini è approssimato; il fascio resta entro 6°.
+
+## 10 bis. Via monte
+
+Quando il corrispondente è chiuso dietro l'orizzonte, il programma prova a puntare le antenne su un rilievo vicino ben visibile: il versante illuminato diffonde il segnale come un bersaglio radar. Si cercano, in azimut fino a ±120° dal corrispondente e fino a 60 km, i punti d'orizzonte sopra i 300 m; si provano i tre più alti (almeno 20° l'uno dall'altro). Per ciascuno:
+
+- tratta 1, stazione → rilievo, nello spazio libero;
+- tratta 2, rilievo → corrispondente, calcolata come se il rilievo trasmettesse da 10 m sopra la cima, con la stessa previsione (senza equazione parabolica);
+- conversione con l'equazione del radar bistatico, con σ = σ0·A, σ0 = −15 dB (versante montuoso in VHF/UHF) e A l'area illuminata dal fascio a distanza R1 (al massimo 20 km²):
+
+```math
+L_{via} = L_{fs}(R_1) + L_2 + 10\log_{10}\frac{\lambda^2}{4\pi\,\sigma_0 A}
+```
+
+A 144 MHz, con un rilievo a 20 km e una yagi da 15°, la via monte costa circa 45 dB più della tratta 2 da sola: conviene solo quando il diretto è chiuso da ostacoli vicini. La stima è grossolana (±10 dB), soprattutto per σ0.
 
 ## 12. Antenne, segnale e rumore
 
@@ -181,6 +235,13 @@ Limiti: il profilo verticale resta quello dei livelli GFS, quindi i condotti sot
 - Rumore esterno secondo ITU-R P.372 [13]: galattico (Fa = 52 − 23 log f) più artificiale secondo l'ambiente (città, residenziale, rurale, rurale tranquillo) oppure una temperatura d'antenna scritta a mano.
 - Tsys = Ta + 290(Lc − 1) + 290(F − 1)·Lc ai morsetti dell'antenna, con Lc la perdita del cavo e F la cifra di rumore.
 - S/N in SSB, CW e FT8 nella banda di ciascun modo, confrontato con la soglia impostata.
+- Probabilità per periodo (dalla 1.3.2): l'evanescenza lenta si tratta come una distribuzione normale dello S/N attorno al valore previsto, con σ = 5 dB oltre 160 km (Bray, QST novembre 1961: ±7 dB oltre 100 miglia; ARRL Antenna Book; GEKO 69), 3 dB fra 50 e 160 km e 2 dB sotto. La probabilità che un periodo superi la soglia del modo è
+
+```math
+P = \Phi\left(\frac{S/N - S/N_{soglia}}{\sigma}\right)
+```
+
+  con Φ la funzione di ripartizione normale: margine 0 dB = 50%, +σ = 84%, +2σ = 98%. Non comprende l'incertezza del modello, che è più grande.
 - Modi digitali: lo S/N in 2500 Hz confrontato con le soglie misurate di FT4 (−17,5 dB) e FT8 (−21 dB, ma −18,6 dB con l'evanescenza tipica del troposcatter) [21], Q65-30A (−24 dB) e JT65A (−25 dB) [22]. Quando il meccanismo è troposcatter la soglia FT8 usata è −18,6 dB.
 
 ## 13. Tempi di risposta e dati

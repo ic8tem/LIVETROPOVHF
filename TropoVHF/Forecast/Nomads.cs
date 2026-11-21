@@ -23,12 +23,15 @@ public static class Nomads
 
     static string F(double v) => v.ToString("0.##", CultureInfo.InvariantCulture);
 
-    static string Url(DateTime run, int fh, double top, double bottom, double left, double right, bool upper, Res res = Res.Q025)
+    static string Url(DateTime run, int fh, double top, double bottom, double left, double right, bool upper, Res res = Res.Q025, bool low = false)
     {
         var sb = new StringBuilder(FilterOf(res));
         sb.Append("?dir=%2Fgfs.").Append(run.ToString("yyyyMMdd", CultureInfo.InvariantCulture)).Append("%2F").Append(run.ToString("HH", CultureInfo.InvariantCulture)).Append("%2Fatmos");
         sb.Append("&file=gfs.t").Append(run.ToString("HH", CultureInfo.InvariantCulture)).Append("z.").Append(FileOf(res)).Append(".f").Append(fh.ToString("000", CultureInfo.InvariantCulture));
-        if (upper)
+        if (low)
+            // 1.3.2: superficie (sul mare = SST), 80 m e strato 30–0 hPa sopra il suolo, per il condotto sul mare a bassa quota
+            sb.Append("&var_TMP=on&var_RH=on&var_SPFH=on&lev_surface=on&lev_80_m_above_ground=on&lev_30-0_mb_above_ground=on");
+        else if (upper)
         {
             sb.Append("&var_TMP=on&var_RH=on&lev_2_m_above_ground=on");
             foreach (var p in Refractivity.PLevels) sb.Append("&lev_").Append(p).Append("_mb=on");
@@ -122,15 +125,19 @@ public static class Nomads
             var valid = start.AddHours(k * stepH); times.Add(valid);
             int fh = (int)Math.Round((valid - run).TotalHours);
             bool have = fh >= 0 && (stepH > 1 ? fh % 3 == 0 : (fh <= 120 || fh % 3 == 0));
-            List<Grib2Field> up = null, lo = null;
+            List<Grib2Field> up = null, lo = null, ground = null;
             if (have)
             {
                 byte[] a = k == 0 ? first : await Get(http, Url(run, fh, top, bottom, left, right, true, res), ct, st);
                 await Task.Delay(DelayMs, ct); st.WaitMs += DelayMs;
                 byte[] b = await Get(http, Url(run, fh, top, bottom, left, right, false, res), ct, st);
+                await Task.Delay(DelayMs, ct); st.WaitMs += DelayMs;
+                byte[] c3 = null;
+                try { c3 = await Get(http, Url(run, fh, top, bottom, left, right, false, res, low: true), ct, st); } catch (OperationCanceledException) { throw; } catch { }
                 if (k + 1 < hours) { await Task.Delay(DelayMs, ct); st.WaitMs += DelayMs; }
                 sw.Restart();
                 up = a != null ? Grib2.Read(a) : null; lo = b != null ? Grib2.Read(b) : null;
+                try { ground = c3 != null ? Grib2.Read(c3) : null; } catch { ground = null; }
                 st.ParseMs += sw.Elapsed.TotalMilliseconds;
             }
             for (int i = 0; i < np; i++)
@@ -151,6 +158,17 @@ public static class Nomads
                 s["wind_speed_10m"][k] = Math.Sqrt(u10 * u10 + v10 * v10);
                 s["boundary_layer_height"][k] = V(lo, 3, 196, 1, 0);
                 s["cape"][k] = V(lo, 7, 6, 1, 0);
+                // vicino al suolo: SST (TMP di superficie), 80 m (TMP e SPFH → umidità relativa), strato 30–0 hPa (TMP e RH)
+                s["surface_temperature"][k] = V(ground, 0, 0, 1, 0) - 273.15;
+                double t80 = V(ground, 0, 0, 103, 80) - 273.15, q80 = V(ground, 1, 0, 103, 80);
+                if (!double.IsNaN(t80) && !double.IsNaN(q80) && !double.IsNaN(ps))
+                {
+                    double p80 = ps / 100 * Math.Exp(-80 / 8000.0), e = q80 * p80 / (0.622 + 0.378 * q80);
+                    s["temperature_80m"][k] = t80; s["relative_humidity_80m"][k] = Math.Min(100, 100 * e / Refractivity.Es(t80));
+                }
+                else { s["temperature_80m"][k] = double.NaN; s["relative_humidity_80m"][k] = double.NaN; }
+                s["temperature_pbl30"][k] = V(ground, 0, 0, 108, 3000) - 273.15;
+                s["relative_humidity_pbl30"][k] = V(ground, 1, 1, 108, 3000);
                 foreach (var p in Refractivity.PLevels)
                 {
                     s[$"temperature_{p}hPa"][k] = V(up, 0, 0, 100, p * 100) - 273.15;
@@ -182,6 +200,7 @@ public static class Nomads
         var v = new List<string> { "surface_pressure", "temperature_2m", "relative_humidity_2m", "wind_speed_10m", "boundary_layer_height", "cape" };
         foreach (var p in Refractivity.PLevels) { v.Add($"temperature_{p}hPa"); v.Add($"relative_humidity_{p}hPa"); }
         v.AddRange(OwnForecast.ExtraVars);
+        v.AddRange(OwnForecast.NomadsLowVars);
         return v.ToArray();
     }
 

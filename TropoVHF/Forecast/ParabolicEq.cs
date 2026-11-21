@@ -20,6 +20,7 @@ public static class ParabolicEq
         public double GainDb => StdLossDb - LossDb; // guadagno dovuto al profilo previsto
         public double[] Dist = Array.Empty<double>(), LossAtRx = Array.Empty<double>();   // perdita lungo la tratta alla quota RX
         public double Hmax, Dz, Dx; public int Nz, Steps; public double Ms;
+        public double GammaSea, GammaLand, Rho, Psi, EvapM;
         public string Note = "";
     }
 
@@ -47,6 +48,16 @@ public static class ParabolicEq
                     }
                 }
             }
+        }
+        // 1.3.2: condotto d'evaporazione sul mare: profilo logaritmico M(z) = Ms + 0,125·[(z − zs) − δ·ln((z + z0)/(zs + z0))]
+        if (p.Sea && p.EvapDuctM > 0.5)
+        {
+            double zs = L[0].Z, ms = L[0].M, d = p.EvapDuctM, z0 = 1.5e-4;
+            double Mev(double z) => ms + 0.125 * ((z - zs) - d * Math.Log((z + z0) / (zs + z0)));
+            foreach (var z in new[] { 0.0, 0.5, 1, 1.5 }) if (z < zs) pts.Add((z, Mev(z)));
+            double zTop = Math.Min(3 * d, L.Length > 1 ? L[1].Z - 5 : 3 * d);
+            foreach (var f in new[] { 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0 }) { double z = f * d; if (z > zs + 0.5 && z < zTop) pts.Add((z, Mev(z))); }
+            // sopra il condotto si raccorda linearmente al primo livello del GFS
         }
         pts = pts.OrderBy(q => q.z).ToList();
         var zs = pts.Select(q => q.z).ToArray(); var ms = pts.Select(q => q.m).ToArray();
@@ -87,6 +98,13 @@ public static class ParabolicEq
         r.Hmax = hmax; r.Dz = dz; r.Nz = nz; r.Dx = dx;
         var mFuncs = new List<Func<double, double>>();
         if (prof != null && prof.Any(p => p != null)) foreach (var p in prof) mFuncs.Add(p != null ? MProfile(p) : null);
+        // coefficienti di riflessione (polarizzazione orizzontale) all'angolo radente della tratta
+        double psi = Math.Max(0.05, Math.Atan((hts + hrs) / Math.Max(1, dKm * 1000)) * 180 / Math.PI) * Math.PI / 180;
+        double wind = prof?.Where(q => q != null && !double.IsNaN(q.Wind10)).Select(q => q.Wind10).DefaultIfEmpty(5).Average() ?? 5;
+        double sigH = 0.0051 * wind * wind;                                 // altezza efficace delle onde (Phillips), m
+        double rho = Math.Exp(-2 * Math.Pow(k * sigH * Math.Sin(psi), 2));   // Miller-Brown (riflessione coerente)
+        double gSea = -FresnelH(81, 5, lam, psi) * rho, gLand = -FresnelH(13, 0.006, lam, psi);
+        r.GammaSea = gSea; r.GammaLand = gLand; r.Rho = rho; r.Psi = psi * 180 / Math.PI;
         double[] Solve(bool std)
         {
             double th = Math.Max(2, Math.Min(6, bwDeg)) * Math.PI / 180;   // fascio stretto (≤ 6°): ad angoli grandi il metodo ad angolo stretto sbaglia e l'energia rimbalza sull'assorbitore
@@ -104,7 +122,11 @@ public static class ParabolicEq
             for (int i = 0; i < n2; i++)
             {
                 double p = 2 * Math.PI * (i < nz ? i : i - n2) / (n2 * dz);
-                prop[i] = Complex.FromPolarCoordinates(1, -p * p * dx / (2 * k));
+                // 1.3.2: propagatore ad angolo largo (fase esatta dello spazio libero, Feit e Fleck / Thomson e Chapman):
+                // exp(i·dx·(√(k²−p²) − k)); per |p| > k le onde sono evanescenti e si smorzano
+                double q = k * k - p * p;
+                prop[i] = q >= 0 ? Complex.FromPolarCoordinates(1, dx * (Math.Sqrt(q) - k))
+                                 : Complex.FromPolarCoordinates(Math.Exp(-dx * Math.Sqrt(-q)), -dx * k);
             }
             var win = new double[nz]; int na = nz / 2;
             for (int i = 0; i < nz; i++) win[i] = i < nz - na ? 1 : 0.5 * (1 + Math.Cos(Math.PI * (i - (nz - na)) / na));
@@ -116,7 +138,16 @@ public static class ParabolicEq
             {
                 ct.ThrowIfCancellationRequested();
                 double x = Math.Min(s * dx, dKm * 1000);
-                for (int i = 0; i < nz; i++) { buf[i] = u[i]; buf[n2 - 1 - i] = -u[i]; }
+                // fondo: mare o pianura costiera a quota 0 con il coefficiente di riflessione orizzontale di Fresnel e la
+                // rugosità del mare (Miller-Brown); più in alto il terreno a gradini (campo nullo sotto il suolo)
+                double hx = 0;
+                if (terrain != null && dist != null && terrain.Length > 1)
+                {
+                    int jx = Array.BinarySearch(dist, x / 1000); if (jx < 0) jx = ~jx;
+                    hx = terrain[Math.Max(0, Math.Min(terrain.Length - 1, jx))];
+                }
+                double gam = hx <= 0.5 ? gSea : hx < dz ? gLand : -1;
+                for (int i = 0; i < nz; i++) { buf[i] = u[i]; buf[n2 - 1 - i] = gam * u[i]; }
                 Fft(buf, false);
                 for (int i = 0; i < n2; i++) buf[i] *= prop[i];
                 Fft(buf, true);
@@ -154,6 +185,15 @@ public static class ParabolicEq
         if (alsoStandard && mFuncs.Count > 0) { var ls = Solve(true); r.StdLossDb = ls.Length > 0 ? ls[ls.Length - 1] : double.NaN; }
         else r.StdLossDb = r.LossDb;
         return r;
+    }
+
+    /// <summary>|Γ| di Fresnel in polarizzazione orizzontale: εc = εr − j·60·λ·σ (mare 81 e 5 S/m, campagna 13 e 0,006 S/m).</summary>
+    public static double FresnelH(double er, double sig, double lam, double psi)
+    {
+        var ec = new Complex(er, -60 * lam * sig);
+        var root = Complex.Sqrt(ec - Math.Cos(psi) * Math.Cos(psi));
+        double sn = Math.Sin(psi);
+        return ((sn - root) / (sn + root)).Magnitude;
     }
 
     /// <summary>FFT complessa radix-2 sul posto (inversa normalizzata).</summary>

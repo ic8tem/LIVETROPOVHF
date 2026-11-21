@@ -16,6 +16,10 @@ Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 - Le caselle (per esempio «Connetti all'avvio») si salvano subito in LIVETROPOVHF.ini, non solo alla chiusura del programma.
 - Nuovo manuale «Fonti e formule»: tutte le fonti consultate, le formule e le decisioni del lavoro sulla previsione propria.
 - Manuali: formule numerate come in LaTeX, (1), (2), …, con il numero a destra, anche nell'esportazione in Word; titoli con grazie; **grassetto**, *corsivo* e collegamenti resi nel testo; titoli di terzo livello.
+- Calcolo punto-punto: «Via monte». Con il corrispondente chiuso, prova i tre rilievi più alti visibili entro 60 km come diffusori (spazio libero fino al rilievo, tratta dal rilievo con la stessa previsione, equazione del radar bistatico).
+- Condotto sul mare a bassa quota: con NOMADS si scaricano SST, temperatura e umidità a 80 m e nello strato 30–0 hPa sopra il suolo; sui punti di mare si aggiungono al profilo. Condotto d'evaporazione stimato da SST, temperatura e umidità a 2 m (profilo logaritmico neutro), usato nell'equazione parabolica.
+- Equazione parabolica: propagatore ad angolo largo; fondo con il coefficiente di Fresnel in polarizzazione orizzontale (mare εr 81 e 5 S/m, campagna 13 e 0,006 S/m) e la rugosità del mare di Miller-Brown dal vento.
+- Avvisi per l'ora del giorno: rimescolamento diurno su terra e possibili condotti notturni da irraggiamento.
 - Calcolo punto-punto: riga «Probabilità per periodo» per SSB, CW, FT4, FT8, Q65 e JT65, con l'evanescenza lenta come distribuzione normale (σ 5 dB oltre 160 km, da Bray, ARRL Antenna Book e GEKO 69).
 
 ## 1.3.1 — 21/11/2026

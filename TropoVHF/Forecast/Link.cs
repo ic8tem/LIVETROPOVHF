@@ -80,6 +80,14 @@ public static class Dl6wu
 }
 
 /// <summary>Esito del calcolo su un percorso.</summary>
+/// <summary>Un rilievo vicino usato come diffusore («via monte»).</summary>
+public sealed class ViaPeak
+{
+    public double AzDeg, DistKm, HeightM, L1Db, L2Db, ConvDb, TotalDb;
+    public string Mechanism2 = "";
+    public LatLon Pos;
+}
+
 public sealed class LinkResult
 {
     public double DistKm, AzDeg, FreqMHz, K;
@@ -120,12 +128,14 @@ public sealed class LinkResult
     public double PeLossDb = double.NaN, PeStdDb = double.NaN, PeTotalDb = double.NaN;
     public double PeGainDb => PeStdDb - PeLossDb;
     public double PersistFrac = double.NaN;           // persistenza media lungo la tratta (0–1)
+    public List<ViaPeak> Via = new();                 // «via monte»: rilievi vicini su cui puntare le antenne
     // 1.3.2: stima aggressiva (soglia classica 79 N/km), μ1 di P.452 sul tratto di terra, aggancio delle stazioni al condotto, strato limite e creste
     public double AggrGainDb = double.NaN, LpredAggrDb = double.NaN;
     public double Mu1 = double.NaN, SeaWeight = 1, DtmKm;
     public double DuctCouplingF = double.NaN;
     public int RidgeN, RidgeCovered; public double RidgeMaxM, BlhRidgeDb;
     public double HighPFrac;
+    public double EvapDuctM, EvapFrac, DayMixFrac, NightRadFrac; public int LowLevelsUsed;
     public string TxVsDuct = "", RxVsDuct = "";
     public double FresnelMinRatio = double.NaN;        // minimo di (spazio libero sopra il terreno) / raggio della 1ª zona di Fresnel
     public List<(double km, double hM, double ratio, double nu)> Obstacles = new();
@@ -228,7 +238,7 @@ public static class LinkCalc
     }
 
     /// <summary>Calcolo completo; prof = profili di previsione lungo il percorso (o null se non c'è previsione).</summary>
-    public static async Task<LinkResult> Compute(Station tx, Station rx, Options o, Srtm srtm, IList<ProfileResult> prof, CancellationToken ct)
+    public static async Task<LinkResult> Compute(Station tx, Station rx, Options o, Srtm srtm, IList<ProfileResult> prof, CancellationToken ct, bool sub = false)
     {
         var r = new LinkResult { FreqMHz = o.FreqMHz };
         r.DistKm = Geo.DistKm(tx.Pos, rx.Pos);
@@ -585,7 +595,7 @@ public static class LinkCalc
 
         r.Times.Lap("confronto P.452");
         // ---- quarto calcolo, solo da confrontare: equazione parabolica nel profilo M del GFS lungo la tratta
-        if (good.Count > 0 && Refractivity.UseParabolic)
+        if (good.Count > 0 && Refractivity.UseParabolic && !sub)
         {
             try
             {
@@ -596,6 +606,7 @@ public static class LinkCalc
                 CalcLog.W($"equazione parabolica (split-step, {pe.Nz} punti in quota fino a {pe.Hmax:0} m, passo {pe.Dz:0.00} m e {pe.Dx:0} m, fascio {bw:0}°): " +
                           $"perdita {pe.LossDb:0.0} dB nel profilo GFS, {pe.StdLossDb:0.0} dB con atmosfera standard → guadagno {pe.StdLossDb - pe.LossDb:+0.0;-0.0} dB; " +
                           $"con il troposcatter (somma delle potenze) {r.PeTotalDb:0.0} dB (solo confronto)");
+                CalcLog.W($"   propagatore ad angolo largo; fondo in polarizzazione orizzontale all'angolo radente {pe.Psi:0.00}°: mare Γ {pe.GammaSea:0.000} (εr 81, σ 5 S/m, rugosità Miller-Brown ×{pe.Rho:0.000}), pianura Γ {pe.GammaLand:0.000} (εr 13, σ 0,006 S/m)");
             }
             catch (OperationCanceledException) { throw; }
             catch (Exception ex) { CalcLog.W("equazione parabolica: calcolo non riuscito: " + ex.Message); }
@@ -622,6 +633,13 @@ public static class LinkCalc
         CalcLog.W($"rumore kTsysB: SSB {o.BwSsb:0} Hz {r.NoiseSsbDbm:0.00} dBm → S/N {r.SnrSsb:0.0} dB (soglia {o.ReqSsb:0}); CW {o.BwCw:0} Hz → S/N {r.SnrCw:0.0} dB (soglia {o.ReqCw:0}); FT8 {o.BwFt8:0} Hz → S/N {r.SnrFt8:0.0} dB (soglia {o.ReqFt8:0})");
         if (r.TilesMissing > 0) r.Notes.Add($"{r.TilesMissing} riquadri SRTM1 non disponibili: lì il terreno vale 0 m");
         r.Times.Lap("bilancio e rumore");
+        if (!sub && !r.Los && Refractivity.UseViaMountain)
+        {
+            try { await ViaMountain(r, tx, rx, o, srtm, prof, ct); }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception ex) { CalcLog.W("via monte: calcolo non riuscito: " + ex.Message); }
+            r.Times.Lap("via monte");
+        }
         CalcLog.W($"TEMPI del calcolo sul percorso: {CalcLog.Dur(r.Times.TotalMs)} — {r.Times.Summary()}");
         return r;
     }
@@ -658,6 +676,29 @@ public static class LinkCalc
             r.SciroccoFrac = good.Count(p => p.Scirocco) / (double)good.Count;
             r.StabDbMean = good.Average(p => p.StabDb);
             CalcLog.W($"meteo lungo la tratta: subsidenza {r.SubsFrac * 100:0}% dei profili, aria in salita {r.AscentFrac * 100:0}%, scirocco {r.SciroccoFrac * 100:0}%; termine di stabilità medio {r.StabDbMean:+0.0;-0.0} dB");
+            // 1.3.2: condotto d'evaporazione sul mare e livelli vicini al suolo
+            var seaP = good.Where(p => p.Sea).ToList();
+            if (seaP.Count > 0)
+            {
+                var ev = seaP.Where(p => p.EvapDuctM > 0).ToList();
+                r.EvapDuctM = ev.Count > 0 ? ev.Average(p => p.EvapDuctM) : 0;
+                r.EvapFrac = seaP.Count > 0 ? ev.Count / (double)good.Count : 0;
+                r.LowLevelsUsed = seaP.Sum(p => p.LowLevels);
+                double minM = ProfileResult.MinDuctM(fMHz);
+                CalcLog.W($"mare: {seaP.Count} profili su {good.Count}; condotto d'evaporazione medio {r.EvapDuctM:0.0} m su {ev.Count} (SST media {seaP.Where(p => !double.IsNaN(p.Sst)).Select(p => p.Sst).DefaultIfEmpty(double.NaN).Average():0.0} °C); " +
+                          $"per intrappolare {fMHz:0} MHz servirebbero circa {minM:0} m (Kerr): {(r.EvapDuctM >= minM ? "intrappola" : "non intrappola, ma rinforza le antenne basse sul mare")}; livelli NOMADS vicini al suolo usati: {r.LowLevelsUsed}");
+                if (r.EvapDuctM >= 5 && fMHz >= 400) r.Notes.Add($"condotto d'evaporazione sul mare di circa {r.EvapDuctM:0} m: con antenne basse vicino al mare a {fMHz:0} MHz il segnale può essere molto più forte (vedi l'equazione parabolica)");
+            }
+            // 1.3.2: avvisi per l'ora del giorno (osservazione quotidiana dell'autore: rimescolamento e condotti da irraggiamento)
+            var landP = good.Where(p => !p.Sea && !double.IsNaN(p.SunElev)).ToList();
+            if (landP.Count > 0)
+            {
+                r.DayMixFrac = landP.Count(p => p.DayMix) / (double)landP.Count;
+                r.NightRadFrac = landP.Count(p => p.NightRad) / (double)landP.Count;
+                if (r.DayMixFrac >= 0.3) r.Notes.Add($"giorno con sole alto sul {r.DayMixFrac * 100:0}% del tratto su terra: lo strato vicino al suolo è rimescolato, i condotti al suolo sulla terra sono probabilmente spariti (sul mare no)");
+                if (r.NightRadFrac >= 0.3) r.Notes.Add($"notte con vento debole e strato limite basso sul {r.NightRadFrac * 100:0}% del tratto su terra: con cielo sereno possibili condotti al suolo da irraggiamento, che cadono dopo l'alba");
+                CalcLog.W($"ora del giorno: sole medio {landP.Average(p => p.SunElev):0}° sulla terra; rimescolamento diurno {r.DayMixFrac * 100:0}%, condotti da irraggiamento possibili {r.NightRadFrac * 100:0}%");
+            }
         }
     }
 
@@ -868,6 +909,59 @@ public static class LinkCalc
     /// dal suolo vede ancora l'antenna trasmittente senza ostacoli (prima ombra) e il punto visibile più lontano,
     /// con il raggio equivalente k. Il terreno viene da SRTM1 (passo 150 m).
     /// </summary>
+    /// <summary>
+    /// «Via monte»: con il corrispondente chiuso, si puntano le antenne su un rilievo vicino ben visibile. Il versante
+    /// illuminato fa da diffusore: tratta 1 stazione → rilievo nello spazio libero, tratta 2 rilievo → corrispondente
+    /// calcolata come un trasmettitore in cima (stessa previsione, senza equazione parabolica). Conversione bistatica
+    /// (equazione del radar): L = Lfs(R1) + L2 + 10·log(λ²/(4π·σ)), σ = σ0·A, σ0 = −15 dB (versante montuoso in VHF/UHF),
+    /// A = area illuminata dal fascio a distanza R1 (al massimo 20 km²).
+    /// </summary>
+    static async Task ViaMountain(LinkResult r, Station tx, Station rx, Options o, Srtm srtm, IList<ProfileResult> prof, CancellationToken ct)
+    {
+        const double maxKm = 60, stepKm = 0.3, sigma0Db = -15;
+        int ns = (int)(maxKm / stepKm);
+        var azs = Enumerable.Range(-12, 25).Select(i => (r.AzDeg + i * 10 + 360) % 360).ToArray();
+        var pts = new List<LatLon>(azs.Length * ns);
+        foreach (var a in azs) for (int sIdx = 1; sIdx <= ns; sIdx++) pts.Add(Geo.Destination(tx.Pos, a, sIdx * stepKm));
+        var (h, _) = await srtm.Heights(pts, ct);
+        double hts = r.HtxAsl, ae = 4.0 / 3 * Re;
+        var cands = new List<(double az, double km, double hM, LatLon pos)>();
+        for (int ai = 0; ai < azs.Length; ai++)
+        {
+            double best = double.MinValue; int bi = -1;
+            for (int sIdx = 1; sIdx <= ns; sIdx++)
+            {
+                double dk = sIdx * stepKm, hg = h[ai * ns + sIdx - 1];
+                double ang = (hg - dk * dk / (2 * ae) * 1000 - hts) / dk;
+                if (ang > best) { best = ang; bi = sIdx; }
+            }
+            if (bi < 0) continue;
+            double hk = h[ai * ns + bi - 1], km = bi * stepKm;
+            if (hk >= 300 && km >= 3 && best > 0) cands.Add((azs[ai], km, hk, pts[ai * ns + bi - 1]));
+        }
+        var pick = new List<(double az, double km, double hM, LatLon pos)>();
+        foreach (var c in cands.OrderByDescending(c => c.hM))
+        {
+            if (pick.Any(p => Math.Abs(((c.az - p.az + 540) % 360) - 180) < 20)) continue;
+            pick.Add(c); if (pick.Count == 3) break;
+        }
+        CalcLog.Section($"Via monte da {tx.Loc}: {cands.Count} rilievi visibili oltre 300 m entro {maxKm:0} km, provo i {pick.Count} più alti");
+        double lam = 299.792458 / o.FreqMHz;
+        double bw = Math.Min(60, Math.Sqrt(29000 / Math.Pow(10, r.GtxDbi / 10))) * Math.PI / 180;
+        foreach (var c in pick)
+        {
+            var peak = new Station { Loc = Locator.FromLatLon(c.pos.Lat, c.pos.Lon), Pos = c.pos, Precise = true, AglM = 10, BoomM = tx.BoomM, PowerW = tx.PowerW };
+            var leg = await Compute(peak, rx, o, srtm, prof, ct, sub: true);
+            double r1 = c.km * 1000;
+            double lfs1 = 20 * Math.Log10(4 * Math.PI * r1 / lam);
+            double area = Math.Min(2e7, Math.Pow(r1 * bw, 2));
+            double conv = 10 * Math.Log10(lam * lam / (4 * Math.PI * Math.Pow(10, sigma0Db / 10) * area));
+            double tot = lfs1 + leg.LpredDb + conv;
+            r.Via.Add(new ViaPeak { AzDeg = c.az, DistKm = c.km, HeightM = c.hM, Pos = c.pos, L1Db = lfs1, L2Db = leg.LpredDb, ConvDb = conv, TotalDb = tot, Mechanism2 = leg.Mechanism });
+            CalcLog.W($"via monte: azimut {c.az:0}°, {c.km:0.0} km, quota {c.hM:0} m → Lfs1 {lfs1:0.0} dB + tratta dal rilievo {leg.LpredDb:0.0} dB ({leg.Mechanism}) + conversione bistatica {conv:+0.0;-0.0} dB (σ0 {sigma0Db} dB, area {area / 1e6:0.0} km²) = {tot:0.0} dB; diretto {r.LpredDb:0.0} dB");
+        }
+    }
+
     public static async Task<(double[] az, double[] firstShadowKm, double[] farthestKm)> LineOfSight(Station tx, double hRx, double k, double maxKm, Srtm srtm, CancellationToken ct)
     {
         const int naz = 180; const double stepKm = 0.15;
