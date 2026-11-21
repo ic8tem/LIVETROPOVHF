@@ -399,18 +399,18 @@ public static class LinkCalc
             {
                 bool seaPath = r.SeaFrac >= 0.5;
                 var clim = seaPath ? Itm.Climate.MaritimeTemperateSea : Itm.Climate.MaritimeTemperateLand;
-                double n0 = seaPath ? 350 : 320;                       // NTIA 82-100: marittimo temperato su mare / su terra
+                double itmN0 = seaPath ? 350 : 320;                       // NTIA 82-100: marittimo temperato su mare / su terra
                 double eps = seaPath ? 81 : 15, sig = seaPath ? 5 : 0.005;
                 var pfl = ItmProfile(h, 0, n - 1, d);
                 double hT = Math.Max(0.5, Math.Min(3000, hts - h[0])), hR = Math.Max(0.5, Math.Min(3000, hrs - h[n - 1]));
-                var i50 = Itm.P2P(hT, hR, pfl, clim, n0, o.FreqMHz, false, eps, sig, 13, 50, 50, 50);
+                var i50 = Itm.P2P(hT, hR, pfl, clim, itmN0, o.FreqMHz, false, eps, sig, 13, 50, 50, 50);
                 if (i50.Error == 0)
                 {
-                    var i10 = Itm.P2P(hT, hR, pfl, clim, n0, o.FreqMHz, false, eps, sig, 13, 10, 50, 50);
-                    var i01 = Itm.P2P(hT, hR, pfl, clim, n0, o.FreqMHz, false, eps, sig, 13, 1, 50, 50);
-                    r.ItmDb = i50.AdB; r.Itm10Db = i10.AdB; r.Itm1Db = i01.AdB; r.ItmMode = i50.ModeName; r.ItmDeltaH = i50.DeltaH; r.ItmN0 = n0;
+                    var i10 = Itm.P2P(hT, hR, pfl, clim, itmN0, o.FreqMHz, false, eps, sig, 13, 10, 50, 50);
+                    var i01 = Itm.P2P(hT, hR, pfl, clim, itmN0, o.FreqMHz, false, eps, sig, 13, 1, 50, 50);
+                    r.ItmDb = i50.AdB; r.Itm10Db = i10.AdB; r.Itm1Db = i01.AdB; r.ItmMode = i50.ModeName; r.ItmDeltaH = i50.DeltaH; r.ItmN0 = itmN0;
                     r.ItmClimate = seaPath ? "marittimo temperato sul mare" : "marittimo temperato sulla terra";
-                    CalcLog.W($"ITM (Longley-Rice, NTIA): clima {r.ItmClimate}, N0 {n0:0}, suolo εr {eps:0} σ {sig:0.###} S/m, polarizzazione orizzontale, Δh {i50.DeltaH:0} m, " +
+                    CalcLog.W($"ITM (Longley-Rice, NTIA): clima {r.ItmClimate}, N0 {itmN0:0}, suolo εr {eps:0} σ {sig:0.###} S/m, polarizzazione orizzontale, Δh {i50.DeltaH:0} m, " +
                               $"antenne efficaci {i50.He[0]:0} / {i50.He[1]:0} m, meccanismo {i50.ModeName}: perdita {i50.AdB:0.0} dB al 50% del tempo, {i10.AdB:0.0} dB al 10%, {i01.AdB:0.0} dB all'1% " +
                               $"(P.452 qui {r.LbaseDb:0.0} dB, differenza {r.LbaseDb - i50.AdB:+0.0;-0.0} dB)");
                 }
