@@ -38,7 +38,7 @@ public static class SourceTest
         {
             CalcLog.Enabled = true;
             var srtm = new Srtm(new HttpClient { Timeout = TimeSpan.FromSeconds(300) });
-            foreach (var (rl, rn) in new[] { ("JN45ls27tg", "Lombardia 722 km"), ("JN33qs43wc", "Nizza 677 km"), ("IM98re20no", "Alicante 1300 km"), ("JN11cj39nl", "Barcellona 1016 km") })
+            foreach (var (rl, rn) in new[] { ("JN45ls27tg", "Lombardia 722 km"), ("JN33qs43wc", "Nizza 677 km"), ("IM98re20no", "Alicante 1300 km"), ("JN11cj39nl", "Barcellona 1016 km"), ("JN64CK40lh", "Ravenna") })
             {
                 LocatorX.TryParse("JN70CN83CL", out var tp); LocatorX.TryParse(rl, out var rp);
                 var tx = new Station { Loc = "JN70CN83CL", Pos = tp, Precise = true, AglM = 8, PowerW = 400, BoomM = 9 };
@@ -48,6 +48,8 @@ public static class SourceTest
                     rl, rn, tx.GroundM, lr.ThetaTx, lr.ThetaRx, lr.ThetaMrad, lr.LbaseDb, lr.ItmDb));
                 W(string.Format(CultureInfo.InvariantCulture, "  az {0:0.0}°, meccanismo {1}, Lpred {2:0.0} dB, ostacolo TX a {3:0.0} km, via monte {4}",
                     lr.AzDeg, lr.Mechanism, lr.LpredDb, lr.NearTxKm, lr.Via.Count));
+                W(string.Format(CultureInfo.InvariantCulture, "  distanza {0:0} km, Lfs {1:0.0}, diffrazione {2:0.0}, scatter {3:0.0}, base {4:0.0}, Prx {5:0.0} dBm, S/N SSB {6:0.0} CW {7:0.0} FT8 {8:0.0}, quota RX {9:0} m",
+                    lr.DistKm, lr.LfsDb, lr.LdiffDb, lr.LscatDb, lr.LbaseDb, lr.PrxDbm, lr.SnrSsb, lr.SnrCw, lr.SnrFt8, rx.GroundM));
                 foreach (var v in lr.Via.OrderBy(v => v.TotalDb).Take(6))
                     W(string.Format(CultureInfo.InvariantCulture, "    via az {0:0}° {1:0.0} km quota {2:0} m {3}: tratta1 {4:0.0} conv {5:0.0} tratta2 {6:0.0} ({7}) totale {8:0.0} dB",
                         v.AzDeg, v.DistKm, v.HeightM, v.Loc10, v.L1Db, v.ConvDb, v.L2Db, v.Mechanism2, v.TotalDb));
