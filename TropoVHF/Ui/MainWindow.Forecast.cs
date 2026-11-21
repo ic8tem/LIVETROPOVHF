@@ -18,7 +18,7 @@ namespace TropoVHF.Ui;
 public sealed partial class MainWindow
 {
     readonly OwnForecast _own = new();
-    // client dedicato: i riquadri SRTM1 sono di 6–7 MB e su linee lente superano i 40 s del client generale
+    // client dedicato: i riquadri SRTM1 sono di 7–13 MB e su linee lente superano i 40 s del client generale
     static readonly HttpClient FcHttp = new() { Timeout = TimeSpan.FromMinutes(10) };
     TextBlock _fcProgress;
     TextBlock _fcCorr;
@@ -108,8 +108,9 @@ public sealed partial class MainWindow
                 }
                 catch (Exception ex)
                 {
-                    CalcLog.W("P.453: scaricamento non riuscito: " + ex);
-                    p4.Text = L("Scaricamento dall'ITU non riuscito: ", "ITU download failed: ") + ex.Message + L(". Si può scaricare a mano dalla pagina dell'ITU (vedi il manuale, § 6).", ". You can download it manually from the ITU page (see the manual, § 6).");
+                    var why = CalcLog.NetError(ex, "www.itu.int");
+                    CalcLog.W("P.453: scaricamento non riuscito: " + why);
+                    p4.Text = L("Scaricamento dall'ITU non riuscito: ", "ITU download failed: ") + why + L(". Si può scaricare a mano dalla pagina dell'ITU (vedi il manuale, § 6).", ". You can download it manually from the ITU page (see the manual, § 6).");
                     p4.Foreground = B(_th.Bad); dl.IsEnabled = true;
                 }
             });
@@ -537,8 +538,8 @@ public sealed partial class MainWindow
         _fcResults.Children.Add(TB(L("Calcolo in corso…", "Computing…"), 12, _th.Muted, true));
         _fcProgress = TB(L("preparo il percorso", "preparing the path"), 12, _th.Sub); _fcProgress.TextWrapping = TextWrapping.Wrap;
         _fcResults.Children.Add(_fcProgress);
-        var hint = TB(L("La prima volta si scaricano i riquadri SRTM1 del percorso (6–7 MB l'uno) e i profili GFS: può volerci qualche minuto. L'avanzamento è anche nel registro qui sotto.",
-                        "The first time the path's SRTM1 tiles (6–7 MB each) and GFS profiles are downloaded: it can take a few minutes. Progress is also in the log below."), 11, _th.Muted);
+        var hint = TB(L("La prima volta si scaricano i riquadri SRTM1 del percorso (7–13 MB l'uno) e i profili GFS: può volerci qualche minuto. L'avanzamento è anche nel registro qui sotto.",
+                        "The first time the path's SRTM1 tiles (7–13 MB each) and GFS profiles are downloaded: it can take a few minutes. Progress is also in the log below."), 11, _th.Muted);
         hint.TextWrapping = TextWrapping.Wrap;
         _fcResults.Children.Add(hint);
         Task.Run(async () =>

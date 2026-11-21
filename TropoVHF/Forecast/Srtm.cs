@@ -36,7 +36,7 @@ public sealed class Srtm
         var file = Path.Combine(Folder, name + ".hgt.gz");
         if (!File.Exists(file))
         {
-            Progress?.Invoke($"SRTM1: scarico {name} (6–7 MB, la prima volta)…");
+            Progress?.Invoke($"SRTM1: scarico {name} (7–13 MB, la prima volta)…");
             var url = $"https://s3.amazonaws.com/elevation-tiles-prod/skadi/{name.Substring(0, 3)}/{name}.hgt.gz";
             for (int attempt = 1; attempt <= 2 && !File.Exists(file); attempt++)
             try

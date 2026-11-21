@@ -52,7 +52,22 @@ public static class CalcLog
     /// <summary>Ultime righe, per il registro degli errori.</summary>
     public static List<string> RecentLines(int n) { lock (Lock) return Recent.Skip(Math.Max(0, Recent.Count - n)).ToList(); }
 
-    static string F(double v, string fmt = "0.0") => double.IsNaN(v) ? "—" : v.ToString(fmt, CultureInfo.InvariantCulture);
+    static string F(double v, string fmt = "0.0") => double.IsNaN(v) ? "—" : (Math.Abs(v) < 0.05 ? 0.0 : v).ToString(fmt, CultureInfo.InvariantCulture);   // niente «-+0.0»
+
+    /// <summary>Errore di rete detto in parole: host non trovato (niente internet, DNS o firewall), tempo scaduto, risposta HTTP.</summary>
+    public static string NetError(Exception ex, string host)
+    {
+        for (var e = ex; e != null; e = e.InnerException)
+        {
+            if (e is System.Net.Sockets.SocketException se)
+                return se.SocketErrorCode == System.Net.Sockets.SocketError.HostNotFound || se.SocketErrorCode == System.Net.Sockets.SocketError.TryAgain
+                    ? (Ui.Lang.Current == "it" ? $"il PC non trova {host}: connessione a internet assente, DNS o firewall che blocca il sito" : $"the PC cannot find {host}: no internet connection, DNS or a firewall blocking the site")
+                    : (Ui.Lang.Current == "it" ? $"connessione a {host} non riuscita ({se.SocketErrorCode})" : $"connection to {host} failed ({se.SocketErrorCode})");
+            if (e is TaskCanceledException || e is TimeoutException)
+                return Ui.Lang.Current == "it" ? $"{host} non risponde (tempo scaduto)" : $"{host} does not answer (timeout)";
+        }
+        return ex.Message;
+    }
 
     /// <summary>Tabella completa di un profilo: livelli, N, M, gradienti, strato migliore, condotto, guadagni per banda.</summary>
     public static void Profile(string where, ProfileResult p)

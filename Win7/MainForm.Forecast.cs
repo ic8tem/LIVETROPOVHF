@@ -15,7 +15,7 @@ namespace TropoVHF.Win7;
 public sealed partial class MainForm
 {
     readonly OwnForecast _own = new();
-    // client dedicato: i riquadri SRTM1 sono di 6–7 MB e su linee lente superano i tempi del client generale
+    // client dedicato: i riquadri SRTM1 sono di 7–13 MB e su linee lente superano i tempi del client generale
     static readonly HttpClient FcHttp = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
     Srtm _srtm;
     MapView _fcMap;
@@ -95,7 +95,9 @@ public sealed partial class MainForm
                 catch (Exception ex)
                 {
                     ErrorLog.Write(ex, "scaricamento P.453");
-                    p4.Text = L("Scaricamento dall'ITU non riuscito: ", "ITU download failed: ") + ex.Message; p4.ForeColor = C(_th.Bad); dl.Enabled = true;
+                    var why = CalcLog.NetError(ex, "www.itu.int");
+                    CalcLog.W("P.453: scaricamento non riuscito: " + why);
+                    p4.Text = L("Scaricamento dall'ITU non riuscito: ", "ITU download failed: ") + why + L(". Si può scaricare a mano dalla pagina dell'ITU (manuale delle previsioni, § 6).", ". You can download it manually from the ITU page (forecast manual, § 6)."); p4.ForeColor = C(_th.Bad); dl.Enabled = true;
                 }
             }, false);
             Add(col, dl);
@@ -450,8 +452,8 @@ public sealed partial class MainForm
             NoiseEnv = _st.S.Get("fc_rx_env", "quiet"), ManualTaK = Num("fc_rx_ta", 300)
         };
         _srtm.Progress = FcSetStatus;
-        FcResultMessage(L("Calcolo in corso… La prima volta si scaricano i riquadri SRTM1 del percorso (6–7 MB l'uno) e i profili GFS: può volerci qualche minuto. L'avanzamento è nel registro qui sotto.",
-                          "Computing… The first time the path's SRTM1 tiles (6–7 MB each) and GFS profiles are downloaded: it can take a few minutes. Progress is in the log below."), _th.Muted);
+        FcResultMessage(L("Calcolo in corso… La prima volta si scaricano i riquadri SRTM1 del percorso (7–13 MB l'uno) e i profili GFS: può volerci qualche minuto. L'avanzamento è nel registro qui sotto.",
+                          "Computing… The first time the path's SRTM1 tiles (7–13 MB each) and GFS profiles are downloaded: it can take a few minutes. Progress is in the log below."), _th.Muted);
         Task.Run(async () =>
         {
             try
