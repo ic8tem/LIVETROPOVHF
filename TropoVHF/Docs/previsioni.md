@@ -148,7 +148,7 @@ Volume comune (dalla 1.3.1): è il punto in cui si incrociano i raggi radenti de
 
 La riga Troposcatter, altri modelli mostra le due perdite e l'incertezza come metà della differenza fra il modello più ottimista e il più pessimista. Sono solo confronti: la perdita senza tropo resta quella di P.452.
 
-## 8 ter. Troposcatter pomeridiano oltre i rilievi (interpretazione adottata)
+## 8 ter. Troposcatter pomeridiano oltre i rilievi (dalla 1.3.4)
 
 IK3XTV, da Thiene (JN55, con le Alpi a 10 km), lavora nei pomeriggi d'estate la Germania meridionale a 400–500 km, senza visuale, con segnali forti ma con evanescenza rapida e profonda; l'autore li attribuiva a «celle convettive allineate come un treno di lenti». L'osservazione è confermata; la spiegazione adottata nel programma è un'altra, fisicamente più solida.
 
@@ -158,7 +158,7 @@ Conseguenze per la lettura delle previsioni:
 
 - sulla terra il primo pomeriggio è il momento peggiore per i condotti e gli strati bassi, ma non per il troposcatter oltre le montagne: le due cose vanno lette separatamente;
 - il programma ha già i due dati che servono, l'altezza dello strato limite prevista dal modello e la quota del volume comune della tratta (riga «Volume comune» nei risultati): quando sono vicine, una tratta di montagna di pomeriggio può andare meglio di quanto dica il calcolo in atmosfera normale;
-- per ora è un criterio di lettura, non una correzione in dB: la soglia e il guadagno vanno tarati con i collegamenti reali.
+- dalla 1.3.4 il calcolo punto-punto ne tiene conto: se il volume comune sta sulla terra, lungo la tratta ci sono rilievi di almeno 800 m, il sole è oltre 15° e lo strato limite supera 800 m, e la cima dello strato rimescolato (quota del suolo del modello + altezza dello strato limite) è entro 500 m dalla base del volume comune, il troposcatter guadagna 3 dB; fra 500 e 1000 m il guadagno scende linearmente a zero. Compare la riga «Troposcatter pomeridiano». Il valore di 3 dB è provvisorio e va tarato con i collegamenti reali; si spegne con le correzioni meteo.
 
 Fonti: osservazioni di F. Egano IK3XTV (Radio Rivista e www.qsl.net/ik3xtv, «Propagazione sui 2 metri», «Celle convettive», «Troposcatter over the Alps»), fonti § 13.
 

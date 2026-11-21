@@ -5,6 +5,7 @@ Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole 
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
 ## In preparazione
+- Calcolo punto-punto: rinforzo pomeridiano del troposcatter oltre i rilievi, fino a 3 dB quando la cima dello strato rimescolato arriva alla quota del volume comune (osservazioni di IK3XTV, manuale § 8 ter); riga «Troposcatter pomeridiano» nei risultati.
 - Manuali: citazione di DF5AI (riportata da IK3XTV) sulla tropo da studiare tratta per tratta, nel manuale delle previsioni (§ 1) e nei consigli.
 - Manuale delle previsioni: § 8 ter sul troposcatter pomeridiano oltre i rilievi (interpretazione adottata delle osservazioni di IK3XTV), richiamato nei consigli e nelle fonti.
 

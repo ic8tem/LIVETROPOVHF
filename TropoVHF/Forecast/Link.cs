@@ -152,6 +152,8 @@ public sealed class LinkResult
     public double SubsFrac, AscentFrac, SciroccoFrac, StabDbMean, SeaAirDbMean;
     public int SoftN; public double SoftMax;          // punti con condotto morbido e fattore massimo
     // volume comune: dove si incrociano i raggi radenti delle due stazioni (base del volume di scatter)
+    /// <summary>1.3.4: rinforzo pomeridiano del troposcatter (cima dello strato rimescolato vicino al volume comune), dB e quota della cima.</summary>
+    public double MixScatterDb, MixTopM = double.NaN;
     public double CvKm = double.NaN, CvHeightM = double.NaN, CvLat = double.NaN, CvLon = double.NaN, DeqKm = double.NaN;
     public double CvGrad = double.NaN, CvRH = double.NaN, CvN = double.NaN;   // aria alla base del volume (dal profilo più vicino)
     public string CvLayer = "";
@@ -438,6 +440,7 @@ public static class LinkCalc
         CalcLog.W($"troposcatter P.452 eq. 45 (p = 50%): Lf {lf:0.00}, N0 {n0:0.0}, Lc = 0,051·e^(0,055(Gt+Gr)) {lc:0.00} → Lbs = {r.LscatDb:0.00} dB (Gt {r.GtxDbi:0.0} dBi, Gr {r.GrxDbi:0.0} dBi, DL6WU)");
         Scatter3(r, h, good, o.FreqMHz);
         CommonVolume(r, pts, prof, hts, hrs, ae);
+        MixScatter(r, h, prof);
 
         // ---- combinazione (somma delle potenze) senza tropo
         r.LbaseDb = -10 * Math.Log10(Math.Pow(10, -r.LdiffDb / 10) + Math.Pow(10, -r.LscatDb / 10));
@@ -943,6 +946,29 @@ public static class LinkCalc
         CalcLog.W($"volume comune: base a {r.CvHeightM:0} m s.l.m., a {r.CvKm:0} km dal TX ({r.CvLat:0.00}, {r.CvLon:0.00}); " +
                   $"con orizzonti piatti sarebbe d²/(8·ae) = {d * d / (8 * ae) * 1000:0} m; distanza equivalente di Bray {r.DeqKm:0} km" +
                   (double.IsNaN(r.CvGrad) ? "" : $"; aria alla base ({r.CvLayer}): N {r.CvN:0}, −dN/dh {r.CvGrad:0} N/km, UR {r.CvRH:0}%"));
+    }
+
+    /// <summary>
+    /// 1.3.4 (manuale § 8 ter, osservazioni di IK3XTV): di giorno sulla terra il sole rimescola l'aria e alla cima dello strato
+    /// limite l'aria umida incontra quella secca: lì la turbolenza dell'indice di rifrazione è massima. Se quella cima (quota del
+    /// suolo del modello + altezza dello strato limite) arriva entro 500 m dalla base del volume comune, il troposcatter guadagna
+    /// fino a Refractivity.MixScatterDb (a metà fra 500 e 1000 m, niente oltre). Solo con rilievi lungo la tratta (≥ 800 m),
+    /// volume comune sulla terra, sole oltre 15° e strato limite oltre 800 m. Valore provvisorio, da tarare.
+    /// </summary>
+    static void MixScatter(LinkResult r, double[] h, IList<ProfileResult> prof)
+    {
+        if (!Refractivity.UseCorrections || !Refractivity.UseMixScatter || double.IsNaN(r.CvHeightM) || prof == null || prof.Count == 0 || r.DistKm <= 0) return;
+        if (h == null || h.Length == 0 || h.Max() < 800) return;
+        int k = (int)Math.Round(r.CvKm / r.DistKm * (prof.Count - 1));
+        var pr = prof[Math.Max(0, Math.Min(prof.Count - 1, k))];
+        if (pr == null || pr.Sea || !(pr.SunElev > 15) || !(pr.Blh > 800)) return;
+        double top = pr.Elev + pr.Blh, gap = Math.Abs(top - r.CvHeightM);
+        double b = gap <= 500 ? Refractivity.MixScatterDb : gap <= 1000 ? Refractivity.MixScatterDb * (1000 - gap) / 500 : 0;
+        r.MixTopM = top;
+        if (b <= 0) { CalcLog.W($"troposcatter pomeridiano: cima dello strato rimescolato a {top:0} m, volume comune a {r.CvHeightM:0} m: troppo lontane, nessun rinforzo"); return; }
+        r.MixScatterDb = b;
+        r.LscatDb -= b;
+        CalcLog.W($"troposcatter pomeridiano (§ 8 ter): cima dello strato rimescolato a {top:0} m (suolo {pr.Elev:0} + strato limite {pr.Blh:0}), volume comune a {r.CvHeightM:0} m, scarto {gap:0} m → −{b:0.0} dB sul troposcatter = {r.LscatDb:0.00} dB");
     }
 
     /// <summary>Spessore minimo di uno strato per contare come corridoio continuo (CSIRO 2026: strati sotto 40 m scartati).</summary>

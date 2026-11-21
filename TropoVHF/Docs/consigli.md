@@ -43,7 +43,7 @@ Dall'esperienza raccolta nell'ARRL Handbook (§ 19.4.3) e negli studi del NBS:
 
 - Annotare ora UTC, nominativo, locatore, banda, modo e rapporto: sono i dati che servono per verificare il modello.
 - Controllare i beacon delle bande alte: sono il modo più rapido per accorgersi che il condotto c'è.
-- Sulle tratte che scavalcano le montagne non scartare il pomeriggio d'estate: se lo strato rimescolato sale fino alla quota del volume comune, il troposcatter si rinforza (segnali forti ma con evanescenza rapida). Manuale delle previsioni, § 8 ter.
+- Sulle tratte che scavalcano le montagne non scartare il pomeriggio d'estate: se lo strato rimescolato sale fino alla quota del volume comune, il troposcatter si rinforza (segnali forti ma con evanescenza rapida). Il calcolo lo segnala con la riga «Troposcatter pomeridiano». Manuale delle previsioni, § 8 ter.
 - Su FT8 e nei cluster il programma raccoglie da sé spot e decodifiche; per 432 e 1296 MHz i rapporti degli operatori restano essenziali.
 
 ## Limiti da tenere presenti

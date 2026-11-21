@@ -208,6 +208,9 @@ public static class Refractivity
     public static bool UseHighPressure = true;
     /// <summary>1.3.2: contrasto aria-mare e memoria della temperatura del mare (§ 9 quater). Soglie in kelvin su θ925 − SST.</summary>
     public static bool UseSeaAir = true;
+    /// <summary>1.3.4: rinforzo pomeridiano del troposcatter oltre i rilievi (§ 8 ter), al massimo MixScatterDb.</summary>
+    public static bool UseMixScatter = true;
+    public const double MixScatterDb = 3;
     public const double SeaAirMinK = 4, SeaAirStrongK = 7;
     public const double HighPDbBonus = 1.0, HighPHpa = 1020, HighPWind10 = 5, HighPWind850 = 8;
     /// <summary>1.3.2: peso del percorso su mare (μ1 di ITU-R P.452) sul guadagno degli strati, fra × 0,8 e × 1,2.</summary>
