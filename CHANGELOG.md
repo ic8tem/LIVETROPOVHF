@@ -5,6 +5,7 @@ Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole 
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
 ## 1.3.2 — 21/11/2026
+- Segni meteo sulla mappa grandi il doppio e colorati per effetto (↓ verde subsidenza favorevole, ↑ rosso aria in salita sfavorevole, S arancio scirocco), con un fumetto al passaggio del mouse; tabella nel manuale delle previsioni (§ 9 bis).
 - ITM (Longley-Rice) 1.2.2 dell'NTIA tradotto in C#: nella linguetta Previsioni c'è una riga con la perdita in atmosfera normale (50%, 10% e 1% del tempo) accanto a P.452, e una riga «Uscita dal condotto» quando il condotto finisce prima del corrispondente (tratto finale calcolato con l'ITM). La compilazione automatica controlla che i numeri siano uguali a quelli del codice originale.
 - Alla prima partenza la lingua si prende dal sistema operativo (Windows, Linux, macOS); se non è fra le 36 disponibili si parte in inglese. Prima si partiva sempre in italiano.
 - Nuova sorgente: ICON-2I Italia, 2 km (Agenzia ItaliaMeteo e Arpae) attraverso Open-Meteo; utile per coste, isole e condotto d'evaporazione. Le variabili che un modello non fornisce si tolgono da sole dalla richiesta.

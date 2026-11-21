@@ -130,12 +130,22 @@ Il guadagno tropo è il guadagno dello strato per la frazione usata. Se più di 
 Dalla 1.3.0 il profilo dà anche tre informazioni meteorologiche, che si vedono nel registro (riga «stabilità (Misme)»), nella riga Meteo lungo la tratta dei risultati e, con la casella Segni meteo, sulla mappa.
 
 - Stabilità di Misme [5, cap. 6]. Misme lega il campo oltre l'orizzonte a un parametro composto: M = a·(ge − 40 + b·ΔW), con a = 0,5 dB per N/km, il gradiente equivalente ge e la stabilità termica ΔW, il lavoro per sollevare l'aria di 1 km. Il programma calcola ΔW = g·∫(θ − θ0)/θ0 dz fra il suolo e 1 km sopra, con θ la temperatura potenziale; l'atmosfera standard vale circa 56 J/kg. Il termine aggiunto al guadagno è 0,07 dB per J/kg oltre lo standard, limitato fra −4 e +6 dB, e conta solo dove nessun condotto intrappola la banda (il gradiente è già nell'indice di Bean e Dutton). La taratura è provvisoria: va verificata con i rapporti (paragrafo 14).
-- Subsidenza e aria in salita [19]. Moler e Holden trovarono rinforzi di 20 dB e oltre, per ore, sulle tratte VHF/UHF oltre l'orizzonte quando l'aria scende negli anticicloni, e affievolimenti profondi quando sale. Il GFS dà la velocità verticale a 850 e 700 hPa. Se a entrambi i livelli l'aria scende di più di 1 cm/s e c'è un'inversione o un forte calo dell'indice di rifrazione potenziale K (N riportato adiabaticamente a 1000 hPa, che mette in evidenza l'aria secca e calda scesa dall'alto [5]), si aggiungono 1,5 dB; se l'aria sale di più di 5 cm/s se ne tolgono 2. Sulla mappa: ↓ subsidenza, ↑ aria in salita.
+- Subsidenza e aria in salita [19]. Moler e Holden trovarono rinforzi di 20 dB e oltre, per ore, sulle tratte VHF/UHF oltre l'orizzonte quando l'aria scende negli anticicloni, e affievolimenti profondi quando sale. Il GFS dà la velocità verticale a 850 e 700 hPa. Se a entrambi i livelli l'aria scende di più di 1 cm/s e c'è un'inversione o un forte calo dell'indice di rifrazione potenziale K (N riportato adiabaticamente a 1000 hPa, che mette in evidenza l'aria secca e calda scesa dall'alto [5]), si aggiungono 1,5 dB; se l'aria sale di più di 5 cm/s se ne tolgono 2.
 - Scirocco [20]. Aria calda e secca dal Sahara sopra aria marina più fresca dà inversioni fortissime dal Mediterraneo orientale a Gibilterra. Il segno S compare dove a 850 hPa il vento arriva da 100–200° con almeno 7 m/s e la temperatura è almeno 16 °C, sul Mediterraneo. È solo un'indicazione: il guadagno lo decidono gli strati del profilo.
 
 Senza un condotto che intrappola la banda il guadagno totale non supera 16 dB, la fine del giallo: le correzioni rendono più evidenti gli strati forti ma non li fanno passare per condotti (rosso e viola restano ai condotti).
 
 - Persistenza (dalla 1.3.1). Le aperture maggiori arrivano dopo giorni di alta pressione già buoni (VHF/UHF DX Book; Biancomano e Leyshon 1998, regola delle 12 ore; i rapporti del 29/12/2021–2/1/2022 crescono dal primo al quarto giorno). Per ogni cella il programma conta le ore delle 24 precedenti con guadagno di almeno 13 dB e aggiunge fino a 2 dB in proporzione, solo dove il guadagno è già almeno 10 dB. Sul calcolo del segnale si usa la media lungo la tratta.
+
+**Come leggere i segni sulla mappa** (casella Segni meteo; dalla 1.3.2 il simbolo è grande il doppio e passando con il mouse sopra un segno compare un fumetto con la spiegazione e i valori della cella):
+
+| Segno | Colore | Che cosa vuol dire | Effetto sulla tropo |
+|---|---|---|---|
+| ↓ | verde | subsidenza: l'aria scende (anticiclone), si scalda per compressione e si secca, rinforza l'inversione e la tiene ferma | **favorevole**, +1,5 dB |
+| ↑ | rosso | aria in salita (fronti, bassa pressione, convezione): mescola i bassi strati e rompe inversioni e condotti | **sfavorevole**, −2 dB |
+| S | arancio | scirocco: aria calda e secca dal Sahara sopra aria marina fresca | **indizio favorevole**, nessuna correzione: decidono gli strati |
+
+Una zona piena di ↓ verdi sotto un anticiclone è il segno classico di un'apertura che dura; frecce ↑ rosse lungo la tratta dicono che gli strati si stanno rompendo, anche se il colore della cella è ancora buono.
 
 La casella Correzioni meteo spegne queste correzioni per vedere il modello della 1.2.
 
@@ -198,7 +208,8 @@ Dalla 1.3.2 il programma contiene l'Irregular Terrain Model 1.2.2 dell'NTIA/ITS 
 L'ITM calcola la perdita in atmosfera normale sul profilo reale SRTM1: vista con la riflessione dal suolo, diffrazione (spigolo e terra sferica pesati sulla rugosità del terreno Δh, cioè la differenza fra il 10° e il 90° percentile delle quote attorno alla retta dei minimi quadrati) e troposcatter. La rifrattività al suolo si riduce alla quota media della tratta, $N_s = N_0\,e^{-h/9460}$, e dà la curvatura della terra equivalente,
 
 ```math
-\gamma_e = 157\cdot10^{-9}\left(1 - 0,04665\,e^{N_s/179,3}ight)\ \mathrm{m}^{-1}
+\gamma_e = 157\cdot10^{-9}\left(1 - 0,04665\,e^{N_s/179,3}
+ight)\ \mathrm{m}^{-1}
 ```
 
 Il programma usa il clima marittimo temperato, con N0 320 sulla terra e 350 sul mare (suolo εr 15, σ 0,005 S/m; mare εr 81, σ 5 S/m), la polarizzazione orizzontale e la variabilità nel tempo senza quella di luogo (il profilo è noto). Mostra la perdita superata nel 50% del tempo e quella che si ha nel 10% e nell'1% del tempo migliore. L'ITM non modella i condotti: la sua variabilità nel tempo è statistica, per clima. Serve come secondo calcolo della linea di base accanto a P.452; la differenza fra i due dà un'idea dell'incertezza.

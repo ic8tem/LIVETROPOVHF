@@ -172,8 +172,8 @@ public sealed partial class MainWindow
                    "Dashed contours of how much warmer air at 925 or 850 hPa is than at 2 m (1, 3, 5, 8 °C), GFS via Open-Meteo. An inversion without a humidity drop bends little: Bean & Dutton § 4.4. Forecast manual, § 5."),
                 new Border { Width = 10 },
                 Ov("fc_ov_wx", "Segni meteo (S ↓ ↑)", "Weather marks (S ↓ ↑)",
-                   "Su ogni cella della griglia: S = scirocco (vento da SE–S a 850 hPa con aria calda, ARRL Handbook § 19.4), ↓ = subsidenza (aria che scende con inversione, Moler e Holden 1960), ↑ = aria in salita che rompe gli strati. Visibili quando le celle sono abbastanza larghe. Manuale delle previsioni, § 9 bis.",
-                   "On each grid cell: S = scirocco (SE–S wind at 850 hPa with warm air, ARRL Handbook § 19.4), ↓ = subsidence (sinking air with an inversion, Moler & Holden 1960), ↑ = rising air breaking the layers. Shown when cells are wide enough. Forecast manual, § 9 bis.")
+                   "Su ogni cella della griglia: ↓ verde = subsidenza, FAVOREVOLE (aria che scende con inversione, +1,5 dB, Moler e Holden 1960); ↑ rosso = aria in salita, SFAVOREVOLE (rompe gli strati, −2 dB); S arancio = scirocco, indizio favorevole senza correzione (vento da SE–S a 850 hPa con aria calda, ARRL Handbook § 19.4). Passa con il mouse su un segno per il fumetto. Visibili quando le celle sono abbastanza larghe. Manuale delle previsioni, § 9 bis.",
+                   "On each grid cell: green ↓ = subsidence, GOOD (sinking air with an inversion, +1.5 dB, Moler & Holden 1960); red ↑ = rising air, BAD (breaks the layers, −2 dB); orange S = scirocco, good sign with no correction (SE–S wind at 850 hPa with warm air, ARRL Handbook § 19.4). Hover a mark for the bubble. Shown when cells are wide enough. Forecast manual, § 9 bis.")
             }
         });
         col.Children.Add(FcSourceBox());

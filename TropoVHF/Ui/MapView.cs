@@ -218,9 +218,22 @@ public sealed class MapView : Control
         e.Handled = true;
     }
 
+    /// <summary>Fumetto al passaggio del mouse: chi disegna sopra la mappa dà una chiave per il punto (−1 = niente);
+    /// quando la chiave cambia si ridisegna e <see cref="Hover"/> dice dove sta il puntatore.</summary>
+    public Func<Point, int> HoverKey;
+    public Point? Hover;
+    int _hoverKey = -1;
+
     protected override void OnPointerMoved(PointerEventArgs e)
     {
-        if (!_pressed) return;
+        if (!_pressed)
+        {
+            if (HoverKey == null) return;
+            var hp = e.GetPosition(this);
+            int k = HoverKey(hp);
+            if (k != _hoverKey) { _hoverKey = k; Hover = k >= 0 ? hp : (Point?)null; InvalidateVisual(); }
+            return;
+        }
         var p = e.GetPosition(this);
         double dx = p.X - _pressPos.X, dy = p.Y - _pressPos.Y;
         if (!_moved && Math.Abs(dx) + Math.Abs(dy) < 5) return;

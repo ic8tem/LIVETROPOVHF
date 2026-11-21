@@ -321,28 +321,93 @@ public sealed class ForecastPainter
         Correlation(lat0, lon0, step, nr, nc, t, f);
     }
 
-    /// <summary>Segni meteo sulle celle della griglia: S scirocco, ↓ subsidenza, ↑ aria in salita (solo se le celle sono abbastanza larghe).</summary>
+    /// <summary>Segni meteo sulle celle della griglia: S scirocco, ↓ subsidenza, ↑ aria in salita (solo se le celle sono abbastanza larghe).
+    /// Colori per effetto sulla tropo: verde = favorevole (subsidenza, +1,5 dB), rosso = sfavorevole (aria in salita, −2 dB),
+    /// arancio = indizio favorevole senza correzione (scirocco). Passando con il mouse sopra un segno compare il fumetto.</summary>
     void DrawWeatherMarks(DrawingContext ctx, DateTime t)
     {
+        _marks.Clear();
         var cells = Own.Cells(t);
         if (cells.Count == 0) return;
         Map.Screen(new LatLon(cells[0].lat, cells[0].lon), out var p0);
         Map.Screen(new LatLon(cells[0].lat, cells[0].lon + Own.Step), out var p1);
-        if (Math.Abs(p1.X - p0.X) < 16) return;
+        if (Math.Abs(p1.X - p0.X) < 24) return;
+        Map.HoverKey ??= HitMark;
         var tf = new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.Bold);
         var halo = new SolidColorBrush(Th.Panel);
         foreach (var (la, lo, pr) in cells)
         {
-            string txt = pr.Scirocco ? "S" : pr.Subsidence ? "↓" : pr.Ascent ? "↑" : null;
-            if (txt == null) continue;
-            var col = pr.Scirocco ? Color.Parse("#D35400") : pr.Subsidence ? Color.Parse("#1F6FB2") : Color.Parse("#7F8C8D");
+            int kind = pr.Scirocco ? 0 : pr.Subsidence ? 1 : pr.Ascent ? 2 : -1;
+            if (kind < 0) continue;
+            string txt = kind == 0 ? "S" : kind == 1 ? "↓" : "↑";
+            var col = MarkColor(kind);
             Map.Screen(new LatLon(la, lo), out var sp);
             if (sp.X < 0 || sp.Y < 0 || sp.X > Map.Bounds.Width || sp.Y > Map.Bounds.Height) continue;
-            var ft = new FormattedText(txt, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, tf, 12, new SolidColorBrush(col));
-            var rc = new Rect(sp.X - ft.Width / 2 - 2, sp.Y - ft.Height / 2, ft.Width + 4, ft.Height);
-            ctx.DrawRectangle(halo, null, rc, 3, 3);
-            ctx.DrawText(ft, new Point(rc.X + 2, rc.Y));
+            var ft = new FormattedText(txt, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, tf, 24, new SolidColorBrush(col));
+            var rc = new Rect(sp.X - ft.Width / 2 - 3, sp.Y - ft.Height / 2, ft.Width + 6, ft.Height);
+            ctx.DrawRectangle(halo, new Pen(new SolidColorBrush(col), 1.2), rc, 4, 4);
+            ctx.DrawText(ft, new Point(rc.X + 3, rc.Y));
+            _marks.Add((rc, kind, pr));
         }
+        // fumetto del segno sotto il mouse
+        if (Map.Hover is Point hp && HitMark(hp) is int hi && hi >= 0)
+        {
+            var (rc, kind, pr) = _marks[hi];
+            var lines = MarkTip(kind, pr);
+            var tfn = new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.Normal);
+            var fts = lines.Select((l, i) => new FormattedText(l, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, i == 0 ? tf : tfn, 12, new SolidColorBrush(i == 0 ? MarkColor(kind) : Th.Ink))).ToList();
+            double w = fts.Max(f => f.Width) + 16, h = fts.Sum(f => f.Height + 2) + 12;
+            double x = rc.X + rc.Width + 8, y = rc.Y - 4;
+            if (x + w > Map.Bounds.Width) x = Math.Max(2, rc.X - w - 8);
+            if (y + h > Map.Bounds.Height) y = Math.Max(2, Map.Bounds.Height - h - 2);
+            ctx.DrawRectangle(new SolidColorBrush(Th.Panel), new Pen(new SolidColorBrush(MarkColor(kind)), 1.5), new Rect(x, y, w, h), 6, 6);
+            double yy = y + 6;
+            foreach (var f in fts) { ctx.DrawText(f, new Point(x + 8, yy)); yy += f.Height + 2; }
+        }
+    }
+
+    readonly List<(Rect rc, int kind, ProfileResult pr)> _marks = new();
+
+    int HitMark(Point p)
+    {
+        for (int i = _marks.Count - 1; i >= 0; i--)
+        {
+            var r = _marks[i].rc;
+            if (p.X >= r.X - 2 && p.X <= r.X + r.Width + 2 && p.Y >= r.Y - 2 && p.Y <= r.Y + r.Height + 2) return i;
+        }
+        return -1;
+    }
+
+    static Color MarkColor(int kind) => kind == 0 ? Color.Parse("#D35400") : kind == 1 ? Color.Parse("#1E8449") : Color.Parse("#C0392B");
+
+    static List<string> MarkTip(int kind, ProfileResult pr)
+    {
+        var ci = CultureInfo.InvariantCulture;
+        string w = string.Format(ci, "w850 {0:+0.0;-0.0} cm/s, w700 {1:+0.0;-0.0} cm/s", pr.W850 * 100, pr.W700 * 100);
+        return kind switch
+        {
+            1 => new List<string> {
+                L("↓ Subsidenza: FAVOREVOLE alla tropo (+1,5 dB)", "↓ Subsidence: GOOD for tropo (+1.5 dB)"),
+                L("L'aria scende (anticiclone), si scalda e si secca:", "Air sinks (anticyclone), warms and dries:"),
+                L("rinforza l'inversione e la tiene ferma per ore.", "it strengthens the inversion and holds it for hours."),
+                L("Moler e Holden 1960: rinforzi di 20 dB e oltre.", "Moler & Holden 1960: enhancements of 20 dB and more."),
+                L("Velocità verticale: ", "Vertical speed: ") + w + L(" (negativa = discesa)", " (negative = sinking)"),
+                L("Manuale delle previsioni, § 9 bis.", "Forecast manual, § 9 bis.") },
+            2 => new List<string> {
+                L("↑ Aria in salita: SFAVOREVOLE alla tropo (−2 dB)", "↑ Rising air: BAD for tropo (−2 dB)"),
+                L("L'aria sale (fronti, bassa pressione, convezione):", "Air rises (fronts, low pressure, convection):"),
+                L("mescola i bassi strati e rompe inversioni e condotti.", "it mixes the low levels and breaks inversions and ducts."),
+                L("Moler e Holden 1960: affievolimenti profondi.", "Moler & Holden 1960: deep fades."),
+                L("Velocità verticale: ", "Vertical speed: ") + w + L(" (positiva = salita)", " (positive = rising)"),
+                L("Manuale delle previsioni, § 9 bis.", "Forecast manual, § 9 bis.") },
+            _ => new List<string> {
+                L("S Scirocco: indizio FAVOREVOLE (nessuna correzione)", "S Scirocco: GOOD sign (no correction)"),
+                L("Aria calda e secca dal Sahara sopra aria marina fresca:", "Warm dry Saharan air over cool sea air:"),
+                L("inversioni fortissime sul Mediterraneo (ARRL Handbook).", "very strong inversions over the Mediterranean (ARRL Handbook)."),
+                L("Il guadagno lo decidono gli strati del profilo.", "The gain comes from the profile layers."),
+                string.Format(ci, L("Vento 850 hPa {0:0} m/s da {1:0}°, T850 {2:0} °C", "Wind 850 hPa {0:0} m/s from {1:0}°, T850 {2:0} °C"), pr.Wind850, pr.Dir850, pr.T850),
+                L("Manuale delle previsioni, § 9 bis.", "Forecast manual, § 9 bis.") },
+        };
     }
 
     /// <summary>Accordo fra il guadagno stimato e la pressione / l'inversione sulla zona visibile (Pearson), nel log una volta per ora e banda.</summary>
