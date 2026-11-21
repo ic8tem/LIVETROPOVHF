@@ -37,20 +37,27 @@ for sid, name in ST.items():
         txt = zipfile.ZipFile(io.BytesIO(raw)).read(sid + "-data.txt").decode("ascii", "replace").splitlines()
     except Exception as ex:
         out.append(f"{name}: errore {ex}"); continue
-    stat = collections.defaultdict(lambda: [0, 0, 0, 0])
+    stat = collections.defaultdict(lambda: [0, 0, 0, 0]); cnt = [0]
     i = 0
     while i < len(txt):
         h = txt[i]
         if not h.startswith("#"): i += 1; continue
         y, mo, hr, nl = int(h[13:17]), int(h[18:20]), int(h[24:26]), int(h[32:36])
         body = txt[i + 1:i + 1 + nl]; i += 1 + nl
-        if y < 2015 or y > 2024 or hr not in (0, 12): continue
+        if y < 2015 or y > 2024: continue
+        hr = 0 if hr in (22, 23, 0, 1, 2) else 12 if hr in (10, 11, 12, 13, 14) else -1
+        if hr < 0: continue
+        cnt[0] += 1
         lev = []; surf = None
         for L in body:
             if len(L) < 39: continue
-            t2 = L[1]; p = num(L[9:15]); z = num(L[16:21]); t = num(L[22:27]); dp = num(L[34:39])
-            if p is None or z is None or t is None or dp is None: continue
-            rec = (z, p / 100, t / 10, t / 10 - dp / 10)
+            t2 = L[1]; p = num(L[9:15]); z = num(L[16:21]); t = num(L[22:27]); rh = num(L[28:33]); dp = num(L[34:39])
+            if p is None or z is None or t is None: continue
+            if dp is not None: td = t / 10 - dp / 10
+            elif rh is not None and rh > 0:
+                tc = t / 10; a = math.log(rh / 1000) + 17.67 * tc / (tc + 243.5); td = 243.5 * a / (17.67 - a)
+            else: continue
+            rec = (z, p / 100, t / 10, td)
             if t2 == "1": surf = rec
             elif surf is not None: lev.append(rec)
         if surf is None or len(lev) < 2: continue
@@ -58,6 +65,7 @@ for sid, name in ST.items():
         inv, duct, sup = analyze([surf] + lev)
         k = (SEAS[mo], hr); st = stat[k]
         st[0] += 1; st[1] += inv; st[2] += duct; st[3] += sup
+    out.append(f"   (sondaggi 2015-2024 alle 00/12: {cnt[0]}; righe del file {len(txt)}; esempio intestazione: {next((x for x in txt if x.startswith('#') and x[13:17]=='2020'), '')[:60]})")
     out.append(f"== {name} ({sid}) 2015-2024: stagione, ora UTC, sondaggi, inversione al suolo (>=1 K entro 500 m) %, condotto al suolo entro 1 km %, super-rifrazione nel primo strato %")
     for se in ("DGF", "MAM", "GLA", "SON"):
         for hr in (0, 12):
