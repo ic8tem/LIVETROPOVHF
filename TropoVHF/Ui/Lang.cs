@@ -14,7 +14,7 @@ public static class Lang
     {
         ("it","Italiano"),("en","English"),("de","Deutsch"),("fr","Français"),("es","Español"),("pt","Português (Portugal)"),
         ("pt-br","Português (Brasil)"),("nl","Nederlands"),("sv","Svenska"),("nb","Norsk (bokmål)"),("da","Dansk"),("is","Íslenska"),
-        ("et","Eesti"),("lv","Latviešu"),("lt","Lietuvių"),("pl","Polski"),("cs","Čeština"),("hu","Magyar"),("ro","Română"),
+        ("et","Eesti"),("lv","Latviešu"),("lt","Lietuvių"),("pl","Polski"),("cs","Čeština"),("sk","Slovenčina"),("hu","Magyar"),("ro","Română"),
         ("el","Ελληνικά"),("ru","Русский"),("uk","Українська"),("tr","Türkçe"),("af","Afrikaans"),("ar","العربية"),("he","עברית"),
         ("ur","اردو"),("hi","हिन्दी"),("bn","বাংলা"),("th","ไทย"),("id","Bahasa Indonesia"),("tl","Tagalog"),("zh","中文 (简体)"),
         ("zh-tw","中文 (繁體)"),("ja","日本語"),("ko","한국어")
@@ -102,6 +102,27 @@ public static class Lang
         if (dash > 0 && Load(Current[..dash]).TryGetValue(key, out v) && !string.IsNullOrEmpty(v)) return v;
         if (Load("en").TryGetValue(key, out v) && !string.IsNullOrEmpty(v)) return v;
         return key;
+    }
+
+    /// <summary>Testo scritto nel codice in italiano e in inglese: le altre lingue lo cercano nel loro file
+    /// alla chiave «it:» + testo italiano, altrimenti resta l'inglese. Con argomenti è un formato di string.Format.</summary>
+    public static string Tr(string it, string en, params object[] args)
+    {
+        string fmt;
+        if (Current == "it") fmt = it;
+        else if (Current == "en" || string.IsNullOrEmpty(it)) fmt = en;
+        else
+        {
+            var key = "it:" + it;
+            if (!(Load(Current).TryGetValue(key, out fmt) && !string.IsNullOrEmpty(fmt)))
+            {
+                var dash = Current.IndexOf('-');
+                if (!(dash > 0 && Load(Current[..dash]).TryGetValue(key, out fmt) && !string.IsNullOrEmpty(fmt))) fmt = en;
+            }
+        }
+        if (args == null || args.Length == 0) return fmt;
+        try { return string.Format(CultureInfo.CurrentCulture, fmt, args); }
+        catch (FormatException) { try { return string.Format(CultureInfo.CurrentCulture, en, args); } catch (FormatException) { return en; } }
     }
 
     public static string F(string key, params object[] args)

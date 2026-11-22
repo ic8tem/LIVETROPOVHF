@@ -69,6 +69,7 @@ public sealed class ProfileResult
     public bool Sea;                       // punto sul mare (quota del modello sotto 5 m)
     public int LowLevels;                  // livelli NOMADS vicini al suolo aggiunti (sul mare)
     public double Sst = double.NaN;        // temperatura della superficie del mare (°C)
+    public double SnowM = double.NaN;      // 1.3.4: spessore della neve al suolo (m), dal modello
     // 1.3.2: contrasto aria-mare (sul mare): θ a 925 hPa − SST, T a 2 m − SST, umidità a 925 hPa, calo della SST nelle 72 ore prima
     public double SeaAirC = double.NaN, SeaT2 = double.NaN, Rh925 = double.NaN, SstDrop = double.NaN;
     /// <summary>
@@ -208,6 +209,9 @@ public static class Refractivity
     public static bool UseHighPressure = true;
     /// <summary>1.3.2: contrasto aria-mare e memoria della temperatura del mare (§ 9 quater). Soglie in kelvin su θ925 − SST.</summary>
     public static bool UseSeaAir = true;
+    /// <summary>1.3.4: rinforzo pomeridiano del troposcatter oltre i rilievi (§ 8 ter), al massimo MixScatterDb.</summary>
+    public static bool UseMixScatter = true;
+    public const double MixScatterDb = 3;
     public const double SeaAirMinK = 4, SeaAirStrongK = 7;
     public const double HighPDbBonus = 1.0, HighPHpa = 1020, HighPWind10 = 5, HighPWind850 = 8;
     /// <summary>1.3.2: peso del percorso su mare (μ1 di ITU-R P.452) sul guadagno degli strati, fra × 0,8 e × 1,2.</summary>
@@ -241,10 +245,10 @@ public static class Refractivity
     {
         public double W850, W700, Wind850, Dir850;
         /// <summary>1.3.2: temperatura della superficie (sul mare = SST), T e umidità a 80 m e nello strato 30–0 hPa sopra il suolo (solo NOMADS).</summary>
-        public double Sst, T80, Rh80, TL30, RhL30;
+        public double Sst, T80, Rh80, TL30, RhL30, Snow;
         public DateTime Utc;
         public static Extra None => new Extra { W850 = double.NaN, W700 = double.NaN, Wind850 = double.NaN, Dir850 = double.NaN,
-                                                Sst = double.NaN, T80 = double.NaN, Rh80 = double.NaN, TL30 = double.NaN, RhL30 = double.NaN };
+                                                Sst = double.NaN, Snow = double.NaN, T80 = double.NaN, Rh80 = double.NaN, TL30 = double.NaN, RhL30 = double.NaN };
     }
 
     /// <summary>Temperatura potenziale (K).</summary>
@@ -257,18 +261,25 @@ public static class Refractivity
     public static double K(double p, double tC, double rh)
     {
         double th = Theta(tC, p);
-        double e = Math.Max(0, Math.Min(100, rh)) / 100.0 * Es(tC) * 1000.0 / p;
+        double e = Math.Max(0, Math.Min(100, rh)) / 100.0 * Es(tC, p) * 1000.0 / p;
         return 77.6 / th * (1000 + 4810.0 * e / th);
     }
 
-    /// <summary>Pressione di saturazione del vapore (hPa) sull'acqua, formula di Magnus (ITU-R P.453).</summary>
-    public static double Es(double tC) => 6.1121 * Math.Exp(17.502 * tC / (tC + 240.97));
+    /// <summary>
+    /// Pressione di saturazione del vapore (hPa) sull'acqua, ITU-R P.453-14 eq. 9 (ricontrollata il 22/11/2026):
+    /// es = EF·a·exp((b − t/d)·t/(t + c)), a 6,1121, b 18,678, c 257,14, d 234,5, EF = 1 + 10⁻⁴(7,2 + P(0,0320 + 5,9·10⁻⁶ t²)).
+    /// </summary>
+    public static double Es(double tC, double p = 1013.25)
+    {
+        double ef = 1 + 1e-4 * (7.2 + p * (0.0320 + 5.9e-6 * tC * tC));
+        return ef * 6.1121 * Math.Exp((18.678 - tC / 234.5) * tC / (tC + 257.14));
+    }
 
     /// <summary>N = 77,6/T·(P + 4810·e/T) (ITU-R P.453), T in K, P ed e in hPa.</summary>
     public static double N(double pHpa, double tC, double rh)
     {
         double tk = tC + 273.15;
-        double e = Math.Max(0, Math.Min(100, rh)) / 100.0 * Es(tC);
+        double e = Math.Max(0, Math.Min(100, rh)) / 100.0 * Es(tC, pHpa);
         return 77.6 / tk * (pHpa + 4810.0 * e / tk);
     }
 
@@ -335,6 +346,7 @@ public static class Refractivity
         // 1.3.2: condotto d'evaporazione (profilo logaritmico neutro, come nel modello di Paulus e Jeske senza correzione di
         // stabilità): N al pelo dell'acqua saturo alla SST (98% per il sale), N a 2 m dal GFS; δ = (Nmare − N2m)/(0,157·ln(2/z0))
         r.Sst = ex.Sst;
+        r.SnowM = ex.Snow;
         if (sea && !double.IsNaN(ex.Sst) && Math.Abs(ex.Sst - t2) < 15)
         {
             double nSea = N(ps, ex.Sst, 98);
@@ -708,7 +720,7 @@ public sealed class OwnForecast
     public const int Hours = 78;
     static readonly string[] SurfVars = { "surface_pressure", "temperature_2m", "relative_humidity_2m", "wind_speed_10m", "boundary_layer_height", "cape" };
     /// <summary>Variabili aggiunte nella 1.3.0: vento a 850 hPa (scirocco) e velocità verticale (subsidenza).</summary>
-    public static readonly string[] ExtraVars = { "wind_speed_850hPa", "wind_direction_850hPa", "vertical_velocity_850hPa", "vertical_velocity_700hPa", "surface_temperature" };
+    public static readonly string[] ExtraVars = { "wind_speed_850hPa", "wind_direction_850hPa", "vertical_velocity_850hPa", "vertical_velocity_700hPa", "surface_temperature", "snow_depth" };
     /// <summary>Solo da NOMADS: livelli vicini al suolo per il condotto sul mare a bassa quota.</summary>
     public static readonly string[] NomadsLowVars = { "temperature_80m", "relative_humidity_80m", "temperature_pbl30", "relative_humidity_pbl30" };
 
@@ -948,6 +960,7 @@ public sealed class OwnForecast
         var tl = Refractivity.PLevels.Select(pl => A($"temperature_{pl}hPa")).ToArray();
         var rl = Refractivity.PLevels.Select(pl => A($"relative_humidity_{pl}hPa")).ToArray();
         var ws85 = A("wind_speed_850hPa"); var wd85 = A("wind_direction_850hPa"); var vv85 = A("vertical_velocity_850hPa"); var vv70 = A("vertical_velocity_700hPa");
+        var snow = A("snow_depth");
         var sst = A("surface_temperature"); var t80 = A("temperature_80m"); var rh80 = A("relative_humidity_80m"); var tl30 = A("temperature_pbl30"); var rhl30 = A("relative_humidity_pbl30");
         var prof = new ProfileResult[times.Length];
         for (int t = 0; t < times.Length; t++)
@@ -955,7 +968,7 @@ public sealed class OwnForecast
             var tt = new double[tl.Length]; var rr = new double[rl.Length];
             for (int j = 0; j < tl.Length; j++) { tt[j] = t < tl[j].Length ? tl[j][t] : double.NaN; rr[j] = t < rl[j].Length ? rl[j][t] : double.NaN; }
             var ex = new Refractivity.Extra { W850 = At(vv85, t), W700 = At(vv70, t), Wind850 = At(ws85, t), Dir850 = At(wd85, t),
-                                              Sst = At(sst, t), T80 = At(t80, t), Rh80 = At(rh80, t), TL30 = At(tl30, t), RhL30 = At(rhl30, t), Utc = times[t] };
+                                              Sst = At(sst, t), Snow = At(snow, t), T80 = At(t80, t), Rh80 = At(rh80, t), TL30 = At(tl30, t), RhL30 = At(rhl30, t), Utc = times[t] };
             prof[t] = Refractivity.Analyze(elev, At(ps, t), At(t2, t), At(rh2, t), tt, rr, At(w, t), At(blh, t), At(cape, t), p.Lat, p.Lon, ex);
         }
         return new PointSeries { Lat = p.Lat, Lon = p.Lon, Elev = elev, Times = times, Profiles = prof };

@@ -171,7 +171,7 @@ public sealed class AppState
             // Q65/JT65 via Luna: escluso come il meteor scatter (vedi Segnalazioni sospette)
             if (pos && EmeExclude(r.Band, r.Mode, "", r.TxCall, ptx, r.RxCall, prx, r.Time)) { lock (_excluded) _excluded.Add((Clock.UtcNow, r.Band)); return; }
             Listeners.Add(r);
-            if (pos) { Gate.Add(r.Band, r.RxCall, prx, r.TxCall, ptx, r.Time); Corridors.Add(r.Band, r.RxCall, prx, r.TxCall, ptx, r.Time, "PSK"); }
+            if (pos) { Gate.Add(r.Band, r.RxCall, prx, r.TxCall, ptx, r.Time); Corridors.Add(r.Band, r.RxCall, prx, r.TxCall, ptx, r.Time, "PSK", r.Snr ?? double.NaN); }
             Archive.AddListen(r);
             Dirty = true;
             if (Interlocked.Read(ref Mqtt.Reports) % 25 == 0)
@@ -208,7 +208,7 @@ public sealed class AppState
             }
             Decodes.Add(d);
             // le proprie decodifiche sono certe: sempre visibili, e confermano i collegamenti lunghi simili
-            if (TryQth(out var pme) && TryPos(d.Call, d.Grid, out var pdc)) { Gate.Add(d.Band, LoginOrCall == "" ? "QTH" : LoginOrCall, pme, d.Call, pdc, d.Time, true); Corridors.Add(d.Band, LoginOrCall == "" ? "QTH" : LoginOrCall, pme, d.Call, pdc, d.Time, "UDP"); }
+            if (TryQth(out var pme) && TryPos(d.Call, d.Grid, out var pdc)) { Gate.Add(d.Band, LoginOrCall == "" ? "QTH" : LoginOrCall, pme, d.Call, pdc, d.Time, true); Corridors.Add(d.Band, LoginOrCall == "" ? "QTH" : LoginOrCall, pme, d.Call, pdc, d.Time, "UDP", d.Snr); }
             Archive.AddDecode(d);
             Dirty = true;
         };
@@ -365,7 +365,7 @@ public sealed class AppState
         if (grid.Length >= 6 && !padded)
         {
             // si impara solo ciò che CALL3.TXT non sa già (le voci di CALL3 ripassano da qui quando la mappa si ridisegna)
-            if (c != _myCall() && Db(c, bc) != grid[..6]) LearnedLoc.Learn(bc, grid);
+            if (c != _myCall() && Db(c, bc) != grid[..6]) _db?.Learn(bc, grid);
             return grid;
         }
         // il proprio nominativo: vale sempre il proprio locatore (i primi 6 caratteri se è a 8 o 10)
@@ -373,13 +373,8 @@ public sealed class AppState
         var db = Db(c, bc);                 // solo nominativo esatto (o base di uno skimmer): F/IC8TEM non diventa JN70
         bool moved = db.Length == 6 && grid.Length >= 4 && db[..4] != grid[..4] && (_sus?.Verdict("locatore", bc) ?? 0) > 0;
         if (db.Length == 6 && !moved) return db;
-        // non in CALL3 a 6 caratteri: il locatore a 6 caratteri visto dal vivo per lo stesso nominativo (Dati/LOC6.TXT)
-        var lv = LearnedLoc.Get(bc);
-        if (lv.Length == 6 && (grid.Length < 4 || lv.StartsWith(grid[..4]))) return lv;
-        // ultima fonte: G7VRD (si chiede in sottofondo, la risposta vale dal disegno successivo)
-        var g7 = G7Lookup.Get(bc);
-        if (g7.Length == 6 && (grid.Length < 4 || g7.StartsWith(grid[..4]))) return g7;
-        if (g7 == "" && bc != _myCall()) G7Lookup.Request(bc);
+        // ultima fonte: G7VRD (si chiede in sottofondo; la risposta entra in CALL3.TXT e vale dal disegno successivo)
+        if (db.Length < 6 && bc != _myCall()) G7Lookup.Request(bc);
         if (grid.Length == 0 && db.Length == 4) return db;
         return grid;
     }
@@ -556,9 +551,8 @@ public sealed class AppState
     int _call3Busy;
 
     /// <summary>
-    /// Scarica CALL3.TXT da MMMonVHF, lo controlla (almeno 100.000 righe valide), salva il vecchio come CALL3.bak e lo
-    /// sostituisce nella stessa cartella da cui era stato caricato (o accanto al programma), poi lo ricarica.
-    /// Le voci a mano e i file aggiunti restano sopra, invariati.
+    /// Aggiorna CALL3.TXT dalle fonti (WSJT-X Improved, W7GJ, JTDX): salva il vecchio come CALL3.bak e riscrive lo stesso
+    /// file. Le voci a mano e le correzioni dal cluster restano in cima, invariate.
     /// </summary>
     public async Task<bool> UpdateCall3Async()
     {
@@ -568,12 +562,8 @@ public sealed class AppState
         {
             using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
             http.DefaultRequestHeaders.UserAgent.ParseAdd("LIVETROPOVHF/" + (typeof(AppState).Assembly.GetName().Version?.ToString(3) ?? "0") + " (+https://github.com/ic8tem/LIVETROPOVHF)");
-            var prev = CallDb.PathUsed != "" ? CallDb.PathUsed : Path.Combine(Settings.AppDir, "CALL3.TXT");
-            var (text, summary, total) = await Call3Sources.BuildAsync(http, prev, St);
-            var bytes = Compat.Latin1.GetBytes(text);
-            var dest = CallDb.PathUsed != "" ? CallDb.PathUsed : Path.Combine(Settings.AppDir, "CALL3.TXT");
-            var tmp = dest + ".nuovo";
-            await Compat.WriteBytes(tmp, bytes, CancellationToken.None);
+            var (header, body, summary) = await Call3Sources.BuildAsync(http, CallDb.BodySnapshot(), St);
+            var dest = CallDb.TargetPath;
             if (File.Exists(dest))
             {
                 File.SetAttributes(dest, FileAttributes.Normal);   // il CALL3.TXT dello zip è in sola lettura
@@ -581,9 +571,8 @@ public sealed class AppState
                 if (File.Exists(bak)) File.SetAttributes(bak, FileAttributes.Normal);
                 File.Copy(dest, bak, true);
             }
-            Compat.MoveOver(tmp, dest);
-            CallDb.Load(new[] { dest });
-            CallDb.LoadLayers();
+            CallDb.ReplaceBody(header, body);
+            if (!await Task.Run(() => CallDb.Save(true))) throw new IOException(CallDb.Error);
             Call3Last = DateTime.UtcNow;
             Save();
             Dirty = true;
@@ -607,12 +596,11 @@ public sealed class AppState
             var dirs = new[] { Settings.AppDir, Path.Combine(Settings.AppDir, "Dati"), Directory.GetCurrentDirectory(),
                                Path.GetDirectoryName(Settings.AppDir) ?? "", Path.GetDirectoryName(Path.GetDirectoryName(Settings.AppDir) ?? "") ?? "" };
             CallDb.Load(dirs.Where(d => d != "").Select(d => Path.Combine(d, "CALL3.TXT")));
-            CallDb.LoadLayers();
-            CallDb.LoadCluster();
+            // fino alla 1.3.3 c'erano file a parte (voci a mano, file aggiunti, cluster, LOC6, G7VRD): si fondono in CALL3.TXT
+            CallDb.MergeOldFiles();
             G7Lookup.Enabled = S.GetBool("g7vrd", true);
-            G7Lookup.Load();
+            G7Lookup.Found = (c, l) => CallDb.Learn(c, l);
             _ = G7Lookup.RunAsync(Http, () => Dirty = true);
-            LearnedLoc.Load();
             Suspects.Load();
             Dirty = true;
             CallDbLoaded?.Invoke();
@@ -679,9 +667,7 @@ public sealed class AppState
                 Decodes.Prune(now);
                 Qsos.Prune(now);
                 Gate.Prune(now);
-                LearnedLoc.Save();
-                CallDb.SaveCluster();
-                G7Lookup.Save();
+                CallDb.Save();                 // al massimo ogni 10 minuti, solo se è cambiato qualcosa
                 Suspects.Prune(now);
                 Suspects.Save();
                 Dirty = true;
@@ -715,9 +701,7 @@ public sealed class AppState
     public void Shutdown()
     {
         Save();
-        LearnedLoc.Save();
-        CallDb.SaveCluster();
-        G7Lookup.Save();
+        CallDb.Save(true);
         Suspects.Save();
         foreach (var f in Feeds) f.Disconnect();
         Mqtt.Disconnect();

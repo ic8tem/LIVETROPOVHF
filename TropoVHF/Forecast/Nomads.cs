@@ -37,7 +37,7 @@ public static class Nomads
             foreach (var p in Refractivity.PLevels) sb.Append("&lev_").Append(p).Append("_mb=on");
         }
         else
-            sb.Append("&var_PRES=on&var_HGT=on&var_HPBL=on&var_CAPE=on&var_UGRD=on&var_VGRD=on&var_VVEL=on")
+            sb.Append("&var_PRES=on&var_HGT=on&var_HPBL=on&var_CAPE=on&var_UGRD=on&var_VGRD=on&var_VVEL=on&var_SNOD=on")
               .Append("&lev_surface=on&lev_10_m_above_ground=on&lev_850_mb=on&lev_700_mb=on");
         sb.Append("&subregion=&toplat=").Append(F(top)).Append("&leftlon=").Append(F(left))
           .Append("&rightlon=").Append(F(right)).Append("&bottomlat=").Append(F(bottom));
@@ -158,6 +158,7 @@ public static class Nomads
                 s["wind_speed_10m"][k] = Math.Sqrt(u10 * u10 + v10 * v10);
                 s["boundary_layer_height"][k] = V(lo, 3, 196, 1, 0);
                 s["cape"][k] = V(lo, 7, 6, 1, 0);
+                s["snow_depth"][k] = V(lo, 1, 11, 1, 0);   // SNOD, spessore della neve (m)
                 // vicino al suolo: SST (TMP di superficie), 80 m (TMP e SPFH → umidità relativa), strato 30–0 hPa (TMP e RH)
                 s["surface_temperature"][k] = V(ground, 0, 0, 1, 0) - 273.15;
                 double t80 = V(ground, 0, 0, 103, 80) - 273.15, q80 = V(ground, 1, 0, 103, 80);

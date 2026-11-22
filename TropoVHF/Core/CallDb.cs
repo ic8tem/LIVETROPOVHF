@@ -1,13 +1,46 @@
+using System.Globalization;
+using System.Text;
+
 namespace TropoVHF.Core;
 
-/// <summary>Database nominativi → locatore (CALL3.TXT di JTDX, formato CALL,LOCATORE,,,).</summary>
+/// <summary>
+/// Database nominativi → locatore: un solo file, CALL3.TXT (formato di JTDX/WSJT-X, CALL,LOCATORE,,,), che resta
+/// leggibile da WSJT-X, JTDX e MSHV. Dalla 1.3.4 non ci sono più file a parte: voci a mano, correzioni dal cluster,
+/// file importati, locatori imparati dal vivo (ex LOC6.TXT) e risposte di G7VRD stanno tutti dentro CALL3.TXT.
+///
+/// In cima al file, dopo l'intestazione, due blocchi segnati da una riga di commento:
+///   // [LIVETROPOVHF-MANUALI]  voci a mano: valgono sopra tutto e restano agli aggiornamenti;
+///   // [LIVETROPOVHF-CLUSTER]  locatore a 6 caratteri dichiarato dalla stazione negli spot automatici (DM4X, RBN),
+///                              con la data dell'ultima conferma nel terzo campo (come le date di JTDX);
+///   // [LIVETROPOVHF-FONTI]    tutte le altre voci, in ordine alfabetico.
+/// Ogni nominativo compare una volta sola. Precedenza: voci a mano &gt; correzioni dal cluster &gt; fonti.
+/// </summary>
 public sealed class CallDb
 {
+    public const string MarkManual = "// [LIVETROPOVHF-MANUALI]";
+    public const string MarkCluster = "// [LIVETROPOVHF-CLUSTER]";
+    public const string MarkBody = "// [LIVETROPOVHF-FONTI]";
+
     readonly object _lock = new();
-    Dictionary<string, string> _map;
+    readonly object _saveLock = new();
+    Dictionary<string, string> _map = new(StringComparer.Ordinal);                                   // fonti
+    readonly Dictionary<string, string> _manual = new(StringComparer.Ordinal);                       // voci a mano
+    readonly Dictionary<string, (string loc, DateTime when)> _cluster = new(StringComparer.Ordinal); // dal cluster
+    List<string> _header = new();
+    int _dirty;
+    bool _writable;            // false finché CALL3.TXT non è caricato per intero: mai riscriverlo mezzo vuoto
+    DateTime _lastSave = DateTime.UtcNow;
+
     public bool Ready { get; private set; }
     /// <summary>File effettivamente caricato ("" se non trovato).</summary>
     public string PathUsed { get; private set; } = "";
+    public string Error { get; private set; } = "";
+    /// <summary>Dove si scrive: il CALL3.TXT caricato o, se non c'era, quello accanto al programma.</summary>
+    public string TargetPath => PathUsed != "" ? PathUsed : Path.Combine(Settings.AppDir, "CALL3.TXT");
+
+    public int Count { get { lock (_lock) return _map.Count + _manual.Count + _cluster.Count; } }
+    public int ManualCount { get { lock (_lock) return _manual.Count; } }
+    public int ClusterCount { get { lock (_lock) return _cluster.Count; } }
 
     /// <summary>Carica il primo CALL3.TXT trovato tra i percorsi indicati.</summary>
     public void Load(IEnumerable<string> candidates)
@@ -17,47 +50,87 @@ public sealed class CallDb
         if (found == null)
         {
             Error = "CALL3.TXT non trovato (cercato in: " + string.Join("; ", list.Select(Path.GetDirectoryName).Distinct()) + ")";
-            lock (_lock) _map = new Dictionary<string, string>();
+            _writable = true;       // si crea accanto al programma con le voci a mano; il primo aggiornamento lo riempie
             Ready = true;
             return;
         }
         PathUsed = found;
         Load(found);
     }
-    public string Error { get; private set; } = "";
 
-    public int Count { get { lock (_lock) return _map?.Count ?? 0; } }
+    static bool IsMark(string line) => line.StartsWith(MarkManual) || line.StartsWith(MarkCluster) || line.StartsWith(MarkBody);
+
+    static DateTime ParseDate(string s)
+    {
+        s = (s ?? "").Trim();
+        if (s.Length >= 10 && DateTime.TryParseExact(s.Substring(0, 10), "yyyy-MM-dd", CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var d)) return d;
+        return DateTime.UtcNow;
+    }
 
     public void Load(string path)
     {
-        var m = new Dictionary<string, string>(1_100_000, StringComparer.Ordinal);
+        var map = new Dictionary<string, string>(1_100_000, StringComparer.Ordinal);
+        var man = new Dictionary<string, string>(StringComparer.Ordinal);
+        var clu = new Dictionary<string, (string, DateTime)>(StringComparer.Ordinal);
+        var header = new List<string>();
+        bool expired = false, ok = false;
         try
         {
-            if (!File.Exists(path))
-            {
-                Error = "CALL3.TXT non trovato";
-            }
+            if (!File.Exists(path)) Error = "CALL3.TXT non trovato";
             else
             {
-                foreach (var raw in File.ReadLines(path))
+                int section = 0;            // 0 = fonti, 1 = a mano, 2 = cluster
+                bool inHeader = true;
+                foreach (var raw in File.ReadLines(path, Compat.Latin1))
                 {
-                    if (raw.Length == 0 || raw.StartsWith("//")) continue;
-                    int c1 = raw.IndexOf(',');
-                    if (c1 <= 0) continue;
-                    int c2 = raw.IndexOf(',', c1 + 1);
-                    var call = raw.Substring(0, c1).Trim().ToUpperInvariant();
-                    var loc = (c2 > 0 ? raw.Substring(c1 + 1, c2 - c1 - 1) : raw.Substring(c1 + 1)).Trim().ToUpperInvariant();
-                    if (Locator.IsValid(loc)) m[call] = loc;
+                    if (raw.Length == 0) continue;
+                    if (raw.StartsWith("//"))
+                    {
+                        if (raw.StartsWith(MarkManual)) { section = 1; inHeader = false; }
+                        else if (raw.StartsWith(MarkCluster)) { section = 2; inHeader = false; }
+                        else if (raw.StartsWith(MarkBody)) { section = 0; inHeader = false; }
+                        else if (inHeader) header.Add(raw);
+                        continue;
+                    }
+                    inHeader = false;
+                    var p = raw.Split(',');
+                    if (p.Length < 2) continue;
+                    var call = p[0].Trim().ToUpperInvariant();
+                    var loc = p[1].Trim().ToUpperInvariant();
+                    if (call.Length < 3 || !Locator.IsValid(loc)) continue;
+                    if (section == 1) { man[call] = loc; continue; }
+                    if (man.ContainsKey(call)) continue;
+                    if (section == 2)
+                    {
+                        var when = ParseDate(p.Length > 2 ? p[2] : "");
+                        // non confermato da 2 anni: resta come voce normale, senza precedenza
+                        if (DateTime.UtcNow - when > TimeSpan.FromDays(730)) { map[call] = loc; expired = true; }
+                        else clu[call] = (loc, when);
+                        continue;
+                    }
+                    if (!clu.ContainsKey(call)) map[call] = loc;
                 }
+                Error = "";
+                ok = true;
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) { Error = "CALL3.TXT: " + ex.Message; }
+        if (!ok) { _writable = false; Ready = true; return; }    // il database in memoria resta quello di prima
+        lock (_lock)
         {
-            Error = "CALL3.TXT: " + ex.Message;
+            _map = map;
+            _manual.Clear(); foreach (var kv in man) _manual[kv.Key] = kv.Value;
+            _cluster.Clear(); foreach (var kv in clu) _cluster[kv.Key] = kv.Value;
+            _header = header;
+            _dirty = expired ? 1 : 0;
+            _writable = true;
         }
-        lock (_lock) _map = m;
         Ready = true;
     }
+
+    /// <summary>Ricarica CALL3.TXT dal disco (dopo averlo modificato a mano con un editor).</summary>
+    public void Reload() { lock (_saveLock) if (File.Exists(TargetPath)) { PathUsed = TargetPath; Load(TargetPath); } }
 
     /// <summary>
     /// Cerca solo il nominativo esatto. Prefissi e suffissi di portatile (F/IC8TEM, IC8TEM/P) non si riconducono al
@@ -71,39 +144,51 @@ public sealed class CallDb
         {
             if (_manual.TryGetValue(call, out var m)) return m;
             if (_cluster.TryGetValue(call, out var k)) return k.loc;
-            if (_overlay.TryGetValue(call, out var o)) return o;
-            if (_map == null) return "";
             return _map.TryGetValue(call, out var l) ? l : "";
         }
     }
 
-    // ------------------------------------------------------------ strati sopra CALL3.TXT
-    //
-    // Ordine di precedenza: voci manuali (Dati/CALL3-MANUALE.TXT) > correzioni dal cluster (Dati/CALL3-CLUSTER.TXT,
-    // locatore a 6 caratteri dichiarato dalla stazione stessa negli spot automatici, es. DM4X) > file aggiunti
-    // (Dati/CALL3-AGGIUNTE/*.TXT, in ordine alfabetico: l'ultimo vince) > CALL3.TXT. Tutto accanto al programma.
+    /// <summary>Da dove viene il locatore: "manual", "cluster", "call3" o "".</summary>
+    public string SourceOf(string call)
+    {
+        if (string.IsNullOrEmpty(call)) return "";
+        call = call.ToUpperInvariant();
+        lock (_lock) return _manual.ContainsKey(call) ? "manual" : _cluster.ContainsKey(call) ? "cluster" : _map.ContainsKey(call) ? "call3" : "";
+    }
 
-    readonly Dictionary<string, string> _overlay = new(StringComparer.Ordinal);
-    readonly Dictionary<string, string> _manual = new(StringComparer.Ordinal);
-    public static string ManualPath => Path.Combine(Settings.DataDir, "CALL3-MANUALE.TXT");
-    public static string OverlayDir { get { var d = Path.Combine(Settings.DataDir, "CALL3-AGGIUNTE"); try { Directory.CreateDirectory(d); } catch { } return d; } }
-    public List<string> OverlayFiles { get; private set; } = new();
-    public int OverlayCount { get { lock (_lock) return _overlay.Count; } }
+    // ------------------------------------------------------------ voci a mano
+
+    public List<(string call, string loc)> Manual() { lock (_lock) return _manual.OrderBy(kv => kv.Key, StringComparer.Ordinal).Select(kv => (kv.Key, kv.Value)).ToList(); }
+    public string ManualOf(string call) { if (string.IsNullOrEmpty(call)) return ""; lock (_lock) return _manual.TryGetValue(call.ToUpperInvariant(), out var l) ? l : ""; }
+
+    void PutManual(string call, string loc)
+    {
+        _manual[call] = loc; _map.Remove(call); _cluster.Remove(call);
+    }
 
     /// <summary>
-    /// Fino alla 1.3.1 il programma inseriva da sé alcune voci a mano (riga "// seed N" nel file). Dalla 1.3.2 quelle voci
-    /// stanno nel CALL3.TXT del pacchetto: alla prima lettura si tolgono dal file manuale solo se sono ancora identiche
-    /// (stesso nominativo e stesso locatore), così le voci scritte o cambiate dall'utente restano.
+    /// Aggiunge o cambia una voce a mano e riscrive CALL3.TXT. Locatore vuoto = toglie il nominativo da CALL3.TXT
+    /// (il prossimo aggiornamento lo riprende dalle fonti, se ce l'hanno).
     /// </summary>
-    static readonly (string call, string loc)[] OldSeed =
+    public bool SetManual(string call, string loc)
     {
-        ("IV3/HB9CAT", "JN65UQ"), ("IC8JHY", "JN60WR"), ("I8/IZ3CGC", "JN71DB"), ("IU5SPA", "JN53GU"), ("IZ6FLS", "JN62XS"),
-        ("SWL1RUCAS", "JN34OS"), ("IZ1ERR", "JN35UI"), ("IK0SRL", "JN61IT"),
-    };
+        call = (call ?? "").Trim().ToUpperInvariant();
+        loc = (loc ?? "").Trim().ToUpperInvariant();
+        if (call.Length < 3 || loc != "" && !Locator.IsValid(loc)) return false;
+        lock (_lock)
+        {
+            if (loc == "") { _manual.Remove(call); _cluster.Remove(call); _map.Remove(call); }
+            else PutManual(call, loc);
+            _dirty = 1;
+        }
+        _ = Task.Run(() => Save(true));     // ~25 MB: non si blocca la finestra
+        return true;
+    }
 
-    static IEnumerable<(string call, string loc)> ReadFile(string path)
+    /// <summary>Legge un file CALL,LOCATORE (separatori , ; tabulazione o spazio).</summary>
+    public static IEnumerable<(string call, string loc)> ReadFile(string path)
     {
-        foreach (var raw in File.ReadLines(path))
+        foreach (var raw in File.ReadLines(path, Compat.Latin1))
         {
             if (raw.Length == 0 || raw.StartsWith("//")) continue;
             var p = raw.Split(new[] { ',', ';', '\t', ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -114,49 +199,16 @@ public sealed class CallDb
         }
     }
 
-    /// <summary>Carica i file aggiunti e le voci manuali (si può richiamare per ricaricare).</summary>
-    public void LoadLayers()
+    /// <summary>Unisce un elenco CALL,LOCATORE alle voci a mano di CALL3.TXT. Restituisce il numero di voci lette.</summary>
+    public int Import(string path)
     {
-        var ov = new Dictionary<string, string>(StringComparer.Ordinal);
-        var files = new List<string>();
-        try
-        {
-            foreach (var f in Directory.GetFiles(OverlayDir).Where(f => f.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) || f.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)).OrderBy(f => f, StringComparer.OrdinalIgnoreCase))
-            {
-                int n = 0;
-                foreach (var (c, l) in ReadFile(f)) { ov[c] = l; n++; }
-                files.Add($"{Path.GetFileName(f)} ({n})");
-            }
-        }
-        catch { }
-        var man = new Dictionary<string, string>(StringComparer.Ordinal);
-        try
-        {
-            if (File.Exists(ManualPath))
-            {
-                foreach (var (c, l) in ReadFile(ManualPath)) man[c] = l;
-                if (File.ReadLines(ManualPath).Any(line => line.StartsWith("// seed ")))
-                {
-                    foreach (var (c, l) in OldSeed) if (man.TryGetValue(c, out var cur) && cur == l) man.Remove(c);
-                    SaveManual(man);
-                }
-            }
-        }
-        catch { }
-        lock (_lock)
-        {
-            _overlay.Clear(); foreach (var kv in ov) _overlay[kv.Key] = kv.Value;
-            _manual.Clear(); foreach (var kv in man) _manual[kv.Key] = kv.Value;
-            OverlayFiles = files;
-        }
+        var items = ReadFile(path).ToList();
+        lock (_lock) { foreach (var (c, l) in items) PutManual(c, l); _dirty = 1; }
+        _ = Task.Run(() => Save(true));
+        return items.Count;
     }
 
     // ------------------------------------------------ correzioni dal cluster
-
-    readonly Dictionary<string, (string loc, DateTime when)> _cluster = new(StringComparer.Ordinal);
-    int _clusterDirty;
-    public static string ClusterPath => Path.Combine(Settings.DataDir, "CALL3-CLUSTER.TXT");
-    public int ClusterCount { get { lock (_lock) return _cluster.Count; } }
 
     /// <summary>
     /// Locatore a 6 caratteri dichiarato dalla stazione stessa (spot automatici DM4X/RBN: "KN09tp&lt;&gt;KN09", il primo è
@@ -170,88 +222,199 @@ public sealed class CallDb
         lock (_lock)
         {
             if (_manual.ContainsKey(call)) return null;                     // la voce a mano vince sempre
-            if (_cluster.TryGetValue(call, out var c) && c.loc == loc) { if (DateTime.UtcNow - c.when > TimeSpan.FromDays(1)) { _cluster[call] = (loc, DateTime.UtcNow); _clusterDirty = 1; } return null; }
-            var before = _cluster.TryGetValue(call, out var c0) ? c0.loc : _overlay.TryGetValue(call, out var o) ? o : _map != null && _map.TryGetValue(call, out var m) ? m : "";
+            if (_cluster.TryGetValue(call, out var c) && c.loc == loc)
+            {
+                if (DateTime.UtcNow - c.when > TimeSpan.FromDays(1)) { _cluster[call] = (loc, DateTime.UtcNow); _dirty = 1; }
+                return null;
+            }
+            var before = _cluster.TryGetValue(call, out var c0) ? c0.loc : _map.TryGetValue(call, out var m) ? m : "";
             if (before == loc) return null;
             _cluster[call] = (loc, DateTime.UtcNow);
-            _clusterDirty = 1;
+            _map.Remove(call);
+            _dirty = 1;
             return before;
         }
     }
 
-    public void LoadCluster()
+    // ------------------------------------------------ locatori imparati (dal vivo, G7VRD)
+
+    /// <summary>
+    /// Locatore a 6 caratteri imparato dal vivo (PSKReporter, cluster, UDP) o da G7VRD: entra in CALL3.TXT solo se il
+    /// nominativo non c'è o ha 4 caratteri dello stesso quadrato. Non cambia mai una voce a 6 caratteri, a mano o dal
+    /// cluster. Restituisce true se il database è cambiato.
+    /// </summary>
+    public bool Learn(string call, string loc)
     {
+        call = (call ?? "").Trim().ToUpperInvariant().Trim('<', '>');
+        loc = (loc ?? "").Trim().ToUpperInvariant();
+        if (loc.Length > 6) loc = loc.Substring(0, 6);
+        if (call.Length < 3 || loc.Length != 6 || !Locator.IsValid(loc)) return false;
+        lock (_lock)
+        {
+            if (_manual.ContainsKey(call) || _cluster.ContainsKey(call)) return false;
+            if (_map.TryGetValue(call, out var cur) && !(cur.Length == 4 && loc.StartsWith(cur))) return false;
+            _map[call] = loc;
+            _dirty = 1;
+            return true;
+        }
+    }
+
+    // ------------------------------------------------ aggiornamento dalle fonti
+
+    /// <summary>Copia delle voci delle fonti (senza voci a mano né correzioni), per l'aggiornamento.</summary>
+    public Dictionary<string, string> BodySnapshot() { lock (_lock) return new Dictionary<string, string>(_map, StringComparer.Ordinal); }
+
+    /// <summary>Sostituisce le voci delle fonti e l'intestazione; voci a mano e correzioni dal cluster restano.</summary>
+    public void ReplaceBody(List<string> header, Dictionary<string, string> body)
+    {
+        lock (_lock)
+        {
+            foreach (var c in _manual.Keys.Concat(_cluster.Keys).ToList()) body.Remove(c);
+            _map = body;
+            _header = header;
+            _dirty = 1;
+        }
+    }
+
+    // ------------------------------------------------ scrittura
+
+    /// <summary>
+    /// Riscrive CALL3.TXT se qualcosa è cambiato. Senza force al massimo ogni 10 minuti (il file è di ~25 MB).
+    /// Il CALL3.TXT dello zip è in sola lettura: l'attributo si toglie.
+    /// </summary>
+    public bool Save(bool force = false)
+    {
+        lock (_saveLock)
+        {
+            if (!Ready || !_writable) return false;
+            if (Volatile.Read(ref _dirty) == 0) return true;
+            if (!force && DateTime.UtcNow - _lastSave < TimeSpan.FromMinutes(10)) return true;
+            var sb = new StringBuilder(32_000_000);
+            lock (_lock)
+            {
+                int total = _map.Count + _manual.Count + _cluster.Count;
+                var header = _header.Count > 0 ? _header : new List<string> { "// CALL3.TXT di LIVETROPOVHF" };
+                foreach (var h in header)
+                    sb.Append(h.StartsWith("// Contains ") && h.EndsWith(" unique callsigns.") ? $"// Contains {total} unique callsigns." : h).Append('\n');
+                sb.Append(MarkManual).Append(" voci inserite a mano: valgono sopra tutto e restano agli aggiornamenti / manual entries: win over everything and survive updates\n");
+                foreach (var kv in _manual.OrderBy(k => k.Key, StringComparer.Ordinal)) sb.Append(kv.Key).Append(',').Append(kv.Value).Append(",,,\n");
+                sb.Append(MarkCluster).Append(" locatore a 6 caratteri dichiarato dalla stazione negli spot automatici (DM4X, RBN), data dell'ultima conferma / locator declared by the station itself\n");
+                foreach (var kv in _cluster.OrderBy(k => k.Key, StringComparer.Ordinal)) sb.Append(kv.Key).Append(',').Append(kv.Value.loc).Append(',').Append(kv.Value.when.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)).Append(",,\n");
+                sb.Append(MarkBody).Append(" tutte le altre voci / all other entries\n");
+                foreach (var kv in _map.OrderBy(k => k.Key, StringComparer.Ordinal)) sb.Append(kv.Key).Append(',').Append(kv.Value).Append(",,,\n");
+                _dirty = 0;
+            }
+            var dest = TargetPath;
+            try
+            {
+                var tmp = dest + ".nuovo";
+                File.WriteAllBytes(tmp, Compat.Latin1.GetBytes(sb.ToString()));
+                if (File.Exists(dest)) File.SetAttributes(dest, FileAttributes.Normal);
+                Compat.MoveOver(tmp, dest);
+                PathUsed = dest;
+                _lastSave = DateTime.UtcNow;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Error = "CALL3.TXT non scritto: " + ex.Message;
+                Interlocked.Exchange(ref _dirty, 1);
+                return false;
+            }
+        }
+    }
+
+    // ------------------------------------------------ fusione dei vecchi file (fino alla 1.3.3)
+
+    /// <summary>
+    /// Fino alla 1.3.1 il programma inseriva da sé alcune voci a mano (riga "// seed N" nel file). Dalla 1.3.2 quelle voci
+    /// stanno nel CALL3.TXT del pacchetto: se nel vecchio file manuale sono ancora identiche non si riportano.
+    /// </summary>
+    static readonly (string call, string loc)[] OldSeed =
+    {
+        ("IV3/HB9CAT", "JN65UQ"), ("IC8JHY", "JN60WR"), ("I8/IZ3CGC", "JN71DB"), ("IU5SPA", "JN53GU"), ("IZ6FLS", "JN62XS"),
+        ("SWL1RUCAS", "JN34OS"), ("IZ1ERR", "JN35UI"), ("IK0SRL", "JN61IT"),
+    };
+
+    /// <summary>
+    /// Fonde in CALL3.TXT i file a parte delle versioni fino alla 1.3.3 (Dati/CALL3-MANUALE.TXT, Dati/CALL3-AGGIUNTE/,
+    /// Dati/CALL3-CLUSTER.TXT, Dati/LOC6.TXT, Dati/CALL3-G7VRD.TXT), con le stesse precedenze di prima. Riuscita la
+    /// scrittura, i vecchi file prendono l'estensione .fuso e non si leggono più. Restituisce le voci fuse.
+    /// </summary>
+    public int MergeOldFiles()
+    {
+        var dir = Settings.DataDir;
+        string P(string n) => Path.Combine(dir, n);
+        var manualFile = P("CALL3-MANUALE.TXT"); var addDir = P("CALL3-AGGIUNTE"); var clusterFile = P("CALL3-CLUSTER.TXT");
+        var loc6File = P("LOC6.TXT"); var g7File = P("CALL3-G7VRD.TXT");
+        var done = new List<string>();
+        int n = 0;
         try
         {
-            if (!File.Exists(ClusterPath)) return;
-            lock (_lock)
-                foreach (var line in File.ReadLines(ClusterPath))
+            if (File.Exists(manualFile))
+            {
+                bool seeded = File.ReadLines(manualFile).Any(l => l.StartsWith("// seed "));
+                lock (_lock)
+                    foreach (var (c, l) in ReadFile(manualFile))
+                    {
+                        if (seeded && OldSeed.Any(s => s.call == c && s.loc == l)) continue;
+                        if (!_manual.ContainsKey(c)) { PutManual(c, l); n++; }
+                    }
+                done.Add(manualFile);
+            }
+            if (File.Exists(clusterFile))
+            {
+                lock (_lock)
+                    foreach (var line in File.ReadLines(clusterFile))
+                    {
+                        if (line.StartsWith("//")) continue;
+                        var p = line.Split(',');
+                        if (p.Length < 2) continue;
+                        var c = p[0].Trim().ToUpperInvariant(); var l = p[1].Trim().ToUpperInvariant();
+                        if (c.Length < 3 || l.Length != 6 || !Locator.IsValid(l) || _manual.ContainsKey(c) || _cluster.ContainsKey(c)) continue;
+                        var w = ParseDate(p.Length > 2 ? p[2] : "");
+                        if (DateTime.UtcNow - w > TimeSpan.FromDays(730)) continue;
+                        _cluster[c] = (l, w); _map.Remove(c); n++;
+                    }
+                done.Add(clusterFile);
+            }
+            if (Directory.Exists(addDir))
+            {
+                // prima valevano sotto voci a mano e cluster e sopra CALL3.TXT; l'ultimo file in ordine alfabetico vinceva
+                var add = new Dictionary<string, string>(StringComparer.Ordinal);
+                foreach (var f in Directory.GetFiles(addDir).Where(f => f.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) || f.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)).OrderBy(f => f, StringComparer.OrdinalIgnoreCase))
+                    foreach (var (c, l) in ReadFile(f)) add[c] = l;
+                lock (_lock)
+                    foreach (var kv in add)
+                        if (!_manual.ContainsKey(kv.Key) && !_cluster.ContainsKey(kv.Key)) { PutManual(kv.Key, kv.Value); n++; }
+                done.Add(addDir);
+            }
+            foreach (var f in new[] { loc6File, g7File })
+            {
+                if (!File.Exists(f)) continue;
+                foreach (var line in File.ReadLines(f))
                 {
                     if (line.StartsWith("//")) continue;
                     var p = line.Split(',');
-                    if (p.Length < 2 || !Locator.IsValid(p[1]) || p[1].Length != 6) continue;
-                    var w = p.Length > 2 && DateTime.TryParse(p[2], System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal, out var d) ? d : DateTime.UtcNow;
-                    if (DateTime.UtcNow - w > TimeSpan.FromDays(730)) continue;   // non confermato da 2 anni: si lascia cadere
-                    _cluster[p[0].ToUpperInvariant()] = (p[1].ToUpperInvariant(), w);
+                    if (p.Length >= 2 && Learn(p[0], p[1])) n++;
                 }
-        }
-        catch { }
-    }
-
-    public void SaveCluster()
-    {
-        if (Interlocked.Exchange(ref _clusterDirty, 0) == 0) return;
-        try
-        {
-            List<string> lines;
-            lock (_lock)
-            {
-                lines = new List<string> { "// TropoVHF: locatori a 6 caratteri dichiarati dalle stazioni negli spot automatici (DM4X, RBN), diversi da CALL3.TXT. Formato CALL,LOCATORE,data" };
-                lines.AddRange(_cluster.OrderBy(kv => kv.Key).Select(kv => $"{kv.Key},{kv.Value.loc},{kv.Value.when:yyyy-MM-dd}"));
+                done.Add(f);
             }
-            File.WriteAllLines(ClusterPath + ".tmp", lines);
-            Compat.MoveOver(ClusterPath + ".tmp", ClusterPath);
         }
         catch { }
-    }
-
-    public List<(string call, string loc)> Manual() { lock (_lock) return _manual.OrderBy(kv => kv.Key).Select(kv => (kv.Key, kv.Value)).ToList(); }
-    public string ManualOf(string call) { if (string.IsNullOrEmpty(call)) return ""; lock (_lock) return _manual.TryGetValue(call.ToUpperInvariant(), out var l) ? l : ""; }
-
-    /// <summary>Aggiunge o cambia una voce manuale (locatore vuoto = la toglie) e salva il file.</summary>
-    public bool SetManual(string call, string loc)
-    {
-        call = (call ?? "").Trim().ToUpperInvariant();
-        loc = (loc ?? "").Trim().ToUpperInvariant();
-        if (call.Length < 3 || loc != "" && !Locator.IsValid(loc)) return false;
-        Dictionary<string, string> copy;
-        lock (_lock)
+        if (done.Count == 0) return 0;
+        lock (_lock) _dirty = 1;
+        if (!Save(true)) return 0;
+        foreach (var f in done)
         {
-            if (loc == "") _manual.Remove(call); else _manual[call] = loc;
-            copy = new Dictionary<string, string>(_manual);
+            try
+            {
+                var to = f + ".fuso";
+                if (Directory.Exists(f)) { if (!Directory.Exists(to)) Directory.Move(f, to); }
+                else Compat.MoveOver(f, to);
+            }
+            catch { }
         }
-        SaveManual(copy);
-        return true;
-    }
-
-    static void SaveManual(Dictionary<string, string> m)
-    {
-        try
-        {
-            var lines = new List<string> { "// LIVETROPOVHF: nominativi inseriti a mano. Valgono più di CALL3.TXT e dei locatori ricevuti. Formato CALL,LOCATORE" };
-            lines.AddRange(m.OrderBy(kv => kv.Key).Select(kv => $"{kv.Key},{kv.Value}"));
-            File.WriteAllLines(ManualPath + ".tmp", lines);
-            Compat.MoveOver(ManualPath + ".tmp", ManualPath);
-        }
-        catch { }
-    }
-
-    /// <summary>Copia un file nella cartella dei file aggiunti e ricarica. Restituisce il numero di voci lette.</summary>
-    public int Import(string path)
-    {
-        var dest = Path.Combine(OverlayDir, Path.GetFileName(path));
-        if (!string.Equals(Path.GetFullPath(path), Path.GetFullPath(dest), StringComparison.OrdinalIgnoreCase)) File.Copy(path, dest, true);
-        LoadLayers();
-        return ReadFile(dest).Count();
+        return n;
     }
 }

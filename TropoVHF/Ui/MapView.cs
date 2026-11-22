@@ -523,6 +523,9 @@ public sealed class MapView : Control
         double sqPx = 0;
         if (ToScreen(new LatLon(c.Lat, c.Lon), out var a) && ToScreen(new LatLon(c.Lat, c.Lon + 2), out var b)) sqPx = Math.Abs(b.X - a.X) + Math.Abs(b.Y - a.Y);
         bool squares = sqPx > 16, subs = sqPx > 260;
+        // nomi dei quadrati (JN70) solo quando ci stanno davvero: sotto i 60 pixel per quadrato coprivano i colori
+        // (con l'alone scuro dei temi notte diventavano mattoncini); allora si scrivono le lettere dei campi
+        bool squareNames = sqPx >= 60;
 
         double lonStep = squares ? 2 : 20, latStep = squares ? 1 : 10;
         var (bLat1, bLat2, bLon1, bLon2) = VisibleBox();
@@ -554,7 +557,7 @@ public sealed class MapView : Control
             }
         }
         // lettere dei campi, grandi e sbiadite; con lo zoom il nome di ogni quadrato
-        if (!squares)
+        if (!squareNames)
         {
             for (int fl = 0; fl < 18; fl++)
                 for (int ft = 0; ft < 18; ft++)
@@ -574,7 +577,7 @@ public sealed class MapView : Control
                     if (lat < -89 || lat > 89 || lon < -180 || lon >= 180) continue;
                     if (!ToScreen(new LatLon(lat + 0.5, lon + 1), out var ss)) continue;
                     if (ss.X < -20 || ss.Y < -20 || ss.X > Bounds.Width + 20 || ss.Y > Bounds.Height + 20) continue;
-                    Text(ctx, Locator.FromLatLon(lat + 0.5, lon + 1).Substring(0, 4), ss, Math.Clamp(sqPx / 5, 9, 16), labCol, true, labHalo);
+                    Text(ctx, Locator.FromLatLon(lat + 0.5, lon + 1).Substring(0, 4), ss, Math.Clamp(sqPx / 6, 10, 16), labCol, true, labHalo);
                 }
         }
     }

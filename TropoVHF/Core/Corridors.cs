@@ -8,13 +8,27 @@ namespace TropoVHF.Core;
 /// - tutte negli ultimi WindowMin minuti, e il fascio si ripete a distanza di almeno RepeatMin minuti (persistenza);
 /// - per l'APRS un salto conta solo se lo stesso salto si ripete (pacchetti brevi: aerei in transito).
 /// Fonti: spot dei cluster, PSKReporter (MQTT), QSO e decodifiche proprie, salti APRS in 2 m.
+///
+/// Dalla 1.3.4 (per evitare la sovrastima vista con molti corridoi lunghi insieme):
+/// - le tratte oltre MaxKm (1500 km) contano solo se il fascio è confermato da almeno due fonti diverse
+///   (es. PSKReporter e cluster): da una fonte sola sono spesso EME, meteor scatter o locatori sbagliati;
+/// - il minimo garantito vale solo vicino alle tratte (entro NearKm dalla linea) e nella loro parte centrale
+///   (fra EndFrac e 1−EndFrac della lunghezza), non su tutto il rettangolo né sulle stazioni alle estremità;
+/// - il minimo cresce con la lunghezza media, con il numero di tratte indipendenti e con l'S/N mediano (se noto);
+/// - le stazioni «a raggiera» non contano: chi nell'ultima ora ha almeno RayMin corrispondenti oltre RayKm su un
+///   ventaglio di almeno RaySpread gradi. In 2 m la tropo è direzionale; un ricevitore che «sente» insieme Israele,
+///   Portogallo, Inghilterra e Italia da 2000–3700 km è configurato male (per esempio un ricevitore HF segnalato come
+///   144 MHz). Nell'archivio del 17–22/11/2026 il 72% delle ricezioni in 2 m oltre 1000 km veniva da stazioni così.
 /// </summary>
 public sealed class Corridors
 {
-    public double MinKm = 300, MaxAngle = 15, OffsetKm = 150;
+    public double MinKm = 300, MaxAngle = 15, OffsetKm = 150, MaxKm = 1500, NearKm = 60, EndFrac = 0.15;
+    public double RayKm = 1000, RaySpread = 150; public int RayMin = 5, RayWindowMin = 60;
+    /// <summary>Stazioni escluse come «a raggiera» nell'ultimo calcolo (per il registro e le segnalazioni).</summary>
+    public IReadOnlyCollection<string> RayStations { get; private set; } = Array.Empty<string>();
     public int MinPaths = 3, WindowMin = 30, RepeatMin = 10, AprsRepeatMin = 2;
 
-    public sealed class Obs { public DateTime T; public string Band = "", A = "", B = "", Src = ""; public LatLon PA, PB; public double Km, Az; }
+    public sealed class Obs { public DateTime T; public string Band = "", A = "", B = "", Src = ""; public LatLon PA, PB; public double Km, Az, Snr = double.NaN; }
 
     public sealed class Corridor
     {
@@ -23,18 +37,40 @@ public sealed class Corridors
         public int Paths; public DateTime First, Last;
         public List<Obs> Members = new();
         public string Sources = "";
-        /// <summary>Guadagno minimo garantito sotto il corridoio: 10 dB a 300 km, 16 dB da 900 km in su.</summary>
-        public double FloorDb => 10 + 6 * Math.Max(0, Math.Min(1, (MeanKm - 300) / 600));
+        /// <summary>S/N mediano delle tratte che lo portano (NaN se nessuna fonte lo dà, es. cluster).</summary>
+        public double MedianSnr = double.NaN;
+        /// <summary>
+        /// Guadagno minimo garantito vicino alle tratte. Per la lunghezza: 10 dB a 300 km, 16 dB da 900 km in su.
+        /// Poi si pesa (0..1) con il numero di tratte indipendenti (3 → 0,25, 6 o più → 1) e con l'S/N mediano
+        /// (−20 dB → 0,5, 0 dB o più → 1; non noto → 0,75), metà e metà, a partire da 7 dB (inizio della scala).
+        /// Esempi: 3 tratte senza S/N → 11,5 dB; 6 tratte a 0 dB su 900 km → 16 dB.
+        /// </summary>
+        public double FloorDb
+        {
+            get
+            {
+                // Sotto i 600–700 km il 2 m passa quasi ogni giorno per troposcatter:
+                // il corridoio dice che la banda lavora, non che c'è un'apertura.
+                // Base: 3 dB fino a 400 km, 10 dB a 700 km, 16 dB da 900 km in su.
+                double len = MeanKm <= 400 ? 3
+                           : MeanKm <= 700 ? 3 + 7 * (MeanKm - 400) / 300
+                           : 10 + 6 * Math.Min(1, (MeanKm - 700) / 200);
+                if (len <= 7) return len;
+                double kp = Math.Max(0.25, Math.Min(1, (Paths - 2) / 4.0));
+                double ks = double.IsNaN(MedianSnr) ? 0.75 : Math.Max(0.5, Math.Min(1, (MedianSnr + 20) / 20 * 0.5 + 0.5));
+                return 7 + (len - 7) * (0.5 * kp + 0.5 * ks);
+            }
+        }
     }
 
     readonly List<Obs> _obs = new();
     List<Corridor> _cache = new(); string _cacheKey = "";
 
-    public void Add(string band, string a, LatLon pa, string b, LatLon pb, DateTime t, string src)
+    public void Add(string band, string a, LatLon pa, string b, LatLon pb, DateTime t, string src, double snr = double.NaN)
     {
         double km = Geo.DistKm(pa, pb);
         if (km < MinKm || string.IsNullOrEmpty(band)) return;
-        var o = new Obs { T = t, Band = band, A = (a ?? "").ToUpperInvariant(), B = (b ?? "").ToUpperInvariant(), PA = pa, PB = pb, Km = km, Src = src, Az = Geo.Azimuth(pa, pb) };
+        var o = new Obs { T = t, Band = band, A = (a ?? "").ToUpperInvariant(), B = (b ?? "").ToUpperInvariant(), PA = pa, PB = pb, Km = km, Src = src, Az = Geo.Azimuth(pa, pb), Snr = snr };
         lock (_obs)
         {
             _obs.Add(o);
@@ -60,7 +96,9 @@ public sealed class Corridors
         lock (_obs)
         {
             if (key == _cacheKey) return _cache;
-            var win = _obs.Where(o => o.Band == band && o.T <= now && (now - o.T).TotalMinutes <= WindowMin).ToList();
+            var ray = RayCalls(band, now);
+            RayStations = ray;
+            var win = _obs.Where(o => o.Band == band && o.T <= now && (now - o.T).TotalMinutes <= WindowMin && !ray.Contains(o.A) && !ray.Contains(o.B)).ToList();
             // APRS: il salto conta solo se lo stesso salto (stessa coppia) si ripete a distanza di almeno AprsRepeatMin minuti
             win = win.Where(o => o.Src != "APRS" || win.Any(p => p.Src == "APRS" && Same(o, p) && Math.Abs((p.T - o.T).TotalMinutes) >= AprsRepeatMin)).ToList();
             var res = new List<Corridor>();
@@ -76,6 +114,10 @@ public sealed class Corridors
                     double along = x * Math.Sin(a) + y * Math.Cos(a), perp = -x * Math.Cos(a) + y * Math.Sin(a);
                     return Math.Abs(perp) <= OffsetKm && Math.Abs(along) <= (seed.Km + o.Km) / 2;
                 }).ToList();
+                // tratte molto lunghe: valgono solo se il fascio arriva da almeno due fonti diverse
+                if (fam.Any(o => o.Km > MaxKm) && fam.Select(o => o.Src).Distinct().Count() < 2)
+                    fam = fam.Where(o => o.Km <= MaxKm).ToList();
+                if (fam.Count == 0) { used.Add(seed); continue; }
                 // coppie indipendenti: nessuna stazione in comune
                 var calls = new HashSet<string>(); var indep = new List<Obs>();
                 foreach (var o in fam.OrderByDescending(o => o.T))
@@ -100,7 +142,7 @@ public sealed class Corridors
                 res.Add(new Corridor
                 {
                     Band = band, Mid = mid, AzDeg = az, HalfLenKm = half, HalfWidthKm = Math.Max(60, wid + 40), MeanKm = fam.Average(o => o.Km),
-                    Paths = indep.Count, First = fam.Min(o => o.T), Last = fam.Max(o => o.T), Members = fam,
+                    Paths = indep.Count, First = fam.Min(o => o.T), Last = fam.Max(o => o.T), Members = fam, MedianSnr = Median(fam.Select(o => o.Snr)),
                     Sources = string.Join(", ", fam.GroupBy(o => o.Src).Select(g => $"{g.Key} {g.Count()}"))
                 });
             }
@@ -109,18 +151,83 @@ public sealed class Corridors
         }
     }
 
+    /// <summary>
+    /// Stazioni «a raggiera»: nell'ultima ora almeno RayMin corrispondenti diversi oltre RayKm, con azimut sparsi su almeno
+    /// RaySpread gradi (il ventaglio è 360° meno il buco più grande fra gli azimut). Chiamare con _obs bloccato.
+    /// </summary>
+    HashSet<string> RayCalls(string band, DateTime now)
+    {
+        var map = new Dictionary<string, Dictionary<string, double>>(StringComparer.Ordinal);
+        void Put(string a, string b, double az)
+        {
+            if (string.IsNullOrEmpty(a) || string.IsNullOrEmpty(b)) return;
+            if (!map.TryGetValue(a, out var m)) map[a] = m = new Dictionary<string, double>(StringComparer.Ordinal);
+            m[b] = az;
+        }
+        foreach (var o in _obs)
+        {
+            if (o.Band != band || o.Km < RayKm || o.T > now || (now - o.T).TotalMinutes > RayWindowMin) continue;
+            Put(o.A, o.B, o.Az); Put(o.B, o.A, (o.Az + 180) % 360);
+        }
+        var bad = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var kv in map)
+        {
+            if (kv.Value.Count < RayMin) continue;
+            var az = kv.Value.Values.OrderBy(x => x).ToList();
+            double gap = 0;
+            for (int i = 0; i < az.Count; i++) gap = Math.Max(gap, ((i + 1 < az.Count ? az[i + 1] : az[0] + 360) - az[i]));
+            if (360 - gap >= RaySpread) bad.Add(kv.Key);
+        }
+        return bad;
+    }
+
+    static double Median(IEnumerable<double> v)
+    {
+        var l = v.Where(x => !double.IsNaN(x)).OrderBy(x => x).ToList();
+        if (l.Count == 0) return double.NaN;
+        return l.Count % 2 == 1 ? l[l.Count / 2] : (l[l.Count / 2 - 1] + l[l.Count / 2]) / 2;
+    }
+
     static bool Same(Obs a, Obs b) => (a.A == b.A && a.B == b.B) || (a.A == b.B && a.B == b.A);
 
-    /// <summary>Corridoio che copre il punto (o null).</summary>
+    /// <summary>
+    /// Corridoio con il minimo più alto che vale nel punto (o null): il punto deve stare entro NearKm da una delle tratte
+    /// e nella sua parte centrale, non vicino alle stazioni.
+    /// </summary>
     public Corridor At(string band, DateTime now, double lat, double lon)
     {
+        Corridor best = null;
+        var pt = new LatLon(lat, lon);
         foreach (var c in Active(band, now))
         {
-            var (x, y) = Local(c.Mid, new LatLon(lat, lon));
+            if (best != null && c.FloorDb <= best.FloorDb) continue;
+            var (x, y) = Local(c.Mid, pt);
             double a = c.AzDeg * Math.PI / 180;
-            if (Math.Abs(x * Math.Sin(a) + y * Math.Cos(a)) <= c.HalfLenKm && Math.Abs(-x * Math.Cos(a) + y * Math.Sin(a)) <= c.HalfWidthKm) return c;
+            if (Math.Abs(x * Math.Sin(a) + y * Math.Cos(a)) > c.HalfLenKm || Math.Abs(-x * Math.Cos(a) + y * Math.Sin(a)) > c.HalfWidthKm) continue;
+            foreach (var o in c.Members)
+                if (NearMiddle(o, pt)) { best = c; break; }
         }
-        return null;
+        return best;
+    }
+
+    /// <summary>Il punto sta entro NearKm dalla tratta, fra EndFrac e 1−EndFrac della sua lunghezza.</summary>
+    bool NearMiddle(Obs o, LatLon p)
+    {
+        var m = MidOf(o);
+        var (ax, ay) = Local(m, o.PA); var (bx, by) = Local(m, o.PB); var (px, py) = Local(m, p);
+        double dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+        if (l2 < 1) return false;
+        double t = ((px - ax) * dx + (py - ay) * dy) / l2;
+        if (t < EndFrac || t > 1 - EndFrac) return false;
+        double qx = ax + t * dx - px, qy = ay + t * dy - py;
+        return qx * qx + qy * qy <= NearKm * NearKm;
+    }
+
+    /// <summary>Tratto centrale di una tratta (fra EndFrac e 1−EndFrac), per il disegno.</summary>
+    public (LatLon a, LatLon b) MiddlePart(Obs o)
+    {
+        double d = o.Km, az = o.Az;
+        return (Geo.Destination(o.PA, az, d * EndFrac), Geo.Destination(o.PA, az, d * (1 - EndFrac)));
     }
 
     /// <summary>I quattro vertici della fascia del corridoio (per il disegno).</summary>
