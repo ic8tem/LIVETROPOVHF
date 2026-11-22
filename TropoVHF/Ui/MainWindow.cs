@@ -113,15 +113,14 @@ public sealed partial class MainWindow : Window
         bool it = Lang.Current == "it";
         var dlg = new Window
         {
-            Title = it ? "Rapporto di errore" : "Error report", Width = 600, SizeToContent = SizeToContent.Height, CanResize = false,
+            Title = Lang.Tr("Rapporto di errore", "Error report"), Width = 600, SizeToContent = SizeToContent.Height, CanResize = false,
             WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = B(_th.Panel), ShowInTaskbar = false, Icon = Splash.AppIcon()
         };
-        var t = TB(it ? $"L'ultima volta il programma ha annotato un errore ({summary}).\n\nPuoi inviare il rapporto agli autori: si apre il browser su una segnalazione GitHub già compilata, con nominativo, locatore e nome utente del PC tolti. Controlli il testo e premi Invia (serve un account GitHub gratuito). Il registro completo è in {ErrorLog.FilePath}."
-                      : $"Last time the program logged an error ({summary}).\n\nYou can send the report to the authors: the browser opens a prefilled GitHub issue, with call, locator and PC user name removed. Check the text and press Submit (a free GitHub account is needed). The full log is in {ErrorLog.FilePath}.", 13, _th.Text);
+        var t = TB(Lang.TrF("L'ultima volta il programma ha annotato un errore ({0}).\n\nPuoi inviare il rapporto agli autori: si apre il browser su una segnalazione GitHub già compilata, con nominativo, locatore e nome utente del PC tolti. Controlli il testo e premi Invia (serve un account GitHub gratuito). Il registro completo è in {1}.", "Last time the program logged an error ({0}).\n\nYou can send the report to the authors: the browser opens a prefilled GitHub issue, with call, locator and PC user name removed. Check the text and press Submit (a free GitHub account is needed). The full log is in {1}.", summary, ErrorLog.FilePath), 13, _th.Text);
         t.TextWrapping = TextWrapping.Wrap; t.Margin = new Thickness(20, 18, 20, 16);
-        var send = PrimaryButton(it ? "Invia il rapporto" : "Send report", () => { OpenUrl(ErrorLog.IssueUrl(_st.Call, _st.Loc)); dlg.Close(); });
-        var file = OutlineButton(it ? "Apri il registro" : "Open log", () => OpenUrl(ErrorLog.FilePath));
-        var no = OutlineButton(it ? "No, grazie" : "No, thanks", () => dlg.Close());
+        var send = PrimaryButton(Lang.Tr("Invia il rapporto", "Send report"), () => { OpenUrl(ErrorLog.IssueUrl(_st.Call, _st.Loc)); dlg.Close(); });
+        var file = OutlineButton(Lang.Tr("Apri il registro", "Open log"), () => OpenUrl(ErrorLog.FilePath));
+        var no = OutlineButton(Lang.Tr("No, grazie", "No, thanks"), () => dlg.Close());
         dlg.Content = new StackPanel { Children = { t, new Border { Background = B(_th.Chip), BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 1, 0, 0), Padding = new Thickness(16, 10),
             Child = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, HorizontalAlignment = HorizontalAlignment.Right, Children = { send, file, no } } } } };
         ErrorLog.ClearPending();
@@ -136,20 +135,18 @@ public sealed partial class MainWindow : Window
         bool it = Lang.Current == "it";
         var dlg = new Window
         {
-            Title = it ? "Aggiornamento" : "Update", Width = 520, SizeToContent = SizeToContent.Height, CanResize = false,
+            Title = Lang.Tr("Aggiornamento", "Update"), Width = 520, SizeToContent = SizeToContent.Height, CanResize = false,
             WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = B(_th.Panel), ShowInTaskbar = false, Icon = Splash.AppIcon(),
             SystemDecorations = mandatory ? SystemDecorations.BorderOnly : SystemDecorations.Full
         };
         var t = TB(mandatory
-            ? (it ? $"È stata installata la versione {version}, una correzione urgente. Il programma deve riavviarsi per usarla: impostazioni e dati restano."
-                  : $"Version {version}, an urgent fix, has been installed. The program must restart to use it: settings and data are kept.")
-            : (it ? $"È stata installata la versione {version}. Sarà attiva dal prossimo avvio: vuoi riavviare adesso? Impostazioni e dati restano."
-                  : $"Version {version} has been installed and will be active at the next start: restart now? Settings and data are kept."), 13, _th.Text);
+            ? (Lang.TrF("È stata installata la versione {0}, una correzione urgente. Il programma deve riavviarsi per usarla: impostazioni e dati restano.", "Version {0}, an urgent fix, has been installed. The program must restart to use it: settings and data are kept.", version))
+            : (Lang.TrF("È stata installata la versione {0}. Sarà attiva dal prossimo avvio: vuoi riavviare adesso? Impostazioni e dati restano.", "Version {0} has been installed and will be active at the next start: restart now? Settings and data are kept.", version)), 13, _th.Text);
         t.TextWrapping = TextWrapping.Wrap; t.Margin = new Thickness(20, 18, 20, 16);
         bool restart = false;
-        var now = PrimaryButton(it ? "Riavvia adesso" : "Restart now", () => { restart = true; dlg.Close(); });
+        var now = PrimaryButton(Lang.Tr("Riavvia adesso", "Restart now"), () => { restart = true; dlg.Close(); });
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, HorizontalAlignment = HorizontalAlignment.Right, Children = { now } };
-        if (!mandatory) buttons.Children.Add(OutlineButton(it ? "Più tardi" : "Later", () => dlg.Close()));
+        if (!mandatory) buttons.Children.Add(OutlineButton(Lang.Tr("Più tardi", "Later"), () => dlg.Close()));
         else dlg.Closing += (_, e) => { if (!restart) e.Cancel = true; };
         dlg.Content = new StackPanel { Children = { t, new Border { Background = B(_th.Chip), BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 1, 0, 0), Padding = new Thickness(16, 10), Child = buttons } } };
         await dlg.ShowDialog(this);
@@ -745,7 +742,7 @@ public sealed partial class MainWindow : Window
         // scala dei testi 80–150%, a passi di 10: si applica rilasciando il cursore (la finestra si ridisegna)
         var scLbl = TB($"{UiScale.Percent}%", 12, _th.Muted);
         var sc = new Slider { Minimum = 80, Maximum = 150, TickFrequency = 10, IsSnapToTickEnabled = true, Value = UiScale.Percent, Width = 110, VerticalAlignment = VerticalAlignment.Center };
-        ToolTip.SetTip(sc, Lang.Current == "it" ? "Dimensione dei testi (80–150%)" : "Text size (80–150%)");
+        ToolTip.SetTip(sc, Lang.Tr("Dimensione dei testi (80–150%)", "Text size (80–150%)"));
         DispatcherTimer scTimer = null;
         sc.PropertyChanged += (_, e) =>
         {
@@ -804,10 +801,10 @@ public sealed partial class MainWindow : Window
         return g switch
         {
             "map" => Lang.T("tab.map"),
-            "prev" => it ? "Previsioni" : "Forecasts",
+            "prev" => Lang.Tr("Previsioni", "Forecasts"),
             "graves" => Lang.T("tab.graves"),
-            "data" => it ? "Dati e fonti" : "Data & sources",
-            _ => it ? "Guide" : "Guides",
+            "data" => Lang.Tr("Dati e fonti", "Data & sources"),
+            _ => Lang.Tr("Guide", "Guides"),
         };
     }
 
@@ -816,7 +813,7 @@ public sealed partial class MainWindow : Window
         bool it = Lang.Current == "it";
         return item switch
         {
-            "fc" => it ? "Propria (β)" : "Own (β)",
+            "fc" => Lang.Tr("Propria (β)", "Own (β)"),
             "hepburn" => Lang.T("tab.hep"),
             "f5len" => Lang.T("tab.f5"),
             "collect:dx" => "DX cluster",
@@ -825,9 +822,9 @@ public sealed partial class MainWindow : Window
             "collect:udp" => "UDP (WSJT-X, JTDX, MSHV)",
             "collect:calls" => Lang.T("c.tab"),
             "sus" => Lang.T("tab.sus"),
-            "doc4" => it ? "Manuale previsioni" : "Forecast manual",
-            "doc5" => it ? "Consigli all'operatore" : "Operator tips",
-            "doc6" => it ? "Fonti e formule" : "Sources and formulas",
+            "doc4" => Lang.Tr("Manuale previsioni", "Forecast manual"),
+            "doc5" => Lang.Tr("Consigli all'operatore", "Operator tips"),
+            "doc6" => Lang.Tr("Fonti e formule", "Sources and formulas"),
             _ => Lang.T("tab." + item),
         };
     }
@@ -867,7 +864,7 @@ public sealed partial class MainWindow : Window
 
         // barra delle sotto-linguette, sotto il fascione (solo per i gruppi con più voci)
         _subBarItems = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4, Margin = new Thickness(10, 6, 10, 6) };
-        _guideSearch = new TextBox { Width = 220, Watermark = Lang.Current == "it" ? "Cerca nelle guide…" : "Search the guides…", Margin = new Thickness(16, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+        _guideSearch = new TextBox { Width = 220, Watermark = Lang.Tr("Cerca nelle guide…", "Search the guides…"), Margin = new Thickness(16, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
         _guideSearch.TextChanged += (_, _) => GuideSearch(false);
         _guideSearch.KeyDown += (_, e) => { if (e.Key == Avalonia.Input.Key.Enter) GuideSearch(true); };
         _subBar = new Border { Background = B(_th.Page), BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 0, 0, 1),
@@ -968,8 +965,8 @@ public sealed partial class MainWindow : Window
         Seg("udp", () => GoTo("collect", "udp"));
         Seg("pressure", null); Seg("tropo", null); Seg("call3", () => GoTo("collect", "calls"));
         Seg("other", null);
-        Seg("error", () => OpenUrl(ErrorLog.FilePath), Lang.Current == "it" ? "Clic: apri il registro degli errori" : "Click: open the error log");
-        Seg("version", () => { Updater.CheckNow(); }, Lang.Current == "it" ? "Clic: cerca aggiornamenti adesso" : "Click: check for updates now");
+        Seg("error", () => OpenUrl(ErrorLog.FilePath), Lang.Tr("Clic: apri il registro degli errori", "Click: open the error log"));
+        Seg("version", () => { Updater.CheckNow(); }, Lang.Tr("Clic: cerca aggiornamenti adesso", "Click: check for updates now"));
         _statusBar = _statusSegs["version"];
         return new Border { Background = B(_th.Bar), BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 1, 0, 0), Height = 30, ClipToBounds = true, Child = _statusPanel };
     }
@@ -2219,24 +2216,24 @@ public sealed partial class MainWindow : Window
             }
             string Why(string err)
             {
-                if (string.IsNullOrEmpty(err)) return it ? "non collegato (spento nelle impostazioni o in attesa)" : "not connected (off or waiting)";
+                if (string.IsNullOrEmpty(err)) return Lang.Tr("non collegato (spento nelle impostazioni o in attesa)", "not connected (off or waiting)");
                 var low = err.ToLowerInvariant();
-                if (low.Contains("rifiut") || low.Contains("refused")) return err + (it ? "\nIl server rifiuta la connessione: porta sbagliata o servizio spento. Controlla host e porta." : "\nThe server refuses the connection: wrong port or service down. Check host and port.");
-                if (low.Contains("nodo del cluster fermo")) return err + (it ? "\nNon dipende dal programma: il nodo è fermo dal lato del server. Intanto usa un altro cluster." : "\nNot a program fault: the node is down server-side. Use another cluster meanwhile.");
-                if (low.Contains("timeout") || low.Contains("tempo")) return err + (it ? "\nNessuna risposta: rete lenta, firewall o server occupato." : "\nNo answer: slow network, firewall or busy server.");
-                if (low.Contains("host") || low.Contains("nome") || low.Contains("name")) return err + (it ? "\nIndirizzo del server non trovato: controlla il nome o la connessione a internet." : "\nServer address not found: check the name or the internet connection.");
+                if (low.Contains("rifiut") || low.Contains("refused")) return err + (Lang.Tr("\nIl server rifiuta la connessione: porta sbagliata o servizio spento. Controlla host e porta.", "\nThe server refuses the connection: wrong port or service down. Check host and port."));
+                if (low.Contains("nodo del cluster fermo")) return err + (Lang.Tr("\nNon dipende dal programma: il nodo è fermo dal lato del server. Intanto usa un altro cluster.", "\nNot a program fault: the node is down server-side. Use another cluster meanwhile."));
+                if (low.Contains("timeout") || low.Contains("tempo")) return err + (Lang.Tr("\nNessuna risposta: rete lenta, firewall o server occupato.", "\nNo answer: slow network, firewall or busy server."));
+                if (low.Contains("host") || low.Contains("nome") || low.Contains("name")) return err + (Lang.Tr("\nIndirizzo del server non trovato: controlla il nome o la connessione a internet.", "\nServer address not found: check the name or the internet connection."));
                 return err;
             }
             foreach (var f in _st.Feeds)
                 Set("feed:" + f.Id, $"{Dot(f.Connected)} {f.Src}", f.Connected ? _th.Ok : f.LastError != "" ? _th.Bad : _th.Muted,
-                    $"{f.Host}:{f.Port}\n" + (f.Connected ? (it ? "collegato" : "connected") : Why(f.LastError)) + (it ? "\nClic: apri la fonte" : "\nClick: open the source"));
+                    $"{f.Host}:{f.Port}\n" + (f.Connected ? (Lang.Tr("collegato", "connected")) : Why(f.LastError)) + (Lang.Tr("\nClic: apri la fonte", "\nClick: open the source")));
             var q = _st.Mqtt;
             Set("mqtt", $"{Dot(q.Connected)} PSKReporter MQTT", q.Connected ? _th.Ok : q.LastError != "" ? _th.Bad : _th.Muted,
-                $"{q.Host}:{q.Port}\n" + (q.Connected ? (it ? "collegato" : "connected") : Why(q.LastError)) + (it ? "\nClic: apri la fonte" : "\nClick: open the source"));
+                $"{q.Host}:{q.Port}\n" + (q.Connected ? (Lang.Tr("collegato", "connected")) : Why(q.LastError)) + (Lang.Tr("\nClic: apri la fonte", "\nClick: open the source")));
             var u = _st.Udp;
             Set("udp", $"{Dot(u.Running)} UDP {u.ListenPort}→{u.ForwardPort}", u.Running ? (u.Packets > 0 ? _th.Ok : _th.Muted) : u.LastError != "" ? _th.Bad : _th.Muted,
-                (u.Running ? (u.Packets > 0 ? (it ? $"in ascolto, {u.Packets} pacchetti ricevuti" : $"listening, {u.Packets} packets") : (it ? "in ascolto, ma WSJT-X / JTDX / MSHV non mandano ancora nulla: controlla in quei programmi Impostazioni → Reporting → UDP Server (indirizzo e porta)" : "listening, but WSJT-X / JTDX / MSHV send nothing yet: check Settings → Reporting → UDP Server"))
-                           : Why(u.LastError)) + (it ? "\nClic: apri la fonte" : "\nClick: open the source"));
+                (u.Running ? (u.Packets > 0 ? (Lang.TrF("in ascolto, {0} pacchetti ricevuti", "listening, {0} packets", u.Packets)) : (Lang.Tr("in ascolto, ma WSJT-X / JTDX / MSHV non mandano ancora nulla: controlla in quei programmi Impostazioni → Reporting → UDP Server (indirizzo e porta)", "listening, but WSJT-X / JTDX / MSHV send nothing yet: check Settings → Reporting → UDP Server")))
+                           : Why(u.LastError)) + (Lang.Tr("\nClic: apri la fonte", "\nClick: open the source")));
             Set("pressure", _st.Pressure.Status, _th.Muted);
             Set("tropo", _st.Tropo.Status, _th.Muted);
             bool callBad = _st.CallDb.Ready && (_st.CallDb.Error != "" || _st.CallDb.Count == 0);
@@ -2246,8 +2243,8 @@ public sealed partial class MainWindow : Window
             if (_st.Archive.Error != "") other.Add("DB: " + _st.Archive.Error);
             Set("other", string.Join("   ·   ", other), _th.Muted);
             bool recentErr = _lastErrorNote != "" && (DateTime.Now - _lastErrorAt).TotalMinutes < 15;
-            Set("error", recentErr ? (it ? "⚠ errore annotato" : "⚠ error logged") : "", _th.Bad,
-                recentErr ? (it ? $"{_lastErrorAt:HH:mm:ss} {_lastErrorNote}\nIl programma continua. Clic: apri il registro degli errori ({ErrorLog.FilePath})" : $"{_lastErrorAt:HH:mm:ss} {_lastErrorNote}\nThe program goes on. Click: open the error log") : null);
+            Set("error", recentErr ? (Lang.Tr("⚠ errore annotato", "⚠ error logged")) : "", _th.Bad,
+                recentErr ? (Lang.TrF("{0:HH:mm:ss} {1}\nIl programma continua. Clic: apri il registro degli errori ({2})", "{0:HH:mm:ss} {1}\nThe program goes on. Click: open the error log", _lastErrorAt, _lastErrorNote, ErrorLog.FilePath)) : null);
             Set("version", "v" + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "") + (Updater.Status != "" ? " · " + Updater.Status : ""), _th.Muted);
         }
 

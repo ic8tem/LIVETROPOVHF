@@ -95,6 +95,29 @@ public static class Lang
         }
     }
 
+    /// <summary>
+    /// Testi nati in italiano e inglese (previsioni, guide, avvisi): la traduzione nelle altre lingue sta nello stesso
+    /// file Lang/{codice}.json con la chiave "it:" + testo italiano. Se manca si usa la lingua madre, poi l'inglese.
+    /// </summary>
+    public static string Tr(string it, string en)
+    {
+        if (_current == "it") return it;
+        if (_current == "en" || it == null) return en;
+        var k = "it:" + it;
+        if (Load(Current).TryGetValue(k, out var v) && !string.IsNullOrEmpty(v)) return v;
+        var dash = Current.IndexOf('-');
+        if (dash > 0 && Load(Current.Substring(0, dash)).TryGetValue(k, out v) && !string.IsNullOrEmpty(v)) return v;
+        return en;
+    }
+
+    /// <summary>Come Tr, per i testi con dei valori: formati composti ({0}, {1:0.0}...) con la cultura del sistema, come le stringhe interpolate.</summary>
+    public static string TrF(string itFmt, string enFmt, params object[] args)
+    {
+        var fmt = Tr(itFmt, enFmt);
+        try { return string.Format(CultureInfo.CurrentCulture, fmt, args); }
+        catch (FormatException) { try { return string.Format(CultureInfo.CurrentCulture, enFmt, args); } catch (FormatException) { return enFmt; } }
+    }
+
     public static string T(string key)
     {
         if (Load(Current).TryGetValue(key, out var v) && !string.IsNullOrEmpty(v)) return v;

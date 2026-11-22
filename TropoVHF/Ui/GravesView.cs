@@ -153,7 +153,7 @@ public sealed class GravesView : Control
             double a = (Graves.AzMin + (s + 0.5) * Graves.SectorDeg) * Math.PI / 180, rr = R * 0.82;
             Label(ctx, Graves.Sectors[s], new Point(c.X + rr * Math.Sin(a), c.Y - rr * Math.Cos(a)), 16, SectorCols[s]);
         }
-        string west = Lang.Current == "it" ? "O" : "W";
+        string west = Lang.Tr("O", "W");
         Label(ctx, "N", new Point(c.X, c.Y - R - 12), 12, Fore);
         Label(ctx, "S", new Point(c.X, c.Y + R + 12), 12, Fore);
         Label(ctx, "E", new Point(c.X + R + 12, c.Y), 12, Fore);

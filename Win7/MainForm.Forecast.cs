@@ -34,7 +34,7 @@ public sealed partial class MainForm
     System.Windows.Forms.Timer _fcLogTimer;
     ToolTip _fcTips;
 
-    static string L(string it, string en) => Lang.Current == "it" ? it : en;
+    static string L(string it, string en) => Lang.Tr(it, en);
 
     double FcFreq => _st.S.Get("fc_band", "144") switch { "432" => 432.2, "1296" => 1296.2, _ => 144.3 };
     int FcHours { get => _st.S.GetInt("fc_hours", 0); set => _st.S.SetInt("fc_hours", value); }
@@ -74,8 +74,7 @@ public sealed partial class MainForm
         Add(col, exp);
         if (!P453.Available)
         {
-            var p4 = WrapLbl(L($"Calcolo B dei condotti spento: mancano i file ITU-R P.453 in {P453.Folder} (manuale delle previsioni, § 6).",
-                               $"Duct calculation B off: ITU-R P.453 files missing in {P453.Folder} (forecast manual, § 6)."), 8.5f, _th.Muted);
+            var p4 = WrapLbl(Lang.TrF("Calcolo B dei condotti spento: mancano i file ITU-R P.453 in {0} (manuale delle previsioni, § 6).", "Duct calculation B off: ITU-R P.453 files missing in {0} (forecast manual, § 6).", P453.Folder), 8.5f, _th.Muted);
             Add(col, p4);
             Button dl = null;
             dl = Btn(L("Scarica le mappe P.453 dall'ITU (uso personale)", "Download P.453 maps from ITU (personal use)"), async () =>
@@ -539,10 +538,8 @@ public sealed partial class MainForm
                 tm.Lap("calcolo sul percorso");
                 r.Times.Laps.Insert(0, tm.Laps[0]);
                 r.Times.Add("TOTALE", tm.TotalMs);
-                if (!tx.Precise && tx.AslM <= 0) r.Notes.Add(L($"quota della mia antenna stimata: suolo SRTM al centro del quadrato {tx.Loc} + {tx.AglM:0} m; per la precisione usa un locatore a 8–10 caratteri o scrivi la quota sul mare",
-                                                             $"my antenna height estimated: SRTM ground at the centre of {tx.Loc} + {tx.AglM:0} m; for precision use an 8–10 character locator or enter the height above sea"));
-                if (!rx.Precise && rx.AslM <= 0) r.Notes.Add(L($"quota dell'antenna del corrispondente stimata: suolo SRTM al centro del quadrato {rx.Loc} + {rx.AglM:0} m",
-                                                             $"other antenna height estimated: SRTM ground at the centre of {rx.Loc} + {rx.AglM:0} m"));
+                if (!tx.Precise && tx.AslM <= 0) r.Notes.Add(Lang.TrF("quota della mia antenna stimata: suolo SRTM al centro del quadrato {0} + {1:0} m; per la precisione usa un locatore a 8–10 caratteri o scrivi la quota sul mare", "my antenna height estimated: SRTM ground at the centre of {0} + {1:0} m; for precision use an 8–10 character locator or enter the height above sea", tx.Loc, tx.AglM));
+                if (!rx.Precise && rx.AslM <= 0) r.Notes.Add(Lang.TrF("quota dell'antenna del corrispondente stimata: suolo SRTM al centro del quadrato {0} + {1:0} m", "other antenna height estimated: SRTM ground at the centre of {0} + {1:0} m", rx.Loc, rx.AglM));
                 CalcLog.W($"TEMPI dal clic al risultato: {CalcLog.Dur(tm.TotalMs)}");
                 _fcLast = r;
                 FcSetStatus(L("Calcolo completato.", "Done.") + (r.TilesMissing > 0 ? " " + L("Riquadri DEM 30 m mancanti: ", "Missing DEM 30 m tiles: ") + r.TilesMissing : ""));

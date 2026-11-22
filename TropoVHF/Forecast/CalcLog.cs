@@ -61,10 +61,10 @@ public static class CalcLog
         {
             if (e is System.Net.Sockets.SocketException se)
                 return se.SocketErrorCode == System.Net.Sockets.SocketError.HostNotFound || se.SocketErrorCode == System.Net.Sockets.SocketError.TryAgain
-                    ? (Ui.Lang.Current == "it" ? $"il PC non trova {host}: connessione a internet assente, DNS o firewall che blocca il sito" : $"the PC cannot find {host}: no internet connection, DNS or a firewall blocking the site")
-                    : (Ui.Lang.Current == "it" ? $"connessione a {host} non riuscita ({se.SocketErrorCode})" : $"connection to {host} failed ({se.SocketErrorCode})");
+                    ? (Ui.Lang.TrF("il PC non trova {0}: connessione a internet assente, DNS o firewall che blocca il sito", "the PC cannot find {0}: no internet connection, DNS or a firewall blocking the site", host))
+                    : (Ui.Lang.TrF("connessione a {0} non riuscita ({1})", "connection to {0} failed ({1})", host, se.SocketErrorCode));
             if (e is TaskCanceledException || e is TimeoutException)
-                return Ui.Lang.Current == "it" ? $"{host} non risponde (tempo scaduto)" : $"{host} does not answer (timeout)";
+                return Ui.Lang.TrF("{0} non risponde (tempo scaduto)", "{0} does not answer (timeout)", host);
         }
         return ex.Message;
     }
