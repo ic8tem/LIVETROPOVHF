@@ -38,7 +38,7 @@ public static class SourceTest
         {
             CalcLog.Enabled = true;
             var srtm = new Srtm(new HttpClient { Timeout = TimeSpan.FromSeconds(300) });
-            foreach (var (rl, rn) in new[] { ("JN45ls27tg", "Lombardia 722 km"), ("JN33qs43wc", "Nizza 677 km"), ("IM98re20no", "Alicante 1300 km"), ("JN11cj39nl", "Barcellona 1016 km"), ("JN64CK40lh", "Ravenna") })
+            foreach (var (rl, rn) in new[] { ("JN45ls27tg", "Lombardia 722 km"), ("JN33qs43wc", "Nizza 677 km"), ("IM98re20no", "Alicante 1300 km"), ("JN11CK", "Barcellona JN11CK"), ("JN64CK40lh", "Ravenna") })
             {
                 LocatorX.TryParse("JN70CN83CL", out var tp); LocatorX.TryParse(rl, out var rp);
                 var tx = new Station { Loc = "JN70CN83CL", Pos = tp, Precise = true, AglM = 8, PowerW = 400, BoomM = 9 };
