@@ -88,13 +88,14 @@ public sealed class Station
 /// <summary>Guadagno stimato di una yagi DL6WU dalla lunghezza del boom (dBd), con un taglio a 0,3 λ.</summary>
 public static class Dl6wu
 {
-    // Approssimazione delle tabelle DL6WU: circa 8,6 dBd per 1 λ di boom e 2,4 dB a ogni raddoppio
-    // (es. 9,5 λ → circa 16,4 dBd; una tabella DL6WU per 476,9 MHz dà 16,7 dBd con 6 m = 9,5 λ).
+    // G. Hoch DL6WU, «Extremely Long Yagi Antennas», VHF Communications 3/1982, pp. 130 e seg., fig. 1 (misure a 432 e
+    // 1296 MHz con antenna campione EIA da 7,7 dBd, precisione ±0,5 dB): 2,35 dB per raddoppio del boom, senza saturazione
+    // fino a circa 20 λ. Retta letta sul grafico: circa 9,4 dBd a 1 λ (± 0,3 dB di lettura) → G = 9,4 + 7,8·log10(L/λ) dBd.
     public static double GainDbd(double boomM, double freqMHz)
     {
         double lam = 299.792458 / freqMHz;
         double bl = Math.Max(0.3, boomM / lam);
-        return 8.6 + 8.0 * Math.Log10(bl);
+        return 9.4 + 7.8 * Math.Log10(bl);
     }
     public static double GainDbi(double boomM, double freqMHz) => GainDbd(boomM, freqMHz) + 2.15;
 }

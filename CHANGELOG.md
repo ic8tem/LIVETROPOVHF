@@ -5,6 +5,7 @@ Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole 
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
 ## In preparazione
+- Guadagno delle yagi ricontrollato sull'articolo originale di DL6WU (VHF Communications 3/1982): 9,4 + 7,8·log10(L/λ) dBd, circa 0,8 dB in più di prima sui boom di 1–2 λ.
 - Formule ricontrollate sui testi ITU ufficiali (P.452-18, P.453-14, P.526-16, P.372-18) e corrette: troposcatter con costante 190 e assorbimento dei gas, limite di α nei condotti, gas dei condotti con la frazione di mare, diffrazione su terra sferica completa (terra-mare, sotto la portata ottica), pressione di saturazione del vapore di P.453-14.
 - Calcolo punto-punto: rinforzo pomeridiano del troposcatter oltre i rilievi, fino a 3 dB quando la cima dello strato rimescolato arriva alla quota del volume comune (osservazioni di IK3XTV, manuale § 8 ter); riga «Troposcatter pomeridiano» nei risultati. Non si applica con neve lungo la tratta (spessore della neve dal modello, nuova variabile scaricata).
 - Manuali: citazione di DF5AI (riportata da IK3XTV) sulla tropo da studiare tratta per tratta, nel manuale delle previsioni (§ 1) e nei consigli.

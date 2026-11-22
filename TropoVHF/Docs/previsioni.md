@@ -375,7 +375,7 @@ Limiti: sopra la terra il profilo verticale resta quello dei livelli GFS, quindi
 
 ## 12. Antenne, segnale e rumore
 
-- Yagi DL6WU: guadagno ≈ 8,6 + 8·log10(boom/λ) dBd, più 2,15 per i dBi [12].
+- Yagi DL6WU: guadagno ≈ 9,4 + 7,8·log10(boom/λ) dBd (2,35 dB per raddoppio del boom, misure di DL6WU su VHF Communications 3/1982), più 2,15 per i dBi [12].
 - EIRP = potenza − cavo + guadagno TX.
 - Segnale ricevuto = EIRP − perdita prevista + guadagno RX − cavo RX. S-meter IARU: S9 = −93 dBm, 6 dB per unità.
 - Rumore esterno secondo ITU-R P.372 [13]: galattico (Fa = 52 − 23 log f) più artificiale secondo l'ambiente (città, residenziale, rurale, rurale tranquillo) oppure una temperatura d'antenna scritta a mano.
@@ -415,7 +415,7 @@ La previsione va confrontata con i collegamenti reali. Il registro dei calcoli c
 9. ITU-R P.526, Propagation by diffraction: eq. 31 (bordo a coltello) e § 3 (terra sferica).
 10. B. Indermuehle, H. Suzuki, Tropospheric Ducting Prediction based on GFS Model Data at Inyarrimanha Ilgari Bundara, the CSIRO Murchison Radio-astronomy Observatory, Publications of the Astronomical Society of Australia, 2026 (arXiv 2608.12861).
 11. D. E. Kerr, Propagation of Short Radio Waves, MIT Radiation Laboratory Series vol. 13, 1951: eq. 17 e 18.
-12. G. Hoch DL6WU, Yagi antennas with extended boom, tabelle di guadagno per lunghezza del boom.
+12. G. Hoch DL6WU, «Extremely Long Yagi Antennas», VHF Communications 3/1982, pp. 130 e seguenti, fig. 1 (guadagno misurato a 432 e 1296 MHz in funzione della lunghezza del boom).
 13. ITU-R P.372, Radio noise: rumore galattico e artificiale per ambiente.
 14. NOAA/NCEP, NOMADS, filtro GRIB del GFS 0,25° orario (nomads.ncep.noaa.gov); formato WMO GRIB2, impacchettamento complesso con differenze spaziali.
 15. Open-Meteo, Historical Forecast API (archivio delle previsioni dei modelli dal 2021 circa).
