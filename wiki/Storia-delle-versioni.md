@@ -4,7 +4,7 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
-## In preparazione
+## 1.3.4 — 22/11/2026
 - Previsioni: riquadro «Dettagli da mostrare» a destra della mappa con tre livelli (Essenziale, Normale, Completo); linguetta Previsioni tradotta in tutte le lingue; slovacco aggiunto.
 - Colori come YA-NEC: i 18 temi comuni ai programmi di IC8TEM (Chiaro, Notte, Nero, otto pastelli, Scia meteorica, i tre di IP-TRX-CTRL, Blu, Viola, Verde), con i nomi in tutte le lingue; il Chiaro con l'aspetto di YA-NEC (fondo #F0F0F0, riquadri bianchi bordati, fascione blu notte #1E293B, accento #1F6FD1). La scala della previsione non cambia con il tema.
 - Schermi 1366×768 (anche Windows 7): sotto 1500 pixel di larghezza l'orologio mostra solo l'ora, e i comandi di tema, testi e lingua restano nella riga in alto.
