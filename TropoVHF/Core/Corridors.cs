@@ -14,11 +14,18 @@ namespace TropoVHF.Core;
 ///   (es. PSKReporter e cluster): da una fonte sola sono spesso EME, meteor scatter o locatori sbagliati;
 /// - il minimo garantito vale solo vicino alle tratte (entro NearKm dalla linea) e nella loro parte centrale
 ///   (fra EndFrac e 1−EndFrac della lunghezza), non su tutto il rettangolo né sulle stazioni alle estremità;
-/// - il minimo cresce con la lunghezza media, con il numero di tratte indipendenti e con l'S/N mediano (se noto).
+/// - il minimo cresce con la lunghezza media, con il numero di tratte indipendenti e con l'S/N mediano (se noto);
+/// - le stazioni «a raggiera» non contano: chi nell'ultima ora ha almeno RayMin corrispondenti oltre RayKm su un
+///   ventaglio di almeno RaySpread gradi. In 2 m la tropo è direzionale; un ricevitore che «sente» insieme Israele,
+///   Portogallo, Inghilterra e Italia da 2000–3700 km è configurato male (per esempio un ricevitore HF segnalato come
+///   144 MHz). Nell'archivio del 17–22/11/2026 il 72% delle ricezioni in 2 m oltre 1000 km veniva da stazioni così.
 /// </summary>
 public sealed class Corridors
 {
     public double MinKm = 300, MaxAngle = 15, OffsetKm = 150, MaxKm = 1500, NearKm = 60, EndFrac = 0.15;
+    public double RayKm = 1000, RaySpread = 150; public int RayMin = 5, RayWindowMin = 60;
+    /// <summary>Stazioni escluse come «a raggiera» nell'ultimo calcolo (per il registro e le segnalazioni).</summary>
+    public IReadOnlyCollection<string> RayStations { get; private set; } = Array.Empty<string>();
     public int MinPaths = 3, WindowMin = 30, RepeatMin = 10, AprsRepeatMin = 2;
 
     public sealed class Obs { public DateTime T; public string Band = "", A = "", B = "", Src = ""; public LatLon PA, PB; public double Km, Az, Snr = double.NaN; }
@@ -83,7 +90,9 @@ public sealed class Corridors
         lock (_obs)
         {
             if (key == _cacheKey) return _cache;
-            var win = _obs.Where(o => o.Band == band && o.T <= now && (now - o.T).TotalMinutes <= WindowMin).ToList();
+            var ray = RayCalls(band, now);
+            RayStations = ray;
+            var win = _obs.Where(o => o.Band == band && o.T <= now && (now - o.T).TotalMinutes <= WindowMin && !ray.Contains(o.A) && !ray.Contains(o.B)).ToList();
             // APRS: il salto conta solo se lo stesso salto (stessa coppia) si ripete a distanza di almeno AprsRepeatMin minuti
             win = win.Where(o => o.Src != "APRS" || win.Any(p => p.Src == "APRS" && Same(o, p) && Math.Abs((p.T - o.T).TotalMinutes) >= AprsRepeatMin)).ToList();
             var res = new List<Corridor>();
@@ -134,6 +143,36 @@ public sealed class Corridors
             _cache = res; _cacheKey = key;
             return res;
         }
+    }
+
+    /// <summary>
+    /// Stazioni «a raggiera»: nell'ultima ora almeno RayMin corrispondenti diversi oltre RayKm, con azimut sparsi su almeno
+    /// RaySpread gradi (il ventaglio è 360° meno il buco più grande fra gli azimut). Chiamare con _obs bloccato.
+    /// </summary>
+    HashSet<string> RayCalls(string band, DateTime now)
+    {
+        var map = new Dictionary<string, Dictionary<string, double>>(StringComparer.Ordinal);
+        void Put(string a, string b, double az)
+        {
+            if (string.IsNullOrEmpty(a) || string.IsNullOrEmpty(b)) return;
+            if (!map.TryGetValue(a, out var m)) map[a] = m = new Dictionary<string, double>(StringComparer.Ordinal);
+            m[b] = az;
+        }
+        foreach (var o in _obs)
+        {
+            if (o.Band != band || o.Km < RayKm || o.T > now || (now - o.T).TotalMinutes > RayWindowMin) continue;
+            Put(o.A, o.B, o.Az); Put(o.B, o.A, (o.Az + 180) % 360);
+        }
+        var bad = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var kv in map)
+        {
+            if (kv.Value.Count < RayMin) continue;
+            var az = kv.Value.Values.OrderBy(x => x).ToList();
+            double gap = 0;
+            for (int i = 0; i < az.Count; i++) gap = Math.Max(gap, ((i + 1 < az.Count ? az[i + 1] : az[0] + 360) - az[i]));
+            if (360 - gap >= RaySpread) bad.Add(kv.Key);
+        }
+        return bad;
     }
 
     static double Median(IEnumerable<double> v)
