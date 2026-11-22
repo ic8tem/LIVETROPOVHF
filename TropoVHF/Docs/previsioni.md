@@ -98,7 +98,21 @@ Il punto delicato sono i ripetitori attivi: un segnale ricevuto a 500 km può es
 
 **Effetto sulla mappa (dalla 1.3.4).** Si disegna solo la zona in cui vale il minimo garantito: una fascia di ±60 km attorno alla parte centrale di ogni tratta (dal 15% all'85% della sua lunghezza), non sulle stazioni alle estremità, dove il condotto può non esserci. Le fasce di tutti i corridoi si disegnano insieme, in un colore neutro (quello del testo) e semitrasparente: le sovrapposizioni non si sommano, e il colore non si confonde con il viola della scala (21 dB e oltre). Le etichette (tratte, distanza media, guadagno minimo) si scansano tra loro; passando con il mouse su un'etichetta compaiono le tratte del corridoio.
 
-Nella zona, e solo vicino all'ora attuale (±90 minuti), la previsione non scende sotto un minimo. Il valore di partenza va con la distanza media: da 10 dB (tratte di 300 km) a 16 dB (900 km e oltre). Poi si pesa, metà e metà, con il numero di tratte indipendenti (3 tratte → 0,25; 6 o più → 1) e con l'S/N mediano dei rapporti (−20 dB → 0,5; 0 dB o più → 1; non noto, come negli spot dei cluster, → 0,75), partendo da 7 dB, l'inizio della scala. Esempi: 3 tratte senza S/N → 11,5 dB; 3 tratte a −20 dB su 900 km → 10,4 dB; 6 tratte a 0 dB su 900 km → 16 dB. Fino alla 1.3.3 il minimo valeva su tutto il rettangolo del corridoio e dipendeva solo dalla distanza: con molti corridoi lunghi insieme (per esempio il 22/11/2026, dodici corridoi fino a 2620 km) alzava quasi tutta l'Europa a 16 dB.
+Nella zona, e solo vicino all'ora attuale (±90 minuti), la previsione non scende sotto un minimo. Il ragionamento è: se le stazioni passano davvero, la propagazione c'è, qualunque cosa dica il modello meteo.
+
+**Perché le tratte corte valgono poco (dalla 1.3.4).** In 2 m, fra 300 e 600 km, due buone stazioni (qualche centinaio di watt, antenne direttive, FT8 o CW) si collegano quasi ogni giorno anche con l'atmosfera normale, per troposcatter: il segnale diffuso dalle piccole irregolarità dell'aria nel volume comune dei due fasci. Tre o quattro spot a 500 km dicono quindi che la banda lavora come al solito, non che c'è un'apertura: GEKO Magazine n. 69 (IU3QEZ) stima per il troposcatter con 2×10 elementi portate di circa 440 km in SSB QRP, 510 km in SSB con 50 W, 600 km in CW QRP e 640 km in SSB con 500 W (fonti, undicesimo giro). Solo oltre i 600–700 km il troposcatter non basta più e una serie di collegamenti paralleli indica davvero un condotto o uno strato. Fino alla 1.3.3 anche un corridoio di 450–600 km alzava la previsione a 9–12 dB, e la mappa mostrava un miglioramento che non c'era.
+
+**Il valore di partenza** va quindi con la distanza media delle tratte:
+
+- fino a 400 km: 3 dB;
+- da 400 a 700 km: sale in modo lineare da 3 a 10 dB (500 km → 5,3 dB; 600 km → 7,7 dB);
+- da 700 a 900 km: da 10 a 16 dB; oltre i 900 km resta a 16 dB.
+
+Sotto i 7 dB, cioè sotto l'inizio della scala, il minimo resta quello: il corridoio si disegna con la sua etichetta, si vede che la banda lavora, ma i colori della mappa non cambiano (con la casella Mostra anche 3–7 dB compare il tratteggio grigio). Sopra i 7 dB il valore si pesa, metà e metà, con il numero di tratte indipendenti (3 tratte → 0,25; 6 o più → 1) e con l'S/N mediano dei rapporti (−20 dB → 0,5; 0 dB o più → 1; non noto, come negli spot dei cluster, → 0,75), partendo da 7 dB. Esempi: 3 tratte senza S/N su 500 km → 5,3 dB; 5 tratte su 615 km → 7,7 dB; 3 tratte senza S/N su 900 km → 11,5 dB; 3 tratte a −20 dB su 900 km → 10,4 dB; 6 tratte a 0 dB su 900 km → 16 dB.
+
+La distanza minima resta 300 km: alzarla a 500 km avrebbe tolto anche le aperture vere a corto raggio (per esempio un condotto sul Tirreno a 400 km, che si riconosce dalla previsione meteo e dai segnali molto forti più che dalla sola distanza). Nell'archivio di I5MZY, il 22/11/2026 alle 10:53 UTC, con questa regola e il filtro a raggiera i corridoi più lunghi erano di 615 km (7,7 dB) e 540 km (6,3 dB); con le regole della 1.3.3 si arrivava a 2175 km e 16 dB.
+
+Fino alla 1.3.3 il minimo valeva su tutto il rettangolo del corridoio e dipendeva solo dalla distanza (da 10 dB a 300 km a 16 dB a 900 km): con molti corridoi lunghi insieme (per esempio il 22/11/2026, dodici corridoi fino a 2620 km) alzava quasi tutta l'Europa a 16 dB.
 
 Le curve di guadagno non disegnano più «gocce»: le isole più piccole di 220 km in tutte e due le direzioni restano colorate ma senza curva chiusa, a meno che un corridoio le confermi. Si spegne con la casella «Previsione mediata dagli spot».
 

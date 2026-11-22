@@ -49,7 +49,13 @@ public sealed class Corridors
         {
             get
             {
-                double len = 10 + 6 * Math.Max(0, Math.Min(1, (MeanKm - 300) / 600));
+                // Sotto i 600–700 km il 2 m passa quasi ogni giorno per troposcatter:
+                // il corridoio dice che la banda lavora, non che c'è un'apertura.
+                // Base: 3 dB fino a 400 km, 10 dB a 700 km, 16 dB da 900 km in su.
+                double len = MeanKm <= 400 ? 3
+                           : MeanKm <= 700 ? 3 + 7 * (MeanKm - 400) / 300
+                           : 10 + 6 * Math.Min(1, (MeanKm - 700) / 200);
+                if (len <= 7) return len;
                 double kp = Math.Max(0.25, Math.Min(1, (Paths - 2) / 4.0));
                 double ks = double.IsNaN(MedianSnr) ? 0.75 : Math.Max(0.5, Math.Min(1, (MedianSnr + 20) / 20 * 0.5 + 0.5));
                 return 7 + (len - 7) * (0.5 * kp + 0.5 * ks);
