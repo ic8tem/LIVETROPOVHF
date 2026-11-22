@@ -592,23 +592,21 @@ public sealed partial class MainForm : Form
 
     string GroupLabel(string g)
     {
-        bool it = Lang.Current == "it";
         switch (g)
         {
             case "map": return Lang.T("tab.map");
-            case "prev": return it ? "Previsioni" : "Forecasts";
+            case "prev": return Lang.Tr("Previsioni", "Forecasts");
             case "graves": return Lang.T("tab.graves");
-            case "data": return it ? "Dati e fonti" : "Data & sources";
-            default: return it ? "Guide" : "Guides";
+            case "data": return Lang.Tr("Dati e fonti", "Data & sources");
+            default: return Lang.Tr("Guide", "Guides");
         }
     }
 
     string ItemLabel(string item)
     {
-        bool it = Lang.Current == "it";
         switch (item)
         {
-            case "fc": return it ? "Propria (β)" : "Own (β)";
+            case "fc": return Lang.Tr("Propria (β)", "Own (β)");
             case "hepburn": return Lang.T("tab.hep");
             case "f5len": return Lang.T("tab.f5");
             case "collect:dx": return "DX cluster";
@@ -617,9 +615,9 @@ public sealed partial class MainForm : Form
             case "collect:udp": return "UDP (WSJT-X, JTDX, MSHV)";
             case "collect:calls": return Lang.T("c.tab");
             case "sus": return Lang.T("tab.sus");
-            case "doc4": return it ? "Manuale previsioni" : "Forecast manual";
-            case "doc5": return it ? "Consigli all'operatore" : "Operator tips";
-            case "doc6": return it ? "Fonti e formule" : "Sources and formulas";
+            case "doc4": return Lang.Tr("Manuale previsioni", "Forecast manual");
+            case "doc5": return Lang.Tr("Consigli all'operatore", "Operator tips");
+            case "doc6": return Lang.Tr("Fonti e formule", "Sources and formulas");
             default: return Lang.T("tab." + item);
         }
     }
@@ -742,7 +740,6 @@ public sealed partial class MainForm : Form
     void RefreshStatus()
     {
         if (_statusSegs.Count == 0) return;
-        bool it = Lang.Current == "it";
         string Dot(bool ok) => ok ? "●" : "○";
         void Set(string id, string text, AM.Color col, string tip = null)
         {
@@ -753,21 +750,21 @@ public sealed partial class MainForm : Form
         }
         string Why(string err)
         {
-            if (string.IsNullOrEmpty(err)) return it ? "non collegato (spento o in attesa)" : "not connected (off or waiting)";
+            if (string.IsNullOrEmpty(err)) return Lang.Tr("non collegato (spento o in attesa)", "not connected (off or waiting)");
             var low = err.ToLowerInvariant();
-            if (low.Contains("rifiut") || low.Contains("refused")) return err + (it ? "\r\nIl server rifiuta la connessione: porta sbagliata o servizio spento. Controlla host e porta." : "\r\nThe server refuses the connection: wrong port or service down.");
-            if (low.Contains("nodo del cluster fermo")) return err + (it ? "\r\nNon dipende dal programma: il nodo è fermo dal lato del server. Intanto usa un altro cluster." : "\r\nNot a program fault: the node is down server-side.");
-            if (low.Contains("timeout") || low.Contains("tempo")) return err + (it ? "\r\nNessuna risposta: rete lenta, firewall o server occupato." : "\r\nNo answer: slow network, firewall or busy server.");
+            if (low.Contains("rifiut") || low.Contains("refused")) return err + (Lang.Tr("\r\nIl server rifiuta la connessione: porta sbagliata o servizio spento. Controlla host e porta.", "\r\nThe server refuses the connection: wrong port or service down."));
+            if (low.Contains("nodo del cluster fermo")) return err + (Lang.Tr("\r\nNon dipende dal programma: il nodo è fermo dal lato del server. Intanto usa un altro cluster.", "\r\nNot a program fault: the node is down server-side."));
+            if (low.Contains("timeout") || low.Contains("tempo")) return err + (Lang.Tr("\r\nNessuna risposta: rete lenta, firewall o server occupato.", "\r\nNo answer: slow network, firewall or busy server."));
             return err;
         }
-        string Click = it ? "\r\nClic: apri la fonte" : "\r\nClick: open the source";
+        string Click = Lang.Tr("\r\nClic: apri la fonte", "\r\nClick: open the source");
         foreach (var f in _st.Feeds)
-            Set("feed:" + f.Id, $"{Dot(f.Connected)} {f.Src}", f.Connected ? _th.Ok : f.LastError != "" ? _th.Bad : _th.Muted, $"{f.Host}:{f.Port}\r\n" + (f.Connected ? (it ? "collegato" : "connected") : Why(f.LastError)) + Click);
+            Set("feed:" + f.Id, $"{Dot(f.Connected)} {f.Src}", f.Connected ? _th.Ok : f.LastError != "" ? _th.Bad : _th.Muted, $"{f.Host}:{f.Port}\r\n" + (f.Connected ? (Lang.Tr("collegato", "connected")) : Why(f.LastError)) + Click);
         var q = _st.Mqtt;
-        Set("mqtt", $"{Dot(q.Connected)} PSKReporter MQTT", q.Connected ? _th.Ok : q.LastError != "" ? _th.Bad : _th.Muted, $"{q.Host}:{q.Port}\r\n" + (q.Connected ? (it ? "collegato" : "connected") : Why(q.LastError)) + Click);
+        Set("mqtt", $"{Dot(q.Connected)} PSKReporter MQTT", q.Connected ? _th.Ok : q.LastError != "" ? _th.Bad : _th.Muted, $"{q.Host}:{q.Port}\r\n" + (q.Connected ? (Lang.Tr("collegato", "connected")) : Why(q.LastError)) + Click);
         var u = _st.Udp;
         Set("udp", $"{Dot(u.Running)} UDP {u.ListenPort}→{u.ForwardPort}", u.Running ? (u.Packets > 0 ? _th.Ok : _th.Muted) : u.LastError != "" ? _th.Bad : _th.Muted,
-            (u.Running ? (u.Packets > 0 ? (it ? $"in ascolto, {u.Packets} pacchetti" : $"listening, {u.Packets} packets") : (it ? "in ascolto, ma WSJT-X / JTDX / MSHV non mandano ancora nulla: controlla Impostazioni → Reporting → UDP Server" : "listening, but nothing received yet: check Settings → Reporting → UDP Server")) : Why(u.LastError)) + Click);
+            (u.Running ? (u.Packets > 0 ? (Lang.Tr("in ascolto, {0} pacchetti", "listening, {0} packets", u.Packets)) : (Lang.Tr("in ascolto, ma WSJT-X / JTDX / MSHV non mandano ancora nulla: controlla Impostazioni → Reporting → UDP Server", "listening, but nothing received yet: check Settings → Reporting → UDP Server"))) : Why(u.LastError)) + Click);
         Set("pressure", _st.Pressure.Status, _th.Muted);
         Set("tropo", _st.Tropo.Status, _th.Muted);
         bool callBad = _st.CallDb.Ready && (_st.CallDb.Error != "" || _st.CallDb.Count == 0);
@@ -777,19 +774,16 @@ public sealed partial class MainForm : Form
         if (_st.Archive.Error != "") other.Add("DB: " + _st.Archive.Error);
         Set("other", string.Join("   ·   ", other), _th.Muted);
         bool recent = _lastErrorNote != "" && (DateTime.Now - _lastErrorAt).TotalMinutes < 15;
-        Set("error", recent ? (it ? "⚠ errore annotato" : "⚠ error logged") : "", _th.Bad, recent ? $"{_lastErrorAt:HH:mm:ss} {_lastErrorNote}\r\n" + (it ? "Il programma continua. Clic: apri il registro degli errori" : "The program goes on. Click: open the error log") : null);
-        Set("version", "v" + Program.Version + " (Windows 7)" + (Updater.Status != "" ? " · " + Updater.Status : ""), _th.Muted, it ? "Clic: cerca aggiornamenti adesso" : "Click: check for updates now");
+        Set("error", recent ? (Lang.Tr("⚠ errore annotato", "⚠ error logged")) : "", _th.Bad, recent ? $"{_lastErrorAt:HH:mm:ss} {_lastErrorNote}\r\n" + (Lang.Tr("Il programma continua. Clic: apri il registro degli errori", "The program goes on. Click: open the error log")) : null);
+        Set("version", "v" + Program.Version + " (Windows 7)" + (Updater.Status != "" ? " · " + Updater.Status : ""), _th.Muted, Lang.Tr("Clic: cerca aggiornamenti adesso", "Click: check for updates now"));
     }
 
     void AskSendErrorReport()
     {
-        bool it = Lang.Current == "it";
         var summary = ErrorLog.PendingSummary.Replace("\n", " · ");
         ErrorLog.ClearPending();
-        var r = MessageBox.Show(this, it
-            ? $"L'ultima volta il programma ha annotato un errore ({summary}).\r\n\r\nVuoi inviare il rapporto agli autori? Si apre il browser su una segnalazione GitHub già compilata, con nominativo, locatore e nome utente del PC tolti: controlli il testo e premi Invia (serve un account GitHub gratuito).\r\n\r\nIl registro completo è in {ErrorLog.FilePath}."
-            : $"Last time the program logged an error ({summary}).\r\n\r\nSend the report to the authors? The browser opens a prefilled GitHub issue with call, locator and PC user name removed (a free GitHub account is needed).\r\n\r\nThe full log is in {ErrorLog.FilePath}.",
-            it ? "Rapporto di errore" : "Error report", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+        var r = MessageBox.Show(this, Lang.Tr("L'ultima volta il programma ha annotato un errore ({0}).\r\n\r\nVuoi inviare il rapporto agli autori? Si apre il browser su una segnalazione GitHub già compilata, con nominativo, locatore e nome utente del PC tolti: controlli il testo e premi Invia (serve un account GitHub gratuito).\r\n\r\nIl registro completo è in {1}.", "Last time the program logged an error ({0}).\r\n\r\nSend the report to the authors? The browser opens a prefilled GitHub issue with call, locator and PC user name removed (a free GitHub account is needed).\r\n\r\nThe full log is in {1}.", summary, ErrorLog.FilePath),
+            Lang.Tr("Rapporto di errore", "Error report"), MessageBoxButtons.YesNo, MessageBoxIcon.Information);
         if (r == DialogResult.Yes) try { System.Diagnostics.Process.Start(ErrorLog.IssueUrl(_st.Call, _st.Loc)); } catch (Exception ex) { ErrorLog.Write(ex, "apertura del browser"); }
     }
 
@@ -798,19 +792,16 @@ public sealed partial class MainForm : Form
     {
         if (_restartAsked || IsDisposed) return;
         _restartAsked = true;
-        bool it = Lang.Current == "it";
         bool restart;
         if (mandatory)
         {
-            MessageBox.Show(this, it ? $"È stata installata la versione {version}, una correzione urgente. Il programma si riavvia per usarla: impostazioni e dati restano."
-                                     : $"Version {version}, an urgent fix, has been installed. The program restarts to use it: settings and data are kept.",
-                it ? "Aggiornamento" : "Update", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, Lang.Tr("È stata installata la versione {0}, una correzione urgente. Il programma si riavvia per usarla: impostazioni e dati restano.", "Version {0}, an urgent fix, has been installed. The program restarts to use it: settings and data are kept.", version),
+                Lang.Tr("Aggiornamento", "Update"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             restart = true;
         }
         else
-            restart = MessageBox.Show(this, it ? $"È stata installata la versione {version}. Sarà attiva dal prossimo avvio: vuoi riavviare adesso? Impostazioni e dati restano."
-                                               : $"Version {version} has been installed and will be active at the next start: restart now? Settings and data are kept.",
-                it ? "Aggiornamento" : "Update", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+            restart = MessageBox.Show(this, Lang.Tr("È stata installata la versione {0}. Sarà attiva dal prossimo avvio: vuoi riavviare adesso? Impostazioni e dati restano.", "Version {0} has been installed and will be active at the next start: restart now? Settings and data are kept.", version),
+                Lang.Tr("Aggiornamento", "Update"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
         if (restart && Updater.StartNewInstance()) { _closeConfirmed = true; Close(); }
     }
 

@@ -34,7 +34,7 @@ public sealed partial class MainForm
     System.Windows.Forms.Timer _fcLogTimer;
     ToolTip _fcTips;
 
-    static string L(string it, string en) => Lang.Current == "it" ? it : en;
+    static string L(string it, string en, params object[] a) => Lang.Tr(it, en, a);
 
     double FcFreq => _st.S.Get("fc_band", "144") switch { "432" => 432.2, "1296" => 1296.2, _ => 144.3 };
     int FcHours { get => _st.S.GetInt("fc_hours", 0); set => _st.S.SetInt("fc_hours", value); }
@@ -74,15 +74,15 @@ public sealed partial class MainForm
         Add(col, exp);
         if (!P453.Available)
         {
-            var p4 = WrapLbl(L($"Calcolo B dei condotti spento: mancano i file ITU-R P.453 in {P453.Folder} (manuale delle previsioni, § 6).",
-                               $"Duct calculation B off: ITU-R P.453 files missing in {P453.Folder} (forecast manual, § 6)."), 8.5f, _th.Muted);
+            var p4 = WrapLbl(L("Calcolo B dei condotti spento: mancano i file ITU-R P.453 in {0} (manuale delle previsioni, § 6).",
+                               "Duct calculation B off: ITU-R P.453 files missing in {0} (forecast manual, § 6).", P453.Folder), 8.5f, _th.Muted);
             Add(col, p4);
             Button dl = null;
             dl = Btn(L("Scarica le mappe P.453 dall'ITU (uso personale)", "Download P.453 maps from ITU (personal use)"), async () =>
             {
                 var ok = MessageBox.Show(this,
-                    L("Il programma scarica dal sito dell'ITU l'archivio dei condotti e ne estrae i file in " + P453.Folder + ".\r\n\r\nI dati sono © ITU: le condizioni d'uso del sito permettono di scaricarli e usarli per scopi personali, educativi o non commerciali citando la fonte, non di ridistribuirli o usarli a fini commerciali senza permesso scritto. Scaricandoli accetti queste condizioni.\r\n\r\nFonte: " + P453.ItuPage,
-                      "The program downloads the duct archive from the ITU website and extracts the files into " + P453.Folder + ".\r\n\r\nThe data are © ITU: the website terms allow personal, educational or non-commercial use with credit, not redistribution or commercial use without written permission. By downloading you accept these terms.\r\n\r\nSource: " + P453.ItuPage),
+                    L("Il programma scarica dal sito dell'ITU l'archivio dei condotti e ne estrae i file in {0}.\r\n\r\nI dati sono © ITU: le condizioni d'uso del sito permettono di scaricarli e usarli per scopi personali, educativi o non commerciali citando la fonte, non di ridistribuirli o usarli a fini commerciali senza permesso scritto. Scaricandoli accetti queste condizioni.\r\n\r\nFonte: {1}",
+                      "The program downloads the duct archive from the ITU website and extracts the files into {0}.\r\n\r\nThe data are © ITU: the website terms allow personal, educational or non-commercial use with credit, not redistribution or commercial use without written permission. By downloading you accept these terms.\r\n\r\nSource: {1}", P453.Folder, P453.ItuPage),
                     "ITU-R P.453", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
                 if (ok != DialogResult.OK) return;
                 dl.Enabled = false;
@@ -415,7 +415,7 @@ public sealed partial class MainForm
         {
             _st.NowcastOn = v; _st.S.SetBool("fc_nowcast", v); _st.Dirty = true; _fcMap?.InvalidateVisual();
         });
-        _fcTips.SetToolTip(nc, L("Corridoi d'apertura: almeno 3 coppie di stazioni indipendenti su tratte parallele (±15°, entro 150 km dall'asse) di almeno 300 km negli ultimi 30 minuti, ripetute a distanza di 10 minuti (un collegamento isolato può essere un aereo). Fonti: cluster, PSKReporter, QSO e decodifiche, salti APRS in 2 m. Tratte oltre 1500 km solo se confermate da due fonti. Vicino alla parte centrale delle tratte (±60 km) la previsione dell'ora attuale non scende sotto un minimo da 7 a 16 dB, secondo lunghezza, numero di tratte e S/N, e le curve non fanno gocce. Manuale delle previsioni, § 4 bis.", "Opening corridors: at least 3 independent station pairs on parallel paths (±15°, within 150 km of the axis) of at least 300 km in the last 30 minutes, repeated 10 minutes apart (a single contact may be an aircraft). Sources: clusters, PSKReporter, QSOs and decodes, APRS 2 m hops. Paths over 1500 km only if confirmed by two sources. Near the middle part of the paths (±60 km) the current-hour forecast does not drop below a floor of 7 to 16 dB, by length, number of paths and S/N, and the contours make no drops. Forecast manual, § 4 bis."));
+        _fcTips.SetToolTip(nc, L("Corridoi d'apertura: almeno 3 coppie di stazioni indipendenti su tratte parallele (±15°, entro 150 km dall'asse) di almeno 300 km negli ultimi 30 minuti, ripetute a distanza di 10 minuti (un collegamento isolato può essere un aereo). Fonti: cluster, PSKReporter, QSO e decodifiche, salti APRS in 2 m. Tratte oltre 1500 km solo se confermate da due fonti; non contano le stazioni che in un'ora sentono stazioni lontane da tutte le direzioni (ricevitori configurati male). Vicino alla parte centrale delle tratte (±60 km) la previsione dell'ora attuale non scende sotto un minimo da 3 a 16 dB, secondo lunghezza (sotto i 600 km è quasi sempre troposcatter normale), numero di tratte e S/N, e le curve non fanno gocce. Manuale delle previsioni, § 4 bis.", "Opening corridors: at least 3 independent station pairs on parallel paths (±15°, within 150 km of the axis) of at least 300 km in the last 30 minutes, repeated 10 minutes apart (a single contact may be an aircraft). Sources: clusters, PSKReporter, QSOs and decodes, APRS 2 m hops. Paths over 1500 km only if confirmed by two sources; stations hearing distant stations from all directions within an hour (misconfigured receivers) are ignored. Near the middle part of the paths (±60 km) the current-hour forecast does not drop below a floor of 3 to 16 dB, by length (below 600 km it is almost always normal troposcatter), number of paths and S/N, and the contours make no drops. Forecast manual, § 4 bis."));
         Add(col, nc);
         var ap = Chk(L("Salti APRS: 2 m e LoRa 433/868 MHz (APRS-IS)", "APRS hops: 2 m and LoRa 433/868 MHz (APRS-IS)"), _st.AprsOn, v =>
         {
@@ -539,10 +539,10 @@ public sealed partial class MainForm
                 tm.Lap("calcolo sul percorso");
                 r.Times.Laps.Insert(0, tm.Laps[0]);
                 r.Times.Add("TOTALE", tm.TotalMs);
-                if (!tx.Precise && tx.AslM <= 0) r.Notes.Add(L($"quota della mia antenna stimata: suolo SRTM al centro del quadrato {tx.Loc} + {tx.AglM:0} m; per la precisione usa un locatore a 8–10 caratteri o scrivi la quota sul mare",
-                                                             $"my antenna height estimated: SRTM ground at the centre of {tx.Loc} + {tx.AglM:0} m; for precision use an 8–10 character locator or enter the height above sea"));
-                if (!rx.Precise && rx.AslM <= 0) r.Notes.Add(L($"quota dell'antenna del corrispondente stimata: suolo SRTM al centro del quadrato {rx.Loc} + {rx.AglM:0} m",
-                                                             $"other antenna height estimated: SRTM ground at the centre of {rx.Loc} + {rx.AglM:0} m"));
+                if (!tx.Precise && tx.AslM <= 0) r.Notes.Add(L("quota della mia antenna stimata: suolo SRTM al centro del quadrato {0} + {1:0} m; per la precisione usa un locatore a 8–10 caratteri o scrivi la quota sul mare",
+                                                             "my antenna height estimated: SRTM ground at the centre of {0} + {1:0} m; for precision use an 8–10 character locator or enter the height above sea", tx.Loc, tx.AglM));
+                if (!rx.Precise && rx.AslM <= 0) r.Notes.Add(L("quota dell'antenna del corrispondente stimata: suolo SRTM al centro del quadrato {0} + {1:0} m",
+                                                             "other antenna height estimated: SRTM ground at the centre of {0} + {1:0} m", rx.Loc, rx.AglM));
                 CalcLog.W($"TEMPI dal clic al risultato: {CalcLog.Dur(tm.TotalMs)}");
                 _fcLast = r;
                 FcSetStatus(L("Calcolo completato.", "Done.") + (r.TilesMissing > 0 ? " " + L("Riquadri DEM 30 m mancanti: ", "Missing DEM 30 m tiles: ") + r.TilesMissing : ""));

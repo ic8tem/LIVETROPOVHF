@@ -49,7 +49,7 @@ public sealed partial class MainWindow
         _fcMap?.InvalidateVisual();
     }
 
-    static string L(string it, string en) => Lang.Current == "it" ? it : en;
+    static string L(string it, string en, params object[] a) => Lang.Tr(it, en, a);
 
     double FcFreq => _st.S.Get("fc_band", "144") switch { "432" => 432.2, "1296" => 1296.2, _ => 144.3 };
     int FcHours { get => _st.S.GetInt("fc_hours", 0); set => _st.S.SetInt("fc_hours", value); }
@@ -79,8 +79,8 @@ public sealed partial class MainWindow
         col.Children.Add(new Border { BorderBrush = B(_th.Bad), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(8, 6), Child = exp });
         if (!P453.Available)
         {
-            var p4 = TB(L($"Calcolo B dei condotti spento: mancano i file ITU-R P.453 (mappe dei condotti) in {P453.Folder}. Vedi il manuale delle previsioni, § 6.",
-                          $"Duct calculation B off: ITU-R P.453 duct map files missing in {P453.Folder}. See the forecast manual, § 6."), 11, _th.Muted);
+            var p4 = TB(L("Calcolo B dei condotti spento: mancano i file ITU-R P.453 (mappe dei condotti) in {0}. Vedi il manuale delle previsioni, § 6.",
+                          "Duct calculation B off: ITU-R P.453 duct map files missing in {0}. See the forecast manual, § 6.", P453.Folder), 11, _th.Muted);
             p4.TextWrapping = TextWrapping.Wrap;
             var box = new StackPanel { Spacing = 6 };
             box.Children.Add(p4);
@@ -88,14 +88,14 @@ public sealed partial class MainWindow
             dl = OutlineButton(L("Scarica le mappe P.453 dall'ITU (uso personale)", "Download P.453 maps from ITU (personal use)"), async () =>
             {
                 bool ok = await AskYesNo(L("Mappe ITU-R P.453", "ITU-R P.453 maps"),
-                    L("Il programma scarica dal sito dell'ITU l'archivio dei condotti (elevated_and_surface_duct.zip) e ne estrae i sette file in " + P453.Folder + ".\n\n" +
+                    L("Il programma scarica dal sito dell'ITU l'archivio dei condotti (elevated_and_surface_duct.zip) e ne estrae i sette file in {0}.\n\n" +
                       "I dati sono © ITU. Le condizioni d'uso del sito ITU permettono di scaricarli, copiarli e usarli per scopi personali, educativi o non commerciali, citando la fonte; " +
                       "non permettono di ridistribuirli, modificarli o usarli a fini commerciali senza permesso scritto dell'ITU. Scaricandoli accetti queste condizioni.\n\n" +
-                      "Fonte: ITU-R P.453, prodotti digitali della Study Group 3 (" + P453.ItuPage + ").",
-                      "The program downloads the duct archive (elevated_and_surface_duct.zip) from the ITU website and extracts the seven files into " + P453.Folder + ".\n\n" +
+                      "Fonte: ITU-R P.453, prodotti digitali della Study Group 3 ({1}).",
+                      "The program downloads the duct archive (elevated_and_surface_duct.zip) from the ITU website and extracts the seven files into {0}.\n\n" +
                       "The data are © ITU. The ITU website terms allow downloading, copying and using them for personal, educational or non-commercial purposes with credit to the source; " +
                       "they do not allow redistribution, modification or commercial use without ITU's written permission. By downloading you accept these terms.\n\n" +
-                      "Source: ITU-R P.453, Study Group 3 digital products (" + P453.ItuPage + ")."),
+                      "Source: ITU-R P.453, Study Group 3 digital products ({1}).", P453.Folder, P453.ItuPage),
                     L("Scarica", "Download"), L("Annulla", "Cancel"));
                 if (!ok) return;
                 dl.IsEnabled = false;
@@ -609,10 +609,10 @@ public sealed partial class MainWindow
                 tm.Lap("calcolo sul percorso");
                 r.Times.Laps.Insert(0, tm.Laps[0]);
                 r.Times.Add("TOTALE", tm.TotalMs);
-                if (!tx.Precise && tx.AslM <= 0) r.Notes.Add(L($"quota della mia antenna stimata: suolo SRTM al centro del quadrato {tx.Loc} + {tx.AglM:0} m; per la precisione usa un locatore a 8–10 caratteri o scrivi la quota sul mare",
-                                                             $"my antenna height estimated: SRTM ground at the centre of {tx.Loc} + {tx.AglM:0} m; for precision use an 8–10 character locator or enter the height above sea"));
-                if (!rx.Precise && rx.AslM <= 0) r.Notes.Add(L($"quota dell'antenna del corrispondente stimata: suolo SRTM al centro del quadrato {rx.Loc} + {rx.AglM:0} m",
-                                                             $"other antenna height estimated: SRTM ground at the centre of {rx.Loc} + {rx.AglM:0} m"));
+                if (!tx.Precise && tx.AslM <= 0) r.Notes.Add(L("quota della mia antenna stimata: suolo SRTM al centro del quadrato {0} + {1:0} m; per la precisione usa un locatore a 8–10 caratteri o scrivi la quota sul mare",
+                                                             "my antenna height estimated: SRTM ground at the centre of {0} + {1:0} m; for precision use an 8–10 character locator or enter the height above sea", tx.Loc, tx.AglM));
+                if (!rx.Precise && rx.AslM <= 0) r.Notes.Add(L("quota dell'antenna del corrispondente stimata: suolo SRTM al centro del quadrato {0} + {1:0} m",
+                                                             "other antenna height estimated: SRTM ground at the centre of {0} + {1:0} m", rx.Loc, rx.AglM));
                 CalcLog.W($"TEMPI dal clic al risultato: {CalcLog.Dur(tm.TotalMs)} (profili {CalcLog.Dur(tm.Laps[0].Ms)}" + (fs != null ? $": {fs.Summary()}" : "") + $", percorso {CalcLog.Dur(tm.Laps[1].Ms)})");
                 _fcLast = r;
                 FcSetStatus(L("Calcolo completato.", "Done.") + (r.TilesMissing > 0 ? " " + L("Riquadri DEM 30 m mancanti: ", "Missing DEM 30 m tiles: ") + r.TilesMissing : ""));
@@ -678,10 +678,8 @@ public sealed partial class MainWindow
             _st.S.Set("fc_source", OwnForecast.Source.ToString()); _st.Dirty = true;
             FcSetStatus(L("Sorgente scelta: ", "Source: ") + WxSources.Name(OwnForecast.Source) + L(". Premi «Aggiorna previsione» per scaricare la griglia.", ". Press «Update forecast» to download the grid."));
         };
-        ToolTip.SetTip(src, L("Automatica (consigliata): GFS prima da NOMADS (NOAA, file GRIB2 della zona, nessun limite giornaliero), poi da Open-Meteo per i punti che mancano: è lo stesso modello e la stessa corsa. ICON-EU (solo Europa) ed ECMWF valgono per tutta la griglia: modelli diversi non si mescolano. Manuale delle previsioni, § 3 bis." +
-                              "ICON-EU (solo Europa) ed ECMWF valgono per tutta la griglia: modelli diversi non si mescolano. Manuale delle previsioni, § 3 bis.",
-                              "Automatic (recommended): GFS first from NOMADS (NOAA, GRIB2 files of the area, no daily limit), then from Open-Meteo for any missing points: same model and run. ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis." +
-                              "ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis."));
+        ToolTip.SetTip(src, L("Automatica (consigliata): GFS prima da NOMADS (NOAA, file GRIB2 della zona, nessun limite giornaliero), poi da Open-Meteo per i punti che mancano: è lo stesso modello e la stessa corsa. ICON-EU (solo Europa) ed ECMWF valgono per tutta la griglia: modelli diversi non si mescolano. Manuale delle previsioni, § 3 bis.",
+                              "Automatic (recommended): GFS first from NOMADS (NOAA, GRIB2 files of the area, no daily limit), then from Open-Meteo for any missing points: same model and run. ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis."));
         var sp1 = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         sp1.Children.Add(new TextBlock { Text = L("Sorgente dei dati", "Data source"), Width = 120, FontSize = (12) * UiScale.F, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
         sp1.Children.Add(src);
@@ -731,7 +729,7 @@ public sealed partial class MainWindow
         box.Children.Add(sa);
         var nc = new CheckBox { Content = L("Previsione mediata dagli spot (corridoi di tratte parallele)", "Forecast blended with spots (parallel-path corridors)"), IsChecked = _st.NowcastOn, FontSize = (12) * UiScale.F };
         nc.IsCheckedChanged += (_, _) => { _st.NowcastOn = nc.IsChecked == true; _st.S.SetBool("fc_nowcast", _st.NowcastOn); _st.Dirty = true; _fcMap?.InvalidateVisual(); };
-        ToolTip.SetTip(nc, L("Corridoi d'apertura: almeno 3 coppie di stazioni indipendenti su tratte parallele (±15°, entro 150 km dall'asse) di almeno 300 km negli ultimi 30 minuti, ripetute a distanza di 10 minuti (un collegamento isolato può essere un aereo). Fonti: cluster, PSKReporter, QSO e decodifiche, salti APRS in 2 m. Tratte oltre 1500 km solo se confermate da due fonti. Vicino alla parte centrale delle tratte (±60 km) la previsione dell'ora attuale non scende sotto un minimo da 7 a 16 dB, secondo lunghezza, numero di tratte e S/N, e le curve non fanno gocce. Manuale delle previsioni, § 4 bis.", "Opening corridors: at least 3 independent station pairs on parallel paths (±15°, within 150 km of the axis) of at least 300 km in the last 30 minutes, repeated 10 minutes apart (a single contact may be an aircraft). Sources: clusters, PSKReporter, QSOs and decodes, APRS 2 m hops. Paths over 1500 km only if confirmed by two sources. Near the middle part of the paths (±60 km) the current-hour forecast does not drop below a floor of 7 to 16 dB, by length, number of paths and S/N, and the contours make no drops. Forecast manual, § 4 bis."));
+        ToolTip.SetTip(nc, L("Corridoi d'apertura: almeno 3 coppie di stazioni indipendenti su tratte parallele (±15°, entro 150 km dall'asse) di almeno 300 km negli ultimi 30 minuti, ripetute a distanza di 10 minuti (un collegamento isolato può essere un aereo). Fonti: cluster, PSKReporter, QSO e decodifiche, salti APRS in 2 m. Tratte oltre 1500 km solo se confermate da due fonti; non contano le stazioni che in un'ora sentono stazioni lontane da tutte le direzioni (ricevitori configurati male). Vicino alla parte centrale delle tratte (±60 km) la previsione dell'ora attuale non scende sotto un minimo da 3 a 16 dB, secondo lunghezza (sotto i 600 km è quasi sempre troposcatter normale), numero di tratte e S/N, e le curve non fanno gocce. Manuale delle previsioni, § 4 bis.", "Opening corridors: at least 3 independent station pairs on parallel paths (±15°, within 150 km of the axis) of at least 300 km in the last 30 minutes, repeated 10 minutes apart (a single contact may be an aircraft). Sources: clusters, PSKReporter, QSOs and decodes, APRS 2 m hops. Paths over 1500 km only if confirmed by two sources; stations hearing distant stations from all directions within an hour (misconfigured receivers) are ignored. Near the middle part of the paths (±60 km) the current-hour forecast does not drop below a floor of 3 to 16 dB, by length (below 600 km it is almost always normal troposcatter), number of paths and S/N, and the contours make no drops. Forecast manual, § 4 bis."));
         box.Children.Add(nc);
         var ap = new CheckBox { Content = L("Salti APRS: 2 m e LoRa 433/868 MHz (APRS-IS)", "APRS hops: 2 m and LoRa 433/868 MHz (APRS-IS)"), IsChecked = _st.AprsOn, FontSize = (12) * UiScale.F };
         ap.IsCheckedChanged += (_, _) => { _st.AprsOn = ap.IsChecked == true; _st.S.SetBool("aprs_on", _st.AprsOn); _st.Dirty = true; if (_st.AprsOn) _st.Aprs.Start(); else _st.Aprs.Stop(); };

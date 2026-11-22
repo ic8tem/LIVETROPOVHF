@@ -16,7 +16,7 @@ public enum FcTone { Normal, Strong, Accent, Ok, Warn, Bad, Muted }
 /// <summary>Testi dei risultati e fumetti con fonte e richiamo al manuale.</summary>
 public static class ForecastText
 {
-    static string L(string it, string en) => Lang.Current == "it" ? it : en;
+    static string L(string it, string en, params object[] a) => Lang.Tr(it, en, a);
     /// <summary>Segno senza «−0,0» e senza «-+0,0»: valori che arrotondano a zero diventano 0.</summary>
     static double Sg(double x) => Math.Abs(x) < 0.05 || double.IsNaN(x) ? 0.0 : x;
     /// <summary>Perdite enormi (stazione chiusa da un ostacolo vicino) non hanno senso al decimo: sopra 300 dB si scrive «> 300».</summary>
@@ -115,14 +115,14 @@ public static class ForecastText
         Line(L("Troposcatter (P.452)", "Troposcatter (P.452)"), $"{Db(r.LscatDb)} dB (θ {r.ThetaMrad:0.0} mrad)" + (r.ThetaMrad > 300 ? L(" · orizzonte molto alto: un rilievo vicino chiude la direzione", " · very high horizon: nearby terrain blocks this direction") : ""));
         if (!double.IsNaN(r.NearTxMrad) || !double.IsNaN(r.NearRxMrad))
             Line(L("Rilievi vicini (tetto 6 dB)", "Nearby terrain (6 dB cap)"), string.Join(" · ", new[] {
-                double.IsNaN(r.NearTxMrad) ? null : L($"TX a {r.NearTxKm:0.0} km, {r.NearTxMrad:0} mrad: −{r.NearTxSavedDb:0.0} dB", $"TX at {r.NearTxKm:0.0} km, {r.NearTxMrad:0} mrad: −{r.NearTxSavedDb:0.0} dB"),
-                double.IsNaN(r.NearRxMrad) ? null : L($"RX a {r.NearRxKm:0.0} km, {r.NearRxMrad:0} mrad: −{r.NearRxSavedDb:0.0} dB", $"RX at {r.NearRxKm:0.0} km, {r.NearRxMrad:0} mrad: −{r.NearRxSavedDb:0.0} dB") }.Where(x => x != null)));
+                double.IsNaN(r.NearTxMrad) ? null : L("TX a {0:0.0} km, {1:0} mrad: −{2:0.0} dB", "TX at {0:0.0} km, {1:0} mrad: −{2:0.0} dB", r.NearTxKm, r.NearTxMrad, r.NearTxSavedDb),
+                double.IsNaN(r.NearRxMrad) ? null : L("RX a {0:0.0} km, {1:0} mrad: −{2:0.0} dB", "RX at {0:0.0} km, {1:0} mrad: −{2:0.0} dB", r.NearRxKm, r.NearRxMrad, r.NearRxSavedDb) }.Where(x => x != null)));
         if (!double.IsNaN(r.RsgbDb))
             Line(L("Troposcatter, altri modelli", "Troposcatter, other models"), (double.IsNaN(r.P617Db) ? "" : $"P.617 {r.P617Db:0.0} · ") + $"RSGB {r.RsgbDb:0.0} dB · " + L("incertezza", "uncertainty") + $" ±{r.ScatSpreadDb / 2:0.0} dB");
         if (!double.IsNaN(r.CvHeightM))
             Line(L("Volume comune", "Common volume"), $"{r.CvHeightM / 1000:0.0} km " + L("di quota", "high") + $", {r.CvKm:0} km " + L("dal TX", "from TX") +
                  (double.IsNaN(r.CvGrad) ? "" : $" · N {r.CvN:0}, −dN/dh {r.CvGrad:0} N/km, UR {r.CvRH:0}%") + $" · d eq. {r.DeqKm:0} km");
-        if (r.MixScatterDb > 0) Line(L("Troposcatter pomeridiano", "Afternoon troposcatter"), L($"cima dello strato rimescolato a {r.MixTopM:0} m, volume comune a {r.CvHeightM:0} m: −{r.MixScatterDb:0.0} dB sul troposcatter", $"mixed-layer top at {r.MixTopM:0} m, common volume at {r.CvHeightM:0} m: −{r.MixScatterDb:0.0} dB on troposcatter"), FcTone.Accent);
+        if (r.MixScatterDb > 0) Line(L("Troposcatter pomeridiano", "Afternoon troposcatter"), L("cima dello strato rimescolato a {0:0} m, volume comune a {1:0} m: −{2:0.0} dB sul troposcatter", "mixed-layer top at {0:0} m, common volume at {1:0} m: −{2:0.0} dB on troposcatter", r.MixTopM, r.CvHeightM, r.MixScatterDb), FcTone.Accent);
         Line(L("Senza tropo", "Without tropo"), $"{Db(r.LbaseDb)} dB");
         if (r.ForecastUsed)
         {
@@ -158,24 +158,24 @@ public static class ForecastText
         }
         Line(L("Perdita prevista", "Predicted loss"), $"{Db(r.LpredDb)} dB · " + (r.LpredDb > 300 ? L("direzione chiusa da un ostacolo vicino", "direction blocked by nearby terrain") : r.Mechanism), FcTone.Strong, true);
         if (!double.IsNaN(r.ItmDb))
-            Line(L("ITM (Longley-Rice)", "ITM (Longley-Rice)"), L($"{r.ItmDb:0.0} dB al 50% del tempo, {r.Itm10Db:0.0} al 10%, {r.Itm1Db:0.0} all'1% · {r.ItmMode} · Δh {r.ItmDeltaH:0} m · P.452 {r.LbaseDb:0.0} dB ({Sg(r.LbaseDb - r.ItmDb):+0.0;-0.0})",
-                $"{r.ItmDb:0.0} dB at 50% of time, {r.Itm10Db:0.0} at 10%, {r.Itm1Db:0.0} at 1% · {ItmModeEn(r.ItmMode)} · Δh {r.ItmDeltaH:0} m · P.452 {r.LbaseDb:0.0} dB ({Sg(r.LbaseDb - r.ItmDb):+0.0;-0.0})"));
+            Line(L("ITM (Longley-Rice)", "ITM (Longley-Rice)"), L("{0:0.0} dB al 50% del tempo, {1:0.0} al 10%, {2:0.0} all'1% · {3} · Δh {4:0} m · P.452 {5:0.0} dB ({6:+0.0;-0.0})",
+                "{0:0.0} dB at 50% of time, {1:0.0} at 10%, {2:0.0} at 1% · {7} · Δh {4:0} m · P.452 {5:0.0} dB ({6:+0.0;-0.0})", r.ItmDb, r.Itm10Db, r.Itm1Db, r.ItmMode, r.ItmDeltaH, r.LbaseDb, Sg(r.LbaseDb - r.ItmDb), ItmModeEn(r.ItmMode)));
         if (!double.IsNaN(r.LexitDb))
-            Line(L("Uscita dal condotto", "Duct exit"), L($"a {r.ExitKm:0} km, {r.ExitHeightM:0} m · tratto finale ITM {r.ItmTailDb:0.0} dB ({r.ItmTailMode}) · totale {r.LexitDb:0.0} dB",
-                $"at {r.ExitKm:0} km, {r.ExitHeightM:0} m · final leg ITM {r.ItmTailDb:0.0} dB ({ItmModeEn(r.ItmTailMode)}) · total {r.LexitDb:0.0} dB"));
+            Line(L("Uscita dal condotto", "Duct exit"), L("a {0:0} km, {1:0} m · tratto finale ITM {2:0.0} dB ({3}) · totale {4:0.0} dB",
+                "at {0:0} km, {1:0} m · final leg ITM {2:0.0} dB ({5}) · total {4:0.0} dB", r.ExitKm, r.ExitHeightM, r.ItmTailDb, r.ItmTailMode, r.LexitDb, ItmModeEn(r.ItmTailMode)));
         if (!double.IsNaN(r.LentryDb))
-            Line(L("Ingresso nel condotto", "Duct entry"), L($"inizio a {r.EntryKm:0} km, {r.EntryHeightM:0} m · diffrazione {r.EntryDiffDb:0.0} dB (ν {r.EntryNu:0.0} a {r.EntryNuKm:0} km) · totale {r.LentryDb:0.0} dB",
-                                                              $"starts at {r.EntryKm:0} km, {r.EntryHeightM:0} m · diffraction {r.EntryDiffDb:0.0} dB (ν {r.EntryNu:0.0} at {r.EntryNuKm:0} km) · total {r.LentryDb:0.0} dB"));
+            Line(L("Ingresso nel condotto", "Duct entry"), L("inizio a {0:0} km, {1:0} m · diffrazione {2:0.0} dB (ν {3:0.0} a {4:0} km) · totale {5:0.0} dB",
+                                                              "starts at {0:0} km, {1:0} m · diffraction {2:0.0} dB (ν {3:0.0} at {4:0} km) · total {5:0.0} dB", r.EntryKm, r.EntryHeightM, r.EntryDiffDb, r.EntryNu, r.EntryNuKm, r.LentryDb));
         if (!double.IsNaN(r.LpredAggrDb))
             Line(L("Stima prudente / aggressiva", "Cautious / aggressive estimate"), $"{Db(r.LpredDb)} / {Db(r.LpredAggrDb)} dB" + (r.LpredAggrDb < r.LpredDb - 0.05 ? $" ({Sg(r.LpredAggrDb - r.LpredDb):+0.0;-0.0})" : " " + L("(uguali)", "(same)")));
         var extra = new List<string>();
-        if (!double.IsNaN(r.Mu1)) extra.Add(L($"mare μ1 {r.Mu1:0.00} (× {r.SeaWeight:0.00})", $"sea μ1 {r.Mu1:0.00} (× {r.SeaWeight:0.00})"));
-        if (!double.IsNaN(r.DuctCouplingF)) extra.Add(L($"stazioni e condotto × {r.DuctCouplingF:0.00}", $"stations vs duct × {r.DuctCouplingF:0.00}"));
-        if (r.RidgeN > 0 && r.RidgeMaxM >= 500) extra.Add(L($"strato limite sopra {r.RidgeCovered}/{r.RidgeN} creste (+{r.BlhRidgeDb:0.0} dB)", $"boundary layer above {r.RidgeCovered}/{r.RidgeN} ridges (+{r.BlhRidgeDb:0.0} dB)"));
-        if (r.EvapDuctM > 0) extra.Add(L($"condotto d'evaporazione {r.EvapDuctM:0} m", $"evaporation duct {r.EvapDuctM:0} m"));
+        if (!double.IsNaN(r.Mu1)) extra.Add(L("mare μ1 {0:0.00} (× {1:0.00})", "sea μ1 {0:0.00} (× {1:0.00})", r.Mu1, r.SeaWeight));
+        if (!double.IsNaN(r.DuctCouplingF)) extra.Add(L("stazioni e condotto × {0:0.00}", "stations vs duct × {0:0.00}", r.DuctCouplingF));
+        if (r.RidgeN > 0 && r.RidgeMaxM >= 500) extra.Add(L("strato limite sopra {0}/{1} creste (+{2:0.0} dB)", "boundary layer above {0}/{1} ridges (+{2:0.0} dB)", r.RidgeCovered, r.RidgeN, r.BlhRidgeDb));
+        if (r.EvapDuctM > 0) extra.Add(L("condotto d'evaporazione {0:0} m", "evaporation duct {0:0} m", r.EvapDuctM));
         if (r.DayMixFrac >= 0.3) extra.Add(L("giorno: rimescolamento su terra", "day: mixing over land"));
         if (r.NightRadFrac >= 0.3) extra.Add(L("notte: condotti da irraggiamento possibili", "night: radiation ducts possible"));
-        if (r.HighPFrac > 0) extra.Add(L($"alta pressione estesa {r.HighPFrac * 100:0}%", $"broad high pressure {r.HighPFrac * 100:0}%"));
+        if (r.HighPFrac > 0) extra.Add(L("alta pressione estesa {0:0}%", "broad high pressure {0:0}%", r.HighPFrac * 100));
         if (extra.Count > 0) Line(L("Correzioni 1.3.2", "1.3.2 corrections"), string.Join(" · ", extra));
         if (r.P452Ok) Line(L("Confronto P.452 (p 20%)", "P.452 check (p 20%)"), $"{Db(r.P452Lb)} dB ({Sg(r.P452Lb - r.LpredDb):+0.0;-0.0}) · ΔN {r.P452DeltaN:0} · Lba {Db(r.P452Lba)} dB" + (r.P452Alf > 0 ? $" (Alf {r.P452Alf:0.0})" : ""));
         if (!double.IsNaN(r.PeLossDb))
@@ -216,24 +216,24 @@ public static class ForecastText
             var bestVia = r.Via.OrderBy(v => v.RankDb).First();
             bool viaWins = bestVia.RankDb < r.LpredDb;
             Line(L("Puntamento consigliato", "Recommended heading"), viaWins
-                ? L($"azimut {bestVia.AzDeg:0}° verso {bestVia.Loc10} (non sul corrispondente, {r.AzDeg:0}°): {Db(r.LpredDb - bestVia.RankDb)} dB meglio del diretto", $"azimuth {bestVia.AzDeg:0}° towards {bestVia.Loc10} (not at the station, {r.AzDeg:0}°): {Db(r.LpredDb - bestVia.RankDb)} dB better than direct")
-                : L($"diretto, azimut {r.AzDeg:0}°", $"direct, azimuth {r.AzDeg:0}°"), viaWins ? FcTone.Ok : FcTone.Normal, true);
+                ? L("azimut {0:0}° verso {1} (non sul corrispondente, {2:0}°): {3} dB meglio del diretto", "azimuth {0:0}° towards {1} (not at the station, {2:0}°): {3} dB better than direct", bestVia.AzDeg, bestVia.Loc10, r.AzDeg, Db(r.LpredDb - bestVia.RankDb))
+                : L("diretto, azimut {0:0}°", "direct, azimuth {0:0}°", r.AzDeg), viaWins ? FcTone.Ok : FcTone.Normal, true);
             if (ideal)
             {
                 // stazione portata sul punto: perdita nulla fino al monte, conta la tratta dal monte al corrispondente
                 double gain = r.LpredDb - bestVia.IdealDb;
                 double prx = r.PrxDbm + gain, vSsb = r.SnrSsb + gain, vCw = r.SnrCw + gain, vFt8 = r.SnrFt8 + gain;
                 Line(L("Dal monte, senza perdita", "From the peak, lossless"),
-                    L($"{bestVia.Loc10} ({bestVia.HeightM:0} m): {Db(bestVia.IdealDb)} dB · {bestVia.Mechanism2} · {(prx < -230 ? "< −230" : prx.ToString("0.0"))} dBm · S/N SSB {Sg(vSsb):+0.0;-0.0}, CW {Sg(vCw):+0.0;-0.0}, FT8 {Sg(vFt8):+0.0;-0.0} dB",
-                      $"{bestVia.Loc10} ({bestVia.HeightM:0} m): {Db(bestVia.IdealDb)} dB · {bestVia.Mechanism2} · {(prx < -230 ? "< −230" : prx.ToString("0.0"))} dBm · S/N SSB {Sg(vSsb):+0.0;-0.0}, CW {Sg(vCw):+0.0;-0.0}, FT8 {Sg(vFt8):+0.0;-0.0} dB"),
+                    L("{0} ({1:0} m): {2} dB · {3} · {4} dBm · S/N SSB {5:+0.0;-0.0}, CW {6:+0.0;-0.0}, FT8 {7:+0.0;-0.0} dB",
+                      "{0} ({1:0} m): {2} dB · {3} · {4} dBm · S/N SSB {5:+0.0;-0.0}, CW {6:+0.0;-0.0}, FT8 {7:+0.0;-0.0} dB", bestVia.Loc10, bestVia.HeightM, Db(bestVia.IdealDb), bestVia.Mechanism2, (prx < -230 ? "< −230" : prx.ToString("0.0")), Sg(vSsb), Sg(vCw), Sg(vFt8)),
                     V(vSsb, reqSsb), true);
             }
             foreach (var v in r.Via.OrderBy(v => v.RankDb))
                 Line(L("Via monte", "Via mountain"), ideal
-                    ? L($"{v.Loc10}, azimut {v.AzDeg:0}°, {v.DistKm:0.0} km, {v.HeightM:0} m → dal monte {Db(v.IdealDb)} dB ({Sg(v.IdealDb - r.LpredDb):+0.0;-0.0} sul diretto; con la diffusione {Db(v.TotalDb)} dB)",
-                        $"{v.Loc10}, azimuth {v.AzDeg:0}°, {v.DistKm:0.0} km, {v.HeightM:0} m → from the peak {Db(v.IdealDb)} dB ({Sg(v.IdealDb - r.LpredDb):+0.0;-0.0} vs direct; with scattering {Db(v.TotalDb)} dB)")
-                    : L($"{v.Loc10}, azimut {v.AzDeg:0}°, {v.DistKm:0.0} km, {v.HeightM:0} m → {Db(v.TotalDb)} dB ({Sg(v.TotalDb - r.LpredDb):+0.0;-0.0} sul diretto)",
-                        $"{v.Loc10}, azimuth {v.AzDeg:0}°, {v.DistKm:0.0} km, {v.HeightM:0} m → {Db(v.TotalDb)} dB ({Sg(v.TotalDb - r.LpredDb):+0.0;-0.0} vs direct)"),
+                    ? L("{0}, azimut {1:0}°, {2:0.0} km, {3:0} m → dal monte {4} dB ({5:+0.0;-0.0} sul diretto; con la diffusione {6} dB)",
+                        "{0}, azimuth {1:0}°, {2:0.0} km, {3:0} m → from the peak {4} dB ({5:+0.0;-0.0} vs direct; with scattering {6} dB)", v.Loc10, v.AzDeg, v.DistKm, v.HeightM, Db(v.IdealDb), Sg(v.IdealDb - r.LpredDb), Db(v.TotalDb))
+                    : L("{0}, azimut {1:0}°, {2:0.0} km, {3:0} m → {4} dB ({5:+0.0;-0.0} sul diretto)",
+                        "{0}, azimuth {1:0}°, {2:0.0} km, {3:0} m → {4} dB ({5:+0.0;-0.0} vs direct)", v.Loc10, v.AzDeg, v.DistKm, v.HeightM, Db(v.TotalDb), Sg(v.TotalDb - r.LpredDb)),
                      v == bestVia && viaWins ? FcTone.Ok : FcTone.Normal);
         }
         foreach (var n in r.Notes) Note("• " + n);
@@ -266,7 +266,7 @@ public sealed class ForecastPainter
     /// <summary>Testo dell'accordo con pressione e inversione, da mostrare fuori dal disegno.</summary>
     public event Action<string> CorrText;
     string _corrKey = "";
-    static string L(string it, string en) => Lang.Current == "it" ? it : en;
+    static string L(string it, string en, params object[] a) => Lang.Tr(it, en, a);
 
     /// <summary>Campo campionato sulla zona visibile, levigato con due passate di media 3×3 (i buchi restano buchi).</summary>
     public static double[,] Sample(Func<double, double, double> f, double lat0, double lon0, double step, int nr, int nc, double fill)
@@ -492,7 +492,7 @@ public sealed class ForecastPainter
         {
             var c = list[i];
             Map.Screen(c.Mid, out var mp);
-            var txt = L($"corridoio · {c.Paths} tratte · {c.MeanKm:0} km · ≥ {c.FloorDb:0} dB", $"corridor · {c.Paths} paths · {c.MeanKm:0} km · ≥ {c.FloorDb:0} dB");
+            var txt = L("corridoio · {0} tratte · {1:0} km · ≥ {2:0} dB", "corridor · {0} paths · {1:0} km · ≥ {2:0} dB", c.Paths, c.MeanKm, c.FloorDb);
             var ft = new FormattedText(txt, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, tf, 11, fg);
             var rc = new Rect(mp.X - ft.Width / 2 - 4, mp.Y - ft.Height / 2 - 1, ft.Width + 8, ft.Height + 2);
             bool ok = false;
@@ -608,8 +608,8 @@ public sealed class ForecastPainter
         double rp = R(gp.Select(x => (x.g, x.p)).ToList()), ri = R(gi.Select(x => (x.g, x.i)).ToList());
         string F(double r) => double.IsNaN(r) ? "—" : r.ToString("+0.00;−0.00", CultureInfo.InvariantCulture);
         // siamo dentro il disegno della mappa: l'interfaccia cambia il testo dopo, fuori dal passaggio di rendering
-        var corrText = L($"Accordo del guadagno con la pressione {F(rp)}, con l'inversione {F(ri)} ({gp.Count} punti, {t:dd/MM HH}:00 UTC, {f:0} MHz)",
-                         $"Gain agreement with pressure {F(rp)}, with inversion {F(ri)} ({gp.Count} points, {t:dd/MM HH}:00 UTC, {f:0} MHz)");
+        var corrText = L("Accordo del guadagno con la pressione {0}, con l'inversione {1} ({2} punti, {3:dd/MM HH}:00 UTC, {4:0} MHz)",
+                         "Gain agreement with pressure {0}, with inversion {1} ({2} points, {3:dd/MM HH}:00 UTC, {4:0} MHz)", F(rp), F(ri), gp.Count, t, f);
         CorrText?.Invoke(corrText);
         CalcLog.W($"accordo sulla zona visibile, {t:dd/MM HH}:00 UTC, {f:0} MHz: guadagno–pressione r = {F(rp)} ({gp.Count} punti), guadagno–inversione r = {F(ri)} ({gi.Count} punti)");
     }
@@ -731,7 +731,7 @@ public sealed class ProfileView : Control
     readonly List<Point> _ray = new();
     readonly List<(double x, double yTop, double yBase)> _band = new();
 
-    static string L(string it, string en) => Lang.Current == "it" ? it : en;
+    static string L(string it, string en, params object[] a) => Lang.Tr(it, en, a);
 
     /// <summary>Chiave dell'elemento sotto il mouse: 0..n−1 ostacoli, 1000 raggio diretto, 2000 strato, −1 niente.</summary>
     int KeyAt(Point p)
@@ -781,8 +781,8 @@ public sealed class ProfileView : Control
         if (key == 2000)
             return new List<string> {
                 _r.LayerTraps ? L("▬ Strato fondante: CONDOTTO (intrappola la banda)", "▬ Base layer: DUCT (traps the band)") : L("▬ Strato fondante: super-rifrattivo", "▬ Base layer: super-refractive"),
-                L($"strato {_r.LayerName}, continuo da {_r.LayerFromKm:0} a {_r.LayerToKm:0} km", $"layer {_r.LayerName}, continuous from {_r.LayerFromKm:0} to {_r.LayerToKm:0} km"),
-                L($"cima media {_r.TopMean:0} m, base media {_r.BaseMean:0} m sul mare", $"mean top {_r.TopMean:0} m, mean base {_r.BaseMean:0} m a.s.l."),
+                L("strato {0}, continuo da {1:0} a {2:0} km", "layer {0}, continuous from {1:0} to {2:0} km", _r.LayerName, _r.LayerFromKm, _r.LayerToKm),
+                L("cima media {0:0} m, base media {1:0} m sul mare", "mean top {0:0} m, mean base {1:0} m a.s.l.", _r.TopMean, _r.BaseMean),
                 _r.LayerTraps ? L("Il segnale resta dentro lo strato: perdita vicina allo spazio libero.", "The signal stays inside the layer: loss close to free space.")
                               : L("Piega il raggio verso il basso (guadagno), ma non lo intrappola.", "Bends the ray downward (gain) but does not trap it."),
                 L("Arancio più pieno = condotto; più chiaro = solo super-rifrazione.", "Fuller orange = duct; lighter = super-refraction only."),
@@ -818,7 +818,7 @@ public sealed class ProfileView : Control
         ctx.DrawRectangle(new SolidColorBrush(Th?.MapSea ?? Colors.AliceBlue), null, new Rect(0, 0, W, H));
         if (_r == null || _r.Terrain.Length < 2)
         {
-            var e = new FormattedText(Lang.Current == "it" ? "Il profilo del terreno compare qui a calcolo finito." : "The terrain profile appears here when the computation ends.",
+            var e = new FormattedText(Lang.Tr("Il profilo del terreno compare qui a calcolo finito.", "The terrain profile appears here when the computation ends."),
                 CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface.Default, 11, new SolidColorBrush(Th?.Muted ?? Colors.Gray));
             ctx.DrawText(e, new Point(10, H / 2 - 8));
             return;
