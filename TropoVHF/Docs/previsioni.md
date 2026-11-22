@@ -83,6 +83,7 @@ Criterio dell'autore: un collegamento da solo non deve mai disegnare un condotto
 - tutto negli ultimi **30 minuti**, con il fascio che si ripete a distanza di almeno **10 minuti** (persistenza);
 - per l'APRS, un salto conta solo se lo stesso salto si ripete;
 - dalla 1.3.4, le tratte oltre **1500 km** contano solo se il fascio arriva da almeno **due fonti diverse** (per esempio PSKReporter e un cluster): da una fonte sola, a quelle distanze in 2 m, sono più spesso EME, meteor scatter o locatori sbagliati che tropo.
+- dalla 1.3.4, non contano le stazioni «a raggiera»: chi nell'ultima ora ha almeno **5 corrispondenti oltre 1000 km** sparsi su un ventaglio di almeno **150°**. In 2 m la tropo è direzionale; un ricevitore che «sente» insieme Israele, Portogallo, Inghilterra e Italia da 2000–3700 km, spesso con segnali positivi, ha quasi certamente la frequenza configurata male. Nell'archivio di I5MZY del 17–22/11/2026 il 72% delle ricezioni in 2 m oltre 1000 km veniva da stazioni così; il 22/11 alle 10:53 UTC erano OH6HLH, OZ1ITS, F4LUK, OM8ABC e SP2JLR, e con il filtro il corridoio più lungo scende da 2175 km (regole 1.3.3) a 615 km.
 
 Fonti: spot dei cluster (non quelli marcati AS/ACS), PSKReporter via MQTT, i propri QSO e le decodifiche di WSJT-X/JTDX/MSHV, e i salti APRS in 2 m e LoRa 433/868 MHz.
 
