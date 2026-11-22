@@ -67,7 +67,7 @@ public sealed partial class MainWindow
         _srtm ??= new Srtm(FcHttp);
         // pannello a sinistra largo a piacere: si trascina il bordo (larghezza salvata)
         double panelW = Math.Clamp(_st.S.GetInt("fc_panel_w", 430), 320, 1100);
-        var g = new Grid { ColumnDefinitions = new ColumnDefinitions($"{panelW.ToString(CultureInfo.InvariantCulture)},6,*") };
+        var g = new Grid { ColumnDefinitions = new ColumnDefinitions($"{panelW.ToString(CultureInfo.InvariantCulture)},6,*,300") };
         var col = new StackPanel { Spacing = 8, Margin = new Thickness(14) };
 
         col.Children.Add(new TextBlock { Text = L("Previsione propria", "Own forecast"), FontSize = (18) * UiScale.F, FontWeight = FontWeight.Bold, Foreground = B(_th.Accent) });
@@ -147,43 +147,11 @@ public sealed partial class MainWindow
         col.Children.Add(_fcTime);
         col.Children.Add(sl);
 
-        // linee opzionali sopra i colori (i colori restano sempre)
-        CheckBox Ov(string key, string it, string en, string tipIt, string tipEn)
-        {
-            var cb = new CheckBox { Content = L(it, en), IsChecked = _st.S.GetBool(key, false), FontSize = (12) * UiScale.F };
-            cb.IsCheckedChanged += (_, _) => { _st.S.SetBool(key, cb.IsChecked == true); _st.Dirty = true; FcSyncOverlay(); _fcMap?.InvalidateVisual(); };
-            ToolTip.SetTip(cb, L(tipIt, tipEn));
-            return cb;
-        }
-        col.Children.Add(new WrapPanel
-        {
-            Children =
-            {
-                Ov("fc_ov_curves", "Curve di guadagno (dB)", "Gain contours (dB)",
-                   "Curve a 7, 10, 13, 16, 18,5 e 21 dB, i bordi della scala dei colori, sul campo levigato. Tracciate con i quadrati marcianti. Manuale delle previsioni, § 5.",
-                   "Contours at 7, 10, 13, 16, 18.5 and 21 dB, the edges of the colour scale, on the smoothed field (marching squares). Forecast manual, § 5."),
-                new Border { Width = 10 },
-                Ov("fc_ov_low", "Mostra anche 3–7 dB (tratteggio)", "Also show 3–7 dB (hatched)",
-                   "Disegna con un tratteggio grigio leggero le zone fra 3 e 7 dB, dove qualcosa si sta formando ma resta sotto la scala dei colori. I colori non cambiano. Manuale delle previsioni, § 4.",
-                   "Draws a light grey hatch where the gain is 3–7 dB, where something is forming but stays below the colour scale. Colours are unchanged. Forecast manual, § 4."),
-                new Border { Width = 10 },
-                Ov("fc_ov_iso", "Isobare (GFS)", "Isobars (GFS)",
-                   "Pressione al livello del mare ogni 4 hPa dal modello GFS (NOAA/NCEP) tramite Open-Meteo, alla stessa ora della previsione. Manuale delle previsioni, § 5.",
-                   "Mean sea level pressure every 4 hPa from GFS (NOAA/NCEP) via Open-Meteo, at the forecast hour. Forecast manual, § 5."),
-                new Border { Width = 10 },
-                Ov("fc_ov_inv", "Inversione termica (curve)", "Temperature inversion (contours)",
-                   "Curve tratteggiate di quanto l'aria a 925 o 850 hPa è più calda di quella a 2 m (1, 3, 5, 8 °C), dal GFS via Open-Meteo. Un'inversione senza calo di umidità piega poco: Bean e Dutton § 4.4. Manuale delle previsioni, § 5.",
-                   "Dashed contours of how much warmer air at 925 or 850 hPa is than at 2 m (1, 3, 5, 8 °C), GFS via Open-Meteo. An inversion without a humidity drop bends little: Bean & Dutton § 4.4. Forecast manual, § 5."),
-                new Border { Width = 10 },
-                Ov("fc_ov_wx", "Segni meteo (S ↓ ↑)", "Weather marks (S ↓ ↑)",
-                   "Su ogni cella della griglia: ↓ verde = subsidenza, FAVOREVOLE (aria che scende con inversione, +1,5 dB, Moler e Holden 1960); ↑ rosso = aria in salita, SFAVOREVOLE (rompe gli strati, −2 dB); S arancio = scirocco, indizio favorevole senza correzione (vento da SE–S a 850 hPa con aria calda, ARRL Handbook § 19.4). Passa con il mouse su un segno per il fumetto. Visibili quando le celle sono abbastanza larghe. Manuale delle previsioni, § 9 bis.",
-                   "On each grid cell: green ↓ = subsidence, GOOD (sinking air with an inversion, +1.5 dB, Moler & Holden 1960); red ↑ = rising air, BAD (breaks the layers, −2 dB); orange S = scirocco, good sign with no correction (SE–S wind at 850 hPa with warm air, ARRL Handbook § 19.4). Hover a mark for the bubble. Shown when cells are wide enough. Forecast manual, § 9 bis.")
-            }
-        });
         col.Children.Add(FcSourceBox());
         _fcCorr = TB("", 11, _th.Muted); _fcCorr.TextWrapping = TextWrapping.Wrap;
         ToolTip.SetTip(_fcCorr, L("Coefficiente di correlazione di Pearson fra il guadagno stimato e la pressione al livello del mare, e fra il guadagno e l'inversione termica, sui punti della zona visibile all'ora scelta. 1 = vanno insieme, 0 = nessun legame, −1 = opposti. Manuale delle previsioni, § 5.",
                                   "Pearson correlation between estimated gain and sea-level pressure, and between gain and temperature inversion, over the visible points at the chosen hour. 1 = together, 0 = unrelated, −1 = opposite. Forecast manual, § 5."));
+        _fcCorr.IsVisible = _st.S.GetBool("fc_show_corr", true);
         col.Children.Add(_fcCorr);
 
         _fcStatus = TB(_own.Status == "" ? L("Previsione propria non ancora scaricata.", "Own forecast not downloaded yet.") : _own.Status, 12, _th.Sub);
@@ -279,10 +247,6 @@ public sealed partial class MainWindow
         });
         // cosa mostrare: i calcoli restano tutti, si sceglie solo cosa vedere
         ProfileView.Flat = _st.S.GetBool("fc_flat", true);
-        var flat = Tip(Check(L("Profilo a terra piatta", "Flat-earth profile"), ProfileView.Flat, v => { ProfileView.Flat = v; _st.S.SetBool("fc_flat", v); _st.Dirty = true; _fcProfile?.InvalidateVisual(); }), L("Acceso: profilo a terra piatta, le montagne risaltano e il raggio diretto curva verso il basso. Spento: disegno classico, il terreno sale con la curvatura della terra e il raggio è dritto. Il calcolo è lo stesso.", "On: flat-earth profile, mountains stand out and the direct ray curves down. Off: classic drawing, terrain rises with the earth's curvature and the ray is straight. The computation is the same."));
-        var full = Tip(Check(L("Tutte le righe del calcolo", "All computation lines"), _st.S.GetBool("fc_full", false), v => { _st.S.SetBool("fc_full", v); _st.Dirty = true; if (_fcLast != null) FcShowResult(_fcLast); }), L("Spento: solo la sintesi (distanza, strato, guadagno, perdita, segnale, S/N, modi, probabilità, puntamento). Acceso: tutte le righe del calcolo fra i due locatori. I calcoli sono sempre completi.", "Off: summary only (distance, layer, gain, loss, signal, S/N, modes, probability, heading). On: every line of the computation between the two locators. The computations are always complete."));
-        var logShow = Tip(Check(L("Mostra il registro dei calcoli", "Show computation log"), _st.S.GetBool("fc_logshow", false), v => { _st.S.SetBool("fc_logshow", v); _st.Dirty = true; if (_fcLogPanel != null) _fcLogPanel.IsVisible = v; }), L("Mostra o nasconde la finestra del registro dei calcoli. Il registro continua a essere scritto nel file anche quando è nascosto.", "Shows or hides the computation log window. The log keeps being written to the file even when hidden."));
-        col.Children.Add(new WrapPanel { Children = { flat, new Border { Width = 12 }, full, new Border { Width = 12 }, logShow } });
         _fcProfile = new ProfileView { Height = 190, Th = _th };
         col.Children.Add(new Border { BorderBrush = B(_th.Line), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), ClipToBounds = true, Child = _fcProfile });
         _fcResults = new StackPanel { Spacing = 3, Margin = new Thickness(0, 0, 16, 10) };   // spazio per la barra di scorrimento
@@ -303,7 +267,7 @@ public sealed partial class MainWindow
             ReqSsb = () => Num("fc_req_ssb", 6), ReqCw = () => Num("fc_req_cw", 0), ReqFt8 = () => Num("fc_req_ft8", -21)
         };
         _fcPaint.CorrText += t => Dispatcher.UIThread.Post(() => { if (_fcCorr != null) _fcCorr.Text = t; });
-        _fcMap.OwnLayer = ctx => { _fcPaint.Last = _fcLast; _fcPaint.Los = _fcLos; _fcPaint.DrawLayer(ctx); };
+        _fcMap.OwnLayer = ctx => { _fcPaint.Last = _fcLast; _fcPaint.Los = _st.S.GetBool("fc_show_los", true) ? _fcLos : null; _fcPaint.DrawLayer(ctx); };
         _fcMap.OwnOverlay = ctx => _fcPaint.DrawOverlay(ctx);
         FcSyncOverlay();
         if (LocatorX.TryParse(_st.S.Get("fc_rx_loc", ""), out var rp)) _fcMap.Probe = rp;
@@ -326,6 +290,9 @@ public sealed partial class MainWindow
         g.Children.Add(split);
         Grid.SetColumn(_fcMap, 2);
         g.Children.Add(_fcMap);
+        var det = new Border { Background = B(_th.Panel), BorderBrush = B(_th.Line), BorderThickness = new Thickness(1, 0, 0, 0), Child = new ScrollViewer { Content = FcDetailsPanel() } };
+        Grid.SetColumn(det, 3);
+        g.Children.Add(det);
         return g;
     }
 
@@ -367,7 +334,6 @@ public sealed partial class MainWindow
         var sp = new StackPanel { Spacing = 6, Margin = new Thickness(0, 10, 0, 0) };
         sp.Children.Add(TB(L("Registro dei calcoli", "Computation log"), 13, _th.Text, true));
         CalcLog.Enabled = _st.S.GetBool("fc_log", true);
-        var chk = Tip(Check(L("Registro dettagliato attivo", "Verbose log enabled"), CalcLog.Enabled, v => { CalcLog.Enabled = v; _st.S.SetBool("fc_log", v); _st.Dirty = true; }), L("Scrive ogni passo dei calcoli nel registro e nel file. Spento, i calcoli sono identici ma non lasciano traccia.", "Writes every step of the computations to the log and the file. Off, the computations are identical but leave no trace."));
         var open = OutlineButton(L("Apri il file", "Open file"), () =>
         {
             try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(CalcLog.FilePath) { UseShellExecute = true }); }
@@ -375,7 +341,7 @@ public sealed partial class MainWindow
         });
         ToolTip.SetTip(open, L("Apre il file del registro dei calcoli con il programma predefinito.", "Opens the computation log file with the default program."));
         var clear = Tip(OutlineButton(L("Svuota la finestra", "Clear window"), () => { CalcLog.Clear(); _fcLogDirty = true; }), L("Svuota la finestra del registro; il file resta com'è.", "Clears the log window; the file is kept."));
-        sp.Children.Add(new WrapPanel { Children = { chk, new Border { Width = 8 }, open, new Border { Width = 8 }, clear } });
+        sp.Children.Add(new WrapPanel { Children = { open, new Border { Width = 8 }, clear } });
         var path = TB(CalcLog.FilePath, 11, _th.Muted); path.TextWrapping = TextWrapping.Wrap;
         sp.Children.Add(path);
         _fcLogBox = new TextBox
@@ -451,6 +417,92 @@ public sealed partial class MainWindow
 
 
     // ------------------------------------------------------------------ linee opzionali
+
+    /// <summary>Riquadro «Dettagli da mostrare» a destra della mappa (bozzetto approvato alla lettera, 22/11/2026).</summary>
+    Control FcDetailsPanel()
+    {
+        var tips = new Dictionary<string, string>
+        {
+        ["fc_ov_curves"] = L("Curve a 7, 10, 13, 16, 18,5 e 21 dB, i bordi della scala dei colori, sul campo levigato. Tracciate con i quadrati marcianti. Manuale delle previsioni, § 5.", "Contours at 7, 10, 13, 16, 18.5 and 21 dB, the edges of the colour scale, on the smoothed field (marching squares). Forecast manual, § 5."),
+        ["fc_ov_low"] = L("Disegna con un tratteggio grigio leggero le zone fra 3 e 7 dB, dove qualcosa si sta formando ma resta sotto la scala dei colori. I colori non cambiano. Manuale delle previsioni, § 4.", "Draws a light grey hatch where the gain is 3–7 dB, where something is forming but stays below the colour scale. Colours are unchanged. Forecast manual, § 4."),
+        ["fc_ov_iso"] = L("Pressione al livello del mare ogni 4 hPa dal modello GFS (NOAA/NCEP) tramite Open-Meteo, alla stessa ora della previsione. Manuale delle previsioni, § 5.", "Mean sea level pressure every 4 hPa from GFS (NOAA/NCEP) via Open-Meteo, at the forecast hour. Forecast manual, § 5."),
+        ["fc_ov_inv"] = L("Curve tratteggiate di quanto l'aria a 925 o 850 hPa è più calda di quella a 2 m (1, 3, 5, 8 °C), dal GFS via Open-Meteo. Un'inversione senza calo di umidità piega poco: Bean e Dutton § 4.4. Manuale delle previsioni, § 5.", "Dashed contours of how much warmer air at 925 or 850 hPa is than at 2 m (1, 3, 5, 8 °C), GFS via Open-Meteo. An inversion without a humidity drop bends little: Bean & Dutton § 4.4. Forecast manual, § 5."),
+        ["fc_ov_wx"] = L("Su ogni cella della griglia: ↓ verde = subsidenza, FAVOREVOLE (aria che scende con inversione, +1,5 dB, Moler e Holden 1960); ↑ rosso = aria in salita, SFAVOREVOLE (rompe gli strati, −2 dB); S arancio = scirocco, indizio favorevole senza correzione (vento da SE–S a 850 hPa con aria calda, ARRL Handbook § 19.4). Passa con il mouse su un segno per il fumetto. Visibili quando le celle sono abbastanza larghe. Manuale delle previsioni, § 9 bis.", "On each grid cell: green ↓ = subsidence, GOOD (sinking air with an inversion, +1.5 dB, Moler & Holden 1960); red ↑ = rising air, BAD (breaks the layers, −2 dB); orange S = scirocco, good sign with no correction (SE–S wind at 850 hPa with warm air, ARRL Handbook § 19.4). Hover a mark for the bubble. Shown when cells are wide enough. Forecast manual, § 9 bis."),
+        ["fc_show_corr"] = L("Coefficiente di correlazione di Pearson fra il guadagno stimato e la pressione al livello del mare, e fra il guadagno e l'inversione termica, sui punti della zona visibile all'ora scelta. 1 = vanno insieme, 0 = nessun legame, −1 = opposti. Manuale delle previsioni, § 5.", "Pearson correlation between estimated gain and sea-level pressure, and between gain and temperature inversion, over the visible points at the chosen hour. 1 = together, 0 = unrelated, −1 = opposite. Forecast manual, § 5."),
+        ["fc_flat"] = L("Acceso: profilo a terra piatta, le montagne risaltano e il raggio diretto curva verso il basso. Spento: disegno classico, il terreno sale con la curvatura della terra e il raggio è dritto. Il calcolo è lo stesso.", "On: flat-earth profile, mountains stand out and the direct ray curves down. Off: classic drawing, terrain rises with the earth's curvature and the ray is straight. The computation is the same."),
+        ["fc_full"] = L("Spento: solo la sintesi (distanza, strato, guadagno, perdita, segnale, S/N, modi, probabilità, puntamento). Acceso: tutte le righe del calcolo fra i due locatori. I calcoli sono sempre completi.", "Off: summary only (distance, layer, gain, loss, signal, S/N, modes, probability, heading). On: every line of the computation between the two locators. The computations are always complete."),
+        ["fc_logshow"] = L("Mostra o nasconde la finestra del registro dei calcoli. Il registro continua a essere scritto nel file anche quando è nascosto.", "Shows or hides the computation log window. The log keeps being written to the file even when hidden."),
+        ["fc_log"] = L("Scrive ogni passo dei calcoli nel registro e nel file. Spento, i calcoli sono identici ma non lasciano traccia.", "Writes every step of the computations to the log and the file. Off, the computations are identical but leave no trace."),
+        ["fc_corr"] = L("Aggiunge al guadagno il termine di stabilità di Misme (solo senza condotto, da −4 a +6 dB, taratura provvisoria) e la correzione per il moto verticale: +1,5 dB con subsidenza, −2 dB con aria in salita. Toglila per vedere il modello della 1.2. Manuale delle previsioni, § 9 bis.", "Adds Misme's stability term (only without a duct, −4 to +6 dB, provisional calibration) and the vertical-motion correction: +1.5 dB with subsidence, −2 dB with rising air. Untick to see the 1.2 model. Forecast manual, § 9 bis."),
+        ["fc_via_ideal"] = L("Quando il corrispondente è chiuso da un rilievo vicino, il giro d'orizzonte cerca il punto migliore da cui rilanciare il segnale. Con questa casella la perdita fra la tua stazione e il punto è considerata nulla: è come portare la stazione sulla cima (antenna a 10 m, stessa potenza e antenna) e conta solo la tratta dal punto al corrispondente. Il punto è dato con il locatore a 10 caratteri. Limite ottimistico. Manuale delle previsioni, § 10 bis.", "When the other station is blocked by nearby terrain, the horizon sweep looks for the best point to relaunch the signal. With this box the loss between your station and the point is taken as zero: as if you moved the station to the summit (antenna 10 m, same power and antenna); only the leg from the point to the other station counts. The point is given with a 10-character locator. Optimistic bound. Forecast manual, § 10 bis."),
+        ["fc_seaair"] = L("Sul mare confronta l'aria con la temperatura della superficie del mare (SST). Aria a 925 hPa più calda del mare (temperatura potenziale oltre la SST di 4 K: +1 dB; di 7 K: +2 dB; −0,5 dB con aria umida): inversione d'avvezione, condotto probabile. Mare raffreddato di 1,5 °C o più nelle 72 ore prima (dalle analisi Open-Meteo): +1 dB, tipico dei mari bassi come l'alto Adriatico dopo la bora. Mare più caldo dell'aria a 2 m di 2 °C: −1,5 dB; di 4 °C: −3 dB, perché l'aria si rimescola. Soglie provvisorie, da tarare con gli spot. Manuale delle previsioni, § 9 quater.", "Over the sea it compares the air with the sea surface temperature (SST). Air at 925 hPa warmer than the sea (potential temperature 4 K above SST: +1 dB; 7 K: +2 dB; −0.5 dB with humid air): advection inversion, duct likely. Sea cooled by 1.5 °C or more in the previous 72 hours (Open-Meteo analyses): +1 dB, typical of shallow seas such as the northern Adriatic after a bora. Sea warmer than the 2 m air by 2 °C: −1.5 dB; by 4 °C: −3 dB, because the air mixes. Provisional thresholds, to be tuned with spots. Forecast manual, § 9 quater."),
+        ["fc_nowcast"] = L("Corridoi d'apertura: almeno 3 coppie di stazioni indipendenti su tratte parallele (±15°, entro 150 km dall'asse) di almeno 300 km negli ultimi 30 minuti, ripetute a distanza di 10 minuti (un collegamento isolato può essere un aereo). Fonti: cluster, PSKReporter, QSO e decodifiche, salti APRS in 2 m. Tratte oltre 1500 km solo se confermate da due fonti; non contano le stazioni che in un'ora sentono stazioni lontane da tutte le direzioni (ricevitori configurati male). Vicino alla parte centrale delle tratte (±60 km) la previsione dell'ora attuale non scende sotto un minimo da 3 a 16 dB, secondo lunghezza (sotto i 600 km è quasi sempre troposcatter normale), numero di tratte e S/N, e le curve non fanno gocce. Manuale delle previsioni, § 4 bis.", "Opening corridors: at least 3 independent station pairs on parallel paths (±15°, within 150 km of the axis) of at least 300 km in the last 30 minutes, repeated 10 minutes apart (a single contact may be an aircraft). Sources: clusters, PSKReporter, QSOs and decodes, APRS 2 m hops. Paths over 1500 km only if confirmed by two sources; stations hearing distant stations from all directions within an hour (misconfigured receivers) are ignored. Near the middle part of the paths (±60 km) the current-hour forecast does not drop below a floor of 3 to 16 dB, by length (below 600 km it is almost always normal troposcatter), number of paths and S/N, and the contours make no drops. Forecast manual, § 4 bis."),
+        ["aprs_on"] = L("APRS-IS in sola lettura (rotate.aprs2.net, filtro sull'Europa): salti radio di almeno 300 km fra stazioni di posizione nota, in 2 m, LoRa 433 MHz (banda 432) e LoRa 868 MHz (conta per i 1296), sempre fra stazioni della stessa banda. Ogni salto è fra due trasmettitori veri: si scartano i salti attraverso digipeater che non mettono il nominativo, i pacchetti con il percorso consumato rispetto al solito (ritrasmessi di nascosto), i salti con un digipeater attivo a metà strada, i pacchetti rigirati da internet, HF e stazioni in quota. Un salto conta solo se si ripete. Idea dalla mappa VHF di DXView e da APRS PropView (RF-YVY).", "Read-only APRS-IS (rotate.aprs2.net, Europe filter): radio hops of at least 300 km between stations of known position, on 2 m, LoRa 433 MHz (432 band) and LoRa 868 MHz (counts for 1296), always between stations on the same band. Each hop is between two real transmitters: hops through digipeaters that don't insert their call, packets whose path was consumed compared to usual (hidden retransmission), hops with an active digipeater halfway, packets gated from the internet, HF and airborne stations are discarded. A hop counts only if it repeats. Idea from the DXView VHF map and APRS PropView (RF-YVY)."),
+            ["fc_show_los"] = FcDetails.LosTip,
+        };
+        var boxes = new Dictionary<string, CheckBox>();
+        var col = new StackPanel { Spacing = 10, Margin = new Thickness(12) };
+        var lv = new StackPanel { Spacing = 6 };
+        lv.Children.Add(TB(FcDetails.Title, 13, _th.Text, true));
+        var seg = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*,*") };
+        var btns = new ToggleButton[3];
+        int cur = Math.Clamp(_st.S.GetInt("fc_detail_level", 1), 0, 2);
+        for (int i = 0; i < 3; i++)
+        {
+            int k = i;
+            var b = new ToggleButton { Content = FcDetails.Levels[i], IsChecked = i == cur, HorizontalAlignment = HorizontalAlignment.Stretch, HorizontalContentAlignment = HorizontalAlignment.Center, FontSize = (12) * UiScale.F, Margin = new Thickness(i == 0 ? 0 : 2, 0, 0, 0) };
+            b.Click += (_, _) =>
+            {
+                for (int j = 0; j < 3; j++) btns[j].IsChecked = j == k;
+                _st.S.SetInt("fc_detail_level", k); _st.Dirty = true;
+                foreach (var it in FcDetails.All) boxes[it.Key].IsChecked = k >= it.Level;
+            };
+            btns[i] = b; Grid.SetColumn(b, i); seg.Children.Add(b);
+        }
+        lv.Children.Add(seg);
+        var help = TB(FcDetails.Help, 11, _th.Muted); help.TextWrapping = TextWrapping.Wrap;
+        lv.Children.Add(help);
+        col.Children.Add(Card(lv, new Thickness(0)));
+        for (int gi = 0; gi < 3; gi++)
+        {
+            var sp = new StackPanel { Spacing = 2 };
+            sp.Children.Add(TB(FcDetails.Groups[gi], 13, _th.Text, true));
+            foreach (var it in FcDetails.All)
+            {
+                if (it.Group != gi) continue;
+                var key = it.Key;
+                var cb = new CheckBox { Content = L(it.It, it.En), IsChecked = _st.S.GetBool(key, FcDetails.Default(key)), FontSize = (12) * UiScale.F };
+                cb.IsCheckedChanged += (_, _) => FcApplyDetail(key, cb.IsChecked == true);
+                if (tips.TryGetValue(key, out var tip)) ToolTip.SetTip(cb, tip);
+                boxes[key] = cb;
+                var row = new DockPanel { LastChildFill = true };
+                var sh = TB(FcDetails.Short[it.Level], 11, _th.Muted); sh.VerticalAlignment = VerticalAlignment.Center;
+                DockPanel.SetDock(sh, Dock.Right); row.Children.Add(sh); row.Children.Add(cb);
+                sp.Children.Add(row);
+            }
+            col.Children.Add(Card(sp, new Thickness(0)));
+        }
+        return col;
+    }
+
+    void FcApplyDetail(string key, bool v)
+    {
+        _st.S.SetBool(key, v); _st.Dirty = true;
+        switch (key)
+        {
+            case "fc_show_corr": if (_fcCorr != null) _fcCorr.IsVisible = v; break;
+            case "fc_full": if (_fcLast != null) FcShowResult(_fcLast); break;
+            case "fc_flat": ProfileView.Flat = v; _fcProfile?.InvalidateVisual(); break;
+            case "fc_logshow": if (_fcLogPanel != null) _fcLogPanel.IsVisible = v; break;
+            case "fc_log": CalcLog.Enabled = v; break;
+            case "fc_corr": Refractivity.UseCorrections = v; break;
+            case "fc_seaair": Refractivity.UseSeaAir = v; break;
+            case "fc_via_ideal": Refractivity.ViaIdeal = v; break;
+            case "fc_nowcast": _st.NowcastOn = v; break;
+            case "aprs_on": _st.AprsOn = v; if (v) _st.Aprs.Start(); else _st.Aprs.Stop(); break;
+        }
+        FcSyncOverlay(); _fcMap?.InvalidateVisual();
+    }
 
     void FcSyncOverlay()
     {
@@ -710,31 +762,6 @@ public sealed partial class MainWindow
         sp2.Children.Add(hc);
         box.Children.Add(sp2);
 
-        var corr = new CheckBox { Content = L("Correzioni meteo: stabilità (Misme), subsidenza e persistenza", "Weather corrections: stability (Misme), subsidence and persistence"), IsChecked = Refractivity.UseCorrections, FontSize = (12) * UiScale.F };
-        corr.IsCheckedChanged += (_, _) =>
-        {
-            Refractivity.UseCorrections = corr.IsChecked == true; _st.S.SetBool("fc_corr", Refractivity.UseCorrections); _st.Dirty = true;
-            _fcMap?.InvalidateVisual();
-        };
-        ToolTip.SetTip(corr, L("Aggiunge al guadagno il termine di stabilità di Misme (solo senza condotto, da −4 a +6 dB, taratura provvisoria) e la correzione per il moto verticale: +1,5 dB con subsidenza, −2 dB con aria in salita. Toglila per vedere il modello della 1.2. Manuale delle previsioni, § 9 bis.",
-                               "Adds Misme's stability term (only without a duct, −4 to +6 dB, provisional calibration) and the vertical-motion correction: +1.5 dB with subsidence, −2 dB with rising air. Untick to see the 1.2 model. Forecast manual, § 9 bis."));
-        box.Children.Add(corr);
-        var vi = new CheckBox { Content = L("Via monte senza perdita fino al monte (stazione portata sul punto)", "Via mountain lossless to the peak (station moved to the point)"), IsChecked = Refractivity.ViaIdeal, FontSize = (12) * UiScale.F };
-        vi.IsCheckedChanged += (_, _) => { Refractivity.ViaIdeal = vi.IsChecked == true; _st.S.SetBool("fc_via_ideal", Refractivity.ViaIdeal); _st.Dirty = true; };
-        ToolTip.SetTip(vi, L("Quando il corrispondente è chiuso da un rilievo vicino, il giro d'orizzonte cerca il punto migliore da cui rilanciare il segnale. Con questa casella la perdita fra la tua stazione e il punto è considerata nulla: è come portare la stazione sulla cima (antenna a 10 m, stessa potenza e antenna) e conta solo la tratta dal punto al corrispondente. Il punto è dato con il locatore a 10 caratteri. Limite ottimistico. Manuale delle previsioni, § 10 bis.", "When the other station is blocked by nearby terrain, the horizon sweep looks for the best point to relaunch the signal. With this box the loss between your station and the point is taken as zero: as if you moved the station to the summit (antenna 10 m, same power and antenna); only the leg from the point to the other station counts. The point is given with a 10-character locator. Optimistic bound. Forecast manual, § 10 bis."));
-        box.Children.Add(vi);
-        var sa = new CheckBox { Content = L("Contrasto aria-mare e memoria della temperatura del mare", "Air-sea contrast and sea temperature memory"), IsChecked = Refractivity.UseSeaAir, FontSize = (12) * UiScale.F };
-        sa.IsCheckedChanged += (_, _) => { Refractivity.UseSeaAir = sa.IsChecked == true; _st.S.SetBool("fc_seaair", Refractivity.UseSeaAir); _st.Dirty = true; _fcMap?.InvalidateVisual(); };
-        ToolTip.SetTip(sa, L("Sul mare confronta l'aria con la temperatura della superficie del mare (SST). Aria a 925 hPa più calda del mare (temperatura potenziale oltre la SST di 4 K: +1 dB; di 7 K: +2 dB; −0,5 dB con aria umida): inversione d'avvezione, condotto probabile. Mare raffreddato di 1,5 °C o più nelle 72 ore prima (dalle analisi Open-Meteo): +1 dB, tipico dei mari bassi come l'alto Adriatico dopo la bora. Mare più caldo dell'aria a 2 m di 2 °C: −1,5 dB; di 4 °C: −3 dB, perché l'aria si rimescola. Soglie provvisorie, da tarare con gli spot. Manuale delle previsioni, § 9 quater.", "Over the sea it compares the air with the sea surface temperature (SST). Air at 925 hPa warmer than the sea (potential temperature 4 K above SST: +1 dB; 7 K: +2 dB; −0.5 dB with humid air): advection inversion, duct likely. Sea cooled by 1.5 °C or more in the previous 72 hours (Open-Meteo analyses): +1 dB, typical of shallow seas such as the northern Adriatic after a bora. Sea warmer than the 2 m air by 2 °C: −1.5 dB; by 4 °C: −3 dB, because the air mixes. Provisional thresholds, to be tuned with spots. Forecast manual, § 9 quater."));
-        box.Children.Add(sa);
-        var nc = new CheckBox { Content = L("Previsione mediata dagli spot (corridoi di tratte parallele)", "Forecast blended with spots (parallel-path corridors)"), IsChecked = _st.NowcastOn, FontSize = (12) * UiScale.F };
-        nc.IsCheckedChanged += (_, _) => { _st.NowcastOn = nc.IsChecked == true; _st.S.SetBool("fc_nowcast", _st.NowcastOn); _st.Dirty = true; _fcMap?.InvalidateVisual(); };
-        ToolTip.SetTip(nc, L("Corridoi d'apertura: almeno 3 coppie di stazioni indipendenti su tratte parallele (±15°, entro 150 km dall'asse) di almeno 300 km negli ultimi 30 minuti, ripetute a distanza di 10 minuti (un collegamento isolato può essere un aereo). Fonti: cluster, PSKReporter, QSO e decodifiche, salti APRS in 2 m. Tratte oltre 1500 km solo se confermate da due fonti; non contano le stazioni che in un'ora sentono stazioni lontane da tutte le direzioni (ricevitori configurati male). Vicino alla parte centrale delle tratte (±60 km) la previsione dell'ora attuale non scende sotto un minimo da 3 a 16 dB, secondo lunghezza (sotto i 600 km è quasi sempre troposcatter normale), numero di tratte e S/N, e le curve non fanno gocce. Manuale delle previsioni, § 4 bis.", "Opening corridors: at least 3 independent station pairs on parallel paths (±15°, within 150 km of the axis) of at least 300 km in the last 30 minutes, repeated 10 minutes apart (a single contact may be an aircraft). Sources: clusters, PSKReporter, QSOs and decodes, APRS 2 m hops. Paths over 1500 km only if confirmed by two sources; stations hearing distant stations from all directions within an hour (misconfigured receivers) are ignored. Near the middle part of the paths (±60 km) the current-hour forecast does not drop below a floor of 3 to 16 dB, by length (below 600 km it is almost always normal troposcatter), number of paths and S/N, and the contours make no drops. Forecast manual, § 4 bis."));
-        box.Children.Add(nc);
-        var ap = new CheckBox { Content = L("Salti APRS: 2 m e LoRa 433/868 MHz (APRS-IS)", "APRS hops: 2 m and LoRa 433/868 MHz (APRS-IS)"), IsChecked = _st.AprsOn, FontSize = (12) * UiScale.F };
-        ap.IsCheckedChanged += (_, _) => { _st.AprsOn = ap.IsChecked == true; _st.S.SetBool("aprs_on", _st.AprsOn); _st.Dirty = true; if (_st.AprsOn) _st.Aprs.Start(); else _st.Aprs.Stop(); };
-        ToolTip.SetTip(ap, L("APRS-IS in sola lettura (rotate.aprs2.net, filtro sull'Europa): salti radio di almeno 300 km fra stazioni di posizione nota, in 2 m, LoRa 433 MHz (banda 432) e LoRa 868 MHz (conta per i 1296), sempre fra stazioni della stessa banda. Ogni salto è fra due trasmettitori veri: si scartano i salti attraverso digipeater che non mettono il nominativo, i pacchetti con il percorso consumato rispetto al solito (ritrasmessi di nascosto), i salti con un digipeater attivo a metà strada, i pacchetti rigirati da internet, HF e stazioni in quota. Un salto conta solo se si ripete. Idea dalla mappa VHF di DXView e da APRS PropView (RF-YVY).", "Read-only APRS-IS (rotate.aprs2.net, Europe filter): radio hops of at least 300 km between stations of known position, on 2 m, LoRa 433 MHz (432 band) and LoRa 868 MHz (counts for 1296), always between stations on the same band. Each hop is between two real transmitters: hops through digipeaters that don't insert their call, packets whose path was consumed compared to usual (hidden retransmission), hops with an active digipeater halfway, packets gated from the internet, HF and airborne stations are discarded. A hop counts only if it repeats. Idea from the DXView VHF map and APRS PropView (RF-YVY)."));
-        box.Children.Add(ap);
         return box;
     }
 

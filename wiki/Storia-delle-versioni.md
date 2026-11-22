@@ -5,6 +5,7 @@ Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole 
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
 ## In preparazione
+- Previsioni: riquadro «Dettagli da mostrare» a destra della mappa con tre livelli (Essenziale, Normale, Completo); linguetta Previsioni tradotta in tutte le lingue; slovacco aggiunto.
 - Colori come YA-NEC: i 18 temi comuni ai programmi di IC8TEM (Chiaro, Notte, Nero, otto pastelli, Scia meteorica, i tre di IP-TRX-CTRL, Blu, Viola, Verde), con i nomi in tutte le lingue; il Chiaro con l'aspetto di YA-NEC (fondo #F0F0F0, riquadri bianchi bordati, fascione blu notte #1E293B, accento #1F6FD1). La scala della previsione non cambia con il tema.
 - Schermi 1366×768 (anche Windows 7): sotto 1500 pixel di larghezza l'orologio mostra solo l'ora, e i comandi di tema, testi e lingua restano nella riga in alto.
 - Fonti: Moler e Holden 1960 e Paulus 1984 letti in originale; corrette le descrizioni di Moler e Holden nei manuali e nei fumetti (2,5 dB medi su microonde sul mare, non «20 dB e oltre negli anticicloni»); stato dei correttivi aggiornato.

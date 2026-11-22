@@ -20,9 +20,12 @@ Non è una misura: è una stima fatta su un modello meteorologico con livelli di
 - Ora: il cursore sposta la previsione da adesso fino a 72 ore avanti, a passi di 3 ore.
 - Aggiorna previsione (zona visibile): scarica i profili GFS su una griglia di al massimo 240 punti che copre la mappa visibile. Il passo della griglia (0,5° o più) dipende dall'ingrandimento.
 - Stop: interrompe uno scaricamento o un calcolo.
-- Curve di guadagno, Isobare, Inversione termica, Segni meteo: linee e segni opzionali sopra i colori (paragrafi 5 e 9 bis). I colori restano sempre.
+- Dettagli da mostrare (riquadro a destra della mappa): tre livelli, Essenziale, Normale e Completo, accendono un gruppo di caselle; ogni casella si può poi cambiare a mano. Le caselle sono in tre gruppi:
+  - Sulla mappa: isolinee del guadagno, anche 3–7 dB (tratteggio), isobare, inversione termica, segni meteo S ↓ ↑, correlazione guadagno/pressione, zona di vista diretta (paragrafi 4, 5, 7 e 9 bis). I colori restano sempre.
+  - Nel calcolo del segnale: tutte le righe del calcolo, profilo a Terra piatta, registro dei calcoli e registro dettagliato su file.
+  - Correzioni e dati in diretta: correzioni meteo (Misme, subsidenza), contrasto aria-mare, media con gli spot (corridoi), salti APRS 2 m e LoRa, oltre il monte senza perdite (paragrafi 4 bis, 9 bis, 9 quater e 10 bis).
+  - Essenziale tiene solo isolinee, correzioni meteo e media con gli spot; Normale aggiunge isobare, inversione, segni meteo, vista diretta, Terra piatta, aria-mare e APRS; Completo accende tutto. Il livello cambia solo cosa si vede e quali correzioni entrano: i calcoli restano gli stessi.
 - Sorgente dei dati e Caso storico: da dove arrivano i profili e quale giorno si guarda (paragrafi 3 bis e 3 ter).
-- Correzioni meteo: accende o spegne il termine di stabilità di Misme e la correzione per subsidenza (paragrafo 9 bis).
 - La mia stazione e il corrispondente: locatore, antenne, potenza, cavi, rumore (paragrafi 7 e 12).
 - Calcola il segnale e Copertura in ottica: i due calcoli sul terreno (paragrafi 8–13).
 - Registro dei calcoli: ogni passo con i numeri usati, anche nel file Dati/previsioni-calcoli.log.

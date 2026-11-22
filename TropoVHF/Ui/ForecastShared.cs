@@ -14,6 +14,47 @@ namespace TropoVHF.Ui;
 public enum FcTone { Normal, Strong, Accent, Ok, Warn, Bad, Muted }
 
 /// <summary>Testi dei risultati e fumetti con fonte e richiamo al manuale.</summary>
+/// <summary>
+/// Riquadro «Dettagli da mostrare» (bozzetto approvato 22/11/2026): tre livelli che accendono gruppi di caselle,
+/// ogni casella resta modificabile a mano. Livello 0 essenziale, 1 normale, 2 completo.
+/// </summary>
+public static class FcDetails
+{
+    public record Item(int Group, string Key, string It, string En, int Level);
+    public static readonly Item[] All =
+    {
+        new(0, "fc_ov_curves", "Isolinee del guadagno", "Gain contours", 0),
+        new(0, "fc_ov_low", "Anche 3–7 dB (tratteggio)", "Also 3–7 dB (hatched)", 2),
+        new(0, "fc_ov_iso", "Isobare (GFS)", "Isobars (GFS)", 1),
+        new(0, "fc_ov_inv", "Inversione termica", "Temperature inversion", 1),
+        new(0, "fc_ov_wx", "Segni meteo S ↓ ↑", "Weather marks S ↓ ↑", 1),
+        new(0, "fc_show_corr", "Correlazione guadagno/pressione", "Gain/pressure correlation", 2),
+        new(0, "fc_show_los", "Zona di vista diretta", "Line-of-sight area", 1),
+        new(1, "fc_full", "Tutte le righe del calcolo", "All computation lines", 2),
+        new(1, "fc_flat", "Profilo a Terra piatta", "Flat-earth profile", 1),
+        new(1, "fc_logshow", "Mostra il registro dei calcoli", "Show the computation log", 2),
+        new(1, "fc_log", "Registro dettagliato su file", "Detailed log to file", 2),
+        new(2, "fc_corr", "Correzioni meteo (Misme, subsidenza)", "Weather corrections (Misme, subsidence)", 0),
+        new(2, "fc_seaair", "Contrasto aria-mare", "Air-sea contrast", 1),
+        new(2, "fc_nowcast", "Media con gli spot (corridoi)", "Blend with spots (corridors)", 0),
+        new(2, "aprs_on", "Salti APRS 2 m e LoRa", "APRS hops 2 m and LoRa", 1),
+        new(2, "fc_via_ideal", "Oltre il monte senza perdite", "Beyond the mountain, lossless", 2),
+    };
+    static string L(string it, string en) => Lang.Tr(it, en);
+    public static string Title => L("Dettagli da mostrare", "Details to show");
+    public static string Help => L("Il livello accende un gruppo di caselle; ogni casella si può poi cambiare a mano.", "The level turns on a group of boxes; each box can then be changed by hand.");
+    public static string[] Levels => new[] { L("Essenziale", "Essential"), L("Normale", "Normal"), L("Completo", "Complete") };
+    public static string[] Short => new[] { L("ess.", "ess."), L("norm.", "norm."), L("compl.", "compl.") };
+    public static string[] Groups => new[] { L("Sulla mappa", "On the map"), L("Nel calcolo del segnale", "In the signal computation"), L("Correzioni e dati in diretta", "Corrections and live data") };
+    public static string LosTip => L("Mostra o nasconde sulla mappa la zona in vista diretta calcolata con «Copertura in ottica». Manuale delle previsioni, § 7.", "Shows or hides on the map the line-of-sight area computed with «Line-of-sight coverage». Forecast manual, § 7.");
+    /// <summary>Valori di partenza quando l'impostazione non c'è ancora (gli stessi di prima del riquadro).</summary>
+    public static bool Default(string key) => key switch
+    {
+        "fc_show_corr" or "fc_show_los" or "fc_flat" or "fc_log" or "fc_corr" or "fc_seaair" or "fc_nowcast" or "aprs_on" => true,
+        _ => false
+    };
+}
+
 public static class ForecastText
 {
     static string L(string it, string en, params object[] a) => Lang.Tr(it, en, a);
