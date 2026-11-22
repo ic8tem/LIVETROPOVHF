@@ -362,15 +362,18 @@ namespace Avalonia.Media
         }
     }
 
+    public enum FillRule { EvenOdd, NonZero }
+
     public sealed class StreamGeometry : Geometry
     {
+        internal FillRule Rule = FillRule.EvenOdd;
         internal sealed class Figure { public List<SD.PointF> Pts = new List<SD.PointF>(); public bool Filled, Closed; }
         internal readonly List<Figure> Figures = new List<Figure>();
         public StreamGeometryContext Open() => new StreamGeometryContext(this);
 
         SD2.GraphicsPath Build(bool fillOnly)
         {
-            var p = new SD2.GraphicsPath(SD2.FillMode.Alternate);
+            var p = new SD2.GraphicsPath(Rule == FillRule.NonZero ? SD2.FillMode.Winding : SD2.FillMode.Alternate);
             foreach (var f in Figures)
             {
                 if (fillOnly && !f.Filled) continue;
@@ -398,6 +401,7 @@ namespace Avalonia.Media
         }
         public void LineTo(Point p) { if (_cur == null) BeginFigure(p, false); else _cur.Pts.Add(p.F); }
         public void EndFigure(bool isClosed) { if (_cur != null) _cur.Closed = isClosed; _cur = null; }
+        public void SetFillRule(FillRule r) { _g.Rule = r; }
         public void Dispose() { }
     }
 

@@ -17,4 +17,4 @@ Il programma vuole mostrare solo la propagazione troposferica in 144 MHz e oltre
 
 Nota sui criteri 4 e 6. Un collegamento in Q65 o JT65 oltre 1000 km senza Luna comune è possibile in tropo: non viene scartato dal criterio 4, ma passa per la quarantena del criterio 6 come ogni altro collegamento lungo. Le chiamate dirette a te (linea nera lampeggiante) sono l'unica eccezione ai criteri 7 e 8: si disegnano sempre.
 
-Che cosa non è uno scarto. Le correzioni del locatore (CALL3.TXT, voci a mano, cluster, LOC6, suffissi -SDR, centro del quadrato LL/MM) cambiano dove si disegna una stazione, non la scartano. Una stazione senza alcun locatore, invece, non si può disegnare: resta nell'elenco con la distanza «—».
+Che cosa non è uno scarto. Le correzioni del locatore (CALL3.TXT con voci a mano, correzioni dal cluster e locatori imparati, suffissi -SDR, centro del quadrato LL/MM) cambiano dove si disegna una stazione, non la scartano. Una stazione senza alcun locatore, invece, non si può disegnare: resta nell'elenco con la distanza «—».

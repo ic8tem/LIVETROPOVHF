@@ -820,7 +820,9 @@ public sealed partial class MainForm : Form
     {
         try { FcAutoCheck(); } catch { }
         var now = Clock.UtcNow;
-        if (_clock != null) _clock.Text = now.ToString("dd/MM/yyyy HH:mm:ss") + " UTC";
+        // schermi stretti (1366×768): sotto i 1500 pixel solo l'ora, la data sta già nella barra di Windows
+        bool compact = ClientSize.Width > 0 && ClientSize.Width < 1500;
+        if (_clock != null) _clock.Text = (compact ? now.ToString("HH:mm:ss") : now.ToString("dd/MM/yyyy HH:mm:ss")) + " UTC";
         if (_ntp != null)
         {
             bool once = _st.Ntp.LastCheckUtc != default;

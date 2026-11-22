@@ -60,11 +60,14 @@ public static class Call3Sources
         return r;
     }
 
-    /// <summary>Scarica le fonti e scrive il nuovo CALL3.TXT; restituisce il testo e un riassunto per fonte.</summary>
-    public static async Task<(string text, string summary, int total)> BuildAsync(HttpClient http, string previousPath, Action<string> status)
+    /// <summary>
+    /// Scarica le fonti e prepara le voci del nuovo CALL3.TXT (la prima fonte che ha un nominativo vince), tenendo le voci
+    /// precedenti che le fonti non hanno e i locatori a 6 caratteri precedenti dove una fonte ne ha solo 4 dello stesso
+    /// quadrato. Voci a mano e correzioni dal cluster le tiene CallDb, in cima al file.
+    /// </summary>
+    public static async Task<(List<string> header, Dictionary<string, string> body, string summary)> BuildAsync(HttpClient http, Dictionary<string, string> previous, Action<string> status)
     {
-        var merged = new Dictionary<string, string>(StringComparer.Ordinal);
-        var order = new List<string>();
+        var merged = new Dictionary<string, string>(1_100_000, StringComparer.Ordinal);
         var parts = new List<string>();
         foreach (var (name, url, bin) in Sources)
         {
@@ -75,23 +78,27 @@ public static class Call3Sources
                 var list = bin ? ParseGridData(bytes) : ParseCall3(Compat.Latin1.GetString(bytes));
                 if (list.Count < 300) { parts.Add($"{name}: file non valido"); continue; }
                 int added = 0;
-                foreach (var (c, g) in list) if (!merged.ContainsKey(c)) { merged[c] = g; order.Add(c); added++; }
+                foreach (var (c, g) in list) if (!merged.ContainsKey(c)) { merged[c] = g; added++; }
                 parts.Add($"{name}: {list.Count:N0} ({added:N0} nuovi)");
             }
             catch (Exception ex) { parts.Add($"{name}: non riuscito ({ex.Message})"); }
         }
         if (merged.Count < 50_000) throw new InvalidDataException("fonti non raggiungibili o troppo piccole: " + string.Join("; ", parts));
-        int kept = 0;
-        if (File.Exists(previousPath))
-            foreach (var (c, g) in ParseCall3(Compat.Latin1.GetString(File.ReadAllBytes(previousPath))))
-                if (!merged.ContainsKey(c)) { merged[c] = g; order.Add(c); kept++; }
-        parts.Add($"dal CALL3.TXT precedente: {kept:N0}");
-        var sb = new StringBuilder();
-        sb.Append("// CALL3.TXT di LIVETROPOVHF, riscritto il ").Append(DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm")).Append(" UTC\n");
-        sb.Append("// Fonti, in ordine di precedenza: WSJT-X Improved (DG2YCB), CALL3.TXT EME di W7GJ, grid_data.bin di JTDX; poi le voci del CALL3.TXT precedente\n");
-        sb.Append("// ").Append(string.Join(" · ", parts)).Append('\n');
-        sb.Append("// Contains ").Append(merged.Count).Append(" unique callsigns.\n//\n");
-        foreach (var c in order.OrderBy(x => x, StringComparer.Ordinal)) sb.Append(c).Append(',').Append(merged[c]).Append(",,,\n");
-        return (sb.ToString(), string.Join(" · ", parts), merged.Count);
+        int kept = 0, six = 0;
+        foreach (var kv in previous ?? new Dictionary<string, string>())
+        {
+            if (!merged.TryGetValue(kv.Key, out var g)) { merged[kv.Key] = kv.Value; kept++; }
+            else if (g.Length == 4 && kv.Value.Length == 6 && kv.Value.StartsWith(g)) { merged[kv.Key] = kv.Value; six++; }
+        }
+        parts.Add($"dal CALL3.TXT precedente: {kept:N0} (+{six:N0} a 6 caratteri)");
+        var header = new List<string>
+        {
+            "// CALL3.TXT di LIVETROPOVHF, riscritto il " + DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm") + " UTC",
+            "// Fonti, in ordine di precedenza: voci a mano, correzioni dal cluster, WSJT-X Improved (DG2YCB), CALL3.TXT EME di W7GJ, grid_data.bin di JTDX; poi le voci del CALL3.TXT precedente e i locatori imparati",
+            "// " + string.Join(" · ", parts),
+            "// Contains " + merged.Count + " unique callsigns.",
+            "//",
+        };
+        return (header, merged, string.Join(" · ", parts));
     }
 }

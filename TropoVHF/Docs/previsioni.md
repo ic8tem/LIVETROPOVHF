@@ -81,7 +81,8 @@ Criterio dell'autore: un collegamento da solo non deve mai disegnare un condotto
 - almeno **3 coppie di stazioni indipendenti** (nessuna stazione in comune) lavorano su tratte di almeno **300 km**;
 - le tratte sono **parallele**: azimut entro ±15°, punti medi entro 150 km dall'asse comune;
 - tutto negli ultimi **30 minuti**, con il fascio che si ripete a distanza di almeno **10 minuti** (persistenza);
-- per l'APRS, un salto conta solo se lo stesso salto si ripete.
+- per l'APRS, un salto conta solo se lo stesso salto si ripete;
+- dalla 1.3.4, le tratte oltre **1500 km** contano solo se il fascio arriva da almeno **due fonti diverse** (per esempio PSKReporter e un cluster): da una fonte sola, a quelle distanze in 2 m, sono più spesso EME, meteor scatter o locatori sbagliati che tropo.
 
 Fonti: spot dei cluster (non quelli marcati AS/ACS), PSKReporter via MQTT, i propri QSO e le decodifiche di WSJT-X/JTDX/MSHV, e i salti APRS in 2 m e LoRa 433/868 MHz.
 
@@ -94,7 +95,11 @@ Il punto delicato sono i ripetitori attivi: un segnale ricevuto a 500 km può es
 - digipeater a metà strada: se fra le due stazioni, più o meno sulla via, c'è un digipeater della stessa banda attivo nelle ultime tre ore, il salto si scarta, perché potrebbe averlo ritrasmesso (vale soprattutto per i digipeater LoRa che ritrasmettono senza modificare il percorso);
 - si scartano i pacchetti non radio (qAC, qAX, TCPIP), quelli rigirati da internet in radio da un IGate (terze parti), HF e frequenze diverse, le stazioni in quota oltre 1500 m (palloni, aerei) e i salti oltre 1500 km.
 
-**Effetto sulla mappa.** Il corridoio si disegna come fascia viola tratteggiata con le tratte che lo compongono e un'etichetta (tratte, distanza media, guadagno minimo). Sotto il corridoio, e solo vicino all'ora attuale (±90 minuti), la previsione non scende sotto un minimo che va da 10 dB (tratte di 300 km) a 16 dB (900 km e oltre). Le curve di guadagno non disegnano più «gocce»: le isole più piccole di 220 km in tutte e due le direzioni restano colorate ma senza curva chiusa, a meno che un corridoio le confermi. Si spegne con la casella «Previsione mediata dagli spot».
+**Effetto sulla mappa (dalla 1.3.4).** Si disegna solo la zona in cui vale il minimo garantito: una fascia di ±60 km attorno alla parte centrale di ogni tratta (dal 15% all'85% della sua lunghezza), non sulle stazioni alle estremità, dove il condotto può non esserci. Le fasce di tutti i corridoi si disegnano insieme, in un colore neutro (quello del testo) e semitrasparente: le sovrapposizioni non si sommano, e il colore non si confonde con il viola della scala (21 dB e oltre). Le etichette (tratte, distanza media, guadagno minimo) si scansano tra loro; passando con il mouse su un'etichetta compaiono le tratte del corridoio.
+
+Nella zona, e solo vicino all'ora attuale (±90 minuti), la previsione non scende sotto un minimo. Il valore di partenza va con la distanza media: da 10 dB (tratte di 300 km) a 16 dB (900 km e oltre). Poi si pesa, metà e metà, con il numero di tratte indipendenti (3 tratte → 0,25; 6 o più → 1) e con l'S/N mediano dei rapporti (−20 dB → 0,5; 0 dB o più → 1; non noto, come negli spot dei cluster, → 0,75), partendo da 7 dB, l'inizio della scala. Esempi: 3 tratte senza S/N → 11,5 dB; 3 tratte a −20 dB su 900 km → 10,4 dB; 6 tratte a 0 dB su 900 km → 16 dB. Fino alla 1.3.3 il minimo valeva su tutto il rettangolo del corridoio e dipendeva solo dalla distanza: con molti corridoi lunghi insieme (per esempio il 22/11/2026, dodici corridoi fino a 2620 km) alzava quasi tutta l'Europa a 16 dB.
+
+Le curve di guadagno non disegnano più «gocce»: le isole più piccole di 220 km in tutte e due le direzioni restano colorate ma senza curva chiusa, a meno che un corridoio le confermi. Si spegne con la casella «Previsione mediata dagli spot».
 
 ## 5. Linee opzionali e confronto con pressione e inversione
 
@@ -178,7 +183,7 @@ Il guadagno tropo è il guadagno dello strato per la frazione usata. Se più di 
 Dalla 1.3.0 il profilo dà anche tre informazioni meteorologiche, che si vedono nel registro (riga «stabilità (Misme)»), nella riga Meteo lungo la tratta dei risultati e, con la casella Segni meteo, sulla mappa.
 
 - Stabilità di Misme [5, cap. 6]. Misme lega il campo oltre l'orizzonte a un parametro composto: M = a·(ge − 40 + b·ΔW), con a = 0,5 dB per N/km, il gradiente equivalente ge e la stabilità termica ΔW, il lavoro per sollevare l'aria di 1 km. Il programma calcola ΔW = g·∫(θ − θ0)/θ0 dz fra il suolo e 1 km sopra, con θ la temperatura potenziale; l'atmosfera standard vale circa 56 J/kg. Il termine aggiunto al guadagno è 0,07 dB per J/kg oltre lo standard, limitato fra −4 e +6 dB, e conta solo dove nessun condotto intrappola la banda (il gradiente è già nell'indice di Bean e Dutton). La taratura è provvisoria: va verificata con i rapporti (paragrafo 14).
-- Subsidenza e aria in salita [19]. Moler e Holden trovarono rinforzi di 20 dB e oltre, per ore, sulle tratte VHF/UHF oltre l'orizzonte quando l'aria scende negli anticicloni, e affievolimenti profondi quando sale. Il GFS dà la velocità verticale a 850 e 700 hPa. Se a entrambi i livelli l'aria scende di più di 1 cm/s e c'è un'inversione o un forte calo dell'indice di rifrazione potenziale K (N riportato adiabaticamente a 1000 hPa, che mette in evidenza l'aria secca e calda scesa dall'alto [5]), si aggiungono 1,5 dB; se l'aria sale di più di 5 cm/s se ne tolgono 2.
+- Subsidenza e aria in salita [19]. Moler e Holden, su tratte di 125–305 km sul mare a 1365 e 9380 MHz, trovarono il segnale più alto di circa 2,5 dB in media con aria che scende che con aria che sale, e in un caso un rinforzo di circa 20 dB per 3 ore all'inizio della subsidenza, seguito da un calo di 22 dB quando l'aria è tornata a convergere. Il GFS dà la velocità verticale a 850 e 700 hPa. Se a entrambi i livelli l'aria scende di più di 1 cm/s e c'è un'inversione o un forte calo dell'indice di rifrazione potenziale K (N riportato adiabaticamente a 1000 hPa, che mette in evidenza l'aria secca e calda scesa dall'alto [5]), si aggiungono 1,5 dB; se l'aria sale di più di 5 cm/s se ne tolgono 2.
 - Scirocco [20]. Aria calda e secca dal Sahara sopra aria marina più fresca dà inversioni fortissime dal Mediterraneo orientale a Gibilterra. Il segno S compare dove a 850 hPa il vento arriva da 100–200° con almeno 7 m/s e la temperatura è almeno 16 °C, sul Mediterraneo. È solo un'indicazione: il guadagno lo decidono gli strati del profilo.
 
 Senza un condotto che intrappola la banda il guadagno totale non supera 16 dB, la fine del giallo: le correzioni rendono più evidenti gli strati forti ma non li fanno passare per condotti (rosso e viola restano ai condotti).
@@ -422,7 +427,7 @@ La previsione va confrontata con i collegamenti reali. Il registro dei calcoli c
 16. LukiBox, TropoLink, progettazione di tratte troposcatter con P.617, NBS TN101 e ITM affiancati (GitHub, licenza Apache 2.0).
 17. ITU-R P.617-5, Propagation prediction techniques and data required for the design of trans-horizon radio-relay systems, 2019.
 18. RSGB, VHF/UHF Handbook; implementazione di DL2FZN (andi-f/troposcatter su GitHub, 2013).
-19. W. F. Moler, D. B. Holden, Journal of Research of the NBS 64D, 1960: rinforzi sulle tratte oltre l'orizzonte e moto verticale dell'aria negli anticicloni.
+19. W. F. Moler, D. B. Holden, «Tropospheric scatter propagation and atmospheric circulations», Journal of Research of the NBS 64D, 1960, doi 10.6028/jres.064d.014: segnale oltre l'orizzonte (1365 e 9380 MHz, sul mare) e moto verticale dell'aria.
 20. ARRL Handbook 2022 (99ª ed.), § 19.4.3–19.4.4: situazioni meteo e propagazione troposferica.
 21. S. Franke, B. Somerville, J. Taylor, The FT4 and FT8 Communication Protocols, QEX luglio/agosto 2020.
 22. W3SZ, soglie dei modi digitali lenti (JT65, JT9, QRA64) e scelta del modo secondo la propagazione, 2019.

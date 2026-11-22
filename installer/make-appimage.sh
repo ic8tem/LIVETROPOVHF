@@ -37,7 +37,9 @@ NEW="$(cat "$HERE/opt/livetropovhf/VERSIONE_PACCHETTO" 2>/dev/null)"
 OLD="$(cat "$DEST/VERSIONE_PACCHETTO" 2>/dev/null)"
 if [ ! -x "$DEST/LIVETROPOVHF" ] || [ "$NEW" != "$OLD" ]; then
   mkdir -p "$DEST"
+  [ -f "$DEST/CALL3.TXT" ] && mv -f "$DEST/CALL3.TXT" "$DEST/CALL3.TXT.tuo"   # CALL3.TXT contiene le voci a mano: non si sovrascrive
   cp -R "$HERE/opt/livetropovhf/." "$DEST/"
+  [ -f "$DEST/CALL3.TXT.tuo" ] && mv -f "$DEST/CALL3.TXT.tuo" "$DEST/CALL3.TXT"
   chmod +x "$DEST/LIVETROPOVHF"
 fi
 cd "$DEST" && exec "$DEST/LIVETROPOVHF" "$@"

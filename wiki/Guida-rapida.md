@@ -15,7 +15,5 @@
 |---|---|
 | LIVETROPOVHF.ini | impostazioni |
 | LIVETROPOVHF.db | archivio di spot, ascolti e decodifiche |
-| CALL3.TXT | database nominativo → locatore |
-| Dati\CALL3-MANUALE.TXT | voci a mano |
-| Dati\CALL3-CLUSTER.TXT | correzioni automatiche dal cluster |
+| CALL3.TXT | unico database nominativo → locatore, con in cima voci a mano e correzioni automatiche dal cluster |
 | Dati\APPRENDIMENTO.TXT | regole imparate |

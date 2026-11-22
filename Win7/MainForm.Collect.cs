@@ -211,8 +211,8 @@ public sealed partial class MainForm
     }
 
     /// <summary>
-    /// Nominativi: modifiche a CALL3.TXT senza toccarlo. Voci a mano (Dati/CALL3-MANUALE.TXT, valgono sopra tutto) e
-    /// file aggiunti che si sovrappongono (Dati/CALL3-AGGIUNTE/); aggiornamento da MMMonVHF; ultima fonte G7VRD.
+    /// Nominativi: un solo database, CALL3.TXT. Voci a mano (anche da un file) in cima a CALL3.TXT, valgono sopra tutto e
+    /// restano agli aggiornamenti; aggiornamento dalle fonti; ultima fonte G7VRD.
     /// </summary>
     Control CallsSection()
     {
@@ -230,9 +230,9 @@ public sealed partial class MainForm
         {
             var c = (call.Text ?? "").Trim().ToUpperInvariant();
             if (c == "") return;
-            var m = db.ManualOf(c); var any = db.Lookup(c); var lv = LearnedLoc.Get(c);
-            _callsMsg.Text = Lang.F("c.found", c, m != "" ? m + " (" + Lang.T("c.src_manual") + ")" : any != "" ? any + " (CALL3)" : lv != "" ? lv + " (LOC6)" : "—");
-            if (string.IsNullOrEmpty(loc.Text)) loc.Text = m != "" ? m : any != "" ? any : lv;
+            var any = db.Lookup(c); var src = db.SourceOf(c);
+            _callsMsg.Text = Lang.F("c.found", c, any == "" ? "—" : any + " (" + (src == "manual" ? Lang.T("c.src_manual") : src == "cluster" ? "cluster" : "CALL3") + ")");
+            if (string.IsNullOrEmpty(loc.Text)) loc.Text = any;
         }
         var row1 = Row();
         row1.Controls.Add(Labeled(Lang.T("call"), call));
@@ -259,7 +259,7 @@ public sealed partial class MainForm
             try { int n = db.Import(dlg.FileName); CallsChanged(Lang.F("c.imported", Path.GetFileName(dlg.FileName), n)); }
             catch (Exception ex) { _callsMsg.Text = ex.Message; }
         }, true));
-        r2.Controls.Add(Btn(Lang.T("c.reload"), () => { db.LoadLayers(); CallsChanged(Lang.T("c.reloaded")); }, false));
+        r2.Controls.Add(Btn(Lang.T("c.reload"), () => { db.Reload(); CallsChanged(Lang.T("c.reloaded")); }, false));
         Add(body, r2);
 
         Add(body, Lbl(Lang.T("c.mmm"), 10f, _th.Text, true));
@@ -286,9 +286,7 @@ public sealed partial class MainForm
     {
         if (_callsList == null || _callsList.IsDisposed) return;
         var db = _st.CallDb;
-        _callsStatus.Text = Lang.F("c.status", db.PathUsed == "" ? "—" : db.PathUsed, db.Count.ToString("N0"),
-            db.OverlayFiles.Count == 0 ? "—" : string.Join(", ", db.OverlayFiles), db.Manual().Count, CallDb.OverlayDir, CallDb.ManualPath)
-            + "\n" + Lang.F("c.cluster", db.ClusterCount, CallDb.ClusterPath);
+        _callsStatus.Text = Lang.F("c.status", db.TargetPath, db.Count.ToString("N0"), db.ManualCount, db.ClusterCount);
         _callsList.SuspendLayout();
         foreach (Control c in _callsList.Controls.Cast<Control>().ToList()) c.Dispose();
         _callsList.Controls.Clear(); _callsList.RowStyles.Clear(); _callsList.RowCount = 0;

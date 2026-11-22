@@ -1427,8 +1427,8 @@ public sealed partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Sottolinguetta Nominativi: modifiche a CALL3.TXT senza toccarlo. Voci a mano (Dati/CALL3-MANUALE.TXT, valgono
-    /// sopra tutto) e file aggiunti che si sovrappongono (Dati/CALL3-AGGIUNTE/, valgono sopra CALL3.TXT).
+    /// Sottolinguetta Nominativi: un solo database, CALL3.TXT. Le voci a mano (anche da un file) si scrivono in cima a
+    /// CALL3.TXT, valgono sopra tutto e restano agli aggiornamenti.
     /// </summary>
     Control CallsSection()
     {
@@ -1445,9 +1445,7 @@ public sealed partial class MainWindow : Window
         var list = new StackPanel { Spacing = 3 };
         void Fill()
         {
-            status.Text = Lang.F("c.status", db.PathUsed == "" ? "—" : db.PathUsed, db.Count.ToString("N0"),
-                db.OverlayFiles.Count == 0 ? "—" : string.Join(", ", db.OverlayFiles), db.Manual().Count, CallDb.OverlayDir, CallDb.ManualPath)
-                + "\n" + Lang.F("c.cluster", db.ClusterCount, CallDb.ClusterPath);
+            status.Text = Lang.F("c.status", db.TargetPath, db.Count.ToString("N0"), db.ManualCount, db.ClusterCount);
             list.Children.Clear();
             foreach (var (c, l) in db.Manual())
             {
@@ -1466,9 +1464,9 @@ public sealed partial class MainWindow : Window
         {
             var c = (call.Text ?? "").Trim().ToUpperInvariant();
             if (c == "") return;
-            var m = db.ManualOf(c); var any = db.Lookup(c); var lv = LearnedLoc.Get(c);
-            msg.Text = Lang.F("c.found", c, m != "" ? m + " (" + Lang.T("c.src_manual") + ")" : any != "" ? any + " (CALL3)" : lv != "" ? lv + " (LOC6)" : "—");
-            if (string.IsNullOrEmpty(loc.Text)) loc.Text = m != "" ? m : any != "" ? any : lv;
+            var any = db.Lookup(c); var src = db.SourceOf(c);
+            msg.Text = Lang.F("c.found", c, any == "" ? "—" : any + " (" + (src == "manual" ? Lang.T("c.src_manual") : src == "cluster" ? "cluster" : "CALL3") + ")");
+            if (string.IsNullOrEmpty(loc.Text)) loc.Text = any;
         }
         var row1 = new WrapPanel { Orientation = Orientation.Horizontal };
         void Add(string label, Control c) { row1.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Margin = new Thickness(0, 0, 14, 6), Children = { TB(label, 14, _th.Muted), c } }); }
@@ -1490,7 +1488,7 @@ public sealed partial class MainWindow : Window
         body.Children.Add(TB(Lang.T("c.manual_list"), 13, _th.Text, true));
         body.Children.Add(list);
 
-        // file che si sovrappone
+        // elenco di nominativi da un file: entra nelle voci a mano di CALL3.TXT
         body.Children.Add(TB(Lang.T("c.files"), 13, _th.Text, true));
         body.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children =
         {
@@ -1506,7 +1504,7 @@ public sealed partial class MainWindow : Window
                 }
                 catch (Exception ex) { msg.Text = ex.Message; }
             }),
-            OutlineButton(Lang.T("c.reload"), () => { db.LoadLayers(); Changed(Lang.T("c.reloaded")); }),
+            OutlineButton(Lang.T("c.reload"), () => { db.Reload(); Changed(Lang.T("c.reloaded")); }),
         } });
 
         // aggiornamento del CALL3.TXT da MMMonVHF
@@ -2197,7 +2195,9 @@ public sealed partial class MainWindow : Window
     {
         try { FcAutoCheck(); } catch { }
         var now = Clock.UtcNow;
-        if (_clock != null) _clock.Text = now.ToString("dd/MM/yyyy HH:mm:ss") + " UTC";
+        // schermi stretti (1366×768): sotto i 1500 pixel solo l'ora, la data sta già nella barra del sistema
+        bool compact = Bounds.Width > 0 && Bounds.Width < 1500;
+        if (_clock != null) _clock.Text = (compact ? now.ToString("HH:mm:ss") : now.ToString("dd/MM/yyyy HH:mm:ss")) + " UTC";
         if (_ntp != null)
         {
             bool checkedOnce = _st.Ntp.LastCheckUtc != default;

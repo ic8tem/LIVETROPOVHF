@@ -5,8 +5,10 @@ SRC="$(cd "$(dirname "$0")" && pwd)"
 DEST="$HOME/LIVETROPOVHF"
 echo "Installo LIVETROPOVHF in $DEST"
 mkdir -p "$DEST"
-# copia tutto; i file creati dal programma (LIVETROPOVHF.ini, archivio, Dati) restano
+# copia tutto; i file creati dal programma (LIVETROPOVHF.ini, archivio, Dati) e CALL3.TXT restano
+[ -f "$DEST/CALL3.TXT" ] && mv -f "$DEST/CALL3.TXT" "$DEST/CALL3.TXT.tuo"   # CALL3.TXT contiene le voci a mano: non si sovrascrive
 cp -R "$SRC/." "$DEST/"
+[ -f "$DEST/CALL3.TXT.tuo" ] && mv -f "$DEST/CALL3.TXT.tuo" "$DEST/CALL3.TXT"
 rm -f "$DEST/installa.sh"
 chmod +x "$DEST/LIVETROPOVHF"
 mkdir -p "$HOME/.local/share/applications" "$HOME/.local/share/icons/hicolor/256x256/apps"

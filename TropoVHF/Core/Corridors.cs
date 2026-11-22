@@ -8,13 +8,20 @@ namespace TropoVHF.Core;
 /// - tutte negli ultimi WindowMin minuti, e il fascio si ripete a distanza di almeno RepeatMin minuti (persistenza);
 /// - per l'APRS un salto conta solo se lo stesso salto si ripete (pacchetti brevi: aerei in transito).
 /// Fonti: spot dei cluster, PSKReporter (MQTT), QSO e decodifiche proprie, salti APRS in 2 m.
+///
+/// Dalla 1.3.4 (per evitare la sovrastima vista con molti corridoi lunghi insieme):
+/// - le tratte oltre MaxKm (1500 km) contano solo se il fascio è confermato da almeno due fonti diverse
+///   (es. PSKReporter e cluster): da una fonte sola sono spesso EME, meteor scatter o locatori sbagliati;
+/// - il minimo garantito vale solo vicino alle tratte (entro NearKm dalla linea) e nella loro parte centrale
+///   (fra EndFrac e 1−EndFrac della lunghezza), non su tutto il rettangolo né sulle stazioni alle estremità;
+/// - il minimo cresce con la lunghezza media, con il numero di tratte indipendenti e con l'S/N mediano (se noto).
 /// </summary>
 public sealed class Corridors
 {
-    public double MinKm = 300, MaxAngle = 15, OffsetKm = 150;
+    public double MinKm = 300, MaxAngle = 15, OffsetKm = 150, MaxKm = 1500, NearKm = 60, EndFrac = 0.15;
     public int MinPaths = 3, WindowMin = 30, RepeatMin = 10, AprsRepeatMin = 2;
 
-    public sealed class Obs { public DateTime T; public string Band = "", A = "", B = "", Src = ""; public LatLon PA, PB; public double Km, Az; }
+    public sealed class Obs { public DateTime T; public string Band = "", A = "", B = "", Src = ""; public LatLon PA, PB; public double Km, Az, Snr = double.NaN; }
 
     public sealed class Corridor
     {
@@ -23,18 +30,34 @@ public sealed class Corridors
         public int Paths; public DateTime First, Last;
         public List<Obs> Members = new();
         public string Sources = "";
-        /// <summary>Guadagno minimo garantito sotto il corridoio: 10 dB a 300 km, 16 dB da 900 km in su.</summary>
-        public double FloorDb => 10 + 6 * Math.Max(0, Math.Min(1, (MeanKm - 300) / 600));
+        /// <summary>S/N mediano delle tratte che lo portano (NaN se nessuna fonte lo dà, es. cluster).</summary>
+        public double MedianSnr = double.NaN;
+        /// <summary>
+        /// Guadagno minimo garantito vicino alle tratte. Per la lunghezza: 10 dB a 300 km, 16 dB da 900 km in su.
+        /// Poi si pesa (0..1) con il numero di tratte indipendenti (3 → 0,25, 6 o più → 1) e con l'S/N mediano
+        /// (−20 dB → 0,5, 0 dB o più → 1; non noto → 0,75), metà e metà, a partire da 7 dB (inizio della scala).
+        /// Esempi: 3 tratte senza S/N → 11,5 dB; 6 tratte a 0 dB su 900 km → 16 dB.
+        /// </summary>
+        public double FloorDb
+        {
+            get
+            {
+                double len = 10 + 6 * Math.Max(0, Math.Min(1, (MeanKm - 300) / 600));
+                double kp = Math.Max(0.25, Math.Min(1, (Paths - 2) / 4.0));
+                double ks = double.IsNaN(MedianSnr) ? 0.75 : Math.Max(0.5, Math.Min(1, (MedianSnr + 20) / 20 * 0.5 + 0.5));
+                return 7 + (len - 7) * (0.5 * kp + 0.5 * ks);
+            }
+        }
     }
 
     readonly List<Obs> _obs = new();
     List<Corridor> _cache = new(); string _cacheKey = "";
 
-    public void Add(string band, string a, LatLon pa, string b, LatLon pb, DateTime t, string src)
+    public void Add(string band, string a, LatLon pa, string b, LatLon pb, DateTime t, string src, double snr = double.NaN)
     {
         double km = Geo.DistKm(pa, pb);
         if (km < MinKm || string.IsNullOrEmpty(band)) return;
-        var o = new Obs { T = t, Band = band, A = (a ?? "").ToUpperInvariant(), B = (b ?? "").ToUpperInvariant(), PA = pa, PB = pb, Km = km, Src = src, Az = Geo.Azimuth(pa, pb) };
+        var o = new Obs { T = t, Band = band, A = (a ?? "").ToUpperInvariant(), B = (b ?? "").ToUpperInvariant(), PA = pa, PB = pb, Km = km, Src = src, Az = Geo.Azimuth(pa, pb), Snr = snr };
         lock (_obs)
         {
             _obs.Add(o);
@@ -76,6 +99,10 @@ public sealed class Corridors
                     double along = x * Math.Sin(a) + y * Math.Cos(a), perp = -x * Math.Cos(a) + y * Math.Sin(a);
                     return Math.Abs(perp) <= OffsetKm && Math.Abs(along) <= (seed.Km + o.Km) / 2;
                 }).ToList();
+                // tratte molto lunghe: valgono solo se il fascio arriva da almeno due fonti diverse
+                if (fam.Any(o => o.Km > MaxKm) && fam.Select(o => o.Src).Distinct().Count() < 2)
+                    fam = fam.Where(o => o.Km <= MaxKm).ToList();
+                if (fam.Count == 0) { used.Add(seed); continue; }
                 // coppie indipendenti: nessuna stazione in comune
                 var calls = new HashSet<string>(); var indep = new List<Obs>();
                 foreach (var o in fam.OrderByDescending(o => o.T))
@@ -100,7 +127,7 @@ public sealed class Corridors
                 res.Add(new Corridor
                 {
                     Band = band, Mid = mid, AzDeg = az, HalfLenKm = half, HalfWidthKm = Math.Max(60, wid + 40), MeanKm = fam.Average(o => o.Km),
-                    Paths = indep.Count, First = fam.Min(o => o.T), Last = fam.Max(o => o.T), Members = fam,
+                    Paths = indep.Count, First = fam.Min(o => o.T), Last = fam.Max(o => o.T), Members = fam, MedianSnr = Median(fam.Select(o => o.Snr)),
                     Sources = string.Join(", ", fam.GroupBy(o => o.Src).Select(g => $"{g.Key} {g.Count()}"))
                 });
             }
@@ -109,18 +136,53 @@ public sealed class Corridors
         }
     }
 
+    static double Median(IEnumerable<double> v)
+    {
+        var l = v.Where(x => !double.IsNaN(x)).OrderBy(x => x).ToList();
+        if (l.Count == 0) return double.NaN;
+        return l.Count % 2 == 1 ? l[l.Count / 2] : (l[l.Count / 2 - 1] + l[l.Count / 2]) / 2;
+    }
+
     static bool Same(Obs a, Obs b) => (a.A == b.A && a.B == b.B) || (a.A == b.B && a.B == b.A);
 
-    /// <summary>Corridoio che copre il punto (o null).</summary>
+    /// <summary>
+    /// Corridoio con il minimo più alto che vale nel punto (o null): il punto deve stare entro NearKm da una delle tratte
+    /// e nella sua parte centrale, non vicino alle stazioni.
+    /// </summary>
     public Corridor At(string band, DateTime now, double lat, double lon)
     {
+        Corridor best = null;
+        var pt = new LatLon(lat, lon);
         foreach (var c in Active(band, now))
         {
-            var (x, y) = Local(c.Mid, new LatLon(lat, lon));
+            if (best != null && c.FloorDb <= best.FloorDb) continue;
+            var (x, y) = Local(c.Mid, pt);
             double a = c.AzDeg * Math.PI / 180;
-            if (Math.Abs(x * Math.Sin(a) + y * Math.Cos(a)) <= c.HalfLenKm && Math.Abs(-x * Math.Cos(a) + y * Math.Sin(a)) <= c.HalfWidthKm) return c;
+            if (Math.Abs(x * Math.Sin(a) + y * Math.Cos(a)) > c.HalfLenKm || Math.Abs(-x * Math.Cos(a) + y * Math.Sin(a)) > c.HalfWidthKm) continue;
+            foreach (var o in c.Members)
+                if (NearMiddle(o, pt)) { best = c; break; }
         }
-        return null;
+        return best;
+    }
+
+    /// <summary>Il punto sta entro NearKm dalla tratta, fra EndFrac e 1−EndFrac della sua lunghezza.</summary>
+    bool NearMiddle(Obs o, LatLon p)
+    {
+        var m = MidOf(o);
+        var (ax, ay) = Local(m, o.PA); var (bx, by) = Local(m, o.PB); var (px, py) = Local(m, p);
+        double dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+        if (l2 < 1) return false;
+        double t = ((px - ax) * dx + (py - ay) * dy) / l2;
+        if (t < EndFrac || t > 1 - EndFrac) return false;
+        double qx = ax + t * dx - px, qy = ay + t * dy - py;
+        return qx * qx + qy * qy <= NearKm * NearKm;
+    }
+
+    /// <summary>Tratto centrale di una tratta (fra EndFrac e 1−EndFrac), per il disegno.</summary>
+    public (LatLon a, LatLon b) MiddlePart(Obs o)
+    {
+        double d = o.Km, az = o.Az;
+        return (Geo.Destination(o.PA, az, d * EndFrac), Geo.Destination(o.PA, az, d * (1 - EndFrac)));
     }
 
     /// <summary>I quattro vertici della fascia del corridoio (per il disegno).</summary>

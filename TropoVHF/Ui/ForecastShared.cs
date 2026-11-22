@@ -413,7 +413,7 @@ public sealed class ForecastPainter
         Map.Screen(new LatLon(cells[0].lat, cells[0].lon), out var p0);
         Map.Screen(new LatLon(cells[0].lat, cells[0].lon + Own.Step), out var p1);
         if (Math.Abs(p1.X - p0.X) < 24) return;
-        Map.HoverKey ??= HitMark;
+        Map.HoverKey ??= HitKey;
         var tf = new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.Bold);
         var halo = new SolidColorBrush(Th.Panel);
         foreach (var (la, lo, pr) in cells)
@@ -449,33 +449,92 @@ public sealed class ForecastPainter
 
     readonly List<(Rect rc, int kind, ProfileResult pr)> _marks = new();
 
-    /// <summary>Corridoi d'apertura confermati dagli spot: fascia viola tratteggiata con il numero di tratte indipendenti.</summary>
+    readonly List<Rect> _corrRects = new();
+
+    /// <summary>
+    /// Corridoi d'apertura confermati dagli spot. Si disegna solo la zona in cui vale il minimo garantito (vicino alla parte
+    /// centrale delle tratte), tutta in una volta: le zone sovrapposte non si sommano. Colore neutro (quello del testo), lontano
+    /// dal viola della scala (≥ 21 dB). Le etichette si scansano; le tratte del corridoio compaiono passando con il mouse
+    /// sulla sua etichetta.
+    /// </summary>
     void DrawCorridors(DrawingContext ctx, double f)
     {
+        _corrRects.Clear();
+        Map.HoverKey ??= HitKey;
         var list = St.Corridors.Active(AppState.BandOf(f), Clock.UtcNow);
         if (list.Count == 0) return;
-        var col = Color.Parse("#7D3C98");
-        var pen = new Pen(new SolidColorBrush(col), 2, new DashStyle(new double[] { 6, 4 }, 0));
-        var fill = new SolidColorBrush(Color.FromArgb(40, 125, 60, 152));
-        var tf = new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.Bold);
-        foreach (var c in list)
+        var ink = Th.Ink;
+        // una sola geometria con tutte le fasce, riempita con la regola «non zero»: le sovrapposizioni non si sommano
+        var zones = new StreamGeometry();
+        using (var gc = zones.Open())
         {
-            var poly = Corridors.Polygon(c);
-            var pts = new List<Point>();
-            foreach (var p in poly) { Map.Screen(p, out var sp); pts.Add(sp); }
-            var g = new StreamGeometry();
-            using (var gc = g.Open()) { gc.BeginFigure(pts[0], true); for (int i = 1; i < pts.Count; i++) gc.LineTo(pts[i]); gc.EndFigure(true); }
-            ctx.DrawGeometry(fill, pen, g);
-            // tratte che lo compongono, sottili
-            var thin = new Pen(new SolidColorBrush(Color.FromArgb(150, 125, 60, 152)), 1);
-            foreach (var o in c.Members.Take(40)) { Map.Screen(o.PA, out var a); Map.Screen(o.PB, out var b); ctx.DrawLine(thin, a, b); }
+            gc.SetFillRule(FillRule.NonZero);
+            foreach (var c in list)
+                foreach (var o in c.Members)
+                {
+                    var (ma, mb) = St.Corridors.MiddlePart(o);
+                    double az = o.Az, w = St.Corridors.NearKm;
+                    var poly = new[] { Geo.Destination(ma, az - 90, w), Geo.Destination(mb, az - 90, w), Geo.Destination(mb, az + 90, w), Geo.Destination(ma, az + 90, w) };
+                    Map.Screen(poly[0], out var p0); gc.BeginFigure(p0, true);
+                    for (int i = 1; i < 4; i++) { Map.Screen(poly[i], out var pi); gc.LineTo(pi); }
+                    gc.EndFigure(true);
+                }
+        }
+        ctx.DrawGeometry(new SolidColorBrush(Color.FromArgb(56, ink.R, ink.G, ink.B)), null, zones);
+
+        // etichette: al centro del corridoio, spostate in basso finché non toccano le altre (al massimo 12 tentativi)
+        var tf = new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.Bold);
+        var fg = new SolidColorBrush(ink);
+        var border = new Pen(new SolidColorBrush(Color.FromArgb(200, ink.R, ink.G, ink.B)), 1);
+        int hover = Map.Hover is Point hp0 ? HitCorridor(hp0) : -1;
+        var shown = new List<(Rect rc, FormattedText ft, int i)>();
+        for (int i = 0; i < list.Count; i++)
+        {
+            var c = list[i];
             Map.Screen(c.Mid, out var mp);
             var txt = L($"corridoio · {c.Paths} tratte · {c.MeanKm:0} km · ≥ {c.FloorDb:0} dB", $"corridor · {c.Paths} paths · {c.MeanKm:0} km · ≥ {c.FloorDb:0} dB");
-            var ft = new FormattedText(txt, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, tf, 11, new SolidColorBrush(col));
+            var ft = new FormattedText(txt, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, tf, 11, fg);
             var rc = new Rect(mp.X - ft.Width / 2 - 4, mp.Y - ft.Height / 2 - 1, ft.Width + 8, ft.Height + 2);
-            ctx.DrawRectangle(new SolidColorBrush(Th.Panel), new Pen(new SolidColorBrush(col), 1), rc, 4, 4);
+            bool ok = false;
+            for (int k = 0; k < 12 && !ok; k++)
+            {
+                double dy = (k % 2 == 0 ? 1 : -1) * ((k + 1) / 2) * (rc.Height + 3);
+                var r = new Rect(rc.X, rc.Y + dy, rc.Width, rc.Height);
+                if (shown.All(s2 => s2.rc.Right < r.X || r.Right < s2.rc.X || s2.rc.Bottom < r.Y || r.Bottom < s2.rc.Y)) { rc = r; ok = true; }
+            }
+            _corrRects.Add(ok ? rc : default);
+            if (ok) shown.Add((rc, ft, i));
+        }
+        // tratte del corridoio sotto il mouse
+        if (hover >= 0 && hover < list.Count)
+        {
+            var thin = new Pen(new SolidColorBrush(ink), 1.4);
+            foreach (var o in list[hover].Members.Take(60)) { Map.Screen(o.PA, out var a); Map.Screen(o.PB, out var b); ctx.DrawLine(thin, a, b); }
+        }
+        foreach (var (rc, ft, i) in shown)
+        {
+            ctx.DrawRectangle(new SolidColorBrush(Th.Panel), i == hover ? new Pen(new SolidColorBrush(ink), 2) : border, rc, 4, 4);
             ctx.DrawText(ft, new Point(rc.X + 4, rc.Y + 1));
         }
+    }
+
+    int HitCorridor(Point p)
+    {
+        for (int i = 0; i < _corrRects.Count; i++)
+        {
+            var r = _corrRects[i];
+            if (r.Width > 0 && r.Contains(p)) return i;
+        }
+        return -1;
+    }
+
+    /// <summary>Chiave del punto sotto il mouse: un segno meteo (0…) o l'etichetta di un corridoio (100000…).</summary>
+    int HitKey(Point p)
+    {
+        int m = HitMark(p);
+        if (m >= 0) return m;
+        int c = HitCorridor(p);
+        return c >= 0 ? 100000 + c : -1;
     }
 
     int HitMark(Point p)
@@ -500,14 +559,14 @@ public sealed class ForecastPainter
                 L("↓ Subsidenza: FAVOREVOLE alla tropo (+1,5 dB)", "↓ Subsidence: GOOD for tropo (+1.5 dB)"),
                 L("L'aria scende (anticiclone), si scalda e si secca:", "Air sinks (anticyclone), warms and dries:"),
                 L("rinforza l'inversione e la tiene ferma per ore.", "it strengthens the inversion and holds it for hours."),
-                L("Moler e Holden 1960: rinforzi di 20 dB e oltre.", "Moler & Holden 1960: enhancements of 20 dB and more."),
+                L("Moler e Holden 1960: in media +2,5 dB rispetto all'aria in salita (un caso di +20 dB).", "Moler & Holden 1960: on average +2.5 dB versus rising air (one case of +20 dB)."),
                 L("Velocità verticale: ", "Vertical speed: ") + w + L(" (negativa = discesa)", " (negative = sinking)"),
                 L("Manuale delle previsioni, § 9 bis.", "Forecast manual, § 9 bis.") },
             2 => new List<string> {
                 L("↑ Aria in salita: SFAVOREVOLE alla tropo (−2 dB)", "↑ Rising air: BAD for tropo (−2 dB)"),
                 L("L'aria sale (fronti, bassa pressione, convezione):", "Air rises (fronts, low pressure, convection):"),
                 L("mescola i bassi strati e rompe inversioni e condotti.", "it mixes the low levels and breaks inversions and ducts."),
-                L("Moler e Holden 1960: affievolimenti profondi.", "Moler & Holden 1960: deep fades."),
+                L("Moler e Holden 1960: in media −2,5 dB rispetto alla subsidenza (un calo di 22 dB).", "Moler & Holden 1960: on average −2.5 dB versus subsidence (one drop of 22 dB)."),
                 L("Velocità verticale: ", "Vertical speed: ") + w + L(" (positiva = salita)", " (positive = rising)"),
                 L("Manuale delle previsioni, § 9 bis.", "Forecast manual, § 9 bis.") },
             _ => new List<string> {
