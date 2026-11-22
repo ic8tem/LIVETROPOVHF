@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace TropoVHF.Ui;
 
 /// <summary>
-/// Le 36 lingue di YA-MS, nello stesso ordine. I testi stanno nei file Lang/{codice}.json incorporati nell'eseguibile.
+/// Le 37 lingue di YA-MS, YAEC e YA-NEC (lo slovacco è la 37ª). I testi stanno nei file Lang/{codice}.json incorporati nell'eseguibile.
 /// Se una chiave manca nella lingua scelta si usa la lingua madre (pt-br → pt, zh-tw → zh), poi l'inglese, poi la chiave.
 /// </summary>
 public static class Lang
@@ -17,11 +17,11 @@ public static class Lang
         ("et","Eesti"),("lv","Latviešu"),("lt","Lietuvių"),("pl","Polski"),("cs","Čeština"),("hu","Magyar"),("ro","Română"),
         ("el","Ελληνικά"),("ru","Русский"),("uk","Українська"),("tr","Türkçe"),("af","Afrikaans"),("ar","العربية"),("he","עברית"),
         ("ur","اردو"),("hi","हिन्दी"),("bn","বাংলা"),("th","ไทย"),("id","Bahasa Indonesia"),("tl","Tagalog"),("zh","中文 (简体)"),
-        ("zh-tw","中文 (繁體)"),("ja","日本語"),("ko","한국어")
+        ("zh-tw","中文 (繁體)"),("ja","日本語"),("ko","한국어"),("sk","Slovenčina")
     };
 
     /// <summary>
-    /// Lingua del sistema operativo, per la prima partenza: si cerca fra le 36 lingue, altrimenti inglese.
+    /// Lingua del sistema operativo, per la prima partenza: si cerca fra le 37 lingue, altrimenti inglese.
     /// </summary>
     public static string SystemDefault()
     {
