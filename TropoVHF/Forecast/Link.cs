@@ -356,7 +356,7 @@ public static class LinkCalc
         double hte = Math.Max(1, hts - hst), hre = Math.Max(1, hrs - hsr);
         var zero = new double[n];
         double lbulls = Bullington(zero, dist, hte, hre, d, ce, lam, out _, out _, out _, out _);
-        double ldsph = SphericalLoss(d, hte, hre, ae, o.FreqMHz);
+        double ldsph = SphericalLoss(d, hte, hre, ae, o.FreqMHz, r.SeaFrac);
         r.LbullDb = lbulla + Math.Max(ldsph - lbulls, 0);
         r.LdiffDb = r.LfsDb + r.LbullDb;
         CalcLog.W($"Bullington sul profilo: Stim {stim:0.000} m/km (ostacolo più alto visto dal TX: {h[io]:0} m a {dist[io]:0.0} km), Str {str:0.000} m/km → {(los ? "in vista" : "oltre l'orizzonte")}; Lbulla = {lbulla:0.00} dB");
@@ -435,9 +435,11 @@ public static class LinkCalc
         double n0 = good.Count > 0 ? good.Average(p => p.Ns) : 320;
         double lf = 25 * Math.Log10(fGHz) - 2.5 * Math.Pow(Math.Log10(fGHz / 2), 2);   // f in GHz
         double lc = 0.051 * Math.Exp(0.055 * (r.GtxDbi + r.GrxDbi));
-        r.LscatDb = 190.1 + lf + 20 * Math.Log10(d) + 0.573 * Math.Max(0, r.ThetaMrad) - 0.15 * n0 + lc;
+        // P.452-18 eq. 45 (ricontrollata sul testo ufficiale il 22/11/2026): costante 190, gas con ρ = 3 g/m³ su tutta la tratta
+        double agS = GasDbKm(fGHz, 3) * d;
+        r.LscatDb = 190.0 + lf + 20 * Math.Log10(d) + 0.573 * Math.Max(0, r.ThetaMrad) - 0.15 * n0 + lc + agS;
         CalcLog.W($"angoli d'orizzonte: TX {thT:0.00} mrad, RX {thR:0.00} mrad; θ = 1000 d/ae + θt + θr = {r.ThetaMrad:0.00} mrad");
-        CalcLog.W($"troposcatter P.452 eq. 45 (p = 50%): Lf {lf:0.00}, N0 {n0:0.0}, Lc = 0,051·e^(0,055(Gt+Gr)) {lc:0.00} → Lbs = {r.LscatDb:0.00} dB (Gt {r.GtxDbi:0.0} dBi, Gr {r.GrxDbi:0.0} dBi, DL6WU)");
+        CalcLog.W($"troposcatter P.452-18 eq. 45 (p = 50%): 190 + Lf {lf:0.00} + 20 log d − 0,15·N0 ({n0:0.0}) + 0,573·θ + Lc = 0,051·e^(0,055(Gt+Gr)) {lc:0.00} + gas {agS:0.00} → Lbs = {r.LscatDb:0.00} dB (Gt {r.GtxDbi:0.0} dBi, Gr {r.GrxDbi:0.0} dBi, DL6WU)");
         Scatter3(r, h, good, o.FreqMHz);
         CommonVolume(r, pts, prof, hts, hrs, ae);
         MixScatter(r, h, prof);
@@ -1013,7 +1015,7 @@ public static class LinkCalc
         double phi = Math.Abs(latC);
         double mu4 = phi <= 70 ? Math.Pow(10, (-0.935 + 0.0176 * phi) * Math.Log10(mu1)) : Math.Pow(10, 0.3 * Math.Log10(mu1));
         double beta0 = phi <= 70 ? Math.Pow(10, -0.015 * phi + 1.67) * mu1 * mu4 : 4.17 * mu1 * mu4;
-        double alpha = -0.6 - 3.5e-9 * Math.Pow(d, 3.1) * tau;
+        double alpha = Math.Max(-3.4, -0.6 - 3.5e-9 * Math.Pow(d, 3.1) * tau);   // eq. 55a: α non sotto −3,4
         double mu2 = Math.Min(1, Math.Pow(500 / ae * d * d / Math.Pow(Math.Sqrt(hte) + Math.Sqrt(hre), 2), alpha));
         // rugosità: quota massima del terreno sopra la superficie liscia fra i due orizzonti
         double hm = 0;
@@ -1038,10 +1040,8 @@ public static class LinkCalc
         double thtp = thT <= 0.1 * dlt ? thT : 0.1 * dlt, thrp = thR <= 0.1 * dlr ? thR : 0.1 * dlr;
         double thp = 1000 * d / ae + thtp + thrp;
         double gd = 5e-5 * ae * Math.Pow(f, 1.0 / 3);
-        // gas (P.676 allegato 2 semplificato, livello del mare, 7,5 g/m³)
-        double go = (7.2 / (f * f + 0.34) + 0.62 / (Math.Pow(54 - f, 1.16) + 0.83)) * f * f * 1e-3;
-        double gw = (0.0313 + 3.98 / (Math.Pow(f - 22.235, 2) + 9.42)) * f * f * 7.5 * 1e-4;
-        double ag = (go + gw) * d;
+        // gas (eq. 9 e 9a: ρ = 7,5 + 2,5·ω g/m³)
+        double ag = GasDbKm(f, 7.5 + 2.5 * omega) * d;
         double lba = af + gd * thp + ap + ag;
         // troposcatter al 20%: eq. 45 con il termine in p
         double lbs = r.LscatDb - 10.1 * Math.Pow(-Math.Log10(p / 50), 0.7);
@@ -1108,23 +1108,53 @@ public static class LinkCalc
     /// termine di ITU-R P.526 § 3.1.1 con polarizzazione orizzontale e terreno medio (ε 22, σ 0,003 S/m).
     /// Entro l'orizzonte radio della terra liscia vale 0 (lì basta Bullington).
     /// </summary>
-    public static double SphericalLoss(double d, double h1, double h2, double ae, double fMHz)
+    /// <summary>
+    /// Diffrazione su terra sferica, ITU-R P.452-18 § 4.2.2 (eq. 23–37), ricontrollata sul testo ufficiale il 22/11/2026:
+    /// oltre la portata ottica il primo termine della serie (Ldft); sotto, interpolazione con lo spazio libero dell'ellissoide
+    /// (hse, hreq, raggio modificato aem). Ldft è la media pesata fra terra (εr 22, σ 0,003 S/m) e mare (εr 80, σ 5 S/m)
+    /// con la frazione di mare ω (eq. 29); polarizzazione orizzontale.
+    /// </summary>
+    public static double SphericalLoss(double d, double hte, double hre, double ap, double fMHz, double omega = 0)
     {
-        double dlos = Math.Sqrt(2 * ae) * (Math.Sqrt(0.001 * h1) + Math.Sqrt(0.001 * h2));
-        if (d <= dlos) return 0;
-        double k = 0.36 * Math.Pow(ae * fMHz, -1.0 / 3) * Math.Pow(Math.Pow(22 - 1, 2) + Math.Pow(18000 * 0.003 / fMHz, 2), -0.25);
-        double beta = 1;
-        double x = 2.188 * beta * Math.Pow(fMHz, 1.0 / 3) * Math.Pow(ae, -2.0 / 3) * d;
-        double F = x >= 1.6 ? 11 + 10 * Math.Log10(x) - 17.6 * x : -20 * Math.Log10(x) - 5.6488 * Math.Pow(x, 1.425);
-        double G(double hm)
+        double f = fMHz / 1000, lam = 0.299792458 / f;
+        double Ldft1(double a, double er, double sg)
         {
-            double y = 9.575e-3 * beta * Math.Pow(fMHz, 2.0 / 3) * Math.Pow(ae, -1.0 / 3) * hm, b = beta * y;
-            if (b > 2) return 17.6 * Math.Sqrt(b - 1.1) - 5 * Math.Log10(b - 1.1) - 8;
-            if (b > 10 * k) return 20 * Math.Log10(b + 0.1 * b * b * b);
-            if (b > k / 10) return 2 + 20 * Math.Log10(k) + 9 * Math.Log10(b / k) * (Math.Log10(b / k) + 1);
-            return 2 + 20 * Math.Log10(k);
+            double k = 0.036 * Math.Pow(a * f, -1.0 / 3) * Math.Pow(Math.Pow(er - 1, 2) + Math.Pow(18 * sg / f, 2), -0.25);
+            double k2 = k * k, beta = (1 + 1.6 * k2 + 0.67 * k2 * k2) / (1 + 4.5 * k2 + 1.53 * k2 * k2);
+            double x = 21.88 * beta * Math.Pow(f / (a * a), 1.0 / 3) * d;
+            double fx = x >= 1.6 ? 11 + 10 * Math.Log10(x) - 17.6 * x : -20 * Math.Log10(x) - 5.6488 * Math.Pow(x, 1.425);
+            double G(double hh)
+            {
+                double b = beta * beta * 0.9575 * Math.Pow(f * f / a, 1.0 / 3) * hh;   // B = βdft·Y, Y = 0,9575·βdft·(f²/a)^(1/3)·h
+                double g = b > 2 ? 17.6 * Math.Sqrt(b - 1.1) - 5 * Math.Log10(b - 1.1) - 8 : 20 * Math.Log10(b + 0.1 * b * b * b);
+                return Math.Max(g, 2 + 20 * Math.Log10(k));
+            }
+            return -fx - G(hte) - G(hre);
         }
-        return Math.Max(0, -(F + G(h1) + G(h2)));
+        double Ldft(double a) => omega * Ldft1(a, 80, 5) + (1 - omega) * Ldft1(a, 22, 0.003);
+        hte = Math.Max(0.1, hte); hre = Math.Max(0.1, hre);
+        double dlos = Math.Sqrt(2 * ap) * (Math.Sqrt(0.001 * hte) + Math.Sqrt(0.001 * hre));
+        if (d >= dlos) return Math.Max(0, Ldft(ap));
+        double c = (hte - hre) / (hte + hre), m = 250 * d * d / (ap * (hte + hre));
+        if (m <= 1e-9) return 0;
+        double arg = Math.Max(-1, Math.Min(1, 3 * c / 2 * Math.Sqrt(3 * m / Math.Pow(m + 1, 3))));
+        double bb = 2 * Math.Sqrt((m + 1) / (3 * m)) * Math.Cos(Math.PI / 3 + Math.Acos(arg) / 3);
+        double dse1 = d / 2 * (1 + bb), dse2 = d - dse1;
+        double hse = ((hte - 500 * dse1 * dse1 / ap) * dse2 + (hre - 500 * dse2 * dse2 / ap) * dse1) / d;
+        double hreq = 17.456 * Math.Sqrt(dse1 * dse2 * lam / d);
+        if (hse > hreq) return 0;
+        double aem = 500 * Math.Pow(d / (Math.Sqrt(hte) + Math.Sqrt(hre)), 2);
+        double l = Ldft(aem);
+        return l < 0 ? 0 : (1 - hse / hreq) * l;
+    }
+
+    /// <summary>Assorbimento dei gas (dB/km), ITU-R P.676 allegato 2 semplificato al livello del mare; ρ vapore in g/m³.</summary>
+    public static double GasDbKm(double fGHz, double rho)
+    {
+        double f = fGHz;
+        double go = (7.2 / (f * f + 0.34) + 0.62 / (Math.Pow(54 - f, 1.16) + 0.83)) * f * f * 1e-3;
+        double gw = (0.0313 + 3.98 / (Math.Pow(f - 22.235, 2) + 9.42)) * f * f * rho * 1e-4;
+        return go + gw;
     }
 
     /// <summary>

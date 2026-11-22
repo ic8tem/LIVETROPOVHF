@@ -33,7 +33,7 @@ Per ogni punto della griglia e ogni ora si leggono la pressione al suolo, temper
 
 Le quote dei livelli si calcolano con la formula ipsometrica e la temperatura virtuale; i livelli sotto il suolo si scartano. Per ogni livello:
 
-- N = 77,6/T · (P + 4810·e/T), con T in kelvin, P ed e in hPa, e dalla formula di Magnus (ITU-R P.453 [4]).
+- N = 77,6/T · (P + 4810·e/T), con T in kelvin, P ed e in hPa, e dalla pressione di saturazione di ITU-R P.453-14, eq. 9, con il fattore di correzione EF (ricontrollata sul testo ufficiale) [4].
 - M = N + 157·h, con h in km: la rifrattività modificata. Dove M cala salendo c'è un condotto.
 
 ## 3 bis. Sorgente dei dati

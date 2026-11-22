@@ -123,7 +123,7 @@ In sintesi, la ricetta comune: profilo verticale → N e M per livello → strat
 
 ## 6. Formule utili per il programma
 
-Oltre a N e M (sezione Fisica di base), queste servono a passare dal profilo verticale a un numero per punto e poi per percorso. Le formule ITU sono ricostruite da un PDF letto in parte male: prima di metterle nel codice vanno ricontrollate sul documento ufficiale ([ITU-R P.452-18](https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.452-18-202310-I!!PDF-E.pdf)).
+Oltre a N e M (sezione Fisica di base), queste servono a passare dal profilo verticale a un numero per punto e poi per percorso. Le formule ITU erano state ricostruite da un PDF letto in parte male; il 22 novembre sono state ricontrollate sui testi ufficiali ([ITU-R P.452-18](https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.452-18-202310-I!!PDF-E.pdf), P.453-14, P.526-16, P.372-18) e corrette nel codice: costante del troposcatter 190 (non 190,1) più l'assorbimento dei gas con ρ = 3 g/m³; α non sotto −3,4 (eq. 55a); gas dei condotti con ρ = 7,5 + 2,5·ω (eq. 9a); diffrazione su terra sferica completa (eq. 23–37: media terra-mare, funzione d'altezza con il limite 2 + 20 log K, interpolazione sotto la portata ottica); pressione di saturazione del vapore di P.453-14 (eq. 9, con EF) al posto della vecchia formula di Magnus. Rumore P.372-18: tabella 1 e galattico corrispondono; le curve del rumore artificiale valgono fino a 250 MHz e il galattico fino a circa 100 MHz, sopra il programma prolunga le stesse leggi.
 
 **1. Gradiente fra due livelli del modello** (h in km, M in unità M):
 

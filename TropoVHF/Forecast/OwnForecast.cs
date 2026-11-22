@@ -261,18 +261,25 @@ public static class Refractivity
     public static double K(double p, double tC, double rh)
     {
         double th = Theta(tC, p);
-        double e = Math.Max(0, Math.Min(100, rh)) / 100.0 * Es(tC) * 1000.0 / p;
+        double e = Math.Max(0, Math.Min(100, rh)) / 100.0 * Es(tC, p) * 1000.0 / p;
         return 77.6 / th * (1000 + 4810.0 * e / th);
     }
 
-    /// <summary>Pressione di saturazione del vapore (hPa) sull'acqua, formula di Magnus (ITU-R P.453).</summary>
-    public static double Es(double tC) => 6.1121 * Math.Exp(17.502 * tC / (tC + 240.97));
+    /// <summary>
+    /// Pressione di saturazione del vapore (hPa) sull'acqua, ITU-R P.453-14 eq. 9 (ricontrollata il 22/11/2026):
+    /// es = EF·a·exp((b − t/d)·t/(t + c)), a 6,1121, b 18,678, c 257,14, d 234,5, EF = 1 + 10⁻⁴(7,2 + P(0,0320 + 5,9·10⁻⁶ t²)).
+    /// </summary>
+    public static double Es(double tC, double p = 1013.25)
+    {
+        double ef = 1 + 1e-4 * (7.2 + p * (0.0320 + 5.9e-6 * tC * tC));
+        return ef * 6.1121 * Math.Exp((18.678 - tC / 234.5) * tC / (tC + 257.14));
+    }
 
     /// <summary>N = 77,6/T·(P + 4810·e/T) (ITU-R P.453), T in K, P ed e in hPa.</summary>
     public static double N(double pHpa, double tC, double rh)
     {
         double tk = tC + 273.15;
-        double e = Math.Max(0, Math.Min(100, rh)) / 100.0 * Es(tC);
+        double e = Math.Max(0, Math.Min(100, rh)) / 100.0 * Es(tC, pHpa);
         return 77.6 / tk * (pHpa + 4810.0 * e / tk);
     }
 
