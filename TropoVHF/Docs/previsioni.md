@@ -139,6 +139,8 @@ d_h = 4{,}12\,(\sqrt{h_{nave}} + \sqrt{h_{rx}})\ \text{km}
 
 con l'altezza dell'antenna della nave stimata dal tipo (20 m per le navi da carico, 30 m per le passeggeri, 6 m per pesca e diporto, 10 m per le altre) e quella dell'antenna del ricevitore impostata (di base 10 m). Una nave a più di 1,5 volte l'orizzonte e a più di 50 km è una ricezione per condotto: compare sulla mappa come linea azzurra dal QTH con un rombo «AIS n km». È la stessa idea dello studio CSIRO [10], che ha usato le ricezioni AIS a 162 MHz per verificare la previsione dei condotti dal GFS. È spento di base: serve un ricevitore proprio.
 
+**AIS dalle stazioni costiere norvegesi.** Chi non ha un ricevitore può usare il flusso aperto dell'Amministrazione costiera norvegese (Kystverket [32], licenza NLOD, senza registrazione): le frasi grezze delle oltre 50 stazioni base lungo la costa, solo ricezione da terra (il satellitare sta nella parte chiusa della rete). Il programma scarta i messaggi ritrasmessi dai ripetitori (indicatore di ripetizione diverso da zero) e impara la posizione delle stazioni base dai loro messaggi di tipo 4. Se la frase porta l'identità della stazione ricevente, la distanza si misura da quella; altrimenti dalla stazione base più vicina alla nave, che è un limite inferiore sicuro: chi ha ricevuto la nave era almeno a quella distanza. Con l'antenna delle basi stimata a 300 m (molte sono su alture), una nave oltre 150 km e oltre 1,5 volte l'orizzonte è una ricezione per condotto; le coppie base–nave entrano nei corridoi come le altre fonti. Copre il Mare del Nord e il Mare di Norvegia; per il Mediterraneo non esiste, a oggi, una fonte aperta con il ricevitore noto. È spento di base perché è un flusso continuo di circa 3 kB/s.
+
 ## 5. Linee opzionali e confronto con pressione e inversione
 
 Curve di guadagno: linee a 7, 10, 13, 16, 18,5 e 21 dB, i bordi della scala, tracciate sul campo levigato con il metodo dei quadrati marcianti, con l'etichetta in dB.
@@ -538,3 +540,4 @@ I programmi di prova usati per la P.452 e l'ITM sono nella cartella tools del co
 29. ITU-R P.452-18, Prediction procedure for the evaluation of interference between stations on the surface of the Earth at frequencies above about 0.1 GHz, 2023; casi di prova del gruppo di studio 3 (validation examples), come raccolti in I. Stevanovic, Py452 (GitHub).
 30. NTIA/ITS, Irregular Terrain Model (ITM) 1.2.2, codice di riferimento e casi di prova punto-punto (GitHub NTIA/itm).
 31. ITU-R M.1371, Technical characteristics for an automatic identification system using time division multiple access in the VHF maritime mobile frequency band.
+32. Kystverket (Amministrazione costiera norvegese), dati AIS aperti in tempo reale, flusso IEC 62320-1 su 153.44.253.27:5631, licenza NLOD.
