@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>disable</Nullable><LangVersion>latest</LangVersion><NoWarn>CA1416</NoWarn></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../TropoVHF/Forecast/*.cs" />
+    <Compile Include="../../TropoVHF/Ui/Lang.cs" />
+    <Compile Include="../../TropoVHF/Core/*.cs" Exclude="../../TropoVHF/Core/Archive.cs;../../TropoVHF/Core/PskMqtt.cs;../../TropoVHF/Core/TropoIndex.cs;../../TropoVHF/Core/AppState.cs;../../TropoVHF/Core/TropoSources.cs;../../TropoVHF/Core/AxisReader.cs" />
+  </ItemGroup>
+</Project>

@@ -38,6 +38,8 @@ public static class FcDetails
         new(2, "fc_seaair", "Contrasto aria-mare", "Air-sea contrast", 1),
         new(2, "fc_nowcast", "Media con gli spot (corridoi)", "Blend with spots (corridors)", 0),
         new(2, "aprs_on", "Salti APRS 2 m e LoRa", "APRS hops 2 m and LoRa", 1),
+        new(2, "fmdx_on", "Ricezioni FM-DX (webserver)", "FM-DX receptions (webservers)", 1),
+        new(2, "ais_on", "AIS dal mio ricevitore", "AIS from my receiver", 2),
         new(2, "fc_via_ideal", "Oltre il monte senza perdite", "Beyond the mountain, lossless", 2),
     };
     static string L(string it, string en) => Lang.Tr(it, en);
@@ -50,7 +52,7 @@ public static class FcDetails
     /// <summary>Valori di partenza quando l'impostazione non c'è ancora (gli stessi di prima del riquadro).</summary>
     public static bool Default(string key) => key switch
     {
-        "fc_show_corr" or "fc_show_los" or "fc_flat" or "fc_log" or "fc_corr" or "fc_seaair" or "fc_nowcast" or "aprs_on" => true,
+        "fc_show_corr" or "fc_show_los" or "fc_flat" or "fc_log" or "fc_corr" or "fc_seaair" or "fc_nowcast" or "aprs_on" or "fmdx_on" => true,
         _ => false
     };
 }
@@ -138,6 +140,8 @@ public static class ForecastText
         [L("Terreno dentro lo strato", "Terrain inside layer")] = L("Chilometri in cui il terreno DEM 30 m sale sopra la base dello strato: lì il condotto è interrotto o deviato. Manuale delle previsioni, § 9.", "Kilometres where DEM 30 m terrain rises above the layer base: the duct is broken or deflected there. Forecast manual, § 9."),
         [L("Antenne e condotto", "Antennas vs duct")] = L("Posizione delle antenne rispetto al condotto: dentro 3 dB, fuori 3 dB più 1 dB ogni 10 m, al massimo 40 dB. Stima empirica dell'accoppiamento. Manuale delle previsioni, § 10.", "Antenna position relative to the duct: inside 3 dB, outside 3 dB plus 1 dB per 10 m, at most 40 dB. Empirical coupling estimate. Forecast manual, § 10."),
         [L("Attenuazione residua", "Residual attenuation")] = L("Attenuazione nel condotto γd = 5·10⁻⁵·ae·f^(1/3) dB/mrad sulla distanza angolare, ITU-R P.452-16 eq. 49. Manuale delle previsioni, § 10.", "In-duct attenuation γd = 5·10⁻⁵·ae·f^(1/3) dB/mrad over the angular distance, ITU-R P.452-16 eq. 49. Forecast manual, § 10."),
+        [L("Affidabilità", "Confidence")] = L("Quanto fidarsi del guadagno previsto: alta, media o bassa. È una somma di punti, non una probabilità: accordo fra i modelli (perdita prevista contro P.452 con i condotti ed equazione parabolica, linea di base contro ITM: fino a 3 dB +1, oltre 8 dB −1), anticipo (entro 24 ore +1, oltre 72 −1), continuità dello strato sulla tratta (70% +1, sotto il 30% −1) e sua persistenza (+1), verifica del GFS con il radiosondaggio più vicino (±1) e conferme dal vivo lungo la tratta nell'ultima ora e mezza (cluster, PSKReporter, APRS, FM-DX: 1–2 +1, 3 o più +2; aperture con un guadagno previsto quasi nullo −1). Alta da 3 punti, media da 0 a 2, bassa sotto lo zero. Manuale delle previsioni, § 10 septies.", "How far to trust the predicted gain: high, medium or low. It is a sum of points, not a probability: model agreement (predicted loss against P.452 with ducts and the parabolic equation, baseline against ITM: within 3 dB +1, over 8 dB −1), lead time (within 24 hours +1, over 72 −1), layer continuity along the path (70% +1, under 30% −1) and its persistence (+1), GFS check against the nearest radiosonde (±1) and live confirmations along the path in the last hour and a half (cluster, PSKReporter, APRS, FM-DX: 1–2 +1, 3 or more +2; openings with an almost nil predicted gain −1). High from 3 points, medium from 0 to 2, low below zero. Forecast manual, § 10 septies."),
+        [L("Verifica con radiosonde", "Radiosonde check")] = L("Confronto fra i radiosondaggi reali della stazione più vicina (archivio IGRA v2 della NOAA, lanci delle 00 e 12 UTC degli ultimi 15 giorni; l'archivio si aggiorna ogni pochi giorni) e il GFS d'archivio alla stessa ora e nello stesso punto (Open-Meteo, previsioni storiche), con la stessa analisi del programma: quante volte il GFS ha visto un condotto osservato (M che cala con la quota sotto i 3000 m, almeno 2 unità M), i falsi allarmi e lo scarto medio del gradiente di rifrattività nel primo km. Dice quanto il modello vede bene i condotti qui, in questi giorni. Dati nella cartella Dati/IGRA. Manuale delle previsioni, § 10 septies.", "Comparison of the real radiosonde launches of the nearest station (NOAA IGRA v2 archive, 00 and 12 UTC launches of the last 15 days; the archive is updated every few days) with archived GFS at the same time and place (Open-Meteo historical forecasts), with the program's own analysis: how often GFS saw an observed duct (M decreasing with height below 3000 m, at least 2 M units), the false alarms and the mean error of the refractivity gradient in the first km. It tells how well the model sees ducts here, these days. Data in the Dati/IGRA folder. Forecast manual, § 10 septies."),
         [L("Guadagno tropo", "Tropo gain")] = L("Guadagno dello strato (10–25 dB secondo Bean e Dutton e il deficit del condotto) per la frazione usata; −10 dB con sub-rifrazione diffusa. Manuale delle previsioni, § 9.", "Layer gain (10–25 dB from Bean & Dutton and the duct deficit) times the fraction used; −10 dB with widespread sub-refraction. Forecast manual, § 9."),
         [L("Stima prudente / aggressiva", "Cautious / aggressive estimate")] = L("Prudente: soglia di super-rifrazione di Bean e Dutton (100 N/km nello strato 1000–850 hPa). Aggressiva: soglia classica di super-rifrazione (79 N/km, k ≈ 2). Con un condotto che intrappola la banda le due stime coincidono. Manuale delle previsioni, § 9 ter.", "Cautious: Bean and Dutton super-refraction threshold (100 N/km in the 1000–850 hPa layer). Aggressive: classic super-refraction threshold (79 N/km, k ≈ 2). With a duct trapping the band both are equal. Forecast manual, § 9 ter."),
         [L("Correzioni 1.3.2", "1.3.2 corrections")] = L("Peso del mare (μ1 di ITU-R P.452: più lungo il tratto continuo di terra, meno condotti; × 0,8–1,2), quota delle stazioni rispetto al condotto anche quando copre solo parte della tratta, cima dello strato limite del GFS sopra le creste (IT9GSF, +1,5 dB al massimo), alta pressione estesa con vento debole (+1 dB). Manuale delle previsioni, § 9 ter.", "Sea weight (ITU-R P.452 μ1: the longer the continuous land section, the fewer ducts; × 0.8–1.2), station height vs duct also when it covers only part of the path, GFS boundary-layer top above the ridges (IT9GSF, up to +1.5 dB), broad high pressure with light wind (+1 dB). Forecast manual, § 9 ter."),
@@ -153,6 +157,38 @@ public static class ForecastText
                     "Signal-to-noise at the antenna terminals in each mode's bandwidth, against the set threshold: green above, red below. Typical: SSB 6 dB, CW 0 dB in 500 Hz, FT8 −21 dB in 2500 Hz (WSJT-X). Forecast manual, § 12."),
     };
 
+    /// <summary>1.4 — Testo della riga «Affidabilità»: grado e indizi che lo hanno deciso.</summary>
+    public static string ConfidenceText(ConfidenceResult c)
+    {
+        var g = c.Grade == 2 ? L("alta", "high") : c.Grade == 1 ? L("media", "medium") : L("bassa", "low");
+        var p = new List<string>();
+        foreach (var (k, pts) in c.Parts)
+        {
+            string s = k switch
+            {
+                "models" => L("modelli d'accordo entro {0:0.0} dB", "models agree within {0:0.0} dB", c.ModelSpreadDb),
+                "lead" => c.LeadHours <= 24 ? L("entro 24 ore", "within 24 hours") : L("{0:0} ore d'anticipo", "{0:0} hours ahead", c.LeadHours),
+                "layer" => L("strato sul {0:0}% della tratta", "layer over {0:0}% of path", c.LayerFrac * 100),
+                "persist" => L("strato persistente", "persistent layer"),
+                "sonde" => L("radiosonde", "radiosondes"),
+                "live" => c.LiveContradicts ? L("aperture in corso non previste", "openings in progress not forecast") : L("{0} conferme dal vivo", "{0} live confirmations", c.Live),
+                _ => k
+            };
+            if (k == "models" && pts < 0) s = L("modelli in disaccordo ({0:0.0} dB)", "models disagree ({0:0.0} dB)", c.ModelSpreadDb);
+            p.Add(s + $" ({pts:+0;-0})");
+        }
+        return g + $" ({c.Score:+0;-0;0})" + (p.Count > 0 ? " · " + string.Join(" · ", p) : "");
+    }
+
+    /// <summary>1.4 — Testo della riga «Verifica con radiosonde».</summary>
+    public static string SondeText(SondeReport s)
+    {
+        int n = s.Hits + s.Misses + s.FalseAlarms + s.BothNo;
+        return L("{0} a {1:0} km, {2} lanci: condotti osservati {3}, visti dal GFS {4}, falsi allarmi {5} · gradiente GFS − sonda {6:+0.0;-0.0} N/km (RMS {7:0.0})",
+                 "{0} at {1:0} km, {2} launches: observed ducts {3}, seen by GFS {4}, false alarms {5} · GFS − sonde gradient {6:+0.0;-0.0} N/km (RMS {7:0.0})",
+                 s.StationName, s.Km, n, s.Hits + s.Misses, s.Hits, s.FalseAlarms, s.DnBias, s.DnRms);
+    }
+
     /// <summary>Intestazione dei risultati.</summary>
     public static string Header(LinkResult r, DateTime t) => L("Risultato", "Result") + $" · {r.FreqMHz:0.#} MHz · {t:dd/MM HH}:00 UTC";
 
@@ -162,7 +198,7 @@ public static class ForecastText
             (own.Hist != null ? L("archivio Open-Meteo, caso ", "Open-Meteo archive, case ") + own.Hist.Name + " · " : "") + WxSources.Name(own.UsedSource) + (own.UsedDetail != "" ? $" ({own.UsedDetail})" : ""));
 
     /// <summary>Righe dei risultati (etichetta, valore, tono, grassetto) uguali per tutte le finestre; le note hanno l'etichetta vuota.</summary>
-    public static List<(string Label, string Value, FcTone Tone, bool Bold)> Lines(LinkResult r, double reqSsb, double reqCw, double reqFt8, OwnForecast own = null)
+    public static List<(string Label, string Value, FcTone Tone, bool Bold)> Lines(LinkResult r, double reqSsb, double reqCw, double reqFt8, OwnForecast own = null, ConfidenceResult conf = null)
     {
         var res = new List<(string, string, FcTone, bool)>();
         void Line(string a, string b, FcTone c = FcTone.Normal, bool bold = false) => res.Add((a, b, c, bold));
@@ -212,6 +248,8 @@ public static class ForecastText
             }
             else Line(L("Strato fondante", "Governing layer"), L("nessuno strato continuo", "no continuous layer"));
             Line(L("Guadagno tropo", "Tropo gain"), $"{Sg(r.TropoGainDb):+0.0;-0.0} dB");
+            if (conf != null) Line(L("Affidabilità", "Confidence"), ConfidenceText(conf), conf.Grade == 2 ? FcTone.Ok : conf.Grade == 0 ? FcTone.Bad : FcTone.Accent, true);
+            if (conf?.Sonde != null) Line(L("Verifica con radiosonde", "Radiosonde check"), SondeText(conf.Sonde));
             var wx = new List<string>();
             if (r.SubsFrac > 0) wx.Add(L("subsidenza", "subsidence") + $" {r.SubsFrac * 100:0}%");
             if (r.AscentFrac > 0) wx.Add(L("aria in salita", "rising air") + $" {r.AscentFrac * 100:0}%");
@@ -317,7 +355,7 @@ public static class ForecastText
     /// <summary>Righe della sintesi (sempre visibili); le altre compaiono con la casella «Tutte le righe del calcolo». Le note restano.</summary>
     static readonly HashSet<string> SummaryLabels = new()
     {
-        "Distanza / azimut", "Distance / azimuth", "Strato fondante", "Governing layer", "Guadagno tropo", "Tropo gain",
+        "Distanza / azimut", "Distance / azimuth", "Strato fondante", "Governing layer", "Guadagno tropo", "Tropo gain", "Affidabilità", "Confidence",
         "Meteo lungo la tratta", "Weather along path", "Perdita prevista", "Predicted loss", "Segnale ricevuto", "Received signal",
         "S/N SSB", "S/N CW", "S/N FT8", "Modi digitali", "Digital modes", "Probabilità per periodo", "Probability per period",
         "Puntamento consigliato", "Recommended heading", "Dal monte, senza perdita", "From the peak, lossless"

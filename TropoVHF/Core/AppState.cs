@@ -22,6 +22,10 @@ public sealed class AppState
     public readonly Corridors Corridors = new();
     /// <summary>APRS-IS in sola lettura: salti radio in 2 m per i corridoi.</summary>
     public readonly AprsIs Aprs = new();
+    // 1.4: AIS dal ricevitore dell'utente e rete dei webserver FM-DX
+    public readonly AisReceiver Ais = new();
+    public readonly FmDxNet FmDx = new();
+    public bool AisOn, FmDxOn = true;
     public bool AprsOn = true, NowcastOn = true;
     public readonly WsjtxUdp Udp = new();
     public readonly NtpChecker Ntp = new();
@@ -343,6 +347,21 @@ public sealed class AppState
 
     public bool TryQth(out LatLon p) => Locator.TryToLatLon(Loc, out p);
 
+    int _sondeBusy;
+    /// <summary>1.4 — Verifica del GFS con il radiosondaggio più vicino (IGRA), in sottofondo, al massimo ogni 12 ore.</summary>
+    public void StartSondeCheck(System.Net.Http.HttpClient http, Action done = null)
+    {
+        var last = TropoVHF.Forecast.Radiosonde.Last;
+        if (last != null && (DateTime.UtcNow - last.Made).TotalHours < (last.Error == "" ? 12 : 2)) return;
+        if (!TryQth(out var q) || Interlocked.Exchange(ref _sondeBusy, 1) == 1) return;
+        Task.Run(async () =>
+        {
+            try { await TropoVHF.Forecast.Radiosonde.Check(http, q, 15, CancellationToken.None); done?.Invoke(); }
+            catch (Exception ex) { TropoVHF.Forecast.CalcLog.W("verifica IGRA non riuscita: " + ex.Message); }
+            finally { Interlocked.Exchange(ref _sondeBusy, 0); }
+        });
+    }
+
     /// <summary>
     /// Locatore più preciso disponibile: se quello ricevuto ha meno di 6 caratteri e CALL3.TXT (≈1 milione di nominativi)
     /// ne ha uno a 6, vale sempre quello di CALL3.TXT; se il locatore manca, quello di CALL3.TXT a 4 o 6 caratteri.
@@ -617,6 +636,16 @@ public sealed class AppState
         Aprs.Call = Call;
         Aprs.Hop += (t, band, a, pa, b, pb) => Corridors.Add(band, a, pa, b, pb, t, "APRS");
         if (AprsOn) Aprs.Start();
+        // 1.4: sensori in diretta. FM-DX: le ricezioni oltre 300 km entrano nei corridoi della banda 144 (tropo FM vicina ai 2 m);
+        // AIS: un solo ricevitore (il proprio) non può fare un corridoio, quindi resta un indicatore sulla mappa.
+        LatLon? Q() => TryQth(out var qq) ? qq : (LatLon?)null;
+        Ais.Qth = Q; FmDx.Qth = Q;
+        Ais.Port = S.GetInt("ais_port", 10110); Ais.RxAntennaM = S.GetDouble("ais_rx_h", 10);
+        AisOn = S.GetBool("ais_on", false); FmDxOn = S.GetBool("fmdx_on", true);
+        FmDx.Hit += h => { Corridors.Add("144", h.Rx, h.PRx, h.Tx, h.PTx, h.T, "FMDX"); Dirty = true; };
+        Ais.Hit += h => { Dirty = true; };
+        if (AisOn) Ais.Start();
+        if (FmDxOn) FmDx.Start();
         TropoVHF.Forecast.OwnForecast.Nowcast = (la, lo, t, f) =>
         {
             if (!NowcastOn || Math.Abs((t - Clock.UtcNow).TotalMinutes) > 90) return double.NaN;

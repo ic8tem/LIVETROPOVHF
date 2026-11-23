@@ -80,6 +80,22 @@ public sealed class Corridors
         }
     }
 
+    /// <summary>1.4 — Quante osservazioni recenti (ultimi minuti, tutte le fonti, FM-DX compreso) seguono la tratta a–b:
+    /// direzione entro 20° e punto medio entro 150 km dalla linea della tratta. Serve al giudizio di affidabilità.</summary>
+    public int AlongPath(string band, LatLon a, LatLon b, DateTime now, int minutes = 90)
+    {
+        double az = Geo.Azimuth(a, b), len = Geo.DistKm(a, b);
+        var mid = new LatLon((a.Lat + b.Lat) / 2, (a.Lon + b.Lon) / 2);
+        double ar = az * Math.PI / 180;
+        lock (_obs)
+            return _obs.Where(o => o.Band == band && o.T <= now && (now - o.T).TotalMinutes <= minutes && AxialDiff(o.Az, az) <= 20).Where(o =>
+            {
+                var (x, y) = Local(mid, MidOf(o));
+                double along = x * Math.Sin(ar) + y * Math.Cos(ar), perp = -x * Math.Cos(ar) + y * Math.Sin(ar);
+                return Math.Abs(perp) <= 150 && Math.Abs(along) <= len / 2 + 150;
+            }).Select(o => string.CompareOrdinal(o.A, o.B) < 0 ? o.A + "|" + o.B : o.B + "|" + o.A).Distinct().Count();
+    }
+
     // coordinate locali in km attorno a un punto (equirettangolare, sufficiente per qualche centinaio di km)
     static (double x, double y) Local(LatLon o, LatLon p)
     {

@@ -964,6 +964,7 @@ public sealed partial class MainWindow : Window
         }
         Seg("mqtt", () => GoTo("collect", "psk"));
         Seg("udp", () => GoTo("collect", "udp"));
+        Seg("fmdx", null); Seg("ais", null);
         Seg("pressure", null); Seg("tropo", null); Seg("call3", () => GoTo("collect", "calls"));
         Seg("other", null);
         Seg("error", () => OpenUrl(ErrorLog.FilePath), Lang.Tr("Clic: apri il registro degli errori", "Click: open the error log"));
@@ -2236,6 +2237,19 @@ public sealed partial class MainWindow : Window
             Set("udp", $"{Dot(u.Running)} UDP {u.ListenPort}→{u.ForwardPort}", u.Running ? (u.Packets > 0 ? _th.Ok : _th.Muted) : u.LastError != "" ? _th.Bad : _th.Muted,
                 (u.Running ? (u.Packets > 0 ? (Lang.Tr("in ascolto, {0} pacchetti ricevuti", "listening, {0} packets", u.Packets)) : (Lang.Tr("in ascolto, ma WSJT-X / JTDX / MSHV non mandano ancora nulla: controlla in quei programmi Impostazioni → Reporting → UDP Server (indirizzo e porta)", "listening, but WSJT-X / JTDX / MSHV send nothing yet: check Settings → Reporting → UDP Server")))
                            : Why(u.LastError)) + (Lang.Tr("\nClic: apri la fonte", "\nClick: open the source")));
+            {
+                // 1.4: sensori in diretta (FM-DX e AIS)
+                var nowS = Clock.UtcNow;
+                var fm = _st.FmDx; var fh = _st.FmDxOn ? fm.Recent(nowS) : new List<SensorHit>();
+                Set("fmdx", _st.FmDxOn ? $"{Dot(fm.Running && fm.Answers > 0)} FM-DX {fh.Count}" : "", fm.Answers > 0 ? (fh.Count > 0 ? _th.Ok : _th.Muted) : fm.LastError != "" ? _th.Bad : _th.Muted,
+                    Lang.Tr("Webserver FM-DX interrogati: {0}, risposte {1}. Ricezioni oltre 150 km nell'ultima ora: {2}.", "FM-DX webservers polled: {0}, answers {1}. Receptions beyond 150 km in the last hour: {2}.", fm.Servers, fm.Answers, fh.Count) +
+                    string.Concat(fh.Take(8).Select(x => $"\n{x.T:HH:mm} {x.Rx} ← {x.Tx}, {x.FreqMHz:0.0} MHz, {x.Km:0} km, {x.Sig:0} dBf")) + (fm.LastError != "" ? "\n" + fm.LastError : ""));
+                var ai = _st.Ais; var ah = _st.AisOn ? ai.Recent(nowS) : new List<SensorHit>(); var (ships, maxKm) = ai.Stats(nowS);
+                Set("ais", _st.AisOn ? $"{Dot(ai.Running)} AIS {ships}/{ah.Count}" : "", ai.Running ? (ah.Count > 0 ? _th.Ok : _th.Muted) : ai.LastError != "" ? _th.Bad : _th.Muted,
+                    (ai.Running ? Lang.Tr("In ascolto sulla porta UDP {0}: {1} frasi, {2} posizioni. Navi nell'ultima ora: {3}, la più lontana a {4:0} km; oltre l'orizzonte: {5}.", "Listening on UDP port {0}: {1} sentences, {2} positions. Ships in the last hour: {3}, farthest {4:0} km; beyond the horizon: {5}.", ai.Port, ai.Sentences, ai.Positions, ships, maxKm, ah.Count)
+                                : Lang.Tr("Non in ascolto sulla porta UDP {0}.", "Not listening on UDP port {0}.", ai.Port) + (ai.LastError != "" ? " " + ai.LastError : "")) +
+                    string.Concat(ah.Take(8).Select(x => $"\n{x.T:HH:mm} {x.Tx}: {x.Km:0} km, {x.Ratio:0.0}×")));
+            }
             Set("pressure", _st.Pressure.Status, _th.Muted);
             Set("tropo", _st.Tropo.Status, _th.Muted);
             bool callBad = _st.CallDb.Ready && (_st.CallDb.Error != "" || _st.CallDb.Count == 0);

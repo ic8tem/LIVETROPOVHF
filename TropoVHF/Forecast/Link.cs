@@ -116,6 +116,7 @@ public sealed class ViaPeak
 public sealed class LinkResult
 {
     public double DistKm, AzDeg, FreqMHz, K;
+    public LatLon TxPos, RxPos;
     public bool Los;
     public double LfsDb, LdiffDb, LbullDb, LscatDb, LbaseDb, TropoGainDb, LductDb, LpredDb;
     // 1.3.2: ITM (Longley-Rice, NTIA) in atmosfera normale e tratto finale dopo l'uscita dal condotto
@@ -289,7 +290,7 @@ public static class LinkCalc
     /// <summary>Calcolo completo; prof = profili di previsione lungo il percorso (o null se non c'è previsione).</summary>
     public static async Task<LinkResult> Compute(Station tx, Station rx, Options o, Srtm srtm, IList<ProfileResult> prof, CancellationToken ct, bool sub = false)
     {
-        var r = new LinkResult { FreqMHz = o.FreqMHz };
+        var r = new LinkResult { FreqMHz = o.FreqMHz, TxPos = tx.Pos, RxPos = rx.Pos };
         r.DistKm = Geo.DistKm(tx.Pos, rx.Pos);
         r.AzDeg = Geo.Azimuth(tx.Pos, rx.Pos);
         CalcLog.Section($"Calcolo del segnale {tx.Loc} → {rx.Loc}, {o.FreqMHz:0.0} MHz, ora {o.Utc:dd/MM HH:mm} UTC");
@@ -365,15 +366,23 @@ public static class LinkCalc
             v1 += dd * (h[i] + h[i - 1]);
             v2 += dd * (h[i] * (2 * dist[i] + dist[i - 1]) + h[i - 1] * (dist[i] + 2 * dist[i - 1]));
         }
-        double hst = Math.Min((2 * v1 * d - v2) / (d * d), h[0]), hsr = Math.Min((v2 - v1 * d) / (d * d), h[n - 1]);
+        double hst0 = (2 * v1 * d - v2) / (d * d), hsr0 = (v2 - v1 * d) / (d * d);
+        double hst = Math.Min(hst0, h[0]), hsr = Math.Min(hsr0, h[n - 1]);
         double hte = Math.Max(1, hts - hst), hre = Math.Max(1, hrs - hsr);
+        // 1.4: per la diffrazione la superficie liscia è corretta per gli ostacoli (P.452 § 5.1.6.3, hstd e hsrd), come
+        // nell'implementazione di riferimento dell'ITU: con i casi di validazione lo scarto medio di Ld scende sotto 0,2 dB
+        double hobs = double.MinValue, aobt = double.MinValue, aobr = double.MinValue;
+        for (int i = 1; i < n - 1; i++) { double hh = h[i] - (hts * (d - dist[i]) + hrs * dist[i]) / d; hobs = Math.Max(hobs, hh); aobt = Math.Max(aobt, hh / dist[i]); aobr = Math.Max(aobr, hh / (d - dist[i])); }
+        double hstp = hst0, hsrp = hsr0;
+        if (n >= 3 && hobs > 0) { double gt = aobt / (aobt + aobr), gr = aobr / (aobt + aobr); hstp = hst0 - hobs * gt; hsrp = hsr0 - hobs * gr; }
+        double hted = Math.Max(1, hts - Math.Min(hstp, h[0])), hred = Math.Max(1, hrs - Math.Min(hsrp, h[n - 1]));
         var zero = new double[n];
-        double lbulls = Bullington(zero, dist, hte, hre, d, ce, lam, out _, out _, out _, out _);
-        double ldsph = SphericalLoss(d, hte, hre, ae, o.FreqMHz, r.SeaFrac);
+        double lbulls = Bullington(zero, dist, hted, hred, d, ce, lam, out _, out _, out _, out _);
+        double ldsph = SphericalLoss(d, hted, hred, ae, o.FreqMHz, r.SeaFrac);
         r.LbullDb = lbulla + Math.Max(ldsph - lbulls, 0);
         r.LdiffDb = r.LfsDb + r.LbullDb;
         CalcLog.W($"Bullington sul profilo: Stim {stim:0.000} m/km (ostacolo più alto visto dal TX: {h[io]:0} m a {dist[io]:0.0} km), Str {str:0.000} m/km → {(los ? "in vista" : "oltre l'orizzonte")}; Lbulla = {lbulla:0.00} dB");
-        CalcLog.W($"terra liscia: superficie {hst:0} m al TX e {hsr:0} m al RX → altezze efficaci {hte:0.0} / {hre:0.0} m; Bullington liscio {lbulls:0.00} dB; terra sferica (P.526, primo termine) {ldsph:0.00} dB");
+        CalcLog.W($"terra liscia: superficie {hst:0} m al TX e {hsr:0} m al RX → altezze efficaci {hte:0.0} / {hre:0.0} m (per la diffrazione, corrette per gli ostacoli: {hted:0.0} / {hred:0.0} m); Bullington liscio {lbulls:0.00} dB; terra sferica (P.526, primo termine) {ldsph:0.00} dB");
         // ---- prima zona di Fresnel lungo il raggio diretto: ostacoli che la invadono (ν di Fresnel-Kirchhoff, P.526)
         {
             r.FresnelMinRatio = double.MaxValue;
@@ -1028,73 +1037,23 @@ public static class LinkCalc
     static void P452Duct(LinkResult r, double[] h, double[] dist, bool[] sea, double hts, double hrs, double hte, double hre,
                          double hst, double hsr, double dlt, double dlr, double thT, double thR, List<ProfileResult> good, double latC, double fMHz)
     {
-        int n = h.Length; double d = r.DistKm, f = fMHz / 1000, p = P452P;
+        // 1.4: P.452-18 completa (§ 4.1–4.6) dal modulo P452, validato sui casi ufficiali dell'ITU (manuale § 11 bis);
+        // ΔN e N0 vengono dai profili GFS invece che dalle mappe climatologiche.
+        int n = h.Length; double d = r.DistKm, p = P452P;
         var dns = good.Select(x => -x.DN1km).Where(x => !double.IsNaN(x)).OrderBy(x => x).ToList();
         double dN = dns.Count > 0 ? dns[dns.Count / 2] : 45;
         dN = Math.Max(1, Math.Min(150, dN));                     // il metodo non è definito dentro un condotto (ΔN ≥ 157)
-        double k50 = 157 / (157 - dN), ae = 6371 * k50;
-        // tratti di terra: il più lungo (dtm) e il più lungo interno, oltre 50 km dalla costa (dlm)
-        double dtm = 0, dlm = 0, run = 0; int runStart = -1;
-        bool anySea = sea.Any(x => x);
-        for (int i = 1; i <= n; i++)
-        {
-            bool land = i < n && !sea[i];
-            if (land) { if (runStart < 0) runStart = i - 1; run += dist[i] - dist[i - 1]; }
-            else if (runStart >= 0)
-            {
-                dtm = Math.Max(dtm, run);
-                double cut = 0;
-                if (sea[runStart] || (runStart > 0 && sea[runStart - 1])) cut += 50;
-                if (i < n && sea[i]) cut += 50;
-                dlm = Math.Max(dlm, anySea ? Math.Max(0, run - cut) : run);
-                runStart = -1; run = 0;
-            }
-        }
-        double tau = 1 - Math.Exp(-4.12e-4 * Math.Pow(dlm, 2.41));
-        double mu1 = Math.Min(1, Math.Pow(Math.Pow(10, -dtm / (16 - 6.6 * tau)) + Math.Pow(10, -5 * (0.496 + 0.354 * tau)), 0.2));
-        double phi = Math.Abs(latC);
-        double mu4 = phi <= 70 ? Math.Pow(10, (-0.935 + 0.0176 * phi) * Math.Log10(mu1)) : Math.Pow(10, 0.3 * Math.Log10(mu1));
-        double beta0 = phi <= 70 ? Math.Pow(10, -0.015 * phi + 1.67) * mu1 * mu4 : 4.17 * mu1 * mu4;
-        double alpha = Math.Max(-3.4, -0.6 - 3.5e-9 * Math.Pow(d, 3.1) * tau);   // eq. 55a: α non sotto −3,4
-        double mu2 = Math.Min(1, Math.Pow(500 / ae * d * d / Math.Pow(Math.Sqrt(hte) + Math.Sqrt(hre), 2), alpha));
-        // rugosità: quota massima del terreno sopra la superficie liscia fra i due orizzonti
-        double hm = 0;
-        for (int i = 0; i < n; i++)
-            if (dist[i] >= dlt && dist[i] <= d - dlr) hm = Math.Max(hm, h[i] - (hst + (hsr - hst) * dist[i] / d));
-        double di = Math.Min(Math.Max(0, d - dlt - dlr), 40);
-        double mu3 = hm <= 10 ? 1 : Math.Exp(-4.6e-5 * (hm - 10) * (43 + 6 * di));
-        double beta = beta0 * mu2 * mu3;
-        double lgb = Math.Log10(beta);
-        double gam = 1.076 / Math.Pow(2.0058 - lgb, 1.012) * Math.Exp(-(9.51 - 4.8 * lgb + 0.198 * lgb * lgb) * 1e-6 * Math.Pow(d, 1.13));
-        double ap = -12 + (1.2 + 3.7e-3 * d) * Math.Log10(p / beta) + 12 * Math.Pow(p / beta, gam);
-        // perdite fisse: accoppiamento empirico sotto 0,5 GHz, schermatura dei siti, accoppiamento sul mare
-        double alf = f < 0.5 ? 45.375 - 137.0 * f + 92.5 * f * f : 0;
-        double Ast(double th, double dl) { double t2 = th - 0.1 * dl; return t2 > 0 ? 20 * Math.Log10(1 + 0.361 * t2 * Math.Sqrt(f * dl)) + 0.264 * t2 * Math.Pow(f, 1.0 / 3) : 0; }
-        double ast = Ast(thT, dlt), asr = Ast(thR, dlr);
-        double omega = r.SeaFrac;
+        double n0 = good.Count > 0 ? good.Average(x => x.Ns) : 325;
         double dct = 0; for (int i = 0; i < n && !sea[i]; i++) dct = dist[i];
         double dcr = 0; for (int i = n - 1; i >= 0 && !sea[i]; i--) dcr = d - dist[i];
-        double Act(double dc, double dl, double hs) => omega >= 0.75 && dc <= dl && dc <= 5 ? -3 * Math.Exp(-0.25 * dc * dc) * (1 + Math.Tanh(0.07 * (50 - hs))) : 0;
-        double act = Act(dct, dlt, hts), acr = Act(dcr, dlr, hrs);
-        double af = 102.45 + 20 * Math.Log10(fMHz) + 20 * Math.Log10(Math.Max(0.1, dlt + dlr)) + alf + ast + asr + act + acr;
-        double thtp = thT <= 0.1 * dlt ? thT : 0.1 * dlt, thrp = thR <= 0.1 * dlr ? thR : 0.1 * dlr;
-        double thp = 1000 * d / ae + thtp + thrp;
-        double gd = 5e-5 * ae * Math.Pow(f, 1.0 / 3);
-        // gas (eq. 9 e 9a: ρ = 7,5 + 2,5·ω g/m³)
-        double ag = GasDbKm(f, 7.5 + 2.5 * omega) * d;
-        double lba = af + gd * thp + ap + ag;
-        // troposcatter al 20%: eq. 45 con il termine in p
-        double lbs = r.LscatDb - 10.1 * Math.Pow(-Math.Log10(p / 50), 0.7);
-        const double eta = 2.5;
-        double lbam = -eta * Math.Log(Math.Exp(-lba / eta) + Math.Exp(-r.LdiffDb / eta));
-        double lb = -5 * Math.Log10(Math.Pow(10, -0.2 * lbs) + Math.Pow(10, -0.2 * lbam));
-        lb = Math.Max(lb, r.LfsDb);
-        r.P452Ok = true; r.P452DeltaN = dN; r.P452K50 = k50; r.P452Beta = beta; r.P452Lba = lba; r.P452Lbs = lbs; r.P452Lb = lb;
-        r.P452Alf = alf; r.P452Ast = ast; r.P452Asr = asr; r.P452Act = act; r.P452Acr = acr; r.P452Ag = ag;
-        CalcLog.W($"P.452 § 4.5 (p = {p:0}%): ΔN mediano GFS {dN:0.0} → k50 {k50:0.00}, ae {ae:0} km; orizzonti dlt {dlt:0.0} km, dlr {dlr:0.0} km; terra dtm {dtm:0} km, interna dlm {dlm:0} km, τ {tau:0.000}");
-        CalcLog.W($"   μ1 {mu1:0.000}, μ4 {mu4:0.000}, β0 {beta0:0.00}%, μ2 {mu2:0.000} (α {alpha:0.000}), μ3 {mu3:0.000} (hm {hm:0} m), β {beta:0.000}%, Γ {gam:0.000} → A(p) {ap:0.0} dB");
-        CalcLog.W($"   Af = 102,45 + 20 log f + 20 log(dlt+dlr) + Alf {alf:0.0} + Ast {ast:0.0} + Asr {asr:0.0} + Act {act:0.0} + Acr {acr:0.0} = {af:0.0} dB; γd·θ' = {gd:0.000} × {thp:0.0} mrad = {gd * thp:0.0} dB; gas {ag:0.0} dB");
-        CalcLog.W($"   Lba {lba:0.0} dB; troposcatter al {p:0}% {lbs:0.0} dB; diffrazione {r.LdiffDb:0.0} dB → P.452 complessiva {lb:0.0} dB (solo confronto, la perdita prevista resta la nostra {r.LpredDb:0.0} dB)");
+        var o = P452.Compute(new P452In
+        {
+            Dist = dist, H = h, Sea = sea, FGHz = fMHz / 1000, P = p, Htg = Math.Max(0.5, hts - h[0]), Hrg = Math.Max(0.5, hrs - h[n - 1]),
+            Gt = r.GtxDbi, Gr = r.GrxDbi, Dct = sea.Any(x => x) ? dct : 500, Dcr = sea.Any(x => x) ? dcr : 500, DN = dN, N0 = n0, LatCenter = latC
+        });
+        r.P452Ok = true; r.P452DeltaN = dN; r.P452K50 = 157 / (157 - dN); r.P452Beta = o.Beta0; r.P452Lba = o.Lba; r.P452Lbs = o.Lbs; r.P452Lb = o.Lb;
+        CalcLog.W($"P.452-18 completa (p = {p:0}%): ΔN mediano GFS {dN:0.0} → ae {o.Ae:0} km, N0 {n0:0}; ω {o.Omega:0.00}, β0 {o.Beta0:0.00}%; orizzonti dlt {o.Dlt:0.0} km, dlr {o.Dlr:0.0} km, θ {o.Theta:0.0} mrad");
+        CalcLog.W($"   spazio libero e gas {o.Lbfsg:0.0} dB, diffrazione Ld50 {o.Ld50:0.0} / Ldp {o.Ldp:0.0} dB, troposcatter Lbs {o.Lbs:0.0} dB, condotti Lba {o.Lba:0.0} dB → Lb {o.Lb:0.0} dB (solo confronto, la perdita prevista resta la nostra {r.LpredDb:0.0} dB)");
     }
 
     static double Interp(double[] xs, double[] ys, double x)
@@ -1108,7 +1067,7 @@ public static class LinkCalc
     static double BaseAt(LinkResult r, double dk) => Interp(r.RunDist, r.RunBase, dk);
 
     /// <summary>Perdita di Bullington (dB oltre lo spazio libero) su un profilo, come in ITU-R P.452 § 4.2.1.</summary>
-    static double Bullington(double[] h, double[] dist, double hts, double hrs, double d, double ce, double lam, out bool los, out double stim, out double str, out int io)
+    internal static double Bullington(double[] h, double[] dist, double hts, double hrs, double d, double ce, double lam, out bool los, out double stim, out double str, out int io)
     {
         int n = h.Length; stim = double.MinValue; io = 1;
         for (int i = 1; i < n - 1; i++)

@@ -482,6 +482,7 @@ public sealed class MapView : Control
             _labels.Clear();
             if (_st.ShowRx) DrawListeners(ctx, now);
             if (_st.ShowDec) DrawDecodes(ctx, now);
+            DrawSensors(ctx, now);
             if (_st.ShowQso) DrawQsos(ctx, now);
             _spotHits.Clear();
             if (_st.ShowSpots) DrawSpots(ctx, now);
@@ -827,6 +828,39 @@ public sealed class MapView : Control
             c.EndFigure(true);
         }
         ctx.DrawGeometry(Br(fill, op), new Pen(Br(stroke, op), 1.6), g);
+    }
+
+    /// <summary>
+    /// 1.4: ricezioni lontane dei sensori. FM-DX (viola, tratteggio): webserver → trasmettitore FM, oltre 150 km.
+    /// AIS (azzurro): dal QTH alle navi sentite oltre 1,5 volte l'orizzonte radio. Ultima ora.
+    /// </summary>
+    void DrawSensors(DrawingContext ctx, DateTime now)
+    {
+        var th = Th;
+        var halo = new Pen(Br(th.Halo, 0.7), 4, lineCap: PenLineCap.Round);
+        if (_st.FmDxOn)
+        {
+            var col = Color.Parse("#8E44AD");
+            var pen = new Pen(new SolidColorBrush(col), 1.6, lineCap: PenLineCap.Round) { DashStyle = new DashStyle(new double[] { 5, 3 }, 0) };
+            foreach (var h in _st.FmDx.Recent(now))
+            {
+                var gc = Geo.GreatCircle(h.PRx, h.PTx, 24);
+                Polyline(ctx, halo, gc); Polyline(ctx, pen, gc);
+                if (ToScreen(h.PTx, out var s1)) { ctx.DrawEllipse(new SolidColorBrush(col), new Pen(Brushes.White, 1), s1, 3.5, 3.5); Text(ctx, $"FM {h.Km:0} km", new Point(s1.X, s1.Y + 12), 10, col, true, th.Halo); }
+                if (ToScreen(h.PRx, out var s0)) ctx.DrawRectangle(new SolidColorBrush(col), null, new Rect(s0.X - 3, s0.Y - 3, 6, 6));
+            }
+        }
+        if (_st.AisOn)
+        {
+            var col = Color.Parse("#0097A7");
+            var pen = new Pen(new SolidColorBrush(col), 1.8, lineCap: PenLineCap.Round);
+            foreach (var h in _st.Ais.Recent(now))
+            {
+                var gc = Geo.GreatCircle(h.PRx, h.PTx, 16);
+                Polyline(ctx, halo, gc); Polyline(ctx, pen, gc);
+                if (ToScreen(h.PTx, out var s1)) { DrawDiamond(ctx, s1, 4.5, 1.5, 1); Text(ctx, $"AIS {h.Km:0} km", new Point(s1.X, s1.Y + 12), 10, col, true, th.Halo); }
+            }
+        }
     }
 
     void DrawDecodes(DrawingContext ctx, DateTime now)

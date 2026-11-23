@@ -4,6 +4,17 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
+## 1.4.0 — 24/11/2026
+- Sensori dal vivo: le ricezioni dei webserver FM-DX pubblici (servers.fmdx.org, i 60 più vicini entro 1500 km, uno ogni 3 minuti) oltre i 150 km entrano nei corridoi dei 2 m e si vedono sulla mappa come linee viola «FM n km»; il proprio ricevitore AIS (frasi NMEA in UDP sulla porta 10110) segnala le navi oltre 1,5 volte l'orizzonte radio come linee azzurre «AIS n km». Conteggi e ultime ricezioni nella barra di stato; caselle nei Dettagli delle previsioni, FM-DX acceso e AIS spento di base (manuale § 4 ter).
+- Confronto P.452: ora è il metodo completo della ITU-R P.452-18 (§ 4.1–4.6) con ΔN e N0 dal GFS, verificato con i 194 casi di prova ufficiali fino a 2 GHz: scarto medio 0,06 dB, massimo 0,54 dB. Corretti la frequenza nell'accoppiamento dei condotti (era in MHz invece che in GHz) e le quote della superficie liscia nella diffrazione. Anche il diffratto della previsione usa la superficie liscia corretta per gli ostacoli (manuale § 11).
+- ITM ricontrollato con i casi di prova NTIA: stessi valori al centesimo di dB. I programmi di prova sono in tools/validazione (i dati di prova si scaricano a parte).
+- Verifica con le radiosonde: il GFS si confronta con i lanci reali della stazione più vicina (archivio IGRA v2 della NOAA, ultimi 15 giorni, GFS d'archivio di Open-Meteo): condotti visti, mancati, falsi allarmi e scarto del gradiente nel primo km. Nuova riga «Verifica con radiosonde»; dati in Dati/IGRA (manuale § 10 septies).
+- Affidabilità del guadagno previsto: nuova riga «Affidabilità» (alta, media, bassa) con i punti di ogni indizio: accordo fra i modelli, anticipo, continuità e persistenza dello strato, radiosonde e conferme dal vivo lungo la tratta (manuale § 10 septies).
+- Rapporto d'errore: il rapporto completo va negli appunti e l'indirizzo GitHub resta sotto i 6000 caratteri; nel titolo la versione che ha prodotto l'errore.
+- Guide nella lingua scelta: tradotte automaticamente dall'italiano in 34 lingue (Argos Translate); poi inglese, poi italiano.
+- Licenza GNU GPL v3.0 e crediti dei dati nel README.
+- Windows 7: corretto un nome che bloccava la compilazione.
+
 ## 1.3.5 — 23/11/2026
 - Previsioni: le caselle «Sorgente dei dati» e «Caso storico» hanno il testo più piccolo e occupano la larghezza del pannello, così la scelta si legge per intero.
 - Registro errori: non vengono più registrate come errori le ricezioni UDP/NTP interrotte alla chiusura del socket (errore 995).
