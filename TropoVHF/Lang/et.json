@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "Õhu-mere kontrast",
   "it:Media con gli spot (corridoi)": "Keskmine koos spottidega (koridorid)",
   "it:Salti APRS 2 m e LoRa": "APRS-hüpped 2 m ja LoRa",
-  "it:Oltre il monte senza perdite": "Üle mäe kadudeta"
+  "it:Oltre il monte senza perdite": "Üle mäe kadudeta",
+  "it:Controllo dell'orario NTP in corso.": "NTP aja kontroll käib.",
+  "it:Orologio allineato con NTP, scarto ": "Kell joondatud NTP-ga, nihe ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP ei vasta: programm jätkab arvuti kellaga ja proovib uuesti iga 3 minuti järel."
 }

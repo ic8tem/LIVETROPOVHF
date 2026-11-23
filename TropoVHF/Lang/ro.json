@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "Contrast aer-mare",
   "it:Media con gli spot (corridoi)": "Medie cu spoturile (coridoare)",
   "it:Salti APRS 2 m e LoRa": "Salturi APRS 2 m și LoRa",
-  "it:Oltre il monte senza perdite": "Dincolo de munte fără pierderi"
+  "it:Oltre il monte senza perdite": "Dincolo de munte fără pierderi",
+  "it:Controllo dell'orario NTP in corso.": "Verificarea orei NTP în curs.",
+  "it:Orologio allineato con NTP, scarto ": "Ceas aliniat cu NTP, abatere ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP nu răspunde: programul continuă cu ceasul PC-ului și reîncearcă la fiecare 3 minute."
 }

@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "海氣對比",
   "it:Media con gli spot (corridoi)": "與報告平均（走廊）",
   "it:Salti APRS 2 m e LoRa": "APRS 跳躍 2 m 和 LoRa",
-  "it:Oltre il monte senza perdite": "越過山峰無損耗"
+  "it:Oltre il monte senza perdite": "越過山峰無損耗",
+  "it:Controllo dell'orario NTP in corso.": "正在檢查 NTP 時間。",
+  "it:Orologio allineato con NTP, scarto ": "時鐘已與 NTP 對齊，偏差 ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP 無響應：程式繼續使用電腦時鐘，每 3 分鐘重試一次。"
 }

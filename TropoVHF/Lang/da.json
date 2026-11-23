@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "Luft-hav-kontrast",
   "it:Media con gli spot (corridoi)": "Gennemsnit med spots (korridorer)",
   "it:Salti APRS 2 m e LoRa": "APRS-hop 2 m og LoRa",
-  "it:Oltre il monte senza perdite": "Over bjerget uden tab"
+  "it:Oltre il monte senza perdite": "Over bjerget uden tab",
+  "it:Controllo dell'orario NTP in corso.": "Kontrollerer NTP-tid.",
+  "it:Orologio allineato con NTP, scarto ": "Uret synkroniseret med NTP, afvigelse ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP svarer ikke: programmet fortsætter med pc'ens ur og prøver igen hvert 3. minut."
 }

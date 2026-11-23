@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "대기-해양 대비",
   "it:Media con gli spot (corridoi)": "스폿과 평균 (회랑)",
   "it:Salti APRS 2 m e LoRa": "APRS 홉 2 m 및 LoRa",
-  "it:Oltre il monte senza perdite": "산 너머 손실 없이"
+  "it:Oltre il monte senza perdite": "산 너머 손실 없이",
+  "it:Controllo dell'orario NTP in corso.": "NTP 시간 확인 중입니다.",
+  "it:Orologio allineato con NTP, scarto ": "시계를 NTP에 맞춤, 오차 ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP가 응답하지 않습니다. PC 시계로 계속하고 3분마다 다시 시도합니다."
 }

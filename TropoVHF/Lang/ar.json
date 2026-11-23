@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "تباين الهواء والبحر",
   "it:Media con gli spot (corridoi)": "متوسط مع البلاغات (ممرات)",
   "it:Salti APRS 2 m e LoRa": "قفزات APRS ‏2 م وLoRa",
-  "it:Oltre il monte senza perdite": "عبر الجبل دون فقد"
+  "it:Oltre il monte senza perdite": "عبر الجبل دون فقد",
+  "it:Controllo dell'orario NTP in corso.": "جارٍ التحقق من وقت NTP.",
+  "it:Orologio allineato con NTP, scarto ": "الساعة مضبوطة على NTP، الفرق ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "لا يستجيب NTP: يتابع البرنامج بساعة الحاسوب ويعيد المحاولة كل 3 دقائق."
 }

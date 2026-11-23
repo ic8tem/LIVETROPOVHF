@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "ความต่างอากาศ-ทะเล",
   "it:Media con gli spot (corridoi)": "เฉลี่ยกับสปอต (ทางเดิน)",
   "it:Salti APRS 2 m e LoRa": "APRS hop 2 ม. และ LoRa",
-  "it:Oltre il monte senza perdite": "ข้ามภูเขาโดยไม่สูญเสีย"
+  "it:Oltre il monte senza perdite": "ข้ามภูเขาโดยไม่สูญเสีย",
+  "it:Controllo dell'orario NTP in corso.": "กำลังตรวจสอบเวลา NTP",
+  "it:Orologio allineato con NTP, scarto ": "นาฬิกาตรงกับ NTP แล้ว ต่างกัน ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP ไม่ตอบ: โปรแกรมทำงานต่อด้วยนาฬิกาของพีซีและลองใหม่ทุก 3 นาที"
 }

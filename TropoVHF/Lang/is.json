@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "Andstæða lofts og sjávar",
   "it:Media con gli spot (corridoi)": "Meðaltal með spottum (gangar)",
   "it:Salti APRS 2 m e LoRa": "APRS-stökk 2 m og LoRa",
-  "it:Oltre il monte senza perdite": "Yfir fjallið án taps"
+  "it:Oltre il monte senza perdite": "Yfir fjallið án taps",
+  "it:Controllo dell'orario NTP in corso.": "Verið er að athuga NTP-tíma.",
+  "it:Orologio allineato con NTP, scarto ": "Klukka samstillt við NTP, frávik ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP svarar ekki: forritið heldur áfram með klukku tölvunnar og reynir aftur á 3 mínútna fresti."
 }

@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "Contraste aire-mar",
   "it:Media con gli spot (corridoi)": "Media con los spots (corredores)",
   "it:Salti APRS 2 m e LoRa": "Saltos APRS 2 m y LoRa",
-  "it:Oltre il monte senza perdite": "Más allá del monte sin pérdidas"
+  "it:Oltre il monte senza perdite": "Más allá del monte sin pérdidas",
+  "it:Controllo dell'orario NTP in corso.": "Comprobando la hora NTP.",
+  "it:Orologio allineato con NTP, scarto ": "Reloj alineado con NTP, desfase ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP no responde: el programa sigue con el reloj del PC y reintenta cada 3 minutos."
 }

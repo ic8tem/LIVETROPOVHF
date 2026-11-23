@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "ניגוד אוויר–ים",
   "it:Media con gli spot (corridoi)": "ממוצע עם הדיווחים (מסדרונות)",
   "it:Salti APRS 2 m e LoRa": "קפיצות APRS ‏2 מ' ו-LoRa",
-  "it:Oltre il monte senza perdite": "מעבר להר ללא הפסד"
+  "it:Oltre il monte senza perdite": "מעבר להר ללא הפסד",
+  "it:Controllo dell'orario NTP in corso.": "בודק את שעת NTP.",
+  "it:Orologio allineato con NTP, scarto ": "השעון מסונכרן עם NTP, סטייה ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP לא מגיב: התוכנה ממשיכה עם שעון המחשב ומנסה שוב כל 3 דקות."
 }

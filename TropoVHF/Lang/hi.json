@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "हवा-समुद्र अंतर",
   "it:Media con gli spot (corridoi)": "स्पॉट के साथ औसत (गलियारे)",
   "it:Salti APRS 2 m e LoRa": "APRS हॉप 2 मी और LoRa",
-  "it:Oltre il monte senza perdite": "पहाड़ के पार बिना हानि"
+  "it:Oltre il monte senza perdite": "पहाड़ के पार बिना हानि",
+  "it:Controllo dell'orario NTP in corso.": "NTP समय की जाँच जारी है।",
+  "it:Orologio allineato con NTP, scarto ": "घड़ी NTP से मिलाई गई, अंतर ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP उत्तर नहीं दे रहा: प्रोग्राम PC की घड़ी से चलता रहता है और हर 3 मिनट में फिर कोशिश करता है।"
 }

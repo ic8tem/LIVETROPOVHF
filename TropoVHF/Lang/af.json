@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "Lug-see-kontras",
   "it:Media con gli spot (corridoi)": "Gemiddeld met spots (gange)",
   "it:Salti APRS 2 m e LoRa": "APRS-spronge 2 m en LoRa",
-  "it:Oltre il monte senza perdite": "Oor die berg sonder verliese"
+  "it:Oltre il monte senza perdite": "Oor die berg sonder verliese",
+  "it:Controllo dell'orario NTP in corso.": "NTP-tydkontrole is aan die gang.",
+  "it:Orologio allineato con NTP, scarto ": "Horlosie met NTP gelyk gestel, afwyking ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP antwoord nie: die program gaan voort met die rekenaarhorlosie en probeer elke 3 minute weer."
 }

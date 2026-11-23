@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "大気と海のコントラスト",
   "it:Media con gli spot (corridoi)": "スポットとの平均 (回廊)",
   "it:Salti APRS 2 m e LoRa": "APRS ホップ 2 m と LoRa",
-  "it:Oltre il monte senza perdite": "山越え損失なし"
+  "it:Oltre il monte senza perdite": "山越え損失なし",
+  "it:Controllo dell'orario NTP in corso.": "NTP 時刻を確認中です。",
+  "it:Orologio allineato con NTP, scarto ": "時計を NTP に合わせました。ずれ ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP が応答しません。PC の時計で続行し、3 分ごとに再試行します。"
 }

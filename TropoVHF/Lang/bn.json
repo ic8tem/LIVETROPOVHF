@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "বাতাস-সমুদ্র বৈপরীত্য",
   "it:Media con gli spot (corridoi)": "স্পটের সঙ্গে গড় (করিডোর)",
   "it:Salti APRS 2 m e LoRa": "APRS হপ 2 মি ও LoRa",
-  "it:Oltre il monte senza perdite": "পাহাড় পেরিয়ে ক্ষতিহীন"
+  "it:Oltre il monte senza perdite": "পাহাড় পেরিয়ে ক্ষতিহীন",
+  "it:Controllo dell'orario NTP in corso.": "NTP সময় যাচাই চলছে।",
+  "it:Orologio allineato con NTP, scarto ": "ঘড়ি NTP-এর সঙ্গে মেলানো হয়েছে, ব্যবধান ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP সাড়া দিচ্ছে না: প্রোগ্রাম PC-এর ঘড়ি দিয়ে চলতে থাকে এবং প্রতি 3 মিনিটে আবার চেষ্টা করে।"
 }

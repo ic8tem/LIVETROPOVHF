@@ -2184,6 +2184,7 @@ public sealed partial class MainWindow : Window
 
     // ================================================================ aggiornamento periodico
 
+    string _ntpTip;
     void Tick()
     {
         try { FcAutoCheck(); } catch { }
@@ -2196,6 +2197,7 @@ public sealed partial class MainWindow : Window
             bool checkedOnce = _st.Ntp.LastCheckUtc != default;
             _ntp.Text = !checkedOnce ? "NTP:…" : Clock.NtpOk ? "NTP:OK" : "NTP:FAILED";
             _ntp.Foreground = B(!checkedOnce ? _th.Muted : Clock.NtpOk ? _th.Ok : _th.Bad);
+            { var nt = (!checkedOnce ? Lang.Tr("Controllo dell'orario NTP in corso.", "NTP time check in progress.") : Clock.NtpOk ? Lang.Tr("Orologio allineato con NTP, scarto ", "Clock aligned with NTP, offset ") + Clock.OffsetMs.ToString("0") + " ms" : Lang.Tr("NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.", "NTP not answering: the program carries on with the PC clock and retries every 3 minutes.")); if (nt != _ntpTip) { _ntpTip = nt; ToolTip.SetTip(_ntp, nt); } }
         }
         if (_zoomPct != null) _zoomPct.Text = _map.ZoomPercent;
         if (now.Second == 0) UpdateFcLabel();

@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "Kontrast vzduch-more",
   "it:Media con gli spot (corridoi)": "Priemer so spotmi (koridory)",
   "it:Salti APRS 2 m e LoRa": "Skoky APRS 2 m a LoRa",
-  "it:Oltre il monte senza perdite": "Za horou bez strát"
+  "it:Oltre il monte senza perdite": "Za horou bez strát",
+  "it:Controllo dell'orario NTP in corso.": "Prebieha kontrola času NTP.",
+  "it:Orologio allineato con NTP, scarto ": "Hodiny zosúladené s NTP, odchýlka ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP neodpovedá: program pokračuje s hodinami PC a skúša to znova každé 3 minúty."
 }

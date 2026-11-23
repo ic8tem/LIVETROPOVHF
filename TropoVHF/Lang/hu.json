@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "Levegő-tenger kontraszt",
   "it:Media con gli spot (corridoi)": "Átlagolás a spotokkal (folyosók)",
   "it:Salti APRS 2 m e LoRa": "APRS-ugrások 2 m és LoRa",
-  "it:Oltre il monte senza perdite": "A hegyen túl veszteség nélkül"
+  "it:Oltre il monte senza perdite": "A hegyen túl veszteség nélkül",
+  "it:Controllo dell'orario NTP in corso.": "NTP-időellenőrzés folyamatban.",
+  "it:Orologio allineato con NTP, scarto ": "Óra NTP-hez igazítva, eltérés ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "Az NTP nem válaszol: a program a PC órájával folytatja, és 3 percenként újrapróbálja."
 }

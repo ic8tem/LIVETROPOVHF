@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "Oro ir jūros kontrastas",
   "it:Media con gli spot (corridoi)": "Vidurkis su spotais (koridoriai)",
   "it:Salti APRS 2 m e LoRa": "APRS šuoliai 2 m ir LoRa",
-  "it:Oltre il monte senza perdite": "Per kalną be nuostolių"
+  "it:Oltre il monte senza perdite": "Per kalną be nuostolių",
+  "it:Controllo dell'orario NTP in corso.": "Tikrinamas NTP laikas.",
+  "it:Orologio allineato con NTP, scarto ": "Laikrodis suderintas su NTP, nuokrypis ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP neatsako: programa tęsia su kompiuterio laikrodžiu ir bando vėl kas 3 minutes."
 }

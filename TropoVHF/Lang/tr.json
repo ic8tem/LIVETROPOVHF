@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "Hava-deniz karşıtlığı",
   "it:Media con gli spot (corridoi)": "Spotlarla ortalama (koridorlar)",
   "it:Salti APRS 2 m e LoRa": "APRS sıçramaları 2 m ve LoRa",
-  "it:Oltre il monte senza perdite": "Dağın ötesine kayıpsız"
+  "it:Oltre il monte senza perdite": "Dağın ötesine kayıpsız",
+  "it:Controllo dell'orario NTP in corso.": "NTP saat denetimi sürüyor.",
+  "it:Orologio allineato con NTP, scarto ": "Saat NTP ile eşitlendi, sapma ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP yanıt vermiyor: program PC saatiyle devam ediyor ve 3 dakikada bir yeniden deniyor."
 }

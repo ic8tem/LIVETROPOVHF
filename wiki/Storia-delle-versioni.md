@@ -7,6 +7,7 @@ Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 ## 1.3.5 — 23/11/2026
 - Previsioni: le caselle «Sorgente dei dati» e «Caso storico» hanno il testo più piccolo e occupano la larghezza del pannello, così la scelta si legge per intero.
 - Registro errori: non vengono più registrate come errori le ricezioni UDP/NTP interrotte alla chiusura del socket (errore 995).
+- Orologio: se i server NTP non rispondono il programma non si ferma; ogni server ha al massimo 4 secondi (anche per il DNS), «NTP:FAILED» lo segnala con il fumetto e una riga nel registro, e si prosegue con l'orologio del PC riprovando ogni 3 minuti.
 
 ## 1.3.4 — 22/11/2026
 - Previsioni: riquadro «Dettagli da mostrare» a destra della mappa con tre livelli (Essenziale, Normale, Completo); linguetta Previsioni tradotta in tutte le lingue; slovacco aggiunto.

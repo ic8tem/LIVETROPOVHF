@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "Контраст воздух-море",
   "it:Media con gli spot (corridoi)": "Усреднение со спотами (коридоры)",
   "it:Salti APRS 2 m e LoRa": "Скачки APRS 2 м и LoRa",
-  "it:Oltre il monte senza perdite": "За горой без потерь"
+  "it:Oltre il monte senza perdite": "За горой без потерь",
+  "it:Controllo dell'orario NTP in corso.": "Идёт проверка времени по NTP.",
+  "it:Orologio allineato con NTP, scarto ": "Часы сверены с NTP, расхождение ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP не отвечает: программа работает дальше по часам ПК и повторяет попытку каждые 3 минуты."
 }

@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "Kontrast ng hangin at dagat",
   "it:Media con gli spot (corridoi)": "Average kasama ang mga spot (koridor)",
   "it:Salti APRS 2 m e LoRa": "APRS hop 2 m at LoRa",
-  "it:Oltre il monte senza perdite": "Lampas sa bundok nang walang pagkawala"
+  "it:Oltre il monte senza perdite": "Lampas sa bundok nang walang pagkawala",
+  "it:Controllo dell'orario NTP in corso.": "Sinusuri ang oras ng NTP.",
+  "it:Orologio allineato con NTP, scarto ": "Naka-align ang orasan sa NTP, agwat ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "Hindi sumasagot ang NTP: tuloy ang programa gamit ang orasan ng PC at susubok muli tuwing 3 minuto."
 }

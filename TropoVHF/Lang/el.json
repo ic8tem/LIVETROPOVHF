@@ -662,5 +662,8 @@
   "it:Contrasto aria-mare": "Αντίθεση αέρα-θάλασσας",
   "it:Media con gli spot (corridoi)": "Μέσος όρος με τα spot (διάδρομοι)",
   "it:Salti APRS 2 m e LoRa": "Άλματα APRS 2 m και LoRa",
-  "it:Oltre il monte senza perdite": "Πέρα από το βουνό χωρίς απώλειες"
+  "it:Oltre il monte senza perdite": "Πέρα από το βουνό χωρίς απώλειες",
+  "it:Controllo dell'orario NTP in corso.": "Έλεγχος ώρας NTP σε εξέλιξη.",
+  "it:Orologio allineato con NTP, scarto ": "Ρολόι συγχρονισμένο με NTP, απόκλιση ",
+  "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "Το NTP δεν απαντά: το πρόγραμμα συνεχίζει με το ρολόι του PC και ξαναδοκιμάζει κάθε 3 λεπτά."
 }
