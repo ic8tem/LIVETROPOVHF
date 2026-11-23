@@ -1,0 +1,484 @@
+# Manuale delle previsioni
+
+La linguetta Previsioni calcola da sé la propagazione troposferica: una mappa dell'indice sulla zona visibile e il segnale previsto fra la propria stazione e un corrispondente. Questo manuale descrive ogni dato, come viene calcolato e da quale fonte viene. I numeri fra parentesi quadre rimandano alle fonti in fondo; nel programma ogni dato dei risultati ha un fumetto (simbolo ⓘ) con la stessa fonte e il richiamo al paragrafo.
+
+## 1. Cosa fa e cosa non fa
+
+La previsione propria parte dai profili verticali di temperatura e umidità del modello GFS [1, 2], ne ricava la rifrattività dell'aria strato per strato e stima quanto il segnale guadagna rispetto a un'atmosfera normale. Sul percorso aggiunge il terreno reale (Copernicus GLO-30 [3]), la diffrazione, il troposcatter, i condotti e il rumore del ricevitore.
+
+Non è una misura: è una stima fatta su un modello meteorologico con livelli distanti centinaia di metri. Serve a confrontare situazioni (oggi meglio di ieri, 70 cm meglio di 2 m, questa tratta meglio di quella), non a garantire un collegamento. Il paragrafo 14 spiega come raccogliere le prove per validarla.
+
+
+> «La propagazione non può essere generalizzata, ma studiata in relazione alla morfologia locale.»
+> — Volker Grassmann, DF5AI, riportato da Flavio Egano, IK3XTV («Propagazione sui 2 metri»)
+
+È il principio che guida il calcolo punto-punto: ogni tratta si calcola sul suo terreno, con i suoi orizzonti, il suo mare e i suoi rilievi; la mappa dà il quadro generale, la tratta la risposta.
+
+## 2. Comandi della linguetta
+
+- Banda: 144, 432 o 1296 MHz. Mappa e calcolo usano la banda scelta.
+- Ora: il cursore sposta la previsione da adesso fino a 72 ore avanti, a passi di 3 ore.
+- Aggiorna previsione (zona visibile): scarica i profili GFS su una griglia di al massimo 240 punti che copre la mappa visibile. Il passo della griglia (0,5° o più) dipende dall'ingrandimento.
+- Stop: interrompe uno scaricamento o un calcolo.
+- Dettagli da mostrare (riquadro a destra della mappa): tre livelli, Essenziale, Normale e Completo, accendono un gruppo di caselle; ogni casella si può poi cambiare a mano. Le caselle sono in tre gruppi:
+  - Sulla mappa: isolinee del guadagno, anche 3–7 dB (tratteggio), isobare, inversione termica, segni meteo S ↓ ↑, correlazione guadagno/pressione, zona di vista diretta (paragrafi 4, 5, 7 e 9 bis). I colori restano sempre.
+  - Nel calcolo del segnale: tutte le righe del calcolo, profilo a Terra piatta, registro dei calcoli e registro dettagliato su file.
+  - Correzioni e dati in diretta: correzioni meteo (Misme, subsidenza), contrasto aria-mare, media con gli spot (corridoi), salti APRS 2 m e LoRa, oltre il monte senza perdite (paragrafi 4 bis, 9 bis, 9 quater e 10 bis).
+  - Essenziale tiene solo isolinee, correzioni meteo e media con gli spot; Normale aggiunge isobare, inversione, segni meteo, vista diretta, Terra piatta, aria-mare e APRS; Completo accende tutto. Il livello cambia solo cosa si vede e quali correzioni entrano: i calcoli restano gli stessi.
+- Sorgente dei dati e Caso storico: da dove arrivano i profili e quale giorno si guarda (paragrafi 3 bis e 3 ter).
+- La mia stazione e il corrispondente: locatore, antenne, potenza, cavi, rumore (paragrafi 7 e 12).
+- Calcola il segnale e Copertura in ottica: i due calcoli sul terreno (paragrafi 8–13).
+- Registro dei calcoli: ogni passo con i numeri usati, anche nel file Dati/previsioni-calcoli.log.
+
+## 3. Dai dati GFS al profilo
+
+Per ogni punto della griglia e ogni ora si leggono la pressione al suolo, temperatura e umidità a 2 m, il vento a 10 m, l'altezza dello strato limite, il CAPE e temperatura e umidità relativa a 1000, 975, 950, 925, 900, 850, 800, 700, 600 e 500 hPa. Dalla 1.3.0 si leggono anche il vento a 850 hPa e la velocità verticale a 850 e 700 hPa (paragrafo 9 bis).
+
+Le quote dei livelli si calcolano con la formula ipsometrica e la temperatura virtuale; i livelli sotto il suolo si scartano. Per ogni livello:
+
+- N = 77,6/T · (P + 4810·e/T), con T in kelvin, P ed e in hPa, e dalla pressione di saturazione di ITU-R P.453-14, eq. 9, con il fattore di correzione EF (ricontrollata sul testo ufficiale) [4].
+- M = N + 157·h, con h in km: la rifrattività modificata. Dove M cala salendo c'è un condotto.
+
+## 3 bis. Sorgente dei dati
+
+Il menu Sorgente dei dati sceglie da dove arrivano i profili:
+
+- Automatica (consigliata): GFS prima da NOMADS [14], il servizio della NOAA che distribuisce il modello: per ogni istante il programma chiede due ritagli della zona in formato GRIB2 e li legge da sé; NOMADS non ha un limite giornaliero, solo uno al minuto che il programma rispetta. Con le griglie larghe (passo da 0,5° in su) usa i file a 0,5° o 1° ogni 3 ore, molto più leggeri. I punti che NOMADS non dà, o tutti se NOMADS non risponde, si chiedono a Open-Meteo [2]. Le due sorgenti danno lo stesso modello e la stessa corsa, quindi si possono mescolare nella stessa griglia.
+- GFS da Open-Meteo: solo Open-Meteo, come nella 1.2 (al limite al minuto si attende).
+- GFS da NOAA NOMADS: solo NOMADS. Più lento da scaricare (due file per ora, mezzo secondo fra una richiesta e l'altra per non superare il limite della NOAA), ma non consuma il limite di Open-Meteo.
+- ICON-EU (DWD) ed ECMWF IFS 0,25°, da Open-Meteo: modelli diversi dal GFS, che valgono per tutta la griglia e per i percorsi. Non si mescolano con il GFS: confrontare due modelli sulla stessa ora è un modo semplice per vedere quanto la previsione è incerta. ICON-EU copre solo l'Europa; ECMWF non ha tutti i livelli di pressione del GFS (i livelli mancanti si saltano) e può non avere lo strato limite.
+
+La sorgente usata è scritta nella riga di stato e nella prima riga dei risultati (Sorgente dei dati), con quanti punti sono arrivati da ciascun servizio e quanti dalla cache. La cache su disco è separata per modello.
+
+## 3 ter. Casi storici
+
+Il menu Caso storico rivede un'apertura documentata con le previsioni GFS d'archivio di Open-Meteo [15]: la mappa si sposta sulla zona del caso, la banda si imposta da sola e il cursore dell'ora parte dal primo giorno del caso. Premendo Aggiorna previsione si scaricano i profili di quei giorni; il calcolo del segnale funziona come per la previsione attuale. Serve a confrontare il modello con quello che è successo davvero.
+
+Il primo caso è quello del 14–15 agosto 2022 raccontato in QST (novembre 2022, «The World Above 50 MHz» [23]): un'apertura sotto un'alta pressione fra Manitoba e Kansas/Missouri, da 144 a 1296 MHz quasi tutta in FT8, con il record canadese a 10 GHz di 1228,56 km in Q65 e segnali fino a 1941 km. Il secondo è l'apertura fra il 29 dicembre 2021 e il 2 gennaio 2022 sul Tirreno e il Mediterraneo occidentale a 144 MHz, dai rapporti di IC8TEM: prime aperture il 29 (fino a 737 km), più ampie il 31 (IT9GSF–EB5EA 1217 km), grande apertura il 1° gennaio fra Italia, Sicilia e Spagna. Per i casi più vecchi (per esempio settembre 2000) l'archivio di Open-Meteo non ha dati. Nell'archivio manca l'altezza dello strato limite: lì la sua correzione non si applica.
+
+## 4. L'indice e i colori
+
+Per ogni strato fra due livelli il programma confronta il calo di N con le soglie della tabella 6.5 di Bean e Dutton [5]: per esempio fra 1000 e 850 hPa un calo fino a 60 N/km è normale, oltre 100 N/km è super-rifrazione. Uno strato super-rifrattivo vale da 10 a 15 dB di guadagno; un condotto che intrappola la banda da 20 a 25 dB, secondo il deficit di M. Vento forte al suolo, strato limite alto e CAPE elevato riducono il guadagno, perché rimescolano o rompono gli strati [5, § 4.4].
+
+Il colore è il guadagno stimato in dB, con una scala fissa uguale in tutti i temi:
+
+| Guadagno | Colore | Significato |
+| sotto 7 dB | nessuno | atmosfera quasi normale |
+| 7–10 dB | azzurro | gradiente sopra il normale |
+| 10–13 dB | verde | strato super-rifrattivo |
+| 13–16 dB | giallo | strato forte, ma senza condotto per la banda |
+| 16–18,5 dB | arancio | strato molto forte o condotto troppo sottile |
+| 18,5–21 dB | rosso | condotto che intrappola la banda |
+| da 21 dB | viola | condotto forte e profondo |
+
+Con la casella Mostra anche 3–7 dB le zone fra 3 e 7 dB, dove qualcosa si sta formando ma resta sotto la scala, si vedono con un tratteggio grigio leggero; i colori non cambiano. Un riquadro tratteggiato delimita la zona coperta dalla previsione propria e riporta il guadagno massimo visibile: se è sotto 7 dB la mappa resta senza colori perché l'atmosfera è quasi normale, non perché mancano i dati. Durante lo scaricamento un nuovo clic su Aggiorna previsione non lo interrompe; per fermarlo c'è Stop.
+
+I colori sono opachi all'82%, così lo sfondo del tema li cambia appena. La griglia dei locatori e i nomi dei quadrati sono disegnati sopra i colori. Dove la previsione propria non c'è ma Hepburn o F5LEN danno 5 o più compaiono quadretti a scacchi con il colore di quella fonte.
+
+La mappa giudica ogni punto da solo. Il calcolo del segnale invece controlla che lo strato sia continuo lungo la tratta (paragrafo 9): una tratta che attraversa molto giallo può dare meno di quanto la mappa faccia pensare.
+
+## 4 bis. Previsione mediata dagli spot: i corridoi (dalla 1.3.3)
+
+Criterio dell'autore: un collegamento da solo non deve mai disegnare un condotto. Una ricezione isolata e breve può essere lo scatter di un aereo in transito (il pacchetto APRS è brevissimo), un'apertura di pochi minuti o un errore, e darebbe «condotti a goccia» che ingannano. Il programma riconosce invece un **corridoio** quando, nella stessa banda:
+
+- almeno **3 coppie di stazioni indipendenti** (nessuna stazione in comune) lavorano su tratte di almeno **300 km**;
+- le tratte sono **parallele**: azimut entro ±15°, punti medi entro 150 km dall'asse comune;
+- tutto negli ultimi **30 minuti**, con il fascio che si ripete a distanza di almeno **10 minuti** (persistenza);
+- per l'APRS, un salto conta solo se lo stesso salto si ripete;
+- dalla 1.3.4, le tratte oltre **1500 km** contano solo se il fascio arriva da almeno **due fonti diverse** (per esempio PSKReporter e un cluster): da una fonte sola, a quelle distanze in 2 m, sono più spesso EME, meteor scatter o locatori sbagliati che tropo.
+- dalla 1.3.4, non contano le stazioni «a raggiera»: chi nell'ultima ora ha almeno **5 corrispondenti oltre 1000 km** sparsi su un ventaglio di almeno **150°**. In 2 m la tropo è direzionale; un ricevitore che «sente» insieme Israele, Portogallo, Inghilterra e Italia da 2000–3700 km, spesso con segnali positivi, ha quasi certamente la frequenza configurata male. Nell'archivio di I5MZY del 17–22/11/2026 il 72% delle ricezioni in 2 m oltre 1000 km veniva da stazioni così; il 22/11 alle 10:53 UTC erano OH6HLH, OZ1ITS, F4LUK, OM8ABC e SP2JLR, e con il filtro il corridoio più lungo scende da 2175 km (regole 1.3.3) a 615 km.
+
+Fonti: spot dei cluster (non quelli marcati AS/ACS), PSKReporter via MQTT, i propri QSO e le decodifiche di WSJT-X/JTDX/MSHV, e i salti APRS in 2 m e LoRa 433/868 MHz.
+
+**APRS: 2 m e LoRa.** Il programma legge APRS-IS in sola lettura (rotate.aprs2.net, filtro sull'Europa) e ricava i salti radio fra stazioni di posizione nota (sorgente → digipeater → IGate), come la mappa VHF di DXView e APRS PropView (RF-YVY, Apache 2.0). Valgono tre bande: 2 m, LoRa 433 MHz (corridoi della banda 432) e LoRa 868 MHz (corridoi che contano per i 1296: un condotto che porta gli 868 MHz porta di regola anche le frequenze più alte). La banda viene dal tocall LoRa (elenco aprs-deviceid) e dalle frequenze o diciture nel commento; un salto vale solo fra due stazioni della stessa banda.
+
+Il punto delicato sono i ripetitori attivi: un segnale ricevuto a 500 km può essere arrivato con due o tre ritrasmissioni di digipeater. Un salto conta quindi solo se è fra due trasmettitori veri e consecutivi:
+
+- il percorso deve essere tracciato: ogni digipeater che ha ritrasmesso ha messo il suo nominativo, e il salto si misura fra uno e il successivo; un alias usato senza nominativo (WIDE1*, WIDE2*, alias regionali) spezza la catena e quel tratto non conta;
+- ritrasmissioni nascoste: il programma ricorda il percorso che ogni sorgente chiede di solito (per esempio WIDE2-2). Se un pacchetto arriva con un salto in meno (WIDE2-1) e nessun nominativo lo spiega, un digipeater l'ha ritrasmesso senza tracciare e il pacchetto si scarta; le sorgenti mai viste prima non contano;
+- digipeater a metà strada: se fra le due stazioni, più o meno sulla via, c'è un digipeater della stessa banda attivo nelle ultime tre ore, il salto si scarta, perché potrebbe averlo ritrasmesso (vale soprattutto per i digipeater LoRa che ritrasmettono senza modificare il percorso);
+- si scartano i pacchetti non radio (qAC, qAX, TCPIP), quelli rigirati da internet in radio da un IGate (terze parti), HF e frequenze diverse, le stazioni in quota oltre 1500 m (palloni, aerei) e i salti oltre 1500 km.
+
+**Effetto sulla mappa (dalla 1.3.4).** Si disegna solo la zona in cui vale il minimo garantito: una fascia di ±60 km attorno alla parte centrale di ogni tratta (dal 15% all'85% della sua lunghezza), non sulle stazioni alle estremità, dove il condotto può non esserci. Le fasce di tutti i corridoi si disegnano insieme, in un colore neutro (quello del testo) e semitrasparente: le sovrapposizioni non si sommano, e il colore non si confonde con il viola della scala (21 dB e oltre). Le etichette (tratte, distanza media, guadagno minimo) si scansano tra loro; passando con il mouse su un'etichetta compaiono le tratte del corridoio.
+
+Nella zona, e solo vicino all'ora attuale (±90 minuti), la previsione non scende sotto un minimo. Il ragionamento è: se le stazioni passano davvero, la propagazione c'è, qualunque cosa dica il modello meteo.
+
+**Perché le tratte corte valgono poco (dalla 1.3.4).** In 2 m, fra 300 e 600 km, due buone stazioni (qualche centinaio di watt, antenne direttive, FT8 o CW) si collegano quasi ogni giorno anche con l'atmosfera normale, per troposcatter: il segnale diffuso dalle piccole irregolarità dell'aria nel volume comune dei due fasci. Tre o quattro spot a 500 km dicono quindi che la banda lavora come al solito, non che c'è un'apertura: GEKO Magazine n. 69 (IU3QEZ) stima per il troposcatter con 2×10 elementi portate di circa 440 km in SSB QRP, 510 km in SSB con 50 W, 600 km in CW QRP e 640 km in SSB con 500 W (fonti, undicesimo giro). Solo oltre i 600–700 km il troposcatter non basta più e una serie di collegamenti paralleli indica davvero un condotto o uno strato. Fino alla 1.3.3 anche un corridoio di 450–600 km alzava la previsione a 9–12 dB, e la mappa mostrava un miglioramento che non c'era.
+
+**Il valore di partenza** va quindi con la distanza media delle tratte:
+
+- fino a 400 km: 3 dB;
+- da 400 a 700 km: sale in modo lineare da 3 a 10 dB (500 km → 5,3 dB; 600 km → 7,7 dB);
+- da 700 a 900 km: da 10 a 16 dB; oltre i 900 km resta a 16 dB.
+
+Sotto i 7 dB, cioè sotto l'inizio della scala, il minimo resta quello: il corridoio si disegna con la sua etichetta, si vede che la banda lavora, ma i colori della mappa non cambiano (con la casella Mostra anche 3–7 dB compare il tratteggio grigio). Sopra i 7 dB il valore si pesa, metà e metà, con il numero di tratte indipendenti (3 tratte → 0,25; 6 o più → 1) e con l'S/N mediano dei rapporti (−20 dB → 0,5; 0 dB o più → 1; non noto, come negli spot dei cluster, → 0,75), partendo da 7 dB. Esempi: 3 tratte senza S/N su 500 km → 5,3 dB; 5 tratte su 615 km → 7,7 dB; 3 tratte senza S/N su 900 km → 11,5 dB; 3 tratte a −20 dB su 900 km → 10,4 dB; 6 tratte a 0 dB su 900 km → 16 dB.
+
+La distanza minima resta 300 km: alzarla a 500 km avrebbe tolto anche le aperture vere a corto raggio (per esempio un condotto sul Tirreno a 400 km, che si riconosce dalla previsione meteo e dai segnali molto forti più che dalla sola distanza). Nell'archivio di I5MZY, il 22/11/2026 alle 10:53 UTC, con questa regola e il filtro a raggiera i corridoi più lunghi erano di 615 km (7,7 dB) e 540 km (6,3 dB); con le regole della 1.3.3 si arrivava a 2175 km e 16 dB.
+
+Fino alla 1.3.3 il minimo valeva su tutto il rettangolo del corridoio e dipendeva solo dalla distanza (da 10 dB a 300 km a 16 dB a 900 km): con molti corridoi lunghi insieme (per esempio il 22/11/2026, dodici corridoi fino a 2620 km) alzava quasi tutta l'Europa a 16 dB.
+
+Le curve di guadagno non disegnano più «gocce»: le isole più piccole di 220 km in tutte e due le direzioni restano colorate ma senza curva chiusa, a meno che un corridoio le confermi. Si spegne con la casella «Previsione mediata dagli spot».
+
+## 5. Linee opzionali e confronto con pressione e inversione
+
+Curve di guadagno: linee a 7, 10, 13, 16, 18,5 e 21 dB, i bordi della scala, tracciate sul campo levigato con il metodo dei quadrati marcianti, con l'etichetta in dB.
+
+Isobare: pressione al livello del mare ogni 4 hPa dallo stesso GFS, all'ora della previsione, con i centri H e L.
+
+Inversione termica: curve tratteggiate di quanto l'aria a 925 o 850 hPa è più calda di quella a 2 m, a +1, +3, +5 e +8 °C.
+
+Sotto i comandi una riga dà l'accordo del guadagno con la pressione e con l'inversione sulla zona visibile: il coefficiente di correlazione di Pearson, da −1 a +1. I condotti nascono spesso negli anticicloni (l'aria che scende si scalda e forma l'inversione), quindi un accordo positivo con la pressione è normale; ma dentro lo stesso anticiclone il guadagno cambia molto fra mare, coste e montagne. L'inversione da sola non basta: piega le onde solo se sopra l'aria è anche più secca [5]. La riga serve a vedere, ora per ora, quale delle due spiega meglio le zone colorate. Lo stesso confronto è scritto nel registro.
+
+## 6. Condotti potenziali: il doppio calcolo
+
+I livelli GFS distano da 200 a 1000 m: un'inversione sottile viene spalmata e il modello non vede il condotto. Se fra due livelli il calo di N supera il normale (40 N/km), l'aria è stabile (gradiente termico sotto 3 K/km) e sopra è più secca (rapporto di umidità specifica sotto 0,8), il programma considera un condotto potenziale e lo calcola in due modi:
+
+- Calcolo A: tutto il calo in eccesso concentrato in 50 m.
+- Calcolo B: lo stesso calo distribuito sullo spessore tipico dei condotti di quella zona, preso dalle mappe climatologiche di ITU-R P.453 [4] (al suolo o elevato).
+
+Per il deficit e per la lunghezza d'onda massima intrappolata si tiene il valore più basso: è una stima prudente.
+
+I dati di ITU-R P.453 sono © ITU e si possono usare per scopi personali e non commerciali citando la fonte, ma non si possono ridistribuire: per questo non sono nel pacchetto del programma. Per accendere il calcolo B basta il pulsante Scarica le mappe P.453 dall'ITU nella linguetta: il programma, dopo aver mostrato le condizioni d'uso, scarica l'archivio dei condotti dal sito dell'ITU (elevated_and_surface_duct.zip) per l'uso personale dell'utente, ne estrae i file in Dati/P453 e accende il calcolo senza riavviare. In alternativa si scaricano dalla pagina dei prodotti digitali della Study Group 3 dell'ITU (itu.int, ITU-R Study Group 3, Digital products, voce P.453, Surface duct data ed Elevated duct data) e si mettono i sette file S_OCCUR.TXT, S_THICK.TXT, S_STREN.TXT, E_OCCUR.TXT, E_base.TXT, E_THICK.TXT ed E_STREN.TXT nella cartella Dati/P453 accanto al programma, poi si riavvia. Senza i file il programma usa solo il calcolo A e lo scrive nella linguetta e nel registro. Il rapporto fra il deficit A e l'intensità tipica P.453 è l'anomalia: quante volte il condotto di oggi è più forte del normale.
+
+## 7. Stazioni e locatori
+
+Il locatore può avere 4, 6, 8 o 10 caratteri. Con 8 o 10 caratteri la posizione è precisa e la quota del suolo viene da Copernicus GLO-30: basta l'altezza dell'antenna dal suolo. Con 4 o 6 caratteri il quadrato è troppo grande: conviene scrivere la quota dell'antenna sul mare; se resta 0 il programma la stima con il suolo SRTM al centro del quadrato più l'altezza dal suolo e lo segnala nei risultati. Per il corrispondente l'altezza predefinita è 3 m dal suolo; con quota sul mare 0 si usa il suolo SRTM più l'altezza.
+
+## 8. Terreno, diffrazione e troposcatter
+
+Il profilo della tratta si campiona su Copernicus GLO-30 ogni 30 m (più largo oltre 120 km). Il raggio terrestre equivalente vale k = 157/(157 + ΔN), con ΔN il calo di N nel primo km dai profili GFS lungo la tratta [6, 7].
+
+**Rilievi vicini alle stazioni (dalla 1.3.2, criterio dell'autore).** P.452 fa pagare l'angolo d'orizzonte in modo lineare, 0,573 dB per mrad: un rilievo di poche decine di metri a qualche centinaio di metri dall'antenna costa decine di dB, molto più di quanto si osserva. Per questo i rilievi entro 20 km da ciascuna stazione possono aggiungere al massimo 6 dB: l'angolo d'orizzonte dovuto a loro si limita a quello dei rilievi più lontani più 10,5 mrad. Vale per la propria stazione e per il corrispondente. La riga «Rilievi vicini» dice quanti dB si sono tolti.
+
+**Fonte del terreno (dalla 1.3.2).** Le quote vengono da Copernicus DEM GLO-30 [3]: 1 secondo d'arco, il mare vale 0 e la costa è netta. Fino alla 1.3.1 il programma usava i riquadri Terrain Tiles «skadi» di AWS. Vicino alla costa quei riquadri mescolano l'SRTM con dati del fondale a bassa risoluzione e spalmano la quota dell'isola sul mare: attorno a Capri creano un anello fantasma di 80–100 m fra 0,5 e 1 km dalla riva. Il 21 novembre 2026 IC8TEM ha segnalato un orizzonte inesistente verso nord-ovest; il confronto punto per punto con Copernicus l'ha confermato (94 m in mare a nord-ovest di Marina Grande contro 0). Quell'orizzonte falso, di +2,6°, costava circa 26 dB di troposcatter alle stazioni costiere. I riquadri skadi restano solo come riserva quando Copernicus non risponde. I riquadri Copernicus pesano 15–30 MB e si scaricano una volta sola; quelli di solo mare non esistono e valgono 0.
+
+- Spazio libero: Lfs = 92,44 + 20 log f(GHz) + 20 log d(km) [8].
+- Diffrazione: metodo di Bullington sul profilo reale più la correzione di terra sferica delta-Bullington di ITU-R P.452-16 § 4.2 [6], con la perdita sferica di ITU-R P.526 [9].
+- Prima zona di Fresnel: raggio √(λ·d1·d2/d); libera se il terreno lascia almeno 0,6 del raggio. Per ogni ostacolo si mostrano il parametro ν e la perdita J(ν) del bordo a coltello [9].
+- Nel disegno del profilo il raggio diretto è verde in vista ottica e rosso se passa sotto il terreno o sotto la curvatura della terra; i punti rossi sono gli ostacoli che invadono la 1ª zona di Fresnel (linea tratteggiata viola). Sul mare il «punto rosso» a quota 0 m non è un monte: è il mare che sale per la curvatura. Passando con il mouse sul raggio o su un punto compare un fumetto con la spiegazione e i valori.
+- Quando un rilievo vicino all'antenna chiude la direzione (per esempio un orizzonte di decine di gradi), diffrazione e troposcatter danno perdite di centinaia di dB: sopra 300 dB il programma scrive «> 300 dB» e «direzione chiusa da un ostacolo vicino», il segnale «< −230 dBm» e i rapporti S/N «< −60 dB». In quel caso conviene guardare «Puntamento consigliato» e «Via monte».
+- Troposcatter: ITU-R P.452-16 eq. 45 al 50% del tempo [6], con la distanza angolare dagli orizzonti e N0 dai profili.
+- Senza tropo: somma delle potenze di diffrazione e troposcatter, mai sotto lo spazio libero.
+
+## 8 bis. Troposcatter: quattro modelli e incertezza
+
+Accanto a P.452 il programma calcola il troposcatter con altri tre modelli, come fa il programma TropoLink [16], e mostra la loro differenza come incertezza:
+
+- NBS TN101 § 9 [25] (dalla 1.3.5), mediana: L = 30 log f − 20 log d + F(θd) − F0 + H0 + Lgp. F(θd) è la funzione d'attenuazione dell'allegato III nelle sue forme analitiche (Ns 301) con la correzione per Ns, H0 la funzione di guadagno in frequenza del § 9.2: a 144 MHz, con antenne basse in lunghezze d'onda, la riflessione dal suolo cancella in parte il campo nella parte bassa del volume comune e la perdita sale di 3–10 dB. Ns è quello dei profili GFS dell'ora, gli orizzonti e le altezze efficaci vengono dal profilo Copernicus, Lgp = 0,07·e^(0,055(Gt+Gr)) è la perdita d'accoppiamento d'apertura. È la stessa forma che l'ITM usa al proprio interno, ma con la rifrattività di oggi invece di quella del clima. Prove su tratte piatte a 144 MHz con antenne a 20 m: entro 2–4 dB dall'ITM fra 150 e 900 km e circa 2 dB sotto la forma semplificata 9.2b del TN101, che non ha H0.
+
+- ITU-R P.617-5 [17], mediana: L = F + 22 log f + 35 log θ + 17 log d + Lc, con f in MHz, θ in mrad, d in km, F = 0,18·N0·e^(−hs/7,35) − 0,23·ΔN e Lc = 0,07·e^(0,055(Gt+Gr)). Di solito N0 e ΔN si prendono dalle mappe climatologiche dell'ITU; qui si usano ogni ora i profili GFS (N0·e^(−hs/7,35) è la rifrattività al suolo, ΔN il calo nel primo km), così anche il troposcatter segue il tempo.
+- Formula del VHF/UHF Handbook della RSGB, ripresa da DL2FZN [18]: L = Lfs + 24,44 + 4,283 ln f + 0,06656 d. La pendenza con la distanza è quasi uguale a quella di PROPBER (0,067 dB/km).
+
+Volume comune (dalla 1.3.1): è il punto in cui si incrociano i raggi radenti delle due stazioni, ciascuno inclinato del proprio angolo d'orizzonte, su una Terra di raggio equivalente ae = k·6371 km. Dal TX il raggio sale come z = hTX + x·θt + x²/(2·ae); uguagliandolo a quello del RX si ottiene la distanza x = (hRX − hTX + d·θr + d²/(2·ae)) / θ, con θ = d/ae + θt + θr. Con orizzonti piatti e antenne alla stessa quota la base vale d²/(8·ae): circa 1,3 km a 300 km, 3,7 km a 500 km, 9,4 km a 800 km. Più il volume è alto, più l'aria è secca e rarefatta e meno diffonde: per questo oltre 800–1000 km il troposcatter si esaurisce. Nei risultati compaiono quota e posizione della base, la rifrattività, il gradiente e l'umidità del GFS a quella quota, e la distanza equivalente di Bray (QST, novembre 1961): ogni grado d'orizzonte in più o in meno vale circa 111 km di distanza. Riferimento divulgativo: la presentazione «Oltre l'orizzonte in VHF» di IU3QEZ (GEKO Magazine n. 69).
+
+La riga Troposcatter, altri modelli mostra le due perdite e l'incertezza come metà della differenza fra il modello più ottimista e il più pessimista. Sono solo confronti: la perdita senza tropo resta quella di P.452.
+
+## 8 ter. Troposcatter pomeridiano oltre i rilievi (dalla 1.3.4)
+
+IK3XTV, da Thiene (JN55, con le Alpi a 10 km), lavora nei pomeriggi d'estate la Germania meridionale a 400–500 km, senza visuale, con segnali forti ma con evanescenza rapida e profonda; l'autore li attribuiva a «celle convettive allineate come un treno di lenti». L'osservazione è confermata; la spiegazione adottata nel programma è un'altra, fisicamente più solida.
+
+Nel pomeriggio il sole rimescola l'aria sopra i rilievi e lo strato limite sale a 2–3 km. Alla sua cima l'aria umida di sotto incontra l'aria secca di sopra: lì la turbolenza dell'indice di rifrazione (la grandezza che governa il troposcatter) è massima. Quando quella cima arriva all'altezza del volume comune della tratta, che su 400–500 km sta a circa 2–3 km, il troposcatter si rinforza. Questo spiega l'orario pomeridiano, l'alta pressione (cielo sereno, riscaldamento forte) e l'evanescenza rapida, tipica della diffusione e non dei condotti. Le celle convettive non fanno da lenti: producono turbolenza, ed è la turbolenza alla cima dello strato rimescolato che diffonde il segnale.
+
+Conseguenze per la lettura delle previsioni:
+
+- sulla terra il primo pomeriggio è il momento peggiore per i condotti e gli strati bassi, ma non per il troposcatter oltre le montagne: le due cose vanno lette separatamente;
+- il programma ha già i due dati che servono, l'altezza dello strato limite prevista dal modello e la quota del volume comune della tratta (riga «Volume comune» nei risultati): quando sono vicine, una tratta di montagna di pomeriggio può andare meglio di quanto dica il calcolo in atmosfera normale;
+- dalla 1.3.4 il calcolo punto-punto ne tiene conto: se il volume comune sta sulla terra, lungo la tratta ci sono rilievi di almeno 800 m, il sole è oltre 15° e lo strato limite supera 800 m, e la cima dello strato rimescolato (quota del suolo del modello + altezza dello strato limite) è entro 500 m dalla base del volume comune, il troposcatter guadagna 3 dB; fra 500 e 1000 m il guadagno scende linearmente a zero. Compare la riga «Troposcatter pomeridiano». Con neve lungo la tratta (almeno 10 cm al suolo secondo il modello, variabile snow_depth di Open-Meteo o SNOD del GFS da NOMADS) il rinforzo non si applica: sulla neve il suolo resta freddo e lo strato rimescolato non cresce. Il valore di 3 dB è provvisorio e va tarato con i collegamenti reali; si spegne con le correzioni meteo.
+
+Fonti: osservazioni di F. Egano IK3XTV (Radio Rivista e www.qsl.net/ik3xtv, «Propagazione sui 2 metri», «Celle convettive», «Troposcatter over the Alps»), fonti § 13.
+
+## 9. Lo strato fondante lungo la tratta
+
+È il cuore del calcolo del segnale. Lungo la tratta si prendono i profili GFS ogni 25 km circa. Per ogni strato di pressione si cerca il tratto più lungo in cui lo stesso strato è presente su punti consecutivi; contano come condotto solo strati spessi almeno 40 m [10]. Si misurano:
+
+- continuità: da che km a che km, e la frazione della tratta;
+- quota della cima e della base, e l'inclinazione in m/km;
+- terreno dentro lo strato: i km in cui le montagne salgono sopra la base;
+- terra coperta: sul mare il condotto c'è quasi sempre, decide il tratto di terra [10]. Se la terra supera il 10% della tratta, la frazione usata è il minimo fra continuità e copertura della terra.
+
+Il guadagno tropo è il guadagno dello strato per la frazione usata. Se più di metà dei profili è sub-rifrattiva il guadagno è negativo.
+
+## 9 bis. Correzioni meteo: stabilità, subsidenza, scirocco
+
+Dalla 1.3.0 il profilo dà anche tre informazioni meteorologiche, che si vedono nel registro (riga «stabilità (Misme)»), nella riga Meteo lungo la tratta dei risultati e, con la casella Segni meteo, sulla mappa.
+
+- Stabilità di Misme [5, cap. 6]. Misme lega il campo oltre l'orizzonte a un parametro composto: M = a·(ge − 40 + b·ΔW), con a = 0,5 dB per N/km, il gradiente equivalente ge e la stabilità termica ΔW, il lavoro per sollevare l'aria di 1 km. Il programma calcola ΔW = g·∫(θ − θ0)/θ0 dz fra il suolo e 1 km sopra, con θ la temperatura potenziale; l'atmosfera standard vale circa 56 J/kg. Il termine aggiunto al guadagno è 0,07 dB per J/kg oltre lo standard, limitato fra −4 e +6 dB, e conta solo dove nessun condotto intrappola la banda (il gradiente è già nell'indice di Bean e Dutton). La taratura è provvisoria: va verificata con i rapporti (paragrafo 14).
+- Subsidenza e aria in salita [19]. Moler e Holden, su tratte di 125–305 km sul mare a 1365 e 9380 MHz, trovarono il segnale più alto di circa 2,5 dB in media con aria che scende che con aria che sale, e in un caso un rinforzo di circa 20 dB per 3 ore all'inizio della subsidenza, seguito da un calo di 22 dB quando l'aria è tornata a convergere. Il GFS dà la velocità verticale a 850 e 700 hPa. Se a entrambi i livelli l'aria scende di più di 1 cm/s e c'è un'inversione o un forte calo dell'indice di rifrazione potenziale K (N riportato adiabaticamente a 1000 hPa, che mette in evidenza l'aria secca e calda scesa dall'alto [5]), si aggiungono 1,5 dB; se l'aria sale di più di 5 cm/s se ne tolgono 2.
+- Scirocco [20]. Aria calda e secca dal Sahara sopra aria marina più fresca dà inversioni fortissime dal Mediterraneo orientale a Gibilterra. Il segno S compare dove a 850 hPa il vento arriva da 100–200° con almeno 7 m/s e la temperatura è almeno 16 °C, sul Mediterraneo. È solo un'indicazione: il guadagno lo decidono gli strati del profilo.
+
+Senza un condotto che intrappola la banda il guadagno totale non supera 16 dB, la fine del giallo: le correzioni rendono più evidenti gli strati forti ma non li fanno passare per condotti (rosso e viola restano ai condotti).
+
+- Persistenza (dalla 1.3.1). Le aperture maggiori arrivano dopo giorni di alta pressione già buoni (VHF/UHF DX Book; Biancomano e Leyshon 1998, regola delle 12 ore; i rapporti del 29/12/2021–2/1/2022 crescono dal primo al quarto giorno). Per ogni cella il programma conta le ore delle 24 precedenti con guadagno di almeno 13 dB e aggiunge fino a 2 dB in proporzione, solo dove il guadagno è già almeno 10 dB. Sul calcolo del segnale si usa la media lungo la tratta.
+
+**Come leggere i segni sulla mappa** (casella Segni meteo; dalla 1.3.2 il simbolo è grande il doppio e passando con il mouse sopra un segno compare un fumetto con la spiegazione e i valori della cella):
+
+| Segno | Colore | Che cosa vuol dire | Effetto sulla tropo |
+|---|---|---|---|
+| ↓ | verde | subsidenza: l'aria scende (anticiclone), si scalda per compressione e si secca, rinforza l'inversione e la tiene ferma | **favorevole**, +1,5 dB |
+| ↑ | rosso | aria in salita (fronti, bassa pressione, convezione): mescola i bassi strati e rompe inversioni e condotti | **sfavorevole**, −2 dB |
+| S | arancio | scirocco: aria calda e secca dal Sahara sopra aria marina fresca | **indizio favorevole**, nessuna correzione: decidono gli strati |
+
+Una zona piena di ↓ verdi sotto un anticiclone è il segno classico di un'apertura che dura; frecce ↑ rosse lungo la tratta dicono che gli strati si stanno rompendo, anche se il colore della cella è ancora buono.
+
+La casella Correzioni meteo spegne queste correzioni per vedere il modello della 1.2.
+
+Validazione (paragrafo 14): sui 593 collegamenti a 144 MHz fra il 29 dicembre 2021 e il 2 gennaio 2022, confrontati con le stesse tratte e ore due settimane dopo, l'indice di separazione (0,5 = nessuna, 1 = perfetta) vale 0,79 senza correzioni e 0,91 con le correzioni (prima del tetto a 16 dB). Lo stesso confronto mostra il limite principale: il condotto sul mare a bassa quota, che in quei giorni portava i segnali fra la Campania e la Liguria, non è visibile ai livelli del GFS.
+
+## 9 ter. Novità 1.3.2: due stime, soffitto, alta pressione, mare, stazioni, creste
+
+**Stima prudente e aggressiva.** Il guadagno dal gradiente cresce da 0 dB al limite del normale fino a 10 dB alla soglia di super-rifrazione. Nello strato 1000–850 hPa la soglia prudente è quella di Bean e Dutton (100 N/km); quella aggressiva è la soglia classica di super-rifrazione di 79 N/km (k ≈ 2; P.453 usa invece −100 N/km nei primi 100 m), che con k50 = 157/(157 − ΔN) vale k ≈ 2 (k = 2,5 corrisponde a circa 94 N/km). Il calcolo punto-punto mostra le due perdite affiancate; con un condotto che intrappola la banda coincidono. La mappa usa la prudente.
+
+**Soffitto di 2500 m.** Strati e condotti si cercano solo fino a 2500 m sopra il suolo: più in alto le antenne dei radioamatori non li sfruttano. Con 1500 m la validazione perdeva un punto di separazione e il 4% dei collegamenti sopra 16 dB, perché d'inverno le inversioni da subsidenza stanno spesso fra 1500 e 2500 m.
+
+**Alta pressione estesa.** +1 dB dove almeno 7 delle 9 celle intorno hanno pressione ridotta al mare di 1020 hPa o più e il vento è debole nei bassi strati (10 m sotto 5 m/s, 850 hPa sotto 8 m/s), salvo moti ascendenti.
+
+**Peso del mare.** Nel calcolo punto-punto il guadagno degli strati si moltiplica per 0,8 + 0,4·μ1, dove μ1 è il fattore di ITU-R P.452 (eq. 51) sul tratto continuo di terra più lungo: 1 sul mare aperto, piccolo con lunghi tratti di terra.
+
+**Stazioni e condotto.** Quando un condotto che intrappola la banda copre solo parte della tratta, la quota di ciascuna antenna si confronta con base e cima del condotto all'inizio e alla fine del tratto coperto; il guadagno si moltiplica per 0,5 + 0,5·√(e^(−ΔhTX/300)·e^(−ΔhRX/300)), con Δh la distanza in metri fuori dal condotto. Con il condotto su quasi tutta la tratta vale l'accoppiamento del § 10.
+
+**Strato limite e creste.** Se la cima dello strato limite del GFS (quota del suolo del modello più boundary_layer_height) supera le creste della tratta (massimi locali oltre 300 m, se la più alta supera 500 m), lo strato passa sopra i monti senza spezzarsi: +1,5 dB per la frazione di creste coperte. È l'osservazione di IT9GSF sulle aperture dalla Sicilia alla Germania con Tirreno favorevole.
+
+**Livelli vicini al suolo sul mare.** Con la sorgente NOMADS il programma scarica anche la temperatura della superficie (sul mare è la SST), temperatura e umidità a 80 m e nello strato 30–0 hPa sopra il suolo. Sui punti di mare (quota del modello sotto 5 m) questi livelli si aggiungono al profilo, sotto il primo livello di pressione, per vedere il condotto a 100–200 m che i livelli di pressione non risolvono. Sulla terra non si usano: gli strati notturni e diurni non sono ancora validati. Open-Meteo dà solo la temperatura della superficie.
+
+**Condotto d'evaporazione.** Dalla SST, dalla temperatura e dall'umidità a 2 m si stima l'altezza δ del condotto d'evaporazione con il profilo logaritmico neutro (come nel modello di Paulus e Jeske, senza la correzione di stabilità): l'aria al pelo dell'acqua è satura alla SST (98% per il sale), quindi
+
+```math
+\delta = \frac{N_{mare} - N_{2m}}{0,157\,\ln(2/z_0)}, \qquad z_0 = 1,5\times10^{-4}\ \mathrm{m}
+```
+
+limitata fra 0 e 40 m. Per intrappolare 144 MHz servirebbero circa 180 m (Kerr), quindi a 144 MHz il condotto d'evaporazione rinforza poco; dai 432 MHz in su, con antenne basse sul mare, molto (paragrafo 11 bis). Entra nell'equazione parabolica e nella riga Correzioni 1.3.2.
+
+**Ora del giorno (avvisi).** Il programma calcola l'altezza del sole su ogni punto. Di giorno sulla terra, con il sole oltre 15° e strato limite oltre 800 m o vento oltre 5 m/s, avvisa che i condotti al suolo sono rimescolati; di notte, con sole sotto −3°, vento sotto 3 m/s e strato limite sotto 300 m, avvisa che con cielo sereno sono possibili condotti da irraggiamento, che cadono dopo l'alba. Sul mare no. Per ora sono avvisi, non numeri: la validazione di dicembre non ha abbastanza giorni d'estate per tararli. Sono due punti che l'autore ritiene importanti, dall'osservazione quotidiana.
+
+**Profilo normale CRPL (alternativa).** Invece di 40 N/km fissi il calo normale segue l'atmosfera di riferimento esponenziale CRPL: N(h) = Ns·e^(−c·h), con −ΔN nel primo km = 7,32·e^(0,005577·Ns) (Bean e Thayer 1959). Con aria umida (Ns alto) il normale è più ripido e serve un gradiente più forte per dare guadagno; in quota è più dolce. Spento per difetto finché la validazione non dice che aiuta.
+
+## 9 quater. Contrasto aria-mare e mari bassi: l'Adriatico (dalla 1.3.3)
+
+Le onde radio non sentono il fondale del mare: sentono il contrasto fra l'aria e la superficie dell'acqua. La profondità conta perché decide quanto in fretta la temperatura del mare segue quella dell'aria.
+
+**L'Adriatico è un mare basso.** La profondità media è circa 250 m, ma il bacino settentrionale raramente supera i 100 m e il golfo di Trieste resta sotto i 25 m; solo a sud si scende oltre i 1200 m. Uno strato d'acqua così sottile si scalda e si raffredda in pochi giorni, il Tirreno in settimane. Ne vengono tre situazioni tipiche:
+
+1. **Primavera e inizio estate, favorevole.** Il mare è ancora freddo, anche per l'acqua dolce dei fiumi alpini e del Po; arriva aria calda e secca dalla pianura o dai Balcani. Aria calda sopra acqua fredda forma un'inversione sul mare (condotto d'avvezione): è la condizione classica delle aperture fra Italia, Slovenia e Croazia.
+2. **Autunno e inverno con bora, sfavorevole.** Aria fredda sopra un mare più caldo: lo strato basso diventa instabile, si rimescola e il condotto si rompe.
+3. **Dopo una bora, occasione.** Proprio perché il mare è basso, una bora lo raffredda di alcuni gradi in pochi giorni. Se poi entra un anticiclone con aria calda, il contrasto aria-mare è forte e il condotto è più robusto del solito.
+
+L'Adriatico è anche un canale chiuso fra Appennini e Dinaridi, largo meno di 200 km: lo strato marino resta confinato, e le tratte lungo l'asse (Puglia–Venezia–Trieste, circa 700 km) restano tutte sul mare, la condizione migliore per un condotto lungo.
+
+**Cosa calcola il programma.** Sui punti di mare, con le correzioni meteo accese e la casella «Contrasto aria-mare»:
+
+| Condizione | Correzione |
+| --- | --- |
+| temperatura potenziale a 925 hPa (o 950) oltre la SST di 4 K | +1 dB |
+| oltre la SST di 7 K | +2 dB |
+| con aria umida a 925 hPa (oltre 80%) | −0,5 dB su questi bonus |
+| mare raffreddato di 1,5 °C o più nelle 72 ore prima, con contrasto favorevole | +1 dB |
+| mare più caldo dell'aria a 2 m di 2 °C (rimescolamento) | −1,5 dB |
+| mare più caldo di 4 °C | −3 dB |
+
+La correzione totale resta fra −3 e +3 dB e, senza condotto, il guadagno resta comunque sotto il tetto del giallo. Le soglie sono provvisorie: nell'atmosfera standard la temperatura potenziale a 925 hPa supera quella del mare di circa 2–3 K, quindi 4 K indica già un'inversione.
+
+**La memoria della SST.** I modelli tengono la temperatura del mare quasi ferma durante la previsione. Il calo recente si ricava dalle analisi dei tre giorni prima (Open-Meteo, solo temperatura della superficie, solo celle di mare): massimo delle 72 ore prima meno il valore attuale. Se il servizio non risponde, il bonus di memoria non si applica.
+
+**Limiti.** La SST dei modelli sotto costa e nell'alto Adriatico è grossolana; il pennacchio freddo del Po, per esempio, è risolto male. La batimetria non entra nel calcolo: le sorgenti danno sempre la SST, che riassume già l'effetto del fondale. Il contrasto aria-mare si sovrappone in parte al termine di stabilità di Misme (§ 9 bis); per questo i bonus sono piccoli. Le soglie andranno tarate con i corridoi di spot e i QSO attraverso l'Adriatico.
+
+## 10. Condotto su tutta la tratta
+
+Se lo strato intrappola la banda su almeno l'80% della frazione usata e le stazioni non sono in vista, si calcola anche la perdita nel condotto: spazio libero, più l'accoppiamento delle antenne (3 dB se sono dentro il condotto, di più se sono sopra o sotto), più l'attenuazione residua γd = 5·10⁻⁵·ae·f^(1/3) dB/mrad di ITU-R P.452 eq. 49 [6]. Se è minore della perdita senza tropo diventa la perdita prevista.
+
+Una banda resta nel condotto solo se la sua lunghezza d'onda non supera λmax = 2√2·(2/3)·√(ΔM·10⁻⁶)·d (Kerr, eq. 17 [11]). Per questo lo stesso strato può intrappolare i 23 cm e i 70 cm ma non i 2 m. Il limite però non è netto: Kerr avverte che anche onde parecchie volte più lunghe risentono molto del condotto, e Hepburn e il VHF/UHF DX Book parlano di bordi «sfocati» e di condotti «che perdono». Dalla 1.3.1 il programma usa quindi un condotto morbido: se λ è fra λmax e 3·λmax, il guadagno passa gradualmente da 15 dB (λ = 3·λmax) al guadagno del condotto pieno (λ = λmax), con il fattore s = (λmax/λ − 1/3)/(2/3). In quel caso sono ammessi i colori di condotto. Il registro e la riga Meteo lungo la tratta indicano i punti con condotto morbido.
+
+## 10 bis. Via monte
+
+Quando il corrispondente è chiuso dietro l'orizzonte, il programma cerca la direzione migliore in cui puntare le antenne: il versante illuminato diffonde il segnale come un bersaglio radar. Fa il giro dell'orizzonte ogni 5° (tranne ±15° attorno al corrispondente) e in ogni direzione prende il punto d'orizzonte illuminato, sopra 100 m e fra 1 e 60 km. Una stima rapida (spazio libero, conversione bistatica e 10 dB per ogni grado d'orizzonte dal diffusore verso il corrispondente) sceglie i 4 più promettenti, almeno 15° l'uno dall'altro; per ciascuno:
+
+- tratta 1, stazione → rilievo, nello spazio libero;
+- tratta 2, rilievo → corrispondente, calcolata come se il rilievo trasmettesse da 10 m sopra la cima, con la stessa previsione (senza equazione parabolica);
+- conversione con l'equazione del radar bistatico, con σ = σ0·A, σ0 = −15 dB (versante montuoso in VHF/UHF) e A l'area illuminata dal fascio a distanza R1 (al massimo 20 km²):
+
+```math
+L_{via} = L_{fs}(R_1) + L_2 + 10\log_{10}\frac{\lambda^2}{4\pi\,\sigma_0 A}
+```
+
+La riga «Puntamento consigliato» indica l'azimut della via migliore, se costa meno del diretto. A 144 MHz, con un rilievo a 20 km e una yagi da 15°, la via monte costa circa 45 dB più della tratta 2 da sola: conviene solo quando il diretto è chiuso da ostacoli vicini. La stima è grossolana (±10 dB), soprattutto per σ0.
+
+
+**Senza perdita fino al monte (opzione, dalla 1.3.2).** Con la casella «Via monte senza perdita fino al monte» l'abbattimento fra la stazione e il punto di diffrazione è considerato nullo: è come portare la stazione sulla cima (antenna a 10 m sopra il punto, stessa potenza, antenna e cavo). Il giro d'orizzonte sceglie allora il punto con l'orizzonte più libero verso il corrispondente (a parità, il più alto) e il risultato mostra la tratta dal punto al corrispondente, con segnale e S/N, accanto al totale con la diffusione. È un limite ottimistico: dice se la direzione si apre quando il monte rilancia bene il segnale, oppure dove andare in portatile. Ogni punto è dato con il locatore a 10 caratteri.
+
+## 10 ter. Ingresso in un condotto lontano
+
+Se il condotto che intrappola la banda comincia lontano, oltre l'orizzonte della stazione, il segnale deve arrivarci. Il programma porta il segnale fino al punto d'inizio, a metà del condotto, per diffrazione: lungo il profilo Copernicus GLO-30 cerca lo spigolo con il parametro di Fresnel ν più alto (ITU-R P.526), con il rigonfiamento della terra equivalente,
+
+```math
+\nu = h\,\sqrt{\frac{2}{\lambda}\left(\frac{1}{d_1} + \frac{1}{d_2}\right)}, \qquad J(\nu) = 6,9 + 20\log_{10}\left(\sqrt{(\nu - 0,1)^2 + 1} + \nu - 0,1\right)
+```
+
+più l'attenuazione dovuta alla curvatura della cima (ostacolo arrotondato, P.526-16 § 4.2), con il raggio R stimato dal terreno Copernicus GLO-30 a ±1 km dallo spigolo,
+
+```math
+T(m, n) = 7,2\,m^{1/2} - (2 - 12,5\,n)\,m + 3,6\,m^{3/2} - 0,8\,m^2, \qquad m = R\,\frac{d_1 + d_2}{d_1 d_2}\left(\frac{\pi R}{\lambda}\right)^{-1/3}, \qquad n = h\,\frac{(\pi R/\lambda)^{2/3}}{R}
+```
+
+(per m·n > 4 vale la forma 34b della raccomandazione). Barsis (NBS, 1963) misurò su tre lunghi percorsi oltre un monte (Colorado, Alaska, Europa) perdite mediane 10–20 dB più alte dello spigolo ideale di Fresnel-Kirchhoff: l'arrotondamento ne spiega buona parte (Barsis e Kirby, 1961: Pikes Peak con raggio di circa 11,5 km). Il risultato si confronta con la diffrazione su terra sferica liscia; vale la peggiore. Poi il segnale viaggia nel condotto: spazio libero sull'intera tratta, attenuazione residua γd di P.452 sul tratto nel condotto e accoppiamento del corrispondente (3 dB dentro, 1 dB ogni 10 m fuori). Se questa perdita è più bassa della perdita prevista diventa il meccanismo («condotto (ingresso per diffrazione)»). È la premessa dell'autore sulla geografia italiana: con un ostacolo vicino ben sotto la linea, ν è negativo e l'ingresso costa poco; con una dorsale davanti costa 15–30 dB.
+
+## 10 quater. ITM (Longley-Rice) e uscita dal condotto
+
+Dalla 1.3.2 il programma contiene l'Irregular Terrain Model 1.2.2 dell'NTIA/ITS (Longley e Rice, ESSA ERL 79-ITS 67, 1968; Hufford, Longley e Kissick, NTIA 82-100, 1982), tradotto in C# dal codice ufficiale del governo USA, che è libero da diritti. La traduzione dà gli stessi numeri dell'originale: la compilazione automatica la confronta ogni volta con il codice C++ dell'NTIA su cinque casi di prova (scarto sotto 0,01 dB).
+
+L'ITM calcola la perdita in atmosfera normale sul profilo reale Copernicus GLO-30: vista con la riflessione dal suolo, diffrazione (spigolo e terra sferica pesati sulla rugosità del terreno Δh, cioè la differenza fra il 10° e il 90° percentile delle quote attorno alla retta dei minimi quadrati) e troposcatter. La rifrattività al suolo si riduce alla quota media della tratta, $N_s = N_0\,e^{-h/9460}$, e dà la curvatura della terra equivalente,
+
+```math
+\gamma_e = 157\cdot10^{-9}\left(1 - 0,04665\,e^{N_s/179,3}
+ight)\ \mathrm{m}^{-1}
+```
+
+Il programma usa il clima radio della tratta scelto come al § 10 sexies (fino alla 1.3.4 sempre il marittimo temperato, con N0 320 sulla terra e 350 sul mare), con N0 dalla rifrattività media del luogo (suolo εr 15, σ 0,005 S/m; mare εr 81, σ 5 S/m), la polarizzazione orizzontale e la variabilità nel tempo senza quella di luogo (il profilo è noto). Mostra la perdita superata nel 50% del tempo e quella che si ha nel 10% e nell'1% del tempo migliore. L'ITM non modella i condotti: la sua variabilità nel tempo è statistica, per clima. Serve come secondo calcolo della linea di base accanto a P.452; la differenza fra i due dà un'idea dell'incertezza.
+
+Il secondo uso è il tratto finale dopo un condotto che finisce prima del corrispondente. Nel punto d'uscita si mette un'antenna virtuale a metà del condotto e l'ITM calcola il tratto fino al corrispondente, come eccesso sopra lo spazio libero al 50% del tempo. La perdita totale è
+
+```math
+L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,	heta_{condotto} + A_{ITM}(d_{uscita} 	o RX)
+```
+
+dove A_TX è l'accoppiamento dell'antenna (3 dB dentro, 1 dB ogni 10 m fuori) se il condotto parte vicino, altrimenti la diffrazione d'ingresso del § 10 ter. È il limite che l'autore si è dato: continuità dello strato più, al massimo, l'attenuazione residua. Se è più bassa della perdita prevista diventa il meccanismo («condotto (uscita e tratto finale ITM)»).
+
+## 10 quinquies. Approfondimento: isole, strettoie e discontinuità terra-mare
+
+Un esempio dal golfo di Napoli (Anacapri, JN70CN) verso il Mediterraneo occidentale mostra dove le tratte attraversano le isole:
+
+| Destinazione | Azimut | Dove attraversa le isole | Ostacolo |
+| --- | --- | --- | --- |
+| Barcellona | 279° | nord della Sardegna (Gallura) a 41,05° N, fra 420 e 490 km | circa 30 km a sud delle Bocche di Bonifacio; il Limbara (1359 m) a una ventina di km dalla linea |
+| Bocche di Bonifacio | 282° | lo stretto a 41,3° N | varco di circa 11 km |
+| Marsiglia | 296° | Corsica centrale a 42,2° N | montagne fino a 2700 m: un condotto sotto i 2 km lì si interrompe |
+| Valencia, Baleari | 260–265° | Sardegna centrale | rilievi interni |
+
+Per Barcellona basta puntare a 282° invece di 279° perché l'asse passi dalle Bocche: 3°, dentro il fascio di una normale yagi.
+
+**Le Bocche sono una strettoia?** Per i condotti bassi, sotto qualche centinaio di metri, sì: le isole fanno da muro, e sopra la terra, di giorno, il riscaldamento rompe l'inversione. Lo stretto di per sé è largo abbastanza: circa 11 km, contro una prima zona di Fresnel larga meno di un chilometro a metà di una tratta di 1000 km in 144 MHz. Il problema è meteorologico. Le Bocche sono un imbuto per il vento: ponente e maestrale accelerano e rimescolano lo strato basso. Spesso il varco è aperto come geometria ma disturbato come atmosfera. Con un anticiclone fermo e poco vento può invece essere il passaggio buono.
+
+**Discontinuità terra-mare.** Contano. Un condotto formato sul Tirreno si interrompe sulla costa sarda: il segnale esce dal condotto (il tratto dopo l'uscita, § 10 quater) e deve rientrare in un altro condotto sul mare delle Baleari, pagando di nuovo l'accoppiamento. I condotti in quota, sopra i 1500 m, passano sopra la Gallura senza accorgersene; per la Corsica centrale non vale.
+
+In pratica: se il percorso attraversa un'isola montuosa, prova qualche grado di correzione verso il tratto di mare libero, ma non contare sul varco con vento forte nello stretto.
+
+## 10 sexies. Clima radio del TN101 e variabilità nel tempo (dalla 1.3.5)
+
+Il TN101 § 10 [25] descrive come la perdita di una tratta oltre l'orizzonte varia nel lungo periodo attorno alla mediana, con curve diverse per clima: la funzione Y(q) dice di quanti dB la perdita scende nel q% del tempo migliore. L'ITM contiene quelle curve per sette climi. Il clima conta molto: sul mare in clima marittimo temperato, a 144 MHz, nel 10% del tempo si guadagnano molti più dB che sulla terra in clima continentale, perché i condotti sono più frequenti.
+
+Il programma non fissa più il clima: lo sceglie per ogni tratta dal punto medio, così funziona in tutto il mondo e non solo in Europa. Scarica da Open-Meteo [26] tre anni di valori giornalieri della rianalisi ERA5 (temperatura, umidità e pressione al suolo, pioggia) per la cella di 0,5° del punto medio, una volta sola; i valori restano in Dati/CLIMA. Ne ricava la rifrattività al suolo
+
+```math
+N_s = \frac{77{,}6}{T}\left(P + 4810\,\frac{e}{T}\right)
+```
+
+giorno per giorno, poi la media annua e l'escursione fra le medie mensili, l'umidità media e la pioggia annua. Le regole seguono le descrizioni dei climi del TN101 § 10.2; i confini fra un clima e l'altro sono un criterio dell'autore:
+
+- oltre 60° di latitudine: continentale temperato (il TN101 non ha curve per il clima polare);
+- meno di 250 mm di pioggia all'anno e umidità media sotto il 50%: desertico (Ns tipica 280);
+- entro 20° dall'equatore, Ns di almeno 350 ed escursione fino a 30: equatoriale (Ns tipica 360);
+- entro 32° ed escursione di almeno 60: continentale subtropicale, cioè monsoni (escursione tipica 60–100);
+- fra 10° e 32° con Ns di almeno 340: marittimo subtropicale (Ns tipica 370);
+- entrambi gli orizzonti sul mare, oltre 20°: marittimo temperato sul mare (è la definizione del TN101);
+- escursione fino a 30 vicino al mare (mare sulla tratta o umidità media di almeno il 75%): marittimo temperato sulla terra;
+- altrimenti continentale temperato (escursione tipica 20–40).
+
+N0 per l'ITM è la Ns media ridotta al livello del mare, N0 = Ns·e^(h/9460). Senza rete si usa una regola di riserva con la sola latitudine e la frazione di mare, e la riga lo dice.
+
+Prove con i dati ERA5 2023–2025: Capri Ns 339 con escursione 45 (continentale temperato sulla terra, marittimo temperato sul mare quando entrambi gli orizzonti sono sul mare); Londra 327 e 16 (marittimo temperato); Vienna 319 e 24 (continentale temperato); Abidjan 381 e 11 (equatoriale); Miami 365 e 36 (marittimo subtropicale); Delhi 337 e 82 (continentale subtropicale); Riad 278 e 37, 90 mm di pioggia (desertico). In Cile: Antofagasta 341 e 19 (marittimo subtropicale: la costa dell'Atacama, con l'inversione bassa quasi fissa del Pacifico), Calama 232 al suolo, 2257 m, 14 mm di pioggia (desertico), Valparaíso 331 e 11 (marittimo temperato), Punta Arenas 313 e 5 (marittimo temperato).
+
+La riga «Clima radio (TN101)» mostra il clima, il motivo, Ns con metà dell'escursione e Y: quanti dB si guadagnano nel 10% e nell'1% del tempo e quanti se ne perdono nel 90%. È statistica di lungo periodo e resta separata dalla previsione: la perdita prevista segue il tempo di oggi con i profili GFS, e sommare le due cose conterebbe due volte la stessa propagazione anomala.
+
+## 11. Confronto con ITU-R P.452
+
+La riga Confronto P.452 applica il metodo ITU per condotti e riflessione su strati (P.452-16 § 4.5 [6]) con il ΔN mediano del GFS al posto di quello climatologico e p = 20% come costante di calibrazione, come nello studio CSIRO [10]. Comprende la perdita d'accoppiamento empirica Alf sotto 0,5 GHz (circa 28 dB a 144 MHz, 3,5 dB a 432 MHz), la schermatura dei siti, l'accoppiamento sul mare e l'assorbimento dei gas. È solo un confronto: la perdita prevista resta quella del paragrafo 9.
+
+## 11 bis. Equazione parabolica (dalla 1.3.1)
+
+La riga Equazione parabolica è un quarto calcolo, solo di confronto, fatto come i programmi professionali per i condotti (PETOOL; il framework wave-propagation di M. Lytaev, licenza MIT): invece di stimare il guadagno dagli strati, si fa avanzare l'onda lungo la tratta con il metodo split-step di Fourier dentro il profilo di rifrattività modificata M del GFS, preso dal punto di previsione più vicino a ogni distanza. Ai livelli del GFS si aggiungono i salti stimati dei condotti potenziali (calcolo A, 50 m a metà strato). Il terreno Copernicus GLO-30 entra a gradini (sotto il suolo il campo è nullo), il suolo è conduttore e il fascio dell'antenna è una gaussiana con l'apertura stimata dal guadagno. Il calcolo vede da sé i condotti, quelli che perdono, la diffrazione e l'accoppiamento delle antenne; non vede il troposcatter, che si somma a parte. Accanto si mostra il «guadagno del profilo»: la stessa tratta con atmosfera standard meno quella con il profilo previsto.
+
+Dalla 1.3.2:
+
+- il propagatore è ad angolo largo, con la fase esatta dello spazio libero:
+
+```math
+\hat{u}(x + \Delta x, p) = \hat{u}(x, p)\, e^{\, i \Delta x \left( \sqrt{k^2 - p^2} - k \right)}
+```
+
+- il fondo sul mare e sulla pianura costiera a quota zero riflette con il coefficiente di Fresnel in polarizzazione orizzontale, εc = εr − j·60·λ·σ (mare εr = 81 e σ = 5 S/m; campagna 13 e 0,006 S/m), all'angolo radente della tratta:
+
+```math
+\Gamma_h = \frac{\sin\psi - \sqrt{\varepsilon_c - \cos^2\psi}}{\sin\psi + \sqrt{\varepsilon_c - \cos^2\psi}}
+```
+
+- la rugosità del mare riduce la riflessione coerente secondo Miller e Brown, con l'altezza efficace delle onde dal vento a 10 m (σh = 0,0051·U²):
+
+```math
+\rho = \exp\left[-2\left(k\,\sigma_h \sin\psi\right)^2\right]
+```
+
+- sul mare il profilo M comprende il condotto d'evaporazione (paragrafo 9 ter) con il profilo logaritmico neutro:
+
+```math
+M(z) = M_s + 0,125\left[(z - z_s) - \delta\,\ln\frac{z + z_0}{z_s + z_0}\right], \qquad z_0 = 1,5\times10^{-4}\ \mathrm{m}
+```
+
+Prove con il prototipo (antenne a 10 m sul mare, guadagno sull'atmosfera standard a 100–300 km): con δ = 10–30 m il condotto d'evaporazione dà 1–3 dB a 144 MHz, 8–37 dB a 432 MHz e 21–66 dB a 1296 MHz. A 144 MHz in polarizzazione orizzontale il mare riflette quasi come un metallo (|Γ| oltre 0,99 a pochi decimi di grado) e la rugosità conta poco: il fondo nuovo cambia pochi decimi di dB; conta di più dai 432 MHz in su.
+
+Limiti: sopra la terra il profilo verticale resta quello dei livelli GFS, quindi i condotti sottili restano invisibili; il terreno a gradini è approssimato; il fascio resta entro 6°.
+
+## 12. Antenne, segnale e rumore
+
+- Yagi DL6WU: guadagno ≈ 9,4 + 7,8·log10(boom/λ) dBd (2,35 dB per raddoppio del boom, misure di DL6WU su VHF Communications 3/1982), più 2,15 per i dBi [12].
+- EIRP = potenza − cavo + guadagno TX.
+- Segnale ricevuto = EIRP − perdita prevista + guadagno RX − cavo RX. S-meter IARU: S9 = −93 dBm, 6 dB per unità.
+- Rumore esterno secondo ITU-R P.372 [13]: galattico (Fa = 52 − 23 log f) più artificiale secondo l'ambiente (città, residenziale, rurale, rurale tranquillo) oppure una temperatura d'antenna scritta a mano.
+- Tsys = Ta + Tpre + [290(Lc − 1) + 290(Fr − 1)·Lc] / Gpre ai morsetti dell'antenna (formula di Friis). Dalla 1.3.5 la stazione ricevente ha sempre un preamplificatore in antenna, parametro fisso: cifra di rumore 0,8 dB (Tpre = 59 K) e guadagno 20 dB. Dietro ci sono il cavo (perdita Lc) e la radio, con cifra di rumore Fr di base 6 dB. Con 1 dB di cavo il contributo di cavo e radio scende da circa 1160 K a 12 K: il rumore lo decidono il cielo, l'ambiente e il preamplificatore. Il guadagno di 20 dB è un valore tipico scelto dal programma.
+- S/N in SSB, CW e FT8 nella banda di ciascun modo, confrontato con la soglia impostata.
+- Probabilità per periodo (dalla 1.3.2): l'evanescenza entro l'ora si tratta come una distribuzione normale dello S/N attorno al valore medio orario previsto. Bray (QST, novembre 1961, p. 39, sulle curve di Norton 1959) dà un'ampiezza di 13,5 dB oltre circa 100 miglia, cioè circa 7 dB sotto e 7 sopra la media, che cala quasi in linea retta sotto le 100 miglia (3,5 dB a 50 miglia); per un collegamento «solido» toglie 7 dB dal bilancio. Preso ±7 dB come ±2σ: σ = 3,4 dB oltre 160 km, proporzionale alla distanza sotto. La probabilità che un periodo superi la soglia del modo è
+
+```math
+P = \Phi\left(\frac{S/N - S/N_{soglia}}{\sigma}\right)
+```
+
+  con Φ la funzione di ripartizione normale: margine 0 dB = 50%, +3,4 dB = 84%, +7 dB (il margine «solido» di Bray) = 98%. Non comprende l'incertezza del modello, che è più grande.
+- Modi digitali: lo S/N in 2500 Hz confrontato con le soglie misurate al 50% di decodifica, senza informazione a priori (AP). FT8 −21 dB e FT4 −17,5 dB sul rumore bianco; quando il meccanismo è troposcatter si usano le soglie con evanescenza «media latitudine disturbato», FT8 −18,6 dB e FT4 −15,2 dB [21]. Q65-15C −22,2 dB, Q65-30B −24,8 dB, Q65-60A −27,6 dB [24]: le soglie sono misurate per il sottomodo A; B e C hanno toni 2 e 4 volte più larghi e, con l'allargamento Doppler piccolo della troposfera a 144 MHz, la stessa soglia. In aircraft scatter il Doppler può superare i toni di Q65-60A (1,7 Hz): lì sono meglio 30B o 15C. JT65A −25 dB [22]. La decodifica AP (nominativo del corrispondente già noto o fine del QSO) dà circa 2 dB in più per FT8 e da 1,5 a 2,6 dB per Q65; non entra nella soglia perché non vale per tutto il QSO. I valori «−24 dB» che si leggono spesso per FT8 sono il limite dei rapporti di WSJT-X o la decodifica AP, non la soglia al 50%.
+
+## 13. Tempi di risposta e dati
+
+Ogni calcolo misura i propri tempi: profili GFS (rete, analisi, pause obbligate di 20 s fra i lotti per il limite di Open-Meteo), terreno Copernicus GLO-30 (con lo scaricamento dei riquadri, 15–30 MB l'uno, solo la prima volta), calcolo. La riga Tempo di risposta li riassume; nel registro le righe cominciano con TEMPI. All'aggiornamento della griglia il registro riporta anche la corsa GFS usata, quando è diventata disponibile e quanto sono vecchi i dati.
+
+Dalla 1.3.2 si può scegliere anche ICON-2I, il modello dell'Agenzia ItaliaMeteo e di Arpae sull'Italia a circa 2,2 km, attraverso Open-Meteo (modello italia_meteo_arpae_icon_2i, due corse al giorno, 3 giorni). Copre solo l'Italia e i mari vicini e ha meno livelli bassi del GFS (1000, 925, 850, 700, 500 hPa): per i condotti in quota non è meglio del GFS, ma la griglia fine descrive bene coste, isole e mare a 2 m, cioè il condotto d'evaporazione. Le variabili che un modello non ha (strato limite, temperatura della superficie…) si tolgono da sole dalla richiesta. Dalla 1.3.2 la sorgente automatica usa solo NOMADS; Open-Meteo serve se NOMADS non risponde e per i casi storici. Con la casella «Aggiorna da sola» (accesa per difetto) la previsione si scarica senza clic: all'apertura, a ogni nuova corsa GFS su NOMADS (circa 5 ore dopo l'ora della corsa) e quando la zona visibile esce per più di un quarto dalla griglia; al massimo un tentativo ogni 15 minuti, mai con un caso storico.
+
+Le richieste a Open-Meteo hanno limiti al minuto, all'ora e al giorno per ogni indirizzo internet. I profili scaricati si salvano sul disco (Dati/cache-gfs) per ogni corsa e ogni modello: con la stessa corsa, che cambia ogni 6 ore, i punti già scaricati non si chiedono di nuovo. Con la sorgente automatica si parte da NOMADS e Open-Meteo serve solo per i punti mancanti; con la sola Open-Meteo, al limite orario o giornaliero si ferma subito e dice quando riprovare. I casi storici non si salvano nella cache.
+
+## 14. Validare il modello
+
+La previsione va confrontata con i collegamenti reali. Il registro dei calcoli conserva ogni numero; l'archivio del programma conserva spot e decodifiche. Per 432 e 1296 MHz, dove gli spot sono pochi, servono rapporti dagli operatori: chi ha fatto il collegamento, a che ora, con che segnale. Confrontare per molte ore il guadagno previsto con il segnale misurato dice se le soglie vanno spostate.
+
+## Fonti
+
+1. NOAA/NCEP, Global Forecast System (GFS), modello globale a 0,25°, quattro corse al giorno.
+2. Open-Meteo, API di previsione (open-meteo.com), modello gfs_seamless, variabili ai livelli di pressione e metadati delle corse.
+3. Copernicus DEM GLO-30 (ESA; WorldDEM © DLR e.V. 2010–2014 e © Airbus Defence and Space GmbH 2014–2018, fornito nell'ambito di Copernicus da Unione europea ed ESA), 1 secondo d'arco, riquadri GeoTIFF sul registro aperto di Amazon Web Services. Riserva: NASA/USGS Copernicus GLO-30 nei riquadri Terrain Tiles «skadi» di AWS.
+4. ITU-R P.453, The radio refractive index: its formula and refractivity data, con le mappe digitali dei condotti (Study Group 3, © ITU, uso personale e non commerciale).
+5. B. R. Bean, E. J. Dutton, Radio Meteorology, NBS Monograph 92, 1966: tabella 6.5 e § 4.4.
+6. ITU-R P.452-16, Prediction procedure for the evaluation of interference between stations on the surface of the Earth at frequencies above about 0.1 GHz: § 4.2 (diffrazione), eq. 45 (troposcatter), § 4.5 ed eq. 49 (condotti).
+7. ITU-R P.834, Effects of tropospheric refraction on radiowave propagation.
+8. ITU-R P.525, Calculation of free-space attenuation.
+9. ITU-R P.526, Propagation by diffraction: eq. 31 (bordo a coltello) e § 3 (terra sferica).
+10. B. Indermuehle, H. Suzuki, Tropospheric Ducting Prediction based on GFS Model Data at Inyarrimanha Ilgari Bundara, the CSIRO Murchison Radio-astronomy Observatory, Publications of the Astronomical Society of Australia, 2026 (arXiv 2608.12861).
+11. D. E. Kerr, Propagation of Short Radio Waves, MIT Radiation Laboratory Series vol. 13, 1951: eq. 17 e 18.
+12. G. Hoch DL6WU, «Extremely Long Yagi Antennas», VHF Communications 3/1982, pp. 130 e seguenti, fig. 1 (guadagno misurato a 432 e 1296 MHz in funzione della lunghezza del boom).
+13. ITU-R P.372, Radio noise: rumore galattico e artificiale per ambiente.
+14. NOAA/NCEP, NOMADS, filtro GRIB del GFS 0,25° orario (nomads.ncep.noaa.gov); formato WMO GRIB2, impacchettamento complesso con differenze spaziali.
+15. Open-Meteo, Historical Forecast API (archivio delle previsioni dei modelli dal 2021 circa).
+16. LukiBox, TropoLink, progettazione di tratte troposcatter con P.617, NBS TN101 e ITM affiancati (GitHub, licenza Apache 2.0).
+17. ITU-R P.617-5, Propagation prediction techniques and data required for the design of trans-horizon radio-relay systems, 2019.
+18. RSGB, VHF/UHF Handbook; implementazione di DL2FZN (andi-f/troposcatter su GitHub, 2013).
+19. W. F. Moler, D. B. Holden, «Tropospheric scatter propagation and atmospheric circulations», Journal of Research of the NBS 64D, 1960, doi 10.6028/jres.064d.014: segnale oltre l'orizzonte (1365 e 9380 MHz, sul mare) e moto verticale dell'aria.
+20. ARRL Handbook 2022 (99ª ed.), § 19.4.3–19.4.4: situazioni meteo e propagazione troposferica.
+21. S. Franke, B. Somerville, J. Taylor, The FT4 and FT8 Communication Protocols, QEX luglio/agosto 2020.
+22. W3SZ, soglie dei modi digitali lenti (JT65, JT9, QRA64) e scelta del modo secondo la propagazione, 2019.
+23. QST, «The World Above 50 MHz», novembre 2022: apertura del 14–15 agosto 2022 fra Manitoba e Kansas/Missouri.
+24. J. Taylor K1JT, B. Somerville G4WJS, S. Franke K9AN, N. Palermo IV3NWV, Quick-Start Guide to Q65, 3 aprile 2021 (wsjt.sourceforge.io).
+25. P. L. Rice, A. G. Longley, K. A. Norton, A. P. Barsis, Transmission Loss Predictions for Tropospheric Communication Circuits, NBS Technical Note 101, edizione rivista 1967: § 9 (troposcatter, funzione F(θd), H0), § 10 e allegato III (climi radio e variabilità nel tempo).
+26. Open-Meteo, Historical Weather API (rianalisi ECMWF ERA5, dal 1940; dati Copernicus Climate Change Service, licenza CC BY 4.0).

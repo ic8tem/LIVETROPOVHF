@@ -1,0 +1,24 @@
+name: traduci-guide
+on:
+  push:
+    branches: [traduci-guide]
+permissions:
+  contents: read
+jobs:
+  traduci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        lang: [en, ar, bn, cs, da, de, el, es, et, fr, he, hi, hu, id, ja, ko, lt, lv, nb, nl, pl, pt, ro, ru, sk, sv, th, tl, tr, uk, ur, zh, af, is]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install argostranslate==1.9.6
+      - run: python tools/translate_docs.py ${{ matrix.lang }} TropoVHF/Docs out/${{ matrix.lang }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: docs-${{ matrix.lang }}, path: out/${{ matrix.lang }}, if-no-files-found: ignore }
