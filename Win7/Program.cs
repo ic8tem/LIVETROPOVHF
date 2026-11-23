@@ -17,6 +17,8 @@ public static class Program
 
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
+        // 1.4 — la rotella scorre il pannello sotto il puntatore, non solo quello che ha il fuoco
+        Application.AddMessageFilter(new WheelFilter());
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
         // registro degli errori sempre attivo (Dati/errori.log): gli errori dell'interfaccia si annotano e il programma continua
         ErrorLog.Context = () => TropoVHF.Forecast.CalcLog.RecentLines(50);
@@ -147,3 +149,41 @@ public sealed class Splash : Form
 
     protected override void Dispose(bool disposing) { if (disposing) _img?.Dispose(); base.Dispose(disposing); }
 }
+
+/// <summary>1.4 — Manda la rotella del mouse al pannello scorrevole sotto il puntatore (WinForms la manda al controllo
+/// che ha il fuoco: il pannello a sinistra scorreva solo dopo aver cliccato un suo pulsante).</summary>
+sealed class WheelFilter : IMessageFilter
+{
+    const int WM_MOUSEWHEEL = 0x020A;
+    [System.Runtime.InteropServices.DllImport("user32.dll")] static extern IntPtr WindowFromPoint(System.Drawing.Point p);
+
+    public bool PreFilterMessage(ref Message m)
+    {
+        if (m.Msg != WM_MOUSEWHEEL) return false;
+        try
+        {
+            var c = Control.FromChildHandle(WindowFromPoint(Cursor.Position));
+            int delta = (short)((long)m.WParam >> 16);
+            for (var x = c; x != null; x = x.Parent)
+            {
+                var tn = x.GetType().Name;
+                if (tn.Contains("Map") || tn.Contains("Profile")) return false;            // la mappa usa la rotella per lo zoom
+                if (x is ComboBox cb && cb.DroppedDown) return false;
+                if (x is TextBoxBase tb && tb.Multiline) return false;
+                if (x is ListBox || x is ListView || x is DataGridView || x is TrackBar || x is NumericUpDown || x is TreeView) return false;
+                if (x is ScrollableControl sc && sc.AutoScroll && sc.VerticalScroll.Visible)
+                {
+                    var v = sc.VerticalScroll;
+                    int max = Math.Max(v.Minimum, v.Maximum - v.LargeChange + 1);
+                    int ny = Math.Max(v.Minimum, Math.Min(max, -sc.AutoScrollPosition.Y - delta * 60 / 120));
+                    if (ny == -sc.AutoScrollPosition.Y) continue;                          // in cima o in fondo: il pannello esterno
+                    sc.AutoScrollPosition = new System.Drawing.Point(-sc.AutoScrollPosition.X, ny);
+                    return true;
+                }
+            }
+        }
+        catch { }
+        return false;
+    }
+}
+

@@ -35,10 +35,32 @@ public sealed partial class MainWindow : Window
     readonly Dictionary<string, Control> _tabContent = new();
     readonly Dictionary<string, Button> _tabButtons = new();
 
+    void WheelToPanel(object sender, PointerWheelEventArgs e)
+    {
+        if (e.Handled || Math.Abs(e.Delta.Y) < 1e-6) return;
+        for (var v = e.Source as Avalonia.Visual; v != null; v = Avalonia.VisualTree.VisualExtensions.GetVisualParent(v))
+        {
+            if (v is MapView || v is ProfileView || v is Slider) return;           // hanno il loro uso della rotella
+            if (v is ComboBox cb && cb.IsDropDownOpen) return;
+            if (v is ScrollViewer sv && sv.Extent.Height > sv.Viewport.Height + 0.5)
+            {
+                double max = sv.Extent.Height - sv.Viewport.Height;
+                double y = Math.Clamp(sv.Offset.Y - e.Delta.Y * 50 * UiScale.F, 0, max);
+                if (Math.Abs(y - sv.Offset.Y) < 0.01) continue;                  // già in fondo o in cima: prova il pannello che lo contiene
+                sv.Offset = new Vector(sv.Offset.X, y);
+                e.Handled = true;
+                return;
+            }
+        }
+    }
+
     public MainWindow()
     {
         _st = new AppState();
         Lang.Current = _st.LangCode;
+        // 1.4 — la rotella scorre il pannello sotto il puntatore anche quando è sopra una casella di testo o un'etichetta
+        // (prima scorreva solo dopo aver cliccato un pulsante del pannello)
+        AddHandler(PointerWheelChangedEvent, WheelToPanel, Avalonia.Interactivity.RoutingStrategies.Tunnel);
         _th = Palette.Get(_st.ThemeKey);
         _map = new MapView(_st, _th);
         _map.SelectionChanged += () => { RefreshInfoCard(); RefreshSpotList(); };

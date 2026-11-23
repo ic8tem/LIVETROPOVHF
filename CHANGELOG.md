@@ -11,6 +11,7 @@ Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 - ITM ricontrollato con i casi di prova NTIA: stessi valori al centesimo di dB. I programmi di prova sono in tools/validazione (i dati di prova si scaricano a parte).
 - Verifica con le radiosonde: il GFS si confronta con i lanci reali della stazione più vicina (archivio IGRA v2 della NOAA, ultimi 15 giorni, GFS d'archivio di Open-Meteo): condotti visti, mancati, falsi allarmi e scarto del gradiente nel primo km. Nuova riga «Verifica con radiosonde»; dati in Dati/IGRA (manuale § 10 septies).
 - Affidabilità del guadagno previsto: nuova riga «Affidabilità» (alta, media, bassa) con i punti di ogni indizio: accordo fra i modelli, anticipo, continuità e persistenza dello strato, radiosonde e conferme dal vivo lungo la tratta (manuale § 10 septies).
+- Rotella del mouse: scorre il pannello sotto il puntatore anche sopra caselle ed etichette (prima il pannello delle previsioni scorreva solo dopo aver cliccato un pulsante).
 - Una sola copia aperta: se si avvia il programma una seconda volta, la finestra già aperta torna in primo piano e la nuova copia si chiude. Dopo un aggiornamento la copia nuova aspetta che la vecchia si chiuda.
 - Registro degli errori: lo stesso errore ripetuto a raffica si annota una volta sola al minuto, con il numero delle ripetizioni.
 - Rapporto d'errore: il rapporto completo va negli appunti e l'indirizzo GitHub resta sotto i 6000 caratteri; nel titolo la versione che ha prodotto l'errore.
