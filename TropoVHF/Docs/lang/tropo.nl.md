@@ -1,7 +1,7 @@
 LIVETROPOVHF · technisch document 3
 # Hoe de trope te vormen in 144 MHz en verder
 
-> Automatische vertaling door het Italiaans: bij twijfel is het de Italiaanse gids waard.
+> Machinevertaling uit het Italiaans: bij twijfel geldt de Italiaanse handleiding.
 
 Wat gebeurt er in de lucht als de 144, 432 en microgolven verder gaan dan de horizon: refractie, inversies, kanalen, verstrooit, en hoe ze te lezen op de programmakaart. Versie van 9 november 2026.
 

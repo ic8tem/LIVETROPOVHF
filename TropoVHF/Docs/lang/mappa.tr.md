@@ -1,7 +1,7 @@
 LIVETROPOVHF · teknik belge 2
 # Haritanın inşaatı
 
-> İtalyan tarafından otomatik çeviri: şüphesiz İtalyan kılavuzuna değer.
+> İtalyancadan makine çevirisi: şüphe durumunda İtalyanca kılavuz geçerlidir.
 
 sekme haritası ve nokta haritası doğar: coğrafi baz, projeksiyonlar, herburn ve F5LEN endekslerinin ortalamaları, izobare, noktalar ve istasyonlar dinliyor, tabakalarla çakıştı. 9 Kasım 2026 versiyonu.
 
@@ -113,7 +113,7 @@ Yüksek stabil baskılar [3] trope için aranan ilk sinyaldir ve IK3XTV analizin
 
 Alan ve adım. Veriler aradığınız alanda indirilir,% 25 oranında genişletilir, programdan en yoğun reload'a bir adımla 400 puan altında kalmayı tercih eder (Open-Meteo her noktada bir istek olarak sayır: dakikada 600, saatte 5000): alanın haritasını genişleterek veya hareket ettirerek, programın en yoğun reload'u, en fazla 10 dakika içinde döndürür; bir güncelleme başarısız olursa önceki verileri kalır ve 3 dakika sonra tekrar deneyecektir. Bu şekilde isobare ve sıcaklıklar dünyada her yerde çalışır.
 
-Sıcaklıklar. Aynı istek, 2 m'ye, 925 hPa'ya ve 850 hPa'ya sıcaklık getiriyor. LA0BY, UA6 'ye 22.11.8'in X1Q'ye olan etkinliğinin sıcaklık haritalarında (900-3000 m), ancak Hepburn [3] tahminlerinde değil; DF5AI ve DK5YA, [5] 'nun X5Q'u tanıması için dikey sıcaklık profillerini kullanıyor. Bunun için iki tabaka vardır:
+Sıcaklıklar. Aynı istek, 2 m'ye, 925 hPa'ya ve 850 hPa'ya sıcaklık getiriyor. LA0BY, UA6 'ye 22.11.8'in'ye olan etkinliğinin sıcaklık haritalarında (900-3000 m), ancak Hepburn [3] tahminlerinde değil; DF5AI ve DK5YA, [5] 'nun'u tanıması için dikey sıcaklık profillerini kullanıyor. Bunun için iki tabaka vardır:
 
 - Sıcaklık 850 hPa: her 4 °C'ye (aşağıdaki sıfır, maviye, sıfırda mor).
 - Termal inversiyon: 925 veya 850 hPa'daki havanın 2 m'de olduğundan daha sıcak olduğu portakal örneği; daha yoğun, daha inversiyon güçlü. Dalgaları zemin [3] [11] 'ya yönlendiren fiziksel durumdur ve tropo indeksiyle karşılaştırır ve tahminlerin meteorolojik bir üssü olup olmadığını gösterir.
@@ -167,7 +167,7 @@ Haritanın altında: Gösterilen tahminin tarihi ve zamanı, 6 saat içinde +0'd
 - Hepburn ve F5LEN aynı fikirde değil: iki kaynağı düğmelerle karşılaştırın ve gerçek noktaların nereye düştüğünü görün.
 - Baskı aşağıya: G4MCU, baskının düşmesine kadar SK6VHF beacon'da bir açılış izledi; 1012 hPa, son olay [13]. Zaman çubuğunu kaydırarak isobare izleyin: yüksek baskı çekilirse, açılış muhtemelen takip eder.
 - Devam eden Signals: KP4MD 'nun 144 MHz'deki WSPR çalışmasında, sinyal / noise oranı, herburn'un bir gelişme tahmin ettiği pencerelerde doğru büyüdü ve tahmin [14] 'yu aldığında düştü. Aynı yolda büyürse, açılış oluşur.
-- Dağ yolları: indeks [1] rahatlamalarını dikkate almaz, ancak Alplerin ötesindeki bağlantılar da atmosferik yerçekimi [4] ve S5 'nun atmosferini tahmin etmeden 9A ve X3Q ile birlikte çalışır. LA0BY [3]
+- Dağ yolları: indeks [1] rahatlamalarını dikkate almaz, ancak Alplerin ötesindeki bağlantılar da atmosferik yerçekimi [4] ve S5 'nun atmosferini tahmin etmeden 9A ve ile birlikte çalışır. LA0BY [3]
 
 ## 11. Açık nokta
 

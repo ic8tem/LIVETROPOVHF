@@ -1,6 +1,6 @@
 # Źródła i wzory
 
-> Automatyczne tłumaczenie przez włoski: w przypadku wątpliwości warto włoskiego przewodnika.
+> Tłumaczenie maszynowe z włoskiego: w razie wątpliwości obowiązuje włoski przewodnik.
 
 Kolekcja robocza źródeł, z którymi skonsultowano się w związku z prognozą dotyczącą tropu LIVETROPOVHF (20- 21 listopada 2026 r.): Fizyka podstawowa, dostępne dane, opublikowane indeksy, formuły, doświadczenia w radiu amatorskim, walidacja i decyzje. Formuły są numerowane jak w LaTeX, (1), (2),..., a w tekście, które przypominają z liczbą w nawiasach. Podręcznik prognozowania opisuje, w jaki sposób program z nich korzysta.
 

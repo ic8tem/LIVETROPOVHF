@@ -1,7 +1,7 @@
 Lifetropovhf tekniska dokument 2
 # Konstruktion av kartan
 
-> Automatisk översättning av italienska: I händelse av tvivel är det värt den italienska guiden.
+> Maskinöversättning från italienska: vid tveksamhet gäller den italienska guiden.
 
 Som kartan över fliken Karta och plats är född: den geografiska basen, prognoserna, genomsnittet av Hepburn och F5LEN index, isobare, fläckar och stationer som lyssnar, överlappade med lager. Version av den 9 november 2026.
 

@@ -1,6 +1,6 @@
 # Consejos para el operador
 
-> Traducción automática por italiano: en caso de duda vale la pena la guía italiana.
+> Traducción automática del italiano: en caso de duda vale la guía italiana.
 
 Indicaciones prácticas para usar la pestaña Pronósticos en el trabajo de la estación. No reemplazan la escucha: El pronóstico dice dónde es mejor mirar, la radio dice si está ahí.
 

@@ -1,7 +1,7 @@
 LIVETROPOVHF · document technique 3
 # Comment former le trope en 144 MHz et au-delà
 
-> Traduction automatique par italien: en cas de doute vaut le guide italien.
+> Traduction automatique de l'italien : en cas de doute, le guide italien fait foi.
 
 Ce qui se passe dans l'air quand les 144, 432 et micro-ondes vont au-delà de l'horizon: réfraction, inversions, canaux, dispersions, et comment les lire sur la carte du programme. Version du 9 novembre 2026.
 

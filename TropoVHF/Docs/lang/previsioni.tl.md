@@ -1,6 +1,6 @@
 # Hulaan ang manwal
 
-> Awtomatikong salin ng Italyano: Kung pag - aalinlanganan ay sulit naman ang giyang Italyano.
+> Awtomatikong salin mula sa Italyano: kung may duda, ang gabay sa Italyano ang susundin.
 
 Kinakalkula ng task ng propesiya ang tropopheric propagation sa ganang sarili: isang indiseng mapa sa nakikitang lugar at ang hudyat na inilalaan sa pagitan ng iyong istasyon at ng isang katumbas na larawan. Inilalarawan ng manwal na ito ang bawat datos, kung paano ito kinakalkula at kung alin ang pinagmulan nito. Ang mga numero sa square brackets ay tumutukoy sa mga pinagkunan sa ilalim; sa programa ang bawat datos ng mga resulta ay may komiks (simbolo i) na may parehong pinagmulan at pagtukoy sa parapo.
 

@@ -1,7 +1,7 @@
 NOBYEROPOVHF · teknikal na dokumento 3
 # Kung paano bubuo ng trope noong 144 MHz at lampas pa rito
 
-> Awtomatikong salin ng Italyano: Kung pag - aalinlanganan ay sulit naman ang giyang Italyano.
+> Awtomatikong salin mula sa Italyano: kung may duda, ang gabay sa Italyano ang susundin.
 
 Ang nangyayari sa himpapawid kapag ang 144, 432 at mga microwave ay lampas pa sa abot - tanaw: refraction, inversions, ducts, pagsasabog, at kung paano babasahin ang mga ito sa mapa ng programa. Bersiyong 9 Nobyembre 2026.
 
@@ -10,7 +10,7 @@ Ang nangyayari sa himpapawid kapag ang 144, 432 at mga microwave ay lampas pa sa
 - Ang mga alon ng VHF at lampas pa sa paglalakbay sa unang kilometro ng atmospera (troposphere) at bumabaluktot kung saan ang refractive index ay nagbabago sa [3] [7] [11].
 - Ang indise ay sinusukat sa pamamagitan ng refractive N, na depende sa presyon, temperatura at higit sa lahat ng [11] halumigmig.
 - Sa normal na atmospera ay may mga 40 yunit sa bawat km; kapag ito ay bumababa ng higit sa 157 yunit sa bawat km ang alon ay nananatiling nakabinbin sa isang [7] [11] windping.
-- Ang padaluyan ay nanggagaling sa isang thermal inversion na may tuyong hangin sa itaas at basa sa ibaba: anticyclone, dagat, mga gabing tahimik, [3] [5] [13] X3Q fronts. [4]
+- Ang padaluyan ay nanggagaling sa isang thermal inversion na may tuyong hangin sa itaas at basa sa ibaba: anticyclone, dagat, mga gabing tahimik, [3] [5] [13] fronts. [4]
 - Mientras mas mataas ang frequency, ang mas manipis na duct ay sapat na: ang mga microwave ay mas madalas na nagbubukas kaysa 144 [3] [7].
 - Ang walang padaluyan ay nananatiling ang tropospher ay kumakalat: laging presente, mahina, na bumabagsak na may layo na [6].
 - Sa programa: mataas na presyon + reverse + Hepburn/ F5LEN mataas = malamang na kondisyon; ang mga spot ay nagpapatunay ng [1] [2] [13] [14].
@@ -98,7 +98,7 @@ Ang mga butas ng tropo ay sumusunod sa meteorolohiya. Karaniwang mga kalagayan [
 - Ang mga selulang kombinatorika at along gravity (e.g. underwind sa Alps) ay maaaring lumikha ng mga lokal at maikling bukasang [4].
 - Panahon ng araw: ang mga pagbaligtad mula sa radyasyon ay mas malakas sa gabi at maaga sa umaga; ang katahimikan ay nananatili rin sa araw.
 
-Pinagsama-sama ng Hepburn [1] at F5LEN [2] X2Q indices ang lahat ng ito mula sa mga modelo ng panahon: Kinakalkula nila ang N sa iba't ibang halaga at ginagawang numero o klase ang mga dalisdis. Hindi ako isang garantiya: Ang LA0BY ay nagpapakita ng isang larong LA– UA6 na nakikita sa mataas na temperatura at hindi sa Hepburn [3]. Dahil dito ang programa ay nagpapakita ng sama - samang mga indise, isobare, temperatura at tunay na mga dako: kung ang mga batik ay nakatapat sa isang mataas na indise sa ilalim ng isang anticyclone, ang pagbubukas ay nagaganap. KP4MD natagpuan ang SNR ng WSPR reports sa 144 MHz lumago sa kanan sa mga bintana na inilaan ng Hepburn [14].
+Pinagsama-sama ng Hepburn [1] at F5LEN [2] indices ang lahat ng ito mula sa mga modelo ng panahon: Kinakalkula nila ang N sa iba't ibang halaga at ginagawang numero o klase ang mga dalisdis. Hindi ako isang garantiya: Ang LA0BY ay nagpapakita ng isang larong LA– UA6 na nakikita sa mataas na temperatura at hindi sa Hepburn [3]. Dahil dito ang programa ay nagpapakita ng sama - samang mga indise, isobare, temperatura at tunay na mga dako: kung ang mga batik ay nakatapat sa isang mataas na indise sa ilalim ng isang anticyclone, ang pagbubukas ay nagaganap. KP4MD natagpuan ang SNR ng WSPR reports sa 144 MHz lumago sa kanan sa mga bintana na inilaan ng Hepburn [14].
 
 ## 8. Praktikal na listahan
 

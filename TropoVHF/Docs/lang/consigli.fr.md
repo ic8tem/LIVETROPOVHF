@@ -1,6 +1,6 @@
 # Conseils pour l'opérateur
 
-> Traduction automatique par italien: en cas de doute vaut le guide italien.
+> Traduction automatique de l'italien : en cas de doute, le guide italien fait foi.
 
 Indications pratiques pour utiliser l'onglet Prévisions dans le travail de station. Ils ne remplacent pas l'écoute: La prévision dit où il vaut mieux regarder, la radio dit si elle est là.
 

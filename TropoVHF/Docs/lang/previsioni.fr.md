@@ -1,6 +1,6 @@
 # Manuel des prévisions
 
-> Traduction automatique par italien: en cas de doute vaut le guide italien.
+> Traduction automatique de l'italien : en cas de doute, le guide italien fait foi.
 
 L'onglet Prévisions calcule la propagation tropophérique par elle-même: une carte d'index sur la zone visible et le signal fourni entre votre station et celle correspondante. Ce manuel décrit toutes les données, comment elles sont calculées et d'où elles proviennent. Les chiffres entre crochets renvoient aux sources en bas; dans le programme, chaque donnée des résultats a une bande dessinée (simbolo i) avec la même source et la référence au paragraphe.
 

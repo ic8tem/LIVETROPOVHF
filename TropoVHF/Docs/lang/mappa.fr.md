@@ -1,7 +1,7 @@
 LIVETROPOVHF · document technique 2
 # Construction de la carte
 
-> Traduction automatique par italien: en cas de doute vaut le guide italien.
+> Traduction automatique de l'italien : en cas de doute, le guide italien fait foi.
 
 Comme la carte de l'onglet Carte et spot est née: la base géographique, les projections, la moyenne des indices Hepburn et F5LEN, l'isobare, les spots et les stations qui écoutent, chevauchent les couches. Version du 9 novembre 2026.
 

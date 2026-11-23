@@ -1,6 +1,6 @@
 # Tips til operatøren
 
-> Automatisk oversettelse av italiensk: i tilfelle tvil er verdt den italienske guiden.
+> Maskinoversettelse fra italiensk: ved tvil gjelder den italienske veiledningen.
 
 Praktiske indikasjoner for bruk av faneprognosene i stasjonsarbeid. De erstatter ikke å lytte: Forventningen sier hvor det er best å se, sier radioen om det er der.
 

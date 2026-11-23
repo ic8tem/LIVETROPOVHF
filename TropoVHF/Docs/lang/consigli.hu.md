@@ -1,6 +1,6 @@
 # Tippek az üzemeltető számára
 
-> Automatikus fordítás olaszul: kétség esetén érdemes az olasz útmutató.
+> Gépi fordítás olaszból: kétség esetén az olasz útmutató az irányadó.
 
 Gyakorlati indikációk, hogy használja a lap előrejelzéseket az állomás munka. Nem helyettesítik a hallgatást: Az előrejelzés szerint hol a legjobb keresni, a rádió szerint ott van.
 

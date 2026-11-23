@@ -1,6 +1,6 @@
 # Bronnen en formules
 
-> Automatische vertaling door het Italiaans: bij twijfel is het de Italiaanse gids waard.
+> Machinevertaling uit het Italiaans: bij twijfel geldt de Italiaanse handleiding.
 
 Werkverzameling van bronnen geraadpleegd voor de LIVETROPOVHF tropo-voorspelling (20 Basisfysica, beschikbare gegevens, gepubliceerde indices, formules, amateur radio-ervaringen, validatie en beslissingen. De formules zijn genummerd zoals in LaTeX, (1), (2),..., en in de tekst die ze herinneren met het nummer tussen haakjes. De Forecast Manual beschrijft hoe het programma ze gebruikt.
 

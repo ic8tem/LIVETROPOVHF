@@ -1,6 +1,6 @@
 # Quellen und Formeln
 
-> Automatische Übersetzung durch Italienisch: im Zweifel ist der italienische Führer wert.
+> Maschinelle Übersetzung aus dem Italienischen: Im Zweifel gilt die italienische Anleitung.
 
 Arbeitssammlung von Quellen, die für die LIVETROPOVHF-Tropoprognose (20.–21. November 2026) eingesehen wurden: Grundlegende Physik, verfügbare Daten, veröffentlichte Indizes, Formeln, Amateurfunkerfahrungen, Validierung und Entscheidungen. Die Formeln sind nummeriert wie in LaTeX, (1), (2),..., und im Text erinnern sie sich mit der Zahl in Klammern. Das Forecast Manual beschreibt, wie das Programm sie verwendet.
 

@@ -1,7 +1,7 @@
 LIVETROPOVHF · technický dokument 3
 # Jak vytvořit tropu v 144 MHz a dále
 
-> Automatický překlad italsky: v případě pochybností stojí za italský průvodce.
+> Strojový překlad z italštiny: v případě pochybností platí italská příručka.
 
 Co se stane ve vzduchu, když144,432 a mikrovlnné vlny jdou za horizont: lom, inverze, kanály, scatters, a jak je číst na mapě programu. Verze dne 9. listopadu2026.
 

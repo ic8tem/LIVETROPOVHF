@@ -1,6 +1,6 @@
 # Tips för operatören
 
-> Automatisk översättning av italienska: I händelse av tvivel är det värt den italienska guiden.
+> Maskinöversättning från italienska: vid tveksamhet gäller den italienska guiden.
 
 Praktiska indikationer för att använda fliken Prognoser i stationsarbete. De ersätter inte lyssnande: Prognosen säger var det är bäst att titta, radion säger om det är där.
 

@@ -1,6 +1,6 @@
 # Podręcznik prognozowania
 
-> Automatyczne tłumaczenie przez włoski: w przypadku wątpliwości warto włoskiego przewodnika.
+> Tłumaczenie maszynowe z włoskiego: w razie wątpliwości obowiązuje włoski przewodnik.
 
 Prognoza zakładki oblicza samo propagację tropoferyczną: mapę indeksową na widocznym obszarze oraz sygnał dostarczony pomiędzy Twoją stacją a odpowiadającą jej. Podręcznik ten opisuje wszystkie dane, sposób ich obliczania i źródło, z którego pochodzą. Liczby w nawiasach kwadratowych odnoszą się do źródeł na dole; w programie wszystkie dane wyników mają komiks (simbolo i) z tym samym źródłem i odniesieniem do akapitu.
 

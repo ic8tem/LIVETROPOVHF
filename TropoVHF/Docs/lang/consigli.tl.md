@@ -1,6 +1,6 @@
 # Mga mungkahi para sa opereytor
 
-> Awtomatikong salin ng Italyano: Kung pag - aalinlanganan ay sulit naman ang giyang Italyano.
+> Awtomatikong salin mula sa Italyano: kung may duda, ang gabay sa Italyano ang susundin.
 
 Praktikal na mga pahiwatig upang gamitin ang tab propesiya sa trabaho sa istasyon. Hindi nito hinahalinhan ang pakikinig: Ang paghula ay nagsasabi kung saan pinakamabuting tingnan, sabi ng radyo kung ito ay naroroon.
 

@@ -1,7 +1,7 @@
 NOBYEROPOVHF · teknikal na dokumento 2
 # Pagtatayo ng mapa
 
-> Awtomatikong salin ng Italyano: Kung pag - aalinlanganan ay sulit naman ang giyang Italyano.
+> Awtomatikong salin mula sa Italyano: kung may duda, ang gabay sa Italyano ang susundin.
 
 Habang ang mapa ng tab Map at spot ay ipinanganak: ang heograpikal na base, ang mga projections, ang average ng Hepburn at F5LEN indices, ang isobare, ang mga batik at ang mga istasyon ay nakikinig, na pinagdugtong ng mga patong. Bersiyong 9 Nobyembre 2026.
 

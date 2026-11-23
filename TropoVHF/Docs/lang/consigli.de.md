@@ -1,6 +1,6 @@
 # Tipps für den Betreiber
 
-> Automatische Übersetzung durch Italienisch: im Zweifel ist der italienische Führer wert.
+> Maschinelle Übersetzung aus dem Italienischen: Im Zweifel gilt die italienische Anleitung.
 
 Praktische Hinweise zur Verwendung des Tabs Forecasts in der Stationsarbeit. Sie ersetzen nicht das Zuhören: Die Vorhersage sagt, wo es am besten ist, zu schauen, sagt das Radio, wenn es da ist.
 

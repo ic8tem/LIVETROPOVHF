@@ -1,6 +1,6 @@
 # Tipy pro provozovatele
 
-> Automatický překlad italsky: v případě pochybností stojí za italský průvodce.
+> Strojový překlad z italštiny: v případě pochybností platí italská příručka.
 
 Praktické indikace použití karty Forecasts při práci na stanici. Nenahrazují poslouchání: Předpověď říká, kde je nejlepší hledat, rádio říká, jestli tam je.
 

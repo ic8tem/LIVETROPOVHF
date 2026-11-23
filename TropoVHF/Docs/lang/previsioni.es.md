@@ -1,6 +1,6 @@
 # Manual de predicciones
 
-> Traducción automática por italiano: en caso de duda vale la pena la guía italiana.
+> Traducción automática del italiano: en caso de duda vale la guía italiana.
 
 La pestaña Forecast calcula la propagación tropoférica por sí misma: un mapa índice en el área visible y la señal proporcionada entre su estación y la correspondiente. Este manual describe todos los datos, cómo se calcula y de qué fuente proviene. Los números entre corchetes se refieren a las fuentes en la parte inferior; en el programa cada datos de los resultados tiene un cómic (simbolo i) con la misma fuente y la referencia al párrafo.
 

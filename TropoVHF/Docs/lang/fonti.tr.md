@@ -1,6 +1,6 @@
 # Kaynaklar ve formüller
 
-> İtalyan tarafından otomatik çeviri: şüphesiz İtalyan kılavuzuna değer.
+> İtalyancadan makine çevirisi: şüphe durumunda İtalyanca kılavuz geçerlidir.
 
 LIVETROPOVHF tropo tahminlerine danışan kaynakların çalışma koleksiyonu (20-21 Kasım 2026): Temel fizik, mevcut veriler, indeksler, formüller, radyo amatör deneyimler, geçerlilik ve kararlar. Formüller LaTeX'te, (1), (2),... ve metinde para birimleriyle hatırlıyorlar. Kılavuz, programın bunları nasıl kullandığını açıklar.
 
@@ -311,7 +311,7 @@ Index için Yeni Syn Optik Kurallar
 - Sezon: İngiltere anticyclones yaz ve sonbaharın sonunda daha sık.
 - Görsel ipuçları: ufkun üzerinde karanlık bir çizgide sıkışıp kalmış duman; yüksek basınçla, tabakalılar 1000 m altındaki bir zemine işaret ediyor, 1000 m'nin üzerinde yüksek bir dük.
 
-Aramanın alıntısı: R. G. Flavell G3LTP, "Studies of an Extensive Anticyclonic Propagation Event...", * Radio Communication*, Şubat 1984, p. 128; J. Gannaway G3YGF, "Tropospheric Scatter Propagation", * Radyo İletişim*, Eylül 1981, p. 710; P. W. Sollom G3BGL, "A Little Flutter X1Q, J. Gannaway X1Q, "Tropospheospheric Scatter Propagation", * W6ZGN
+Aramanın alıntısı: R. G. Flavell G3LTP, "Studies of an Extensive Anticyclonic Propagation Event...", * Radio Communication*, Şubat 1984, p. 128; J. Gannaway G3YGF, "Tropospheric Scatter Propagation", * Radyo İletişim*, Eylül 1981, p. 710; P. W. Sollom G3BGL, "A Little Flutter, J. Gannaway, "Tropospheospheric Scatter Propagation", * W6ZGN
 
 ## 10. Doğrulanmış bir amatör radyo modeli: Biancomano ve Leyshon (1998)
 
@@ -364,7 +364,7 @@ Karşılaştırma: 300 km ve 144 MHz PROPBER yaklaşık 189,9 dB, G3YGF 187,9, b
 
 Rohde & Schwarz, P. Denisowski, "Profesyonel Not, Nisan 2023 (24 sayfa, yayılma). Puanları zaten topladı (iki boyutlu bir dalga kılavuzu olarak, mesafe ile lineer bir şekilde düşüren sinyal, günde 1500 km ve ötesinde, saatlerden güne kadar; arazide iyi bir zemin; birkaç yüz metreden birkaç kilometreye kadar yükseldi. Dizin için iki yararlı gözlem: (1) Zaman içinde evrim: Yeni bir oluşturulan konduit genellikle sadece en yüksek frekansları ve kalınlaştırma, en düşükleri getirmeye başlar; saat tahminleri bu nedenle 432 MHz'yi "önceden" göstermeli; (2) istasyonlar konum: en iyi koşullar, yüksek bir konduitin yolundan yakın istasyonlar arasında, bu nedenle sık sık sık sık sık sık sık sık girilmemelidir. İndükler atmosferik hava ile hareket eder.
 
-Site PA0EHG, diğer sayfalar. Tropo için, M. Frederick G0MJW ([scheda](https://pa0ehg.com/srtmp.htm)) PathProfile of M. Willis X1Q ([scheda X2Q) için rotanın profili, beklenen toplam kayıp ve kota dosyalarının profili, mikrodalgada tropos için güvenilir bir şekilde yargılandı; uçaktan veya yağmurdan saçını tedavi etmiyor. S RTM1 profillerimizi ve kayıplarımızı karşılaştırmak için ikinci bir referans olarak kullanışlı. Sitenin geri kalanı EME, mikrodalga, havastrip (AirScout, SM7LCB haritaları) ve 80 m'deki önlemleri kapsar.](http://www.mike-willis.com/Software/ASTERPathprofile.zip)
+Site PA0EHG, diğer sayfalar. Tropo için, M. Frederick G0MJW ([scheda](https://pa0ehg.com/srtmp.htm)) PathProfile of M. Willis ([scheda) için rotanın profili, beklenen toplam kayıp ve kota dosyalarının profili, mikrodalgada tropos için güvenilir bir şekilde yargılandı; uçaktan veya yağmurdan saçını tedavi etmiyor. S RTM1 profillerimizi ve kayıplarımızı karşılaştırmak için ikinci bir referans olarak kullanışlı. Sitenin geri kalanı EME, mikrodalga, havastrip (AirScout, SM7LCB haritaları) ve 80 m'deki önlemleri kapsar.](http://www.mike-willis.com/Software/ASTERPathprofile.zip)
 
 PathProfile by G0MJW (Mike Willis), ASTER ve SRTM paketleri ve SiteData (programın yazarı tarafından yapılan; [](https://www.mike-willis.com/software.html)yazılım sayfası). Windows 2018 programı: ASTER veya SRTM'den 1'e kadar profili" veya 3'e kadar, optik, difraksiyon, troposcatter (daha 1000 km'ye kadar), dük ve gazlı, rotanın yüzdeleri ile, sahildeki yolun bir kısmı: yapı P.452/P.1812'nin olmasıdır, ancak yardım (konuş dosyası). SiteData taşıyıcıları dönüştürür ve GT OPO30 'dan pay verir.
 

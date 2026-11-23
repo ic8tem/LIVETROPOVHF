@@ -1,6 +1,6 @@
 # Voorspellingshandboek
 
-> Automatische vertaling door het Italiaans: bij twijfel is het de Italiaanse gids waard.
+> Machinevertaling uit het Italiaans: bij twijfel geldt de Italiaanse handleiding.
 
 Het tabblad Voorspelling berekent de tropoferische voortplanting zelf: een indexkaart op het zichtbare gebied en het signaal tussen uw station en een overeenkomstige. Deze handleiding beschrijft alle gegevens, hoe het berekend wordt en uit welke bron het komt. De getallen tussen vierkante haakjes verwijzen naar de bronnen onderaan; in het programma hebben elke gegevens van de resultaten een strip (simbolo i) met dezelfde bron en de verwijzing naar de alinea.
 

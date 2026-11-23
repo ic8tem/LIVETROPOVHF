@@ -1,6 +1,6 @@
 # Forecast manual
 
-> Automatic translation by Italian: in case of doubt is worth the Italian guide.
+> Machine translation from Italian: if in doubt, the Italian guide is the reference.
 
 The Forecast tab calculates the tropopheric propagation by itself: an index map on the visible area and the signal provided between your station and a corresponding one. This manual describes every data, how it is calculated and which source it comes from. The numbers in square brackets refer to the sources at the bottom; in the program each data of the results has a comic (simbolo i) with the same source and the reference to the paragraph.
 

@@ -1,6 +1,6 @@
 # Tips untuk operator
 
-> Terjemahan otomatis oleh Italia: dalam kasus keraguan layak panduan Italia.
+> Terjemahan mesin dari bahasa Italia: jika ragu, panduan berbahasa Italia yang berlaku.
 
 Indikasi praktis untuk menggunakan Tanda-bekas tab dalam pekerjaan stasiun. Mereka tidak mengganti pendengaran: Ramalan mengatakan di mana yang terbaik untuk melihat, radio mengatakan jika ada di sana.
 

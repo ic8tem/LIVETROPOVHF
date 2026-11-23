@@ -1,7 +1,7 @@
 LIVETROPOVHF · 2. műszaki dokumentum
 # A térkép felépítése
 
-> Automatikus fordítás olaszul: kétség esetén érdemes az olasz útmutató.
+> Gépi fordítás olaszból: kétség esetén az olasz útmutató az irányadó.
 
 Ahogy a térkép és a helyszín térképe megszületik: a földrajzi alap, a prognózis, a Hepburn és F5LEN indexek átlaga, az izobare, a foltok és a lehallgató állomások, rétegekkel átfedve. 2026. november 9-i változat.
 

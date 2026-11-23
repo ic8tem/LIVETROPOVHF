@@ -1,7 +1,7 @@
 LIVETROPOVH · tehniline dokument nr 3
 # Kuidas moodustada trope 144 MHz ja kaugemal
 
-> Automaatne tõlge itaalia keelest: kahtluse korral on see väärt Itaalia juhendit.
+> Masintõlge itaalia keelest: kahtluse korral kehtib itaaliakeelne juhend.
 
 Mis juhtub õhus, kui 144, 432 ja mikrolained lähevad horisondi taha: murdumine, inversioon, kanalid, hajumine ja kuidas neid programmi kaardil lugeda. 9. novembri 2026. aasta versioon.
 

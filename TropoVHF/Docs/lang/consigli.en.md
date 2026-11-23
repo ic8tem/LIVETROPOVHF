@@ -1,6 +1,6 @@
 # Tips for the operator
 
-> Automatic translation by Italian: in case of doubt is worth the Italian guide.
+> Machine translation from Italian: if in doubt, the Italian guide is the reference.
 
 Practical indications to use the tab Forecasts in station work. They do not replace listening: The forecast says where it's best to look, the radio says if it's there.
 

@@ -1,6 +1,6 @@
 # Zdroje a vzorce
 
-> Automatický překlad italsky: v případě pochybností stojí za italský průvodce.
+> Strojový překlad z italštiny: v případě pochybností platí italská příručka.
 
 Pracovní sbírka zdrojů konzultovaných pro předpověď tropo LIVETROPOVHF (20- 21. listopadu 2026): Základní fyzika, dostupná data, publikované indexy, vzorce, amatérské zkušenosti v rádiu, validace a rozhodnutí. Vzorce jsou číslovány jako v LaTeX, (1), (2),..., a v textu připomínají číslo v závorkách. Předpověď popisuje, jak je program používá.
 

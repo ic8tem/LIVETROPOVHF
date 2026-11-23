@@ -1,6 +1,6 @@
 # Prognosevejledning
 
-> Automatisk oversættelse af italiensk: i tvivlstilfælde er det den italienske guide værd.
+> Maskinoversættelse fra italiensk: er du i tvivl, gælder den italienske vejledning.
 
 Fanebladet Prognose beregner den tropiske formering af sig selv: et indeks kort over det synlige område og signalet mellem din station og en tilsvarende. Denne håndbog beskriver alle data, hvordan de beregnes, og hvilken kilde de kommer fra. Tallene i firkantede parenteser refererer til kilderne i bunden; i programmet hver data af resultaterne har en tegneserie (simbolo i) med samme kilde og henvisningen til afsnittet.
 

@@ -1,7 +1,7 @@
 LIVETROPOVHF · teknisk dokument 3
 # Hvordan man danner tropen i 144 MHz og videre
 
-> Automatisk oversættelse af italiensk: i tvivlstilfælde er det den italienske guide værd.
+> Maskinoversættelse fra italiensk: er du i tvivl, gælder den italienske vejledning.
 
 Hvad sker der i luften, når 144, 432 og mikrobølger går ud over horisonten: refraktion, inversioner, kanaler, scatters, og hvordan man læser dem på programkortet. Version af 9. november 2026.
 

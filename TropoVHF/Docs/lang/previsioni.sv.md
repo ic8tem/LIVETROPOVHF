@@ -1,6 +1,6 @@
 # Prognos Manual
 
-> Automatisk översättning av italienska: I händelse av tvivel är det värt den italienska guiden.
+> Maskinöversättning från italienska: vid tveksamhet gäller den italienska guiden.
 
 Fliken Forecast beräknar den tropoferiska förökningen själv: en indexkarta på det synliga området och den signal som tillhandahålls mellan din station och en motsvarande. Den här handboken beskriver varje data, hur den beräknas och vilken källa den kommer från. Siffrorna i fyrkantiga fästen hänvisar till källorna längst ner; i programmet har varje data av resultaten en serie (simbolo i) med samma källa och hänvisningen till punkten.
 

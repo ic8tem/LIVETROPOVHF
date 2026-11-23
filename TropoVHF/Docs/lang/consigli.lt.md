@@ -1,6 +1,6 @@
 # Patarimai operatoriui
 
-> Automatinis vertimas italų kalba: jei kyla abejonių, verta Italijos vadovas.
+> Mašininis vertimas iš italų kalbos: kilus abejonių, galioja itališkas vadovas.
 
 Praktiniai nurodymai naudoti skirtuką Prognozės stoties darbą. Jie nepakeičia klausymo: Prognozė rodo, kur geriausia žiūrėti, o radijas sako, jei ten yra.
 

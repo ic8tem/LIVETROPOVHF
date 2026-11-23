@@ -1,6 +1,6 @@
 # Tipy pre prevádzkovateľa
 
-> Automatický preklad do taliančiny: v prípade pochybností stojí za taliansky sprievodca.
+> Strojový preklad z taliančiny: v prípade pochybností platí talianska príručka.
 
 Praktické indikácie použitia záložky Predpovede v práci na stanici. Nenahrádzajú počúvanie: V predpovedi sa píše, kde je najlepšie sa pozerať, v rádiu sa píše, či je tam.
 

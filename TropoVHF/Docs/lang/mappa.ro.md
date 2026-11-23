@@ -1,7 +1,7 @@
 LIVETROPOVHF · document tehnic 2
 # Construcția hărții
 
-> Traducere automată de italiană: în caz de îndoială merită ghidul italian.
+> Traducere automată din italiană: în caz de îndoială, este valabil ghidul în italiană.
 
 Pe măsură ce harta tab-ului Harta și spotul se nasc: baza geografică, proiecțiile, media indicilor Hepburn și F5LEN, izobrarul, petele și posturile de ascultare, s-au suprapus cu straturile. Versiunea din 9 noiembrie 2026.
 

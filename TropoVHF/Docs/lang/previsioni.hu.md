@@ -1,6 +1,6 @@
 # Előrejelző kézikönyv
 
-> Automatikus fordítás olaszul: kétség esetén érdemes az olasz útmutató.
+> Gépi fordítás olaszból: kétség esetén az olasz útmutató az irányadó.
 
 Az előrejelzési lap magától számítja ki a tropoferikus terjedést: egy indextérképet a látható területen, valamint a jel, amit az állomás és a megfelelő. Ez a kézikönyv leírja az összes adatot, hogyan számítják ki, és melyik forrásból származik. A négyszögletes zárójelben lévő számok az alján lévő forrásokra vonatkoznak; a programban az eredmények minden adatában van egy komikus (szimbolo i) ugyanazzal a forrással és a bekezdésre való hivatkozással.
 

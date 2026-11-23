@@ -1,6 +1,6 @@
 # Porady dla operatora
 
-> Automatyczne tłumaczenie przez włoski: w przypadku wątpliwości warto włoskiego przewodnika.
+> Tłumaczenie maszynowe z włoskiego: w razie wątpliwości obowiązuje włoski przewodnik.
 
 Praktyczne wskazania do korzystania z karty Prognozy w pracy stacji. Nie zastępują one słuchania: Prognoza mówi, gdzie najlepiej szukać, radio mówi, czy tam jest.
 

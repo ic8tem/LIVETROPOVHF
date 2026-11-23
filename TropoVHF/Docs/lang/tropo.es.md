@@ -1,7 +1,7 @@
 LIVETROPOVHF · documento técnico 3
 # Cómo formar el trope en 144 MHz y más allá
 
-> Traducción automática por italiano: en caso de duda vale la pena la guía italiana.
+> Traducción automática del italiano: en caso de duda vale la guía italiana.
 
 Lo que sucede en el aire cuando los 144, 432 y microondas van más allá del horizonte: refracción, inversiones, conductos, dispersiones, y cómo leerlos en el mapa del programa. Versión del 9 de noviembre de 2026.
 
@@ -10,7 +10,7 @@ Lo que sucede en el aire cuando los 144, 432 y microondas van más allá del hor
 - Las ondas VHF y más allá viajan en los primeros kilómetros de atmósfera (troposfera) y curvan donde el índice refractivo cambia con el [3] [7] [11].
 - El índice se mide con N refractivo, que depende de la presión, la temperatura y sobre todo la humedad [11].
 - En la atmósfera normal hay alrededor de 40 unidades por km; cuando cae más de 157 unidades por km la onda permanece atrapada en un conducto [7] [11].
-- El conducto viene de una inversión térmica con aire seco encima y húmedo debajo: anticiclón, mar, noches serenas, frentes [3] [4] [5] [13] X3Q.
+- El conducto viene de una inversión térmica con aire seco encima y húmedo debajo: anticiclón, mar, noches serenas, frentes [3] [4] [5] [13].
 - Cuanto más alta es la frecuencia, más delgada es suficiente el conducto: los microondas se abren más a menudo que el 144 [3] [7].
 - Sin conducto sigue siendo el tropospher scatter: siempre presente, débil, que cae con la distancia [6].
 - En el programa: alta presión + inverso + Hepburn/ F5LEN alta = condiciones probables; los puntos confirman [1] [2] [13] [14].

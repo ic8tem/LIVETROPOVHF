@@ -1,6 +1,6 @@
 # دليل التنبؤ
 
-> الترجمة الفورية من جانب الإيطاليين: في حالة الشك يستحق الدليل الإيطالي.
+> ترجمة آلية من الإيطالية: عند الشك يُعتمد الدليل الإيطالي.
 
 The Forecast tab calculates the tropopheric propagation by itself: an index map on the visible area and the signal provided between your station and a corresponding one. ويصف هذا الدليل كل البيانات، وكيف يتم حسابها، ومصدرها. وتشير الأرقام الواردة بين قوسين معقوفين إلى المصادر الموجودة في القاع؛ وفي البرنامج، تكون لكل بيانات عن النتائج مصورة (سيمبولو) بنفس المصدر والإشارة إلى الفقرة.
 
@@ -366,7 +366,7 @@ In practice: if the route crosses a mountainous island, try some degree of corre
 
 The TN101 § 10 [25] describes how the loss of a route beyond the horizon varies over the long period around the median, with different curves by climate: the Y(q) function says how many dB the loss drops in the q% of the best time. جهاز الصراف الآلي يحتوي على تلك المنحنىات لسبعة أجواء The climate counts a lot: on the sea in the temperate marine climate, at 144 MHz, in 10% of the time you earn many more dB than on the land in continental climate, because the ducts are more frequent.
 
-لم يعد البرنامج يصلح المناخ هو يختاره لكل شيء من نقطة الوسط، لذا يعمل في جميع أنحاء العالم وليس في أوروبا فقط. حمولة من [26] X0Q لمدة ثلاث سنوات من القيم اليومية لتحليل ERA5 (الطبيعة، الرطوبة، ضغط التربة، المطر) للخلية التي تبلغ 0.5 درجة من نقطة الوسط، مرة واحدة فقط؛ ولا تزال القيم في البيانات/الشعبة. إعادة التربة
+لم يعد البرنامج يصلح المناخ هو يختاره لكل شيء من نقطة الوسط، لذا يعمل في جميع أنحاء العالم وليس في أوروبا فقط. حمولة من [26] لمدة ثلاث سنوات من القيم اليومية لتحليل ERA5 (الطبيعة، الرطوبة، ضغط التربة، المطر) للخلية التي تبلغ 0.5 درجة من نقطة الوسط، مرة واحدة فقط؛ ولا تزال القيم في البيانات/الشعبة. إعادة التربة
 
 ```math
 N_s = \frac{77{,}6}{T}\left(P + 4810\,\frac{e}{T}\right)

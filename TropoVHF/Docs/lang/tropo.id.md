@@ -1,7 +1,7 @@
 LIVETROPOVHF dokumen teknis 3
 # Bagaimana membentuk trope dalam 144 MHz dan seterusnya
 
-> Terjemahan otomatis oleh Italia: dalam kasus keraguan layak panduan Italia.
+> Terjemahan mesin dari bahasa Italia: jika ragu, panduan berbahasa Italia yang berlaku.
 
 Apa yang terjadi di udara saat 144, 432 dan gelombang mikro melewati cakrawala: refraksi, inversi, saluran, saluran, dan bagaimana membacanya di peta program. Versi 9 November 2026.
 

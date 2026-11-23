@@ -1,6 +1,6 @@
 # Prognosmanual
 
-> Automatisk oversettelse av italiensk: i tilfelle tvil er verdt den italienske guiden.
+> Maskinoversettelse fra italiensk: ved tvil gjelder den italienske veiledningen.
 
 Tabellen Prognose beregner den tropopheriske utbredelsen i seg selv: et indekskart på det synlige området og signalet som er gitt mellom stasjonen og en tilsvarende. Denne manualen beskriver alle data, hvordan det beregnes og hvilken kilde det kommer fra. Tallene i firkantet parentes refererer til kildene i bunnen; i programmet hver data av resultatene har en tegneserie (simbolo i) med samme kilde og referanse til avsnittet.
 

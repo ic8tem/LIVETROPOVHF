@@ -1,6 +1,6 @@
 # Tips voor de exploitant
 
-> Automatische vertaling door het Italiaans: bij twijfel is het de Italiaanse gids waard.
+> Machinevertaling uit het Italiaans: bij twijfel geldt de Italiaanse handleiding.
 
 Praktische aanwijzingen om de tab Forecasts te gebruiken in het station werk. Ze vervangen het luisteren niet: De voorspelling zegt waar het het beste is om te kijken, de radio zegt of het er is.
 

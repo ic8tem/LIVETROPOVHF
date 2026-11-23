@@ -1,6 +1,6 @@
 # Šaltiniai ir formulės
 
-> Automatinis vertimas italų kalba: jei kyla abejonių, verta Italijos vadovas.
+> Mašininis vertimas iš italų kalbos: kilus abejonių, galioja itališkas vadovas.
 
 Duomenų rinkimas Pagrindinė fizika, turimi duomenys, paskelbti indeksai, formulės, radijo mėgėjų patirtis, patvirtinimas ir sprendimai. Formulės sunumeruotos kaip LaTeX 1, 2,..., o tekste, kurį jos primena, rašoma skliausteliuose. Prognozės vadove aprašoma, kaip programa juos naudoja.
 

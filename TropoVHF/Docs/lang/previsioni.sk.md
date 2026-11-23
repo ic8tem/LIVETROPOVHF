@@ -1,6 +1,6 @@
 # Príručka prognóz
 
-> Automatický preklad do taliančiny: v prípade pochybností stojí za taliansky sprievodca.
+> Strojový preklad z taliančiny: v prípade pochybností platí talianska príručka.
 
 Záložka Predpoveď vypočíta šírenie tropoféry sama o sebe: index mapa na viditeľnej oblasti a signál poskytnutý medzi vašou stanicou a zodpovedajúce jeden. Táto príručka opisuje všetky údaje, ako sa vypočíta a z ktorého zdroja pochádza. Čísla v hranatých zátvorkách sa vzťahujú na zdroje v dolnej časti; v programe majú všetky údaje z výsledkov komický (simbolo i) s rovnakým zdrojom a odkazom na odsek.
 

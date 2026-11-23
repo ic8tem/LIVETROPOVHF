@@ -1,7 +1,7 @@
 LEBENSMITTEL · Technisches Dokument 3
 # Wie man den Trope in 144 MHz und darüber hinaus bildet
 
-> Automatische Übersetzung durch Italienisch: im Zweifel ist der italienische Führer wert.
+> Maschinelle Übersetzung aus dem Italienischen: Im Zweifel gilt die italienische Anleitung.
 
 Was passiert in der Luft, wenn die 144, 432 und Mikrowellen über den Horizont hinausgehen: Brechung, Inversionen, Kanäle, Streuungen und wie man sie auf der Programmkarte liest. Version vom 9. November 2026.
 

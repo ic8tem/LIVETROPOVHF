@@ -1,7 +1,7 @@
 LIVETROPOVH · tehniline dokument nr 2
 # Kaardi koostamine
 
-> Automaatne tõlge itaalia keelest: kahtluse korral on see väärt Itaalia juhendit.
+> Masintõlge itaalia keelest: kahtluse korral kehtib itaaliakeelne juhend.
 
 Nagu kaardi kaart kaart kaart ja kohapeal on sündinud: geograafiline alus, projektsioonid, keskmine Hepburn ja F5LEN indeksid, isobare, laigud ja jaamad kuulates, kattuvad kihtidega. 9. novembri 2026. aasta versioon.
 

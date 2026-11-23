@@ -1,6 +1,6 @@
 # Kilder og formler
 
-> Automatisk oversættelse af italiensk: i tvivlstilfælde er det den italienske guide værd.
+> Maskinoversættelse fra italiensk: er du i tvivl, gælder den italienske vejledning.
 
 Arbejdssamling af kilder, der er konsulteret i forbindelse med overslaget over LIVETROPOVHF tropo (20. til 21. november 2026): Grundlæggende fysik, tilgængelige data, offentliggjorte indeks, formler, amatørradiooplevelser, validering og beslutninger. Formlerne er nummereret som i LaTeX, (1), (2),..., og i teksten de husker med nummeret i parentes. Den Prognose Manual beskriver, hvordan programmet bruger dem.
 

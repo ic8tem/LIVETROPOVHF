@@ -1,6 +1,6 @@
 # Prognozes rokasgrāmata
 
-> Automātiskā tulkošana itāļu: šaubu gadījumā ir vērts Itālijas ceļvedis.
+> Mašīntulkojums no itāļu valodas: šaubu gadījumā noteicošā ir itāļu rokasgrāmata.
 
 Prognozes tab aprēķina tropoferisko pavairošanu pati par sevi: indeksa karti redzamajā zonā un signālu, kas tiek sniegts starp jūsu staciju un attiecīgo. Šajā rokasgrāmatā ir aprakstīti visi dati, kā tie tiek aprēķināti un no kāda avota tie ir iegūti. Skaitļi kvadrātiekavās attiecas uz avotiem apakšā; programmā katru datu rezultātu ir komikss (simbolo i) ar to pašu avotu un atsauci uz punktu.
 

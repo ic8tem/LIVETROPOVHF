@@ -1,6 +1,6 @@
 # Nõuanded käitajale
 
-> Automaatne tõlge itaalia keelest: kahtluse korral on see väärt Itaalia juhendit.
+> Masintõlge itaalia keelest: kahtluse korral kehtib itaaliakeelne juhend.
 
 Praktilised nõuanded vahekaardi Prognooside kasutamiseks jaamatöös. Need ei asenda kuulamist: Prognoos ütleb, kuhu on kõige parem vaadata, raadio ütleb, kas see on seal.
 

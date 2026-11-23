@@ -1,7 +1,7 @@
 LIVETROPOVHF · technisch document 2
 # Bouw van de kaart
 
-> Automatische vertaling door het Italiaans: bij twijfel is het de Italiaanse gids waard.
+> Machinevertaling uit het Italiaans: bij twijfel geldt de Italiaanse handleiding.
 
 Als de kaart van het tabblad Kaart en spot wordt geboren: de geografische basis, de projecties, het gemiddelde van de Hepburn en F5LEN indices, de isobare, de plekken en stations luisteren, overlapt met lagen. Versie van 9 november 2026.
 

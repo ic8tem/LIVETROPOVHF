@@ -1,7 +1,7 @@
 LIVETROPOVHF · teknik belge 3
 # Nasıl oynanır the trope in 144 MHz and Beyond
 
-> İtalyan tarafından otomatik çeviri: şüphesiz İtalyan kılavuzuna değer.
+> İtalyancadan makine çevirisi: şüphe durumunda İtalyanca kılavuz geçerlidir.
 
 144, 432 ve mikrodalgalar ufkun ötesine geçtiğinde havada ne olur: Reksiyon, inverss, ducts, saçlar ve bunları program haritasında nasıl okuyacaksınız. 9 Kasım 2026 versiyonu.
 

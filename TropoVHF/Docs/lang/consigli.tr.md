@@ -1,6 +1,6 @@
 # Operatör için ipuçları
 
-> İtalyan tarafından otomatik çeviri: şüphesiz İtalyan kılavuzuna değer.
+> İtalyancadan makine çevirisi: şüphe durumunda İtalyanca kılavuz geçerlidir.
 
 İstasyon çalışmalarında sekme Tahminlerini kullanmak için pratik göstergeler. Dinlemeyi değiştirmezler: Tahmin, bakmak için en iyi nerede olduğunu söylüyor, radyo orada olup olmadığını söylüyor.
 

@@ -1,6 +1,6 @@
 # Sfaturi pentru operator
 
-> Traducere automată de italiană: în caz de îndoială merită ghidul italian.
+> Traducere automată din italiană: în caz de îndoială, este valabil ghidul în italiană.
 
 Indicaţii practice pentru a utiliza proiecţiile file în munca staţiei. Ei nu înlocuiesc ascultarea: Prognoza spune unde este cel mai bine să se uite, radioul spune dacă este acolo.
 

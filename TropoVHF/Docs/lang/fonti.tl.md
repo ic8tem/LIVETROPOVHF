@@ -1,6 +1,6 @@
 # Pinagmulan at pormula
 
-> Awtomatikong salin ng Italyano: Kung pag - aalinlanganan ay sulit naman ang giyang Italyano.
+> Awtomatikong salin mula sa Italyano: kung may duda, ang gabay sa Italyano ang susundin.
 
 Gumagawang koleksiyon ng mga mapagkukunan na isinangguni para sa HILETROPOVHF tropo hinulaan (20–21 Nobyembre 2026): Pangunahing pisika, makukuhang datos, inilathalang mga indiks, pormula, karanasang radio amateur, fakultad at desisyon. Ang mga pormula ay nilagyan ng bilang gaya ng sa LaTeX, (1), (2),..., at sa teksto na natatandaan nila sa bilang ng mga bracket. Inilalarawan ng The Decree Manual kung paano ito ginagamit ng programa.
 

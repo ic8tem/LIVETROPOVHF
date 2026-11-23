@@ -1,7 +1,7 @@
 LIVETROPOVHF · tehniskais dokuments 3
 # Kā veidot tropu 144 MHz un tālāk
 
-> Automātiskā tulkošana itāļu: šaubu gadījumā ir vērts Itālijas ceļvedis.
+> Mašīntulkojums no itāļu valodas: šaubu gadījumā noteicošā ir itāļu rokasgrāmata.
 
 Kas notiek gaisā, kad 144, 432 un mikroviļņu iet ārpus horizonta: refrakcija, inversijas, kanāliem, izkliede, un kā izlasīt tos programmas kartē. 2026. gada 9. novembra redakcija.
 

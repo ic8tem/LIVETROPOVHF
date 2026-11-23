@@ -1,7 +1,7 @@
 LIVETROPOVHF · dokument techniczny 3
 # Jak utworzyć trope w 144 MHz i dalej
 
-> Automatyczne tłumaczenie przez włoski: w przypadku wątpliwości warto włoskiego przewodnika.
+> Tłumaczenie maszynowe z włoskiego: w razie wątpliwości obowiązuje włoski przewodnik.
 
 Co dzieje się w powietrzu, kiedy 144, 432 i mikrofale wychodzą poza horyzont: załamania, inwersji, kanałów, rozproszenia i jak je przeczytać na mapie programu. Wersja z dnia 9 listopada 2026 r.
 

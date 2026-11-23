@@ -1,6 +1,6 @@
 # Tahmin manuel
 
-> İtalyan tarafından otomatik çeviri: şüphesiz İtalyan kılavuzuna değer.
+> İtalyancadan makine çevirisi: şüphe durumunda İtalyanca kılavuz geçerlidir.
 
 Tahmin sekmesi, tropopheric propagasyonunu kendi başına hesaplar: istasyonunuz ve buna karşılık gelen bir işaret haritası. Bu manuel her verileri açıklar, nasıl hesaplanır ve hangi kaynaktan gelir. Kare braketlerdeki rakamlar, alttaki kaynaklara atıfta bulunur; programın her verilerinin aynı kaynağı ve paragrafa atıfta bulunan bir çizgi (simbolo i) vardır.
 

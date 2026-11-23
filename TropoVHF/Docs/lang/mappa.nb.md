@@ -1,7 +1,7 @@
 LIVETROPOVHF · Teknisk dokument 2
 # Bygging av kartet
 
-> Automatisk oversettelse av italiensk: i tilfelle tvil er verdt den italienske guiden.
+> Maskinoversettelse fra italiensk: ved tvil gjelder den italienske veiledningen.
 
 Som kartet over fanen Kart og sted er født: den geografiske basen, fremspringene, gjennomsnittet av Hepburn og F5LEN indekser, isobar, flekker og stasjoner lytte, overlappet med lag. Versjon av 9. november 2026.
 

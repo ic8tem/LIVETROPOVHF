@@ -1,7 +1,7 @@
 Lifetropovhf · tekniskt dokument 3
 # Hur man bildar tropen i 144 MHz och bortom
 
-> Automatisk översättning av italienska: I händelse av tvivel är det värt den italienska guiden.
+> Maskinöversättning från italienska: vid tveksamhet gäller den italienska guiden.
 
 Vad som händer i luften när 144, 432 och mikrovågor går utöver horisonten: refraction, inversioner, kanaler, scatters och hur man läser dem på programkartan. Version av den 9 november 2026.
 

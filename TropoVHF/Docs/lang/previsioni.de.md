@@ -1,6 +1,6 @@
 # Prognosehandbuch
 
-> Automatische Übersetzung durch Italienisch: im Zweifel ist der italienische Führer wert.
+> Maschinelle Übersetzung aus dem Italienischen: Im Zweifel gilt die italienische Anleitung.
 
 Der Forecast-Tab berechnet die tropophärische Ausbreitung selbst: eine Indexkarte auf dem sichtbaren Bereich und das Signal zwischen Ihrer Station und einer entsprechenden. Dieses Handbuch beschreibt alle Daten, wie sie berechnet werden und aus welcher Quelle sie stammen. Die Zahlen in eckigen Klammern beziehen sich auf die Quellen unten; im Programm haben alle Daten der Ergebnisse ein Comic (Simbolo i) mit der gleichen Quelle und dem Verweis auf den Absatz.
 

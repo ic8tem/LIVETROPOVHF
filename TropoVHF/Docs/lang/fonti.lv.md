@@ -1,6 +1,6 @@
 # Avoti un formulas
 
-> Automātiskā tulkošana itāļu: šaubu gadījumā ir vērts Itālijas ceļvedis.
+> Mašīntulkojums no itāļu valodas: šaubu gadījumā noteicošā ir itāļu rokasgrāmata.
 
 LIVETROPOVHF tropo prognozes (20.–21. novembris) Pamatfizika, pieejamie dati, publicētie indeksi, formulas, amatieru radio pieredze, apstiprināšana un lēmumi. Formulas numurē kā LaTeX (1), (2),... un tekstā tās atsauc ar skaitli iekavās. Prognozes rokasgrāmatā aprakstīts, kā programma tos izmanto.
 

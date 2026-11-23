@@ -1,6 +1,6 @@
 # Forrás és képletek
 
-> Automatikus fordítás olaszul: kétség esetén érdemes az olasz útmutató.
+> Gépi fordítás olaszból: kétség esetén az olasz útmutató az irányadó.
 
 A LIVETROPOVHF tropo előrejelzéshez megkérdezett források munkagyűjteménye (2026. november 21.): Alapvető fizika, rendelkezésre álló adatok, közzétett indexek, képletek, rádió amatőr tapasztalatok, validálás és döntések. A képletek száma a LaTeX (1), (2),..., és a szövegben a zárójelben lévő számmal emlékeznek. Az előrejelzési kézikönyv leírja, hogyan használja őket a program.
 

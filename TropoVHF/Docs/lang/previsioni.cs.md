@@ -1,6 +1,6 @@
 # Předpověď
 
-> Automatický překlad italsky: v případě pochybností stojí za italský průvodce.
+> Strojový překlad z italštiny: v případě pochybností platí italská příručka.
 
 Na kartě Prognóza počítá tropoferické šíření samo o sobě: indexová mapa na viditelné ploše a signál mezi vaší stanicí a odpovídajícím. Tato příručka popisuje všechna data, jak se vypočítávají a odkud pocházejí. Čísla v hranatých závorkách odkazují na zdroje v dolní části; v programu každé údaje z výsledků mají komiks (simbolo i) se stejným zdrojem a odkazem na odstavec.
 

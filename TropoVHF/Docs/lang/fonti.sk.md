@@ -1,6 +1,6 @@
 # Zdroje a vzorce
 
-> Automatický preklad do taliančiny: v prípade pochybností stojí za taliansky sprievodca.
+> Strojový preklad z taliančiny: v prípade pochybností platí talianska príručka.
 
 Pracovná zbierka zdrojov konzultovaných pre LIVETROPOVHF tropo predpoveď (20 Základná fyzika, dostupné údaje, zverejnené indexy, vzorce, amatérske rádiové skúsenosti, validácia a rozhodnutia. Vzorce sú číslované ako v LaTeX, (1), (2),... a v texte, ktorý si pripomínajú s číslom v zátvorkách. Príručka predpovedí opisuje, ako ich program používa.
 

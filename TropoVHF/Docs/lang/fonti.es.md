@@ -1,6 +1,6 @@
 # Fuentes y fórmulas
 
-> Traducción automática por italiano: en caso de duda vale la pena la guía italiana.
+> Traducción automática del italiano: en caso de duda vale la guía italiana.
 
 Reunión de trabajo de fuentes consultadas para el pronóstico del tropo LIVETROPOVHF (20–21 de noviembre de 2026): Física básica, datos disponibles, índices publicados, fórmulas, experiencias de radio amateur, validación y decisiones. Las fórmulas están numeradas como en LaTeX, (1), (2),..., y en el texto que recuerdan con el número entre corchetes. El Manual de Predicción describe cómo el programa los utiliza.
 

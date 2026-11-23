@@ -1,7 +1,7 @@
 LIVETROPOVF · technický dokument 2
 # Výstavba mapy
 
-> Automatický preklad do taliančiny: v prípade pochybností stojí za taliansky sprievodca.
+> Strojový preklad z taliančiny: v prípade pochybností platí talianska príručka.
 
 Mapa záložky Mapa a miesto sa zrodí: geografická základňa, projekcie, priemer indexu Hepburn a F5LEN, isobare, škvrny a stanice počúvanie, prelínal s vrstvami. Verzia z 9. novembra 2026.
 

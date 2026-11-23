@@ -1,7 +1,7 @@
 LIVETROPOVHF · techninis dokumentas 3
 # Kaip suformuoti tropą 144 MHz ir didesniu dažniu
 
-> Automatinis vertimas italų kalba: jei kyla abejonių, verta Italijos vadovas.
+> Mašininis vertimas iš italų kalbos: kilus abejonių, galioja itališkas vadovas.
 
 Kas nutinka ore, kai 144, 432 ir mikrobangų bangos peržengia horizontą: refrakcijos, inversijos, ortakiai, barstytuvai, ir kaip juos perskaityti programos žemėlapyje. 2026 m. lapkričio 9 d. redakcija.
 

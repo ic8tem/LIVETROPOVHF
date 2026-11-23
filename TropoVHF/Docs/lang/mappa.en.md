@@ -1,7 +1,7 @@
 LIVETROPOVHF · technical document 2
 # Construction of the map
 
-> Automatic translation by Italian: in case of doubt is worth the Italian guide.
+> Machine translation from Italian: if in doubt, the Italian guide is the reference.
 
 As the map of the tab Map and spot is born: the geographical base, the projections, the average of the Hepburn and F5LEN indices, the isobare, the spots and the stations listening, overlapped with layers. Version of 9 November 2026.
 

@@ -1,6 +1,6 @@
 # Allikad ja valemid
 
-> Automaatne tõlge itaalia keelest: kahtluse korral on see väärt Itaalia juhendit.
+> Masintõlge itaalia keelest: kahtluse korral kehtib itaaliakeelne juhend.
 
 LIVETROPOVHFi tropoprognoosi (20.–21. november 2026) jaoks kasutatud allikate töökogu: Põhifüüsika, olemasolevad andmed, avaldatud indeksid, valemid, amatöörraadiokogemused, valideerimine ja otsused. Valemid on nummerdatud nagu LaTeX, (1), (2),... ja tekstis, mida nad meelde tuletavad, sulgudes oleva numbriga. Prognoosi käsiraamat kirjeldab, kuidas programm neid kasutab.
 

@@ -1,7 +1,7 @@
 LIVETROPOVF · technický dokument 3
 # Ako vytvoriť trope v 144 MHz a mimo nej
 
-> Automatický preklad do taliančiny: v prípade pochybností stojí za taliansky sprievodca.
+> Strojový preklad z taliančiny: v prípade pochybností platí talianska príručka.
 
 Čo sa stane vo vzduchu, keď 144, 432 a mikrovlnné rúry idú za horizont: refrakcia, inverzie, kanály, rozptyly, a ako si ich prečítať na mape programu. Verzia z 9. novembra 2026.
 

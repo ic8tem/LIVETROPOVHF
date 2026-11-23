@@ -1,6 +1,6 @@
 # Sources et formules
 
-> Traduction automatique par italien: en cas de doute vaut le guide italien.
+> Traduction automatique de l'italien : en cas de doute, le guide italien fait foi.
 
 Collecte de données sur les sources consultées pour la prévision du tropo LIVETROPOVHF (20-21 novembre 2026): Physique de base, données disponibles, indices publiés, formules, expériences radioamateurs, validation et décisions. Les formules sont numérotées comme dans LaTeX, (1), (2),..., et dans le texte elles se rappellent avec le numéro entre parenthèses. Le Manuel des prévisions décrit comment le programme les utilise.
 

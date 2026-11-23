@@ -1,7 +1,7 @@
 LIVETROPOVHF · Documento técnico 2
 # Construcción del mapa
 
-> Traducción automática por italiano: en caso de duda vale la pena la guía italiana.
+> Traducción automática del italiano: en caso de duda vale la guía italiana.
 
 Como nace el mapa de la ficha Mapa y lugar: la base geográfica, las proyecciones, el promedio de los índices Hepburn y F5LEN, el isobare, los puntos y las estaciones escuchando, superpuestos con capas. Versión del 9 de noviembre de 2026.
 

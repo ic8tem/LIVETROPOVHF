@@ -1,7 +1,7 @@
 LIVETROPOVHF · document tehnic 3
 # Cum se formează tropa în 144 MHz și dincolo de aceasta
 
-> Traducere automată de italiană: în caz de îndoială merită ghidul italian.
+> Traducere automată din italiană: în caz de îndoială, este valabil ghidul în italiană.
 
 Ce se întâmplă în aer când 144, 432 şi microundele trec dincolo de orizont: refracţie, inversiune, conducte, dispersări şi cum să le citească pe harta programului. Versiunea din 9 noiembrie 2026.
 

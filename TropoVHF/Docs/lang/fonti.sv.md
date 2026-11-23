@@ -1,6 +1,6 @@
 # Källor och formler
 
-> Automatisk översättning av italienska: I händelse av tvivel är det värt den italienska guiden.
+> Maskinöversättning från italienska: vid tveksamhet gäller den italienska guiden.
 
 Arbetarsamling av källor som konsulterats för LIVETROPOVHFs tropoprognos (20–21 november 2026): Grundläggande fysik, tillgängliga data, publicerade index, formler, amatörradioupplevelser, validering och beslut. Formlarna är numrerade som i LaTeX, (1), (2),... och i texten de minns med numret i fästen. Prognoshandboken beskriver hur programmet använder dem.
 

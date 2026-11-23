@@ -1,6 +1,6 @@
 # Manual de previziune
 
-> Traducere automată de italiană: în caz de îndoială merită ghidul italian.
+> Traducere automată din italiană: în caz de îndoială, este valabil ghidul în italiană.
 
 Fila de prognoză calculează propagarea tropopherică în sine: o hartă index pe zona vizibilă și semnalul furnizat între stația dumneavoastră și una corespunzătoare. Acest manual descrie fiecare date, modul în care sunt calculate și de unde provine. Numerele în paranteze pătrate se referă la sursele din partea de jos; în program fiecare date ale rezultatelor are un comic (simbolo i) cu aceeași sursă și trimiterea la alineatul.
 

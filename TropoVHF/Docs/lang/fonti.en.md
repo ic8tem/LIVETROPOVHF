@@ -1,6 +1,6 @@
 # Sources and formulas
 
-> Automatic translation by Italian: in case of doubt is worth the Italian guide.
+> Machine translation from Italian: if in doubt, the Italian guide is the reference.
 
 Working collection of sources consulted for the LIVETROPOVHF tropo forecast (20–21 November 2026): Basic physics, available data, published indices, formulas, radio amateur experiences, validation and decisions. The formulas are numbered as in LaTeX, (1), (2),..., and in the text they recall with the number in brackets. The Forecast Manual describes how the program uses them.
 

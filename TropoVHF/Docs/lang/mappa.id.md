@@ -1,7 +1,7 @@
 LIVETROPOVHF dokumen teknis 2
 # Konstruksi peta
 
-> Terjemahan otomatis oleh Italia: dalam kasus keraguan layak panduan Italia.
+> Terjemahan mesin dari bahasa Italia: jika ragu, panduan berbahasa Italia yang berlaku.
 
 Sebagai peta tab dan titik lahir: basis geografis, proyeksi, rata-rata Hepburn dan indeks F5LEN, isobar, bintik-bintik dan stasiun-stasiun mendengarkan, kelebihan dengan lapisan. Versi 9 November 2026.
 

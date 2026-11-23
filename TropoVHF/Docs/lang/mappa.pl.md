@@ -1,7 +1,7 @@
 LIVETROPOVHF - dokument techniczny 2
 # Budowa mapy
 
-> Automatyczne tłumaczenie przez włoski: w przypadku wątpliwości warto włoskiego przewodnika.
+> Tłumaczenie maszynowe z włoskiego: w razie wątpliwości obowiązuje włoski przewodnik.
 
 W miarę jak rodzi się mapa zakładki Mapa i spot: podstawa geograficzna, projekcje, średnia indeksów Hepburn i F5LEN, izobare, miejsca i stacje słuchania, pokrywane warstwami. Wersja z dnia 9 listopada 2026 r.
 

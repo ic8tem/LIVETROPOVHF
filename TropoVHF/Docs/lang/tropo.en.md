@@ -1,7 +1,7 @@
 LIVETROPOVHF · technical document 3
 # How to form the trope in 144 MHz and beyond
 
-> Automatic translation by Italian: in case of doubt is worth the Italian guide.
+> Machine translation from Italian: if in doubt, the Italian guide is the reference.
 
 What happens in the air when the 144, 432 and microwaves go beyond the horizon: refraction, inversions, ducts, scatters, and how to read them on the program map. Version of 9 November 2026.
 

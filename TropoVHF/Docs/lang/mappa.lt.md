@@ -1,7 +1,7 @@
 LIVETROPOVHF · techninis dokumentas 2
 # Žemėlapio sudarymas
 
-> Automatinis vertimas italų kalba: jei kyla abejonių, verta Italijos vadovas.
+> Mašininis vertimas iš italų kalbos: kilus abejonių, galioja itališkas vadovas.
 
 Kaip iš skirtukų Žemėlapis ir vietoje žemėlapis gimsta: geografinė bazė, projekcijos, Hepburn ir F5LEN indeksų vidurkis, izobare, dėmės ir stotys klausosi, apkrautas sluoksniais. 2026 m. lapkričio 9 d. redakcija.
 

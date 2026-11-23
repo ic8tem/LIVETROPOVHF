@@ -1,6 +1,6 @@
 # Manual de previsão
 
-> Tradução automática por italiano: em caso de dúvida vale o guia italiano.
+> Tradução automática do italiano: em caso de dúvida, vale o guia italiano.
 
 A guia Previsão calcula a propagação tropoférica por si só: um mapa de índice na área visível e o sinal fornecido entre sua estação e um correspondente. Este manual descreve todos os dados, como é calculado e de que fonte vem. Os números entre parênteses rectos referem-se às fontes na parte inferior; no programa cada dado dos resultados tem um cômico (simbolo i) com a mesma fonte e a referência ao parágrafo.
 

@@ -1,6 +1,6 @@
 # Dicas para o operador
 
-> Tradução automática por italiano: em caso de dúvida vale o guia italiano.
+> Tradução automática do italiano: em caso de dúvida, vale o guia italiano.
 
 Indicações práticas para usar a guia Previsão no trabalho de estação. Não substituem a escuta: A previsão diz onde é melhor olhar, o rádio diz se está lá.
 

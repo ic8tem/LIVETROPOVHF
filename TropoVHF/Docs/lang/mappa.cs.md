@@ -1,7 +1,7 @@
 LIVETROPOVHF · technický dokument 2
 # Výstavba mapy
 
-> Automatický překlad italsky: v případě pochybností stojí za italský průvodce.
+> Strojový překlad z italštiny: v případě pochybností platí italská příručka.
 
 Jak mapa karty Mapa a místo se zrodí: geografická základna, projekce, průměr Hepburn a F5LEN indexy, isobare, skvrny a stanice poslouchat, překryty vrstvami. Verze dne 9. listopadu2026.
 

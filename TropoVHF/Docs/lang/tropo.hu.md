@@ -1,7 +1,7 @@
 LIVETROPOVHF · 3. műszaki dokumentum
 # Hogyan alakítsuk a tropét 144 MHz-ben és azon túl
 
-> Automatikus fordítás olaszul: kétség esetén érdemes az olasz útmutató.
+> Gépi fordítás olaszból: kétség esetén az olasz útmutató az irányadó.
 
 Mi történik a levegőben, amikor a 144, 432 és mikrohullámok megy túl a horizonton: fénytörések, inverziók, csatornák, scatters, és hogyan kell olvasni őket a program térképen. 2026. november 9-i változat.
 

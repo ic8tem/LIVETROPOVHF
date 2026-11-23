@@ -1,7 +1,7 @@
 LIVETROPOVHF · tehniskais dokuments 2
 # Kartes konstrukcija
 
-> Automātiskā tulkošana itāļu: šaubu gadījumā ir vērts Itālijas ceļvedis.
+> Mašīntulkojums no itāļu valodas: šaubu gadījumā noteicošā ir itāļu rokasgrāmata.
 
 Tā kā kartes kartes Karte un vietas ir dzimis: ģeogrāfiskā bāze, prognozes, vidējais Hepburn un F5LEN indeksu, izobare, vietas un stacijas klausoties, pārklājas ar slāņiem. 2026. gada 9. novembra redakcija.
 

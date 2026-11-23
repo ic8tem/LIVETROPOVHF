@@ -1,6 +1,6 @@
 # Surse și formule
 
-> Traducere automată de italiană: în caz de îndoială merită ghidul italian.
+> Traducere automată din italiană: în caz de îndoială, este valabil ghidul în italiană.
 
 Colectarea de surse de lucru consultate pentru prognoza tropo LIVETRUPOVHF (20/221 noiembrie 2026): Fizica de baza, date disponibile, indici publicati, formule, experiente radio amatori, validare si decizii. Formularele sunt numerotate ca în LaTeX, (1), (2),... și în textul pe care îl amintesc cu numărul în paranteze. Manualul Prognoza descrie modul în care programul le utilizează.
 
@@ -311,7 +311,7 @@ Noi reguli sinoptice pentru index
 - Sezon: În Marea Britanie anticiclonii sunt mai frecvente la sfârșitul verii și începutul toamnei.
 - Indicii vizuale: fumul prins într-o linie întunecată deasupra orizontului; cu presiune ridicată, straturile cumulează cu baza sub 1000 m indică o conductă terestră, baza peste 1000 m o conductă înaltă.
 
-Referințe citate pentru căutare: R. G. Flavell G3LTP, "Studii ale unui Eveniment de Propagare Anticiclonică Extensivă...", *Radio Communication*, February 1984, p. 128; J. Gannaway G3YGF, "Tropospheric Scatter Propagation," *Radio Communication*, September 1981, p. 710; P. W. Sollom G3BGL, "A Little Flutter X2Q, "A Little Flutter W6ZGN
+Referințe citate pentru căutare: R. G. Flavell G3LTP, "Studii ale unui Eveniment de Propagare Anticiclonică Extensivă...", *Radio Communication*, February 1984, p. 128; J. Gannaway G3YGF, "Tropospheric Scatter Propagation," *Radio Communication*, September 1981, p. 710; P. W. Sollom G3BGL, "A Little Flutter, "A Little Flutter W6ZGN
 
 ## 10. Un model de radio amator verificat: Biancomano și Leyshon (1998)
 

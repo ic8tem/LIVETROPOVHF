@@ -1,6 +1,6 @@
 # Tips til operatøren
 
-> Automatisk oversættelse af italiensk: i tvivlstilfælde er det den italienske guide værd.
+> Maskinoversættelse fra italiensk: er du i tvivl, gælder den italienske vejledning.
 
 Praktiske indikationer for at bruge fanen Forecasts i station arbejde. De erstatter ikke lytning: Der står, hvor det er bedst at se.
 

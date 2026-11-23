@@ -1,6 +1,6 @@
 # Prognozės vadovas
 
-> Automatinis vertimas italų kalba: jei kyla abejonių, verta Italijos vadovas.
+> Mašininis vertimas iš italų kalbos: kilus abejonių, galioja itališkas vadovas.
 
 Prognozės skirtukas apskaičiuoja tropošerinis dauginimas pats: rodyklės žemėlapis matomo ploto ir signalas, pateiktas tarp jūsų stoties ir atitinkamos. Šiame vadove aprašomi visi duomenys, kaip jie apskaičiuojami ir iš kurio jie gaunami. Skaičiai laužtiniuose skliaustuose nurodo šaltinius apačioje; programoje kiekvienas rezultatų duomenys turi komiksų (simbolo i) su tuo pačiu šaltiniu ir nuoroda į punktą.
 

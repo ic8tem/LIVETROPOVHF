@@ -1,6 +1,6 @@
 # Prognoosi käsiraamat
 
-> Automaatne tõlge itaalia keelest: kahtluse korral on see väärt Itaalia juhendit.
+> Masintõlge itaalia keelest: kahtluse korral kehtib itaaliakeelne juhend.
 
 Vahekaart Forecast arvutab troposfääri levimise ise: indeksikaart nähtaval alal ja signaal, mis edastatakse teie jaama ja vastava vahel. Käsiraamat kirjeldab kõiki andmeid, kuidas neid arvutatakse ja millisest allikast need pärinevad. Numbrid nurksulgudes viitavad all olevatele allikatele; programmis on igal tulemuste andmetel koomiks (simbolo i), millel on sama allikas ja viide lõikele.
 

@@ -1,6 +1,6 @@
 # ماخذ اور فارمولا
 
-> اطالوی زبان کا خودکار ترجمہ: شک کی صورت میں اطالوی ہدایت کار قابل قدر ہے۔
+> اطالوی سے مشینی ترجمہ: شک کی صورت میں اطالوی رہنما معتبر ہے۔
 
 سرسیدوں کا کام جمع کرنے سے دریافت کیا جاتا ہے کہ اس کی پیش گوئی (20–21 نومبر 2026): بنیادی طبیعیات، دستیاب اعداد و شمار، شائع شدہ ہندسیات، فارمولے، ریڈیائی تجربات، درستی اور فیصلے۔ فارمولے کو لا ٹی ایکس، (1)، (2)، اور متن میں وہ شمار کیے جاتے ہیں۔ دی فورسٹ میناول بیان کرتا ہے کہ پروگرام ان کو کیسے استعمال کرتا ہے۔
 
@@ -618,7 +618,7 @@ VHF/UHF DX سے کتاب، کوشش کرنے کے لیے دیگر اصلاحات
 
 ڈیٹا
 
-- [پی آئی ڈی-پی-او، ایپی جی ایف ایس](https://open-meteo.com/en/docs/gfs-api)، [API ECMWF](https://open-meteo.com/en/docs/ecmwf-api)، [API DWD ICON](https://open-meteo.com/en/docs/dwd-api)، [API DWD ICON X2Q، [موجودہ دباؤ کے دباؤ میں ]](https://openmeteo.substack.com/p/upper-air-weather-forecasts-via-api)
+- [پی آئی ڈی-پی-او، ایپی جی ایف ایس](https://open-meteo.com/en/docs/gfs-api)، [API ECMWF](https://open-meteo.com/en/docs/ecmwf-api)، [API DWD ICON](https://open-meteo.com/en/docs/dwd-api)، [API DWD ICON، [موجودہ دباؤ کے دباؤ میں ]](https://openmeteo.substack.com/p/upper-air-weather-forecasts-via-api)
 - [NANCEI, Integrated Global Radisonde Archive (IGRA) 2.0Q](https://www.ncei.noaa.gov/products/weather-balloon/integrated-global-radiosonde-archive)
 - [CARRRROBget, ریڈیو طوفانی خطہ برائے یونیورسٹی آف وائیومنگ 0.0Q](https://github.com/NCAR/RAOBget)
 

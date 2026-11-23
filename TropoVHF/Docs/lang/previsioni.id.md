@@ -1,6 +1,6 @@
 # Manual forecast
 
-> Terjemahan otomatis oleh Italia: dalam kasus keraguan layak panduan Italia.
+> Terjemahan mesin dari bahasa Italia: jika ragu, panduan berbahasa Italia yang berlaku.
 
 Tab Forecast menghitung penyebaran tropopsic dengan sendirinya: peta indeks pada area yang terlihat dan sinyal yang disediakan antara stasiun Anda dan yang sesuai. Manual ini menjelaskan setiap data, bagaimana dihitung dan darimana asalnya. Angka-angka dalam kurung persegi mengacu ke sumber di bagian bawah; dalam program setiap data hasil memiliki komik (simbollo i) dengan sumber yang sama dan referensi ke paragraf.
 
@@ -166,7 +166,7 @@ Sumber tanah (dari 1.3.2). Kuota berasal dari Copernicus DEM GLO- 30 [3]: 1 deti
 
 Di samping P.452 program menghitung troposcater dengan tiga model lainnya, seperti halnya program TropoLink [16], dan menunjukkan perbedaan mereka sebagai ketidakpastian:
 
-- NBS TN101 [25] 9 X1Q (dari 1.3.5), median: L = 30 log f analytical 20 log d + F (FOD) dengan koreksi F0 + H0 + LGP. F (AFD) adalah fungsi perhatian dari Annex III dalam bentuk analitis (Ns 301) dengan koreksi untuk Ns, H0 fungsi frekuensi kurang dari.9: Ns adalah bahwa dari profil GFS jam, cakrawala efektif dan ketinggian berasal dari profil Copernicus, Lgp = 0.07 Ini adalah bentuk yang sama bahwa ITM menggunakan dalam interior, tetapi dengan reaktivitas dari hari ini bukan iklim. Ini menguji pada bagian datar di 144 MHz dengan antena pada 20 m: dalam 2-4 dB dari ITM antara 150 dan 900 km dan sekitar 2 dB dalam bentuk yang disederhanakan 9.2b dari TN101, yang tidak memiliki H0.
+- NBS TN101 [25] 9 (dari 1.3.5), median: L = 30 log f analytical 20 log d + F (FOD) dengan koreksi F0 + H0 + LGP. F (AFD) adalah fungsi perhatian dari Annex III dalam bentuk analitis (Ns 301) dengan koreksi untuk Ns, H0 fungsi frekuensi kurang dari.9: Ns adalah bahwa dari profil GFS jam, cakrawala efektif dan ketinggian berasal dari profil Copernicus, Lgp = 0.07 Ini adalah bentuk yang sama bahwa ITM menggunakan dalam interior, tetapi dengan reaktivitas dari hari ini bukan iklim. Ini menguji pada bagian datar di 144 MHz dengan antena pada 20 m: dalam 2-4 dB dari ITM antara 150 dan 900 km dan sekitar 2 dB dalam bentuk yang disederhanakan 9.2b dari TN101, yang tidak memiliki H0.
 
 - ITU-R P.617-5 [17] L = F + 22 log f + 35 log AND + 17 log d + Lc, dengan f di MHz, Mrad, d dalam km, F = 0.1Q N0 dan AVN biasanya diambil dari peta iklim ITU; di sini kita gunakan setiap jam profil GFS ( N0) ^ (teorehs / 7.35) adalah reaktivitas ke tanah, ACN penurunan di km pertama), juga troposcatter mengikuti waktu. N0
 - Buku Panduan RSGB VHF / UHF Formula, DL2FZN [18]: L = Lfs + 24.44 + 4.283 ln f + 0.06656 d. Lekukan dengan jarak hampir sama dengan PROPBER (0.067 dB / km).

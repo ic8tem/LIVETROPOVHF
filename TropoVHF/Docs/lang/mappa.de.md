@@ -1,7 +1,7 @@
 LEBENSMITTEL · Technisches Dokument 2
 # Aufbau der Karte
 
-> Automatische Übersetzung durch Italienisch: im Zweifel ist der italienische Führer wert.
+> Maschinelle Übersetzung aus dem Italienischen: Im Zweifel gilt die italienische Anleitung.
 
 Wie die Karte der Registerkarte Karte und Spot geboren wird: die geografische Basis, die Projektionen, der Durchschnitt der Hepburn und F5LEN Indizes, die isobare, die Spots und die Stationen hören, überlappt mit Schichten. Version vom 9. November 2026.
 

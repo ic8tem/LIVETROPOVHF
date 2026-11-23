@@ -1,6 +1,6 @@
 # Norādījumi operatoram
 
-> Automātiskā tulkošana itāļu: šaubu gadījumā ir vērts Itālijas ceļvedis.
+> Mašīntulkojums no itāļu valodas: šaubu gadījumā noteicošā ir itāļu rokasgrāmata.
 
 Praktiskās norādes tab Prognozes izmantošanai stacijas darbā. Tie neaizstāj klausīšanos: Prognozes vēsta, kur vislabāk skatīties, radio saka, ja tas ir tur.
 
