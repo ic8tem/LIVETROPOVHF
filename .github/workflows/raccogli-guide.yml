@@ -1,0 +1,37 @@
+name: raccogli-guide
+on:
+  push:
+    branches: [traduci-guide]
+    paths: ['raccogli.txt']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  raccogli:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: id della traduzione
+        id: rid
+        run: echo "id=$(head -1 raccogli.txt | tr -d '[:space:]')" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: docs-*
+          path: art
+          run-id: ${{ steps.rid.outputs.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: rinomina in Docs/lang/nome.lingua.md
+        run: |
+          mkdir -p TropoVHF/Docs/lang
+          for d in art/docs-*; do
+            l=${d#art/docs-}
+            for f in "$d"/*.md; do b=$(basename "$f" .md); cp "$f" "TropoVHF/Docs/lang/$b.$l.md"; done
+          done
+          ls TropoVHF/Docs/lang | wc -l
+      - name: registra
+        run: |
+          git config user.name IC8TEM
+          git config user.email ic8tem@users.noreply.github.com
+          git add TropoVHF/Docs/lang
+          git commit -m "Guide tradotte automaticamente (run ${{ steps.rid.outputs.id }})" || echo nulla
+          git push

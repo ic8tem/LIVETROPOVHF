@@ -2,6 +2,7 @@ name: traduci-guide
 on:
   push:
     branches: [traduci-guide]
+    paths-ignore: ['raccogli.txt', 'TropoVHF/Docs/lang/**', '.github/workflows/raccogli-guide.yml', '.github/workflows/traduci-guide.yml']
 permissions:
   contents: read
 jobs:
