@@ -58,6 +58,23 @@ public static class Lang
         return All.Any(a => a.code == lang) ? lang : null;
     }
 
+    /// <summary>
+    /// Nomi dei file delle guide da cercare, nell'ordine: traduzione nella lingua scelta (Docs/lang/nome.codice.md, traduzione
+    /// automatica), poi l'inglese, poi l'originale italiano. Il portoghese del Brasile usa il portoghese.
+    /// </summary>
+    public static IEnumerable<string> DocCandidates(string fileName)
+    {
+        var b = fileName.EndsWith(".md", StringComparison.OrdinalIgnoreCase) ? fileName.Substring(0, fileName.Length - 3) : fileName;
+        var c = Current;
+        if (c != "it")
+        {
+            yield return "." + b + "." + c.Replace('-', '_') + ".md";
+            if (c == "pt-br") yield return "." + b + ".pt.md";
+            if (c != "en") yield return "." + b + ".en.md";
+        }
+        yield return "." + fileName;
+    }
+
     public static bool IsRtl(string code) => code == "ar" || code == "he" || code == "ur";
 
     static string _current = "it";

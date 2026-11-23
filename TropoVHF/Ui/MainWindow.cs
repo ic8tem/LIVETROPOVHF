@@ -885,7 +885,7 @@ public sealed partial class MainWindow : Window
         string first = null;
         foreach (var kv in _docFiles)
         {
-            if (!_docText.TryGetValue(kv.Key, out var txt)) _docText[kv.Key] = txt = DocView.LoadResource(kv.Value) ?? "";
+            if (!_docText.TryGetValue(kv.Key + "|" + Lang.Current, out var txt)) _docText[kv.Key + "|" + Lang.Current] = txt = DocView.LoadResource(kv.Value) ?? "";
             int n = 0;
             if (q.Length >= 3) for (int i = txt.IndexOf(q, StringComparison.OrdinalIgnoreCase); i >= 0; i = txt.IndexOf(q, i + q.Length, StringComparison.OrdinalIgnoreCase)) n++;
             if (n > 0 && first == null) first = kv.Key;

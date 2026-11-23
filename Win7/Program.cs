@@ -62,7 +62,16 @@ public static class Program
 
     public static string ResourceText(string fileName)
     {
-        using var s = Resource(fileName);
+        // guide: prima la traduzione nella lingua scelta, poi l'inglese, poi l'italiano
+        Stream s = null;
+        if (fileName.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
+        {
+            var all = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+            var n = Lang.DocCandidates(fileName).Select(c => all.FirstOrDefault(x => x.EndsWith(c, StringComparison.OrdinalIgnoreCase))).FirstOrDefault(x => x != null);
+            if (n != null) s = Assembly.GetExecutingAssembly().GetManifestResourceStream(n);
+        }
+        s ??= Resource(fileName);
+        using var _ = s;
         if (s == null) return "# Documento non trovato\n";
         using var r = new StreamReader(s);
         return r.ReadToEnd();

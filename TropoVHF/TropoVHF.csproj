@@ -37,6 +37,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Docs\*.md" />
+    <EmbeddedResource Include="Docs\lang\*.md" LogicalName="TropoVHF.Docs.lang.%(Filename)%(Extension)" />
     <EmbeddedResource Include="Assets\splash.jpg;Assets\livetropovhf.ico;Assets\livetropovhf-256.png" />
     <!-- database nominativi accanto al programma (anche nei pacchetti e negli installatori) -->
     <None Include="..\CALL3.TXT" Link="CALL3.TXT" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" Condition="Exists('..\CALL3.TXT')" />

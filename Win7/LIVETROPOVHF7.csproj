@@ -55,6 +55,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="..\TropoVHF\Docs\*.md" Link="Docs\%(Filename)%(Extension)" LogicalName="TropoVHF.Docs.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\TropoVHF\Docs\lang\*.md" Link="Docs\lang\%(Filename)%(Extension)" LogicalName="TropoVHF.Docs.lang.%(Filename)%(Extension)" />
     <EmbeddedResource Include="..\TropoVHF\Assets\splash.jpg;..\TropoVHF\Assets\livetropovhf.ico;..\TropoVHF\Assets\livetropovhf-256.png" Link="Assets\%(Filename)%(Extension)" LogicalName="TropoVHF.Assets.%(Filename)%(Extension)" />
     <EmbeddedResource Include="..\TropoVHF\Lang\*.json" Link="Lang\%(Filename)%(Extension)" LogicalName="TropoVHF.Lang.%(Filename).json" />
     <None Include="..\CALL3.TXT" Link="CALL3.TXT" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Condition="Exists('..\CALL3.TXT')" />

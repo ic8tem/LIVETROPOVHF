@@ -24,7 +24,8 @@ public static class DocView
     public static string LoadResource(string fileName)
     {
         var asm = Assembly.GetExecutingAssembly();
-        var name = asm.GetManifestResourceNames().FirstOrDefault(n => n.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
+        var all = asm.GetManifestResourceNames();
+        var name = Lang.DocCandidates(fileName).Select(c => all.FirstOrDefault(n => n.EndsWith(c, StringComparison.OrdinalIgnoreCase))).FirstOrDefault(n => n != null);
         if (name == null) return "# Documento non trovato\n";
         using var s = asm.GetManifestResourceStream(name);
         using var r = new StreamReader(s);
