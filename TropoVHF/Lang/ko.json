@@ -688,5 +688,6 @@
   "it:Oltre il monte senza perdite": "산 너머 손실 없이",
   "it:ess.": "기본",
   "it:norm.": "보통",
-  "it:compl.": "전체"
+  "it:compl.": "전체",
+  "it:Il rapporto completo viene copiato negli appunti: se nella segnalazione il testo è accorciato, incollalo con Ctrl+V.": "전체 보고서가 클립보드에 복사됩니다. 보고서의 텍스트가 잘린 경우 Ctrl+V로 붙여 넣으세요."
 }

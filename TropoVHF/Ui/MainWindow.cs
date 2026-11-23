@@ -115,9 +115,14 @@ public sealed partial class MainWindow : Window
             Title = Lang.Tr("Rapporto di errore", "Error report"), Width = 600, SizeToContent = SizeToContent.Height, CanResize = false,
             WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = B(_th.Panel), ShowInTaskbar = false, Icon = Splash.AppIcon()
         };
-        var t = TB(Lang.Tr("L'ultima volta il programma ha annotato un errore ({0}).\n\nPuoi inviare il rapporto agli autori: si apre il browser su una segnalazione GitHub già compilata, con nominativo, locatore e nome utente del PC tolti. Controlli il testo e premi Invia (serve un account GitHub gratuito). Il registro completo è in {1}.", "Last time the program logged an error ({0}).\n\nYou can send the report to the authors: the browser opens a prefilled GitHub issue, with call, locator and PC user name removed. Check the text and press Submit (a free GitHub account is needed). The full log is in {1}.", summary, ErrorLog.FilePath), 13, _th.Text);
+        var t = TB(Lang.Tr("L'ultima volta il programma ha annotato un errore ({0}).\n\nPuoi inviare il rapporto agli autori: si apre il browser su una segnalazione GitHub già compilata, con nominativo, locatore e nome utente del PC tolti. Controlli il testo e premi Invia (serve un account GitHub gratuito). Il registro completo è in {1}.", "Last time the program logged an error ({0}).\n\nYou can send the report to the authors: the browser opens a prefilled GitHub issue, with call, locator and PC user name removed. Check the text and press Submit (a free GitHub account is needed). The full log is in {1}.", summary, ErrorLog.FilePath) + "\n\n" + Lang.Tr("Il rapporto completo viene copiato negli appunti: se nella segnalazione il testo è accorciato, incollalo con Ctrl+V.", "The full report is copied to the clipboard: if the text in the issue is shortened, paste it with Ctrl+V."), 13, _th.Text);
         t.TextWrapping = TextWrapping.Wrap; t.Margin = new Thickness(20, 18, 20, 16);
-        var send = PrimaryButton(Lang.Tr("Invia il rapporto", "Send report"), () => { OpenUrl(ErrorLog.IssueUrl(_st.Call, _st.Loc)); dlg.Close(); });
+        var send = PrimaryButton(Lang.Tr("Invia il rapporto", "Send report"), async () =>
+        {
+            // il rapporto completo negli appunti: l'indirizzo per GitHub porta solo l'inizio (limite di circa 8 KB)
+            try { var cb = TopLevel.GetTopLevel(this)?.Clipboard; if (cb != null) await cb.SetTextAsync(ErrorLog.FullReport(_st.Call, _st.Loc)); } catch { }
+            OpenUrl(ErrorLog.IssueUrl(_st.Call, _st.Loc)); dlg.Close();
+        });
         var file = OutlineButton(Lang.Tr("Apri il registro", "Open log"), () => OpenUrl(ErrorLog.FilePath));
         var no = OutlineButton(Lang.Tr("No, grazie", "No, thanks"), () => dlg.Close());
         dlg.Content = new StackPanel { Children = { t, new Border { Background = B(_th.Chip), BorderBrush = B(_th.Line), BorderThickness = new Thickness(0, 1, 0, 0), Padding = new Thickness(16, 10),

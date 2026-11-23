@@ -688,5 +688,6 @@
   "it:Oltre il monte senza perdite": "За горой без потерь",
   "it:ess.": "Осн.",
   "it:norm.": "Обыч.",
-  "it:compl.": "Полн."
+  "it:compl.": "Полн.",
+  "it:Il rapporto completo viene copiato negli appunti: se nella segnalazione il testo è accorciato, incollalo con Ctrl+V.": "Полный отчёт копируется в буфер обмена: если текст в сообщении обрезан, вставьте его клавишами Ctrl+V."
 }

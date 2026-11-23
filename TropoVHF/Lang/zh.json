@@ -688,5 +688,6 @@
   "it:Oltre il monte senza perdite": "越过山峰无损耗",
   "it:ess.": "基本",
   "it:norm.": "正常",
-  "it:compl.": "完整"
+  "it:compl.": "完整",
+  "it:Il rapporto completo viene copiato negli appunti: se nella segnalazione il testo è accorciato, incollalo con Ctrl+V.": "完整报告已复制到剪贴板：如果问题中的文字被截短，请用 Ctrl+V 粘贴。"
 }

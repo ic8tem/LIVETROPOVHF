@@ -782,9 +782,9 @@ public sealed partial class MainForm : Form
     {
         var summary = ErrorLog.PendingSummary.Replace("\n", " · ");
         ErrorLog.ClearPending();
-        var r = MessageBox.Show(this, Lang.Tr("L'ultima volta il programma ha annotato un errore ({0}).\r\n\r\nVuoi inviare il rapporto agli autori? Si apre il browser su una segnalazione GitHub già compilata, con nominativo, locatore e nome utente del PC tolti: controlli il testo e premi Invia (serve un account GitHub gratuito).\r\n\r\nIl registro completo è in {1}.", "Last time the program logged an error ({0}).\r\n\r\nSend the report to the authors? The browser opens a prefilled GitHub issue with call, locator and PC user name removed (a free GitHub account is needed).\r\n\r\nThe full log is in {1}.", summary, ErrorLog.FilePath),
+        var r = MessageBox.Show(this, Lang.Tr("L'ultima volta il programma ha annotato un errore ({0}).\r\n\r\nVuoi inviare il rapporto agli autori? Si apre il browser su una segnalazione GitHub già compilata, con nominativo, locatore e nome utente del PC tolti: controlli il testo e premi Invia (serve un account GitHub gratuito).\r\n\r\nIl registro completo è in {1}.", "Last time the program logged an error ({0}).\r\n\r\nSend the report to the authors? The browser opens a prefilled GitHub issue with call, locator and PC user name removed (a free GitHub account is needed).\r\n\r\nThe full log is in {1}.", summary, ErrorLog.FilePath) + "\r\n\r\n" + Lang.Tr("Il rapporto completo viene copiato negli appunti: se nella segnalazione il testo è accorciato, incollalo con Ctrl+V.", "The full report is copied to the clipboard: if the text in the issue is shortened, paste it with Ctrl+V."),
             Lang.Tr("Rapporto di errore", "Error report"), MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-        if (r == DialogResult.Yes) try { System.Diagnostics.Process.Start(ErrorLog.IssueUrl(_st.Call, _st.Loc)); } catch (Exception ex) { ErrorLog.Write(ex, "apertura del browser"); }
+        if (r == DialogResult.Yes) try { try { Clipboard.SetText(ErrorLog.FullReport(_st.Call, _st.Loc)); } catch { } System.Diagnostics.Process.Start(ErrorLog.IssueUrl(_st.Call, _st.Loc)); } catch (Exception ex) { ErrorLog.Write(ex, "apertura del browser"); }
     }
 
     bool _restartAsked;

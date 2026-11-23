@@ -688,5 +688,6 @@
   "it:Oltre il monte senza perdite": "ข้ามภูเขาโดยไม่สูญเสีย",
   "it:ess.": "พื้นฐาน",
   "it:norm.": "ปกติ",
-  "it:compl.": "ครบถ้วน"
+  "it:compl.": "ครบถ้วน",
+  "it:Il rapporto completo viene copiato negli appunti: se nella segnalazione il testo è accorciato, incollalo con Ctrl+V.": "รายงานฉบับเต็มถูกคัดลอกไปยังคลิปบอร์ด: หากข้อความในรายงานถูกตัดสั้น ให้วางด้วย Ctrl+V"
 }

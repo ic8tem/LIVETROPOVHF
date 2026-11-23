@@ -688,5 +688,6 @@
   "it:Oltre il monte senza perdite": "山越え損失なし",
   "it:ess.": "基本",
   "it:norm.": "標準",
-  "it:compl.": "完全"
+  "it:compl.": "完全",
+  "it:Il rapporto completo viene copiato negli appunti: se nella segnalazione il testo è accorciato, incollalo con Ctrl+V.": "完全なレポートはクリップボードにコピーされます。報告のテキストが短縮されている場合は Ctrl+V で貼り付けてください。"
 }

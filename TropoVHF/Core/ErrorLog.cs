@@ -91,11 +91,8 @@ public static class ErrorLog
     public static string PendingSummary { get { try { return File.ReadAllText(FlagPath); } catch { return ""; } } }
     public static void ClearPending() { try { File.Delete(FlagPath); } catch { } }
 
-    /// <summary>
-    /// Indirizzo di una nuova segnalazione GitHub già compilata con l'ultimo errore. Nominativo e locatore sono tolti
-    /// (sostituiti con [CALL] e [LOC]); il testo è accorciato perché l'indirizzo resti sotto i limiti del browser.
-    /// </summary>
-    public static string IssueUrl(string call, string loc)
+    /// <summary>Ultimo rapporto d'errore completo, con nominativo, locatore e nome utente tolti (da copiare negli appunti).</summary>
+    public static string FullReport(string call, string loc)
     {
         string body;
         try
@@ -105,12 +102,33 @@ public static class ErrorLog
             body = i >= 0 ? all.Substring(i) : all;
         }
         catch { body = ""; }
-        body = Anonymize(body, call, loc);
-        if (body.Length > 5500) body = body.Substring(0, 5500) + "\n…(accorciato)";
+        return Anonymize(body, call, loc);
+    }
+
+    /// <summary>
+    /// Indirizzo di una nuova segnalazione GitHub già compilata con l'ultimo errore. Nominativo e locatore sono tolti
+    /// (sostituiti con [CALL] e [LOC]). GitHub rifiuta gli indirizzi oltre circa 8 KB ("Your request URL is too long"),
+    /// e ogni lettera accentata o simbolo diventa 6–9 caratteri una volta codificato: il testo si accorcia finché l'indirizzo
+    /// intero resta sotto i 6000 caratteri. Il rapporto completo va negli appunti (FullReport) e si incolla nella segnalazione.
+    /// </summary>
+    public static string IssueUrl(string call, string loc)
+    {
+        string body = FullReport(call, loc);
         var title = "Errore " + Version + ": " + Anonymize(PendingSummary.Split('\n').LastOrDefault() ?? "", call, loc);
         if (title.Length > 120) title = title.Substring(0, 120);
-        var text = "Rapporto automatico di LIVETROPOVHF (nominativo e locatore tolti).\n\nCosa stavo facendo: \n\n```\n" + body + "\n```\n";
-        return "https://github.com/" + Updater.Repo + "/issues/new?labels=errore&title=" + Uri.EscapeDataString(title) + "&body=" + Uri.EscapeDataString(text);
+        string head = "https://github.com/" + Updater.Repo + "/issues/new?labels=errore&title=" + Uri.EscapeDataString(title) + "&body=";
+        string Build(string b, bool cut) => head + Uri.EscapeDataString(
+            "Rapporto automatico di LIVETROPOVHF (nominativo e locatore tolti).\n\nCosa stavo facendo: \n\n" +
+            (cut ? "Il rapporto completo è negli appunti: incollalo qui sotto (Ctrl+V). / The full report is on the clipboard: paste it below.\n\n" : "") +
+            "```\n" + b + (cut ? "\n…(accorciato)" : "") + "\n```\n");
+        string url = Build(body, false);
+        int n = body.Length;
+        while (url.Length > 6000 && n > 0)
+        {
+            n = Math.Max(0, n * 3 / 4 - 50);
+            url = Build(body.Substring(0, n), true);
+        }
+        return url;
     }
 
     static string Anonymize(string s, string call, string loc)
