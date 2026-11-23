@@ -35,7 +35,7 @@ public sealed partial class MainWindow : Window
     readonly Dictionary<string, Control> _tabContent = new();
     readonly Dictionary<string, Button> _tabButtons = new();
 
-    void WheelToPanel(object sender, PointerWheelEventArgs e)
+    void WheelToPanel(object sender, Avalonia.Input.PointerWheelEventArgs e)
     {
         if (e.Handled || Math.Abs(e.Delta.Y) < 1e-6) return;
         for (var v = e.Source as Avalonia.Visual; v != null; v = Avalonia.VisualTree.VisualExtensions.GetVisualParent(v))
@@ -60,7 +60,7 @@ public sealed partial class MainWindow : Window
         Lang.Current = _st.LangCode;
         // 1.4 — la rotella scorre il pannello sotto il puntatore anche quando è sopra una casella di testo o un'etichetta
         // (prima scorreva solo dopo aver cliccato un pulsante del pannello)
-        AddHandler(PointerWheelChangedEvent, WheelToPanel, Avalonia.Interactivity.RoutingStrategies.Tunnel);
+        AddHandler(Avalonia.Input.InputElement.PointerWheelChangedEvent, WheelToPanel, Avalonia.Interactivity.RoutingStrategies.Tunnel);
         _th = Palette.Get(_st.ThemeKey);
         _map = new MapView(_st, _th);
         _map.SelectionChanged += () => { RefreshInfoCard(); RefreshSpotList(); };
