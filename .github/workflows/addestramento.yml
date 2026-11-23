@@ -23,10 +23,11 @@ jobs:
         run: dotnet build -c Release src/tools/addestramento/addestramento.csproj -o bin
       - name: esegue comando.txt
         run: |
+          mkdir -p archivio
           grep -v '^#' comando.txt | while read -r cmd args; do
             [ -z "$cmd" ] && continue
             echo "== $cmd $args"
-            dotnet bin/addestramento.dll $cmd $args 2>&1 | tee -a archivio/registro.txt
+            dotnet bin/addestramento.dll $cmd $args < /dev/null 2>&1 | tee -a archivio/registro.txt
           done
       - name: registra
         if: always()
