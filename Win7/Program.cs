@@ -67,7 +67,7 @@ public static class Program
         if (fileName.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
         {
             var all = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-            var n = Lang.DocCandidates(fileName).Select(c => all.FirstOrDefault(x => x.EndsWith(c, StringComparison.OrdinalIgnoreCase))).FirstOrDefault(x => x != null);
+            var n = TropoVHF.Ui.Lang.DocCandidates(fileName).Select(c => all.FirstOrDefault(x => x.EndsWith(c, StringComparison.OrdinalIgnoreCase))).FirstOrDefault(x => x != null);
             if (n != null) s = Assembly.GetExecutingAssembly().GetManifestResourceStream(n);
         }
         s ??= Resource(fileName);
