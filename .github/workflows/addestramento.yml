@@ -1,0 +1,38 @@
+name: addestramento
+on:
+  push:
+    branches: [addestramento]
+    paths: ['comando.txt']
+permissions:
+  contents: write
+concurrency: addestramento
+jobs:
+  esegui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: privato
+          path: src
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: compila lo strumento
+        run: dotnet build -c Release src/tools/addestramento/addestramento.csproj -o bin
+      - name: esegue comando.txt
+        run: |
+          grep -v '^#' comando.txt | while read -r cmd args; do
+            [ -z "$cmd" ] && continue
+            echo "== $cmd $args"
+            dotnet bin/addestramento.dll $cmd $args 2>&1 | tee -a archivio/registro.txt
+          done
+      - name: registra
+        if: always()
+        run: |
+          git config user.name IC8TEM
+          git config user.email ic8tem@users.noreply.github.com
+          git add archivio
+          git commit -q -m "Archivio di addestramento (run ${{ github.run_id }})" || echo nulla
+          git push
