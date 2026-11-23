@@ -114,7 +114,9 @@ public static class ErrorLog
     public static string IssueUrl(string call, string loc)
     {
         string body = FullReport(call, loc);
-        var title = "Errore " + Version + ": " + Anonymize(PendingSummary.Split('\n').LastOrDefault() ?? "", call, loc);
+        // la versione è quella che ha prodotto l'errore (riga «versione …» del rapporto), non quella che lo invia
+        var vm = Regex.Match(body, @"versione (\S+)");
+        var title = "Errore " + (vm.Success ? vm.Groups[1].Value : Version) + ": " + Anonymize(PendingSummary.Split('\n').LastOrDefault() ?? "", call, loc);
         if (title.Length > 120) title = title.Substring(0, 120);
         string head = "https://github.com/" + Updater.Repo + "/issues/new?labels=errore&title=" + Uri.EscapeDataString(title) + "&body=";
         string Build(string b, bool cut) => head + Uri.EscapeDataString(
