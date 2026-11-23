@@ -16,9 +16,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: '3.11' }
+        with:
+          python-version: '3.11'
       - run: pip install argostranslate==1.9.6
       - run: python tools/translate_docs.py ${{ matrix.lang }} TropoVHF/Docs out/${{ matrix.lang }}
       - uses: actions/upload-artifact@v4
         if: always()
-        with: { name: docs-${{ matrix.lang }}, path: out/${{ matrix.lang }}, if-no-files-found: ignore }
+        with:
+          name: docs-${{ matrix.lang }}
+          path: out/${{ matrix.lang }}
+          if-no-files-found: ignore
