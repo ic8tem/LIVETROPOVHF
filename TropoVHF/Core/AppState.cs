@@ -25,7 +25,7 @@ public sealed class AppState
     // 1.4: AIS dal ricevitore dell'utente e rete dei webserver FM-DX
     public readonly AisReceiver Ais = new();
     public readonly FmDxNet FmDx = new();
-    public bool AisOn, FmDxOn = true;
+    public bool AisOn, AisNetOn, FmDxOn = true;
     public bool AprsOn = true, NowcastOn = true;
     public readonly WsjtxUdp Udp = new();
     public readonly NtpChecker Ntp = new();
@@ -643,8 +643,11 @@ public sealed class AppState
         Ais.Port = S.GetInt("ais_port", 10110); Ais.RxAntennaM = S.GetDouble("ais_rx_h", 10);
         AisOn = S.GetBool("ais_on", false); FmDxOn = S.GetBool("fmdx_on", true);
         FmDx.Hit += h => { Corridors.Add("144", h.Rx, h.PRx, h.Tx, h.PTx, h.T, "FMDX"); Dirty = true; };
-        Ais.Hit += h => { Dirty = true; };
+        // AIS dalle stazioni base costiere norvegesi (Kystverket): molte stazioni, quindi le coppie base–nave fanno corridoio
+        Ais.Hit += h => { if (h.Rx != "QTH") Corridors.Add("144", h.Rx, h.PRx, h.Tx, h.PTx, h.T, "AIS"); Dirty = true; };
+        AisNetOn = S.GetBool("ais_net_on", false);
         if (AisOn) Ais.Start();
+        if (AisNetOn) Ais.StartNet();
         if (FmDxOn) FmDx.Start();
         TropoVHF.Forecast.OwnForecast.Nowcast = (la, lo, t, f) =>
         {

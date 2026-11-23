@@ -850,7 +850,7 @@ public sealed class MapView : Control
                 if (ToScreen(h.PRx, out var s0)) ctx.DrawRectangle(new SolidColorBrush(col), null, new Rect(s0.X - 3, s0.Y - 3, 6, 6));
             }
         }
-        if (_st.AisOn)
+        if (_st.AisOn || _st.AisNetOn)
         {
             var col = Color.Parse("#0097A7");
             var pen = new Pen(new SolidColorBrush(col), 1.8, lineCap: PenLineCap.Round);

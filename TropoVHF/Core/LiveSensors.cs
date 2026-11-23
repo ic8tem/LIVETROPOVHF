@@ -31,6 +31,14 @@ public sealed class AisReceiver
     public bool Running { get; private set; }
     public long Sentences, Positions;
     public string LastError = "";
+    // 1.4 — flusso aperto delle stazioni base costiere norvegesi (Kystverket, licenza NLOD): solo ricezione terrestre
+    public string NetHost = "153.44.253.27"; public int NetPort = 5631;
+    public double BaseAntennaM = 300, NetMinKm = 150;
+    public bool NetRunning { get; private set; }
+    public long NetSentences, NetPositions; public string NetError = "";
+    readonly Dictionary<long, LatLon> _bases = new();
+    CancellationTokenSource _netCts; TcpClient _tcp;
+    public int Bases { get { lock (_bases) return _bases.Count; } }
     public Func<LatLon?> Qth = () => null;
     public event Action<SensorHit> Hit;
     readonly Dictionary<long, SensorHit> _last = new();
@@ -51,6 +59,49 @@ public sealed class AisReceiver
         try { _cts?.Cancel(); } catch { }
         try { _udp?.Close(); } catch { }
         _cts = null; _udp = null; Running = false;
+    }
+
+    public void StartNet()
+    {
+        StopNet();
+        _netCts = new CancellationTokenSource();
+        var ct = _netCts.Token;
+        Task.Run(() => NetLoop(ct));
+    }
+
+    public void StopNet()
+    {
+        try { _netCts?.Cancel(); } catch { }
+        try { _tcp?.Close(); } catch { }
+        _netCts = null; _tcp = null; NetRunning = false;
+    }
+
+    async Task NetLoop(CancellationToken ct)
+    {
+        while (!ct.IsCancellationRequested)
+        {
+            try
+            {
+                _tcp = new TcpClient();
+                var conn = _tcp.ConnectAsync(NetHost, NetPort);
+                if (await Task.WhenAny(conn, Task.Delay(15000, ct)) != conn) throw new TimeoutException("Kystverket: nessuna risposta");
+                await conn;
+                using var rd = new StreamReader(_tcp.GetStream(), Encoding.ASCII);
+                using (ct.Register(() => { try { _tcp?.Close(); } catch { } }))
+                {
+                    NetRunning = true; NetError = "";
+                    string line;
+                    while (!ct.IsCancellationRequested && (line = await rd.ReadLineAsync()) != null)
+                        try { HandleLine(line.Trim(), Clock.UtcNow, true); } catch { }
+                }
+            }
+            catch (Exception ex) when (!ct.IsCancellationRequested) { NetError = ex.Message; }
+            catch { }
+            NetRunning = false;
+            try { _tcp?.Close(); } catch { }
+            try { await Task.Delay(30000, ct); } catch { break; }
+        }
+        NetRunning = false;
     }
 
     async Task Loop(CancellationToken ct)
@@ -75,7 +126,7 @@ public sealed class AisReceiver
     /// <summary>Ricezioni oltre l'orizzonte dell'ultima ora (una per nave, la più recente).</summary>
     public List<SensorHit> Recent(DateTime now, int minutes = 60)
     {
-        lock (_last) return _last.Values.Where(h => (now - h.T).TotalMinutes <= minutes && h.Ratio >= RatioMin && h.Km >= MinKm).OrderByDescending(h => h.Km).ToList();
+        lock (_last) return _last.Values.Where(h => (now - h.T).TotalMinutes <= minutes && h.Ratio >= RatioMin && h.Km >= (h.Rx == "QTH" ? MinKm : NetMinKm)).OrderByDescending(h => h.Km).ToList();
     }
 
     /// <summary>Navi viste nell'ultima ora (tutte, anche entro l'orizzonte) e la più lontana.</summary>
@@ -88,18 +139,27 @@ public sealed class AisReceiver
         }
     }
 
-    public void HandleLine(string line, DateTime now)
+    public void HandleLine(string line, DateTime now, bool net = false)
     {
-        if (!(line.StartsWith("!AIVDM") || line.StartsWith("!BSVDM") || line.StartsWith("!ABVDM"))) return;
+        // blocco di tag IEC 61162-450 davanti alla frase: \s:stazione,c:tempo*hh\!AIVDM...
+        long src = 0;
+        if (line.StartsWith("\\"))
+        {
+            int e = line.IndexOf('\\', 1); if (e < 0) return;
+            foreach (var t in line.Substring(1, e - 1).Split('*')[0].Split(','))
+                if (t.StartsWith("s:")) { var d = new string(t.Substring(2).Where(char.IsDigit).ToArray()); if (d.Length > 0 && d.Length <= 9) long.TryParse(d, out src); }
+            line = line.Substring(e + 1);
+        }
+        if (!(line.StartsWith("!AIVDM") || line.StartsWith("!BSVDM") || line.StartsWith("!ABVDM") || line.StartsWith("!BSVDO"))) return;
         int star = line.IndexOf('*'); if (star > 0) line = line.Substring(0, star);
         var f = line.Split(',');
         if (f.Length < 7) return;
-        Sentences++;
+        if (net) NetSentences++; else Sentences++;
         int count = int.TryParse(f[1], out var c1) ? c1 : 1, num = int.TryParse(f[2], out var n1) ? n1 : 1;
         string payload = f[5];
         if (count > 1)
         {
-            string key = f[3] + "/" + f[4];
+            string key = (net ? "n" : "u") + src + "/" + f[3] + "/" + f[4];
             lock (_frag)
             {
                 if (!_frag.TryGetValue(key, out var parts) || parts.Length != count) _frag[key] = parts = new string[count];
@@ -109,10 +169,10 @@ public sealed class AisReceiver
                 payload = string.Concat(parts); _frag.Remove(key);
             }
         }
-        Decode(payload, now);
+        Decode(payload, now, net, src);
     }
 
-    void Decode(string payload, DateTime now)
+    void Decode(string payload, DateTime now, bool net = false, long src = 0)
     {
         var bits = new List<bool>(payload.Length * 6);
         foreach (char ch in payload)
@@ -124,6 +184,7 @@ public sealed class AisReceiver
         long S(int start, int len) { long x = U(start, len); if (len > 0 && (x & (1L << (len - 1))) != 0) x -= 1L << len; return x; }
         if (bits.Count < 38) return;
         int type = (int)U(0, 6); long mmsi = U(8, 30);
+        if (U(6, 2) != 0) return;                              // ritrasmesso da un ripetitore: non è una ricezione diretta
         int lonAt, latAt; double hShip;
         switch (type)
         {
@@ -136,17 +197,40 @@ public sealed class AisReceiver
         if (bits.Count < latAt + 27) return;
         double lon = S(lonAt, 28) / 600000.0, lat = S(latAt, 27) / 600000.0;
         if (Math.Abs(lon) > 180 || Math.Abs(lat) > 90 || (lat == 0 && lon == 0)) return;
-        Positions++;
-        var q = Qth(); if (q == null) return;
         var p = new LatLon(lat, lon);
-        double km = Geo.DistKm(q.Value, p);
-        double hor = 4.12 * (Math.Sqrt(hShip) + Math.Sqrt(Math.Max(1, RxAntennaM)));
-        var h = new SensorHit { T = now, Kind = "AIS", Rx = "QTH", Tx = (type == 4 ? "base " : type == 21 ? "AtoN " : "") + mmsi, PRx = q.Value, PTx = p, Km = km, Ratio = km / hor, FreqMHz = 162 };
-        bool beyond = h.Ratio >= RatioMin && km >= MinKm;
+        // stazioni base (MMSI 00MIDxxxx): la loro posizione fa da ricevitore per il flusso di rete
+        if (type == 4 && mmsi < 10_000_000) lock (_bases) _bases[mmsi] = p;
+        SensorHit h;
+        if (!net)
+        {
+            Positions++;
+            var q = Qth(); if (q == null) return;
+            double km = Geo.DistKm(q.Value, p);
+            double hor = 4.12 * (Math.Sqrt(hShip) + Math.Sqrt(Math.Max(1, RxAntennaM)));
+            h = new SensorHit { T = now, Kind = "AIS", Rx = "QTH", Tx = (type == 4 ? "base " : type == 21 ? "AtoN " : "") + mmsi, PRx = q.Value, PTx = p, Km = km, Ratio = km / hor, FreqMHz = 162 };
+        }
+        else
+        {
+            NetPositions++;
+            if (type == 4) return;                             // le stazioni base fra loro non dicono nulla
+            // stazione ricevente: quella del blocco di tag se è una base nota; altrimenti la base più vicina, che dà
+            // un limite inferiore sicuro (chi ha ricevuto la nave è lontano almeno quanto la base più vicina)
+            LatLon rx = default; long rxId = 0; double km = double.MaxValue;
+            lock (_bases)
+            {
+                if (src != 0 && _bases.TryGetValue(src, out var b)) { rx = b; rxId = src; km = Geo.DistKm(b, p); }
+                else foreach (var kv in _bases) { double d = Geo.DistKm(kv.Value, p); if (d < km) { km = d; rx = kv.Value; rxId = kv.Key; } }
+            }
+            if (rxId == 0) return;
+            double hor = 4.12 * (Math.Sqrt(hShip) + Math.Sqrt(BaseAntennaM));
+            h = new SensorHit { T = now, Kind = "AIS", Rx = "base " + rxId.ToString("D9"), Tx = (type == 21 ? "AtoN " : "") + mmsi, PRx = rx, PTx = p, Km = km, Ratio = km / hor, FreqMHz = 162 };
+        }
+        bool beyond = h.Ratio >= RatioMin && h.Km >= (net ? NetMinKm : MinKm);
+        long key = net ? -mmsi : mmsi;
         lock (_last)
         {
-            bool was = _last.TryGetValue(mmsi, out var old) && old.Ratio >= RatioMin && (now - old.T).TotalMinutes < 30;
-            _last[mmsi] = h;
+            bool was = _last.TryGetValue(key, out var old) && old.Ratio >= RatioMin && (now - old.T).TotalMinutes < 30;
+            _last[key] = h;
             if (_last.Count > 5000) foreach (var k in _last.Where(x => (now - x.Value.T).TotalHours > 2).Select(x => x.Key).ToList()) _last.Remove(k);
             if (beyond && !was) Hit?.Invoke(h);
         }

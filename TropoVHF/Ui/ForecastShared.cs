@@ -40,6 +40,7 @@ public static class FcDetails
         new(2, "aprs_on", "Salti APRS 2 m e LoRa", "APRS hops 2 m and LoRa", 1),
         new(2, "fmdx_on", "Ricezioni FM-DX (webserver)", "FM-DX receptions (webservers)", 1),
         new(2, "ais_on", "AIS dal mio ricevitore", "AIS from my receiver", 2),
+        new(2, "ais_net_on", "AIS costiero norvegese (Kystverket)", "Norwegian coastal AIS (Kystverket)", 2),
         new(2, "fc_via_ideal", "Oltre il monte senza perdite", "Beyond the mountain, lossless", 2),
     };
     static string L(string it, string en) => Lang.Tr(it, en);
