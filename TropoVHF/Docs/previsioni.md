@@ -119,6 +119,26 @@ Fino alla 1.3.3 il minimo valeva su tutto il rettangolo del corridoio e dipendev
 
 Le curve di guadagno non disegnano più «gocce»: le isole più piccole di 220 km in tutte e due le direzioni restano colorate ma senza curva chiusa, a meno che un corridoio le confermi. Si spegne con la casella «Previsione mediata dagli spot».
 
+## 4 ter. Sensori dal vivo: webserver FM-DX e ricevitore AIS (dalla 1.4)
+
+Due fonti in più di osservazioni reali, che entrano nei corridoi della banda dei 2 m e nel giudizio di affidabilità (§ 10 septies). Si accendono e si spengono nella casella Dettagli della linguetta Previsioni.
+
+**Webserver FM-DX.** Molti appassionati di ricezione lontana in FM (88–108 MHz) tengono acceso un ricevitore collegato a internet con il programma libero FM-DX Webserver (licenza GPL-3.0); l'elenco pubblico è servers.fmdx.org [28]. Ogni server dice, alla pagina /api, la frequenza sintonizzata, il segnale in dBf e, se ha decodificato l'RDS, il trasmettitore riconosciuto dal suo database con distanza e azimut. Il programma:
+
+- scarica l'elenco ogni 30 minuti e tiene i 60 server in linea più vicini entro 1500 km dal QTH;
+- li interroga uno alla volta, spalmati su 3 minuti, con un tempo massimo di 8 secondi (nessun server riceve più di una richiesta ogni 3 minuti);
+- tiene una ricezione quando il trasmettitore è a 150 km o più e il segnale è di almeno 10 dBf; la posizione del trasmettitore si ricava da quella del server, dall'azimut e dalla distanza.
+
+La banda FM è più bassa dei 2 m, e i condotti che la portano non sempre portano i 144 MHz; ma una ricezione FM a 300–600 km fuori dall'orizzonte è quasi sempre tropo (o, d'estate, E sporadico, che a 100 MHz arriva oltre i 900 km: per questo oltre i 1500 km la regola dei corridoi chiede due fonti diverse, § 4 bis). Sulla mappa le ricezioni sono linee viola tratteggiate «FM n km»; nella barra di stato il conteggio, con l'elenco nel fumetto.
+
+**AIS dal proprio ricevitore.** Le navi trasmettono la propria posizione a 161,975 e 162,025 MHz (ITU-R M.1371 [31]), quasi la stessa frequenza dei 2 m. Un ricevitore AIS (AIS-catcher, rtl-ais, un ricevitore dedicato) che inoltra le frasi NMEA !AIVDM in UDP sulla porta 10110 trasforma ogni nave lontana in un sensore di condotto: il programma decodifica i messaggi di posizione (tipi 1, 2, 3, 4, 18, 19 e 21, anche su più frammenti) e confronta la distanza con l'orizzonte radio normale
+
+```math
+d_h = 4{,}12\,(\sqrt{h_{nave}} + \sqrt{h_{rx}})\ \text{km}
+```
+
+con l'altezza dell'antenna della nave stimata dal tipo (20 m per le navi da carico, 30 m per le passeggeri, 6 m per pesca e diporto, 10 m per le altre) e quella dell'antenna del ricevitore impostata (di base 10 m). Una nave a più di 1,5 volte l'orizzonte e a più di 50 km è una ricezione per condotto: compare sulla mappa come linea azzurra dal QTH con un rombo «AIS n km». È la stessa idea dello studio CSIRO [10], che ha usato le ricezioni AIS a 162 MHz per verificare la previsione dei condotti dal GFS. È spento di base: serve un ricevitore proprio.
+
 ## 5. Linee opzionali e confronto con pressione e inversione
 
 Curve di guadagno: linee a 7, 10, 13, 16, 18,5 e 21 dB, i bordi della scala, tracciate sul campo levigato con il metodo dei quadrati marcianti, con l'etichetta in dB.
@@ -336,7 +356,7 @@ Il programma usa il clima radio della tratta scelto come al § 10 sexies (fino a
 Il secondo uso è il tratto finale dopo un condotto che finisce prima del corrispondente. Nel punto d'uscita si mette un'antenna virtuale a metà del condotto e l'ITM calcola il tratto fino al corrispondente, come eccesso sopra lo spazio libero al 50% del tempo. La perdita totale è
 
 ```math
-L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,	heta_{condotto} + A_{ITM}(d_{uscita} 	o RX)
+L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,\theta_{condotto} + A_{ITM}(d_{uscita} \to RX)
 ```
 
 dove A_TX è l'accoppiamento dell'antenna (3 dB dentro, 1 dB ogni 10 m fuori) se il condotto parte vicino, altrimenti la diffrazione d'ingresso del § 10 ter. È il limite che l'autore si è dato: continuità dello strato più, al massimo, l'attenuazione residua. Se è più bassa della perdita prevista diventa il meccanismo («condotto (uscita e tratto finale ITM)»).
@@ -387,9 +407,38 @@ Prove con i dati ERA5 2023–2025: Capri Ns 339 con escursione 45 (continentale 
 
 La riga «Clima radio (TN101)» mostra il clima, il motivo, Ns con metà dell'escursione e Y: quanti dB si guadagnano nel 10% e nell'1% del tempo e quanti se ne perdono nel 90%. È statistica di lungo periodo e resta separata dalla previsione: la perdita prevista segue il tempo di oggi con i profili GFS, e sommare le due cose conterebbe due volte la stessa propagazione anomala.
 
+## 10 septies. Affidabilità della previsione e verifica con le radiosonde (dalla 1.4)
+
+**Verifica con le radiosonde.** Il GFS vede i condotti meno bene di quanto sembri: la sua risoluzione verticale vicino al suolo è di qualche decina di metri, e lo strato di un'inversione è spesso più sottile. Per sapere quanto fidarsi del modello qui e in questi giorni, il programma lo confronta con i radiosondaggi veri della stazione più vicina, dall'archivio IGRA v2 della NOAA [27] (dominio pubblico):
+
+- prende dall'elenco delle stazioni quella attiva più vicina entro 600 km (per Capri, Pratica di Mare, ITM00016245);
+- scarica il file dell'anno in corso (si aggiorna ogni pochi giorni) e tiene i lanci delle 00 e delle 12 UTC degli ultimi 15 giorni;
+- per ogni lancio ricava la rifrattività N livello per livello (con l'umidità o la depressione del punto di rugiada), le quote dei livelli che non le hanno con l'equazione ipsometrica a partire dalla quota della stazione, il gradiente del primo km e il condotto più forte sotto i 3000 m (M che cala con la quota di almeno 2 unità);
+- scarica dal servizio di previsioni storiche di Open-Meteo [15] i profili GFS dello stesso punto alle stesse ore e li analizza con lo stesso codice della previsione;
+- conta i condotti osservati che il GFS ha visto, quelli mancati e i falsi allarmi, e lo scarto medio e quadratico del gradiente.
+
+La verifica gira in sottofondo al primo calcolo di una tratta, al massimo ogni 12 ore; i file restano in Dati/IGRA e i numeri nel registro dei calcoli. I messaggi delle radiosonde che arrivano dalla rete meteo mondiale (TEMP) hanno solo i livelli standard e quelli significativi: i condotti molto sottili sfuggono anche a loro, e il confronto dice soprattutto se il GFS sbaglia di molto in un senso o nell'altro.
+
+**Affidabilità.** La riga «Affidabilità» dà un giudizio alto, medio o basso sul guadagno previsto. Non è una probabilità calibrata, che richiederebbe anni di confronti con i collegamenti reali (§ 14), ma una somma di punti su quanto vanno d'accordo indizi indipendenti (criterio dell'autore):
+
+| Indizio | Punti |
+|---|---|
+| Accordo fra i modelli: scarto medio fra la perdita prevista e P.452 con i condotti, l'equazione parabolica, e fra linea di base e ITM | fino a 3 dB +1; oltre 8 dB −1 |
+| Anticipo della previsione | entro 24 ore +1; oltre 72 ore −1 |
+| Continuità dello strato fondante sulla tratta | almeno 70% +1; sotto il 30% −1 |
+| Persistenza dello strato nelle ore vicine | almeno 70% +1 |
+| Verifica con le radiosonde | GFS giusto almeno 3 volte su 4 +1; meno di una su due −1; gradiente sbagliato di oltre 15 N/km −1 (al massimo −1 in tutto) |
+| Conferme dal vivo lungo la tratta (cluster, PSKReporter, APRS, FM-DX), solo per l'ora attuale | 1–2 coppie di stazioni +1; 3 o più +2; aperture con un guadagno previsto sotto i 2 dB −1 |
+
+Alta da 3 punti, media da 0 a 2, bassa sotto lo zero. Una conferma dal vivo conta come coppia di stazioni diversa, in direzione entro 20° da quella della tratta e con il punto medio entro 150 km dalla sua linea, nell'ultima ora e mezza. Nei casi d'archivio (§ 3 ter) non valgono né le radiosonde né le conferme dal vivo.
+
 ## 11. Confronto con ITU-R P.452
 
-La riga Confronto P.452 applica il metodo ITU per condotti e riflessione su strati (P.452-16 § 4.5 [6]) con il ΔN mediano del GFS al posto di quello climatologico e p = 20% come costante di calibrazione, come nello studio CSIRO [10]. Comprende la perdita d'accoppiamento empirica Alf sotto 0,5 GHz (circa 28 dB a 144 MHz, 3,5 dB a 432 MHz), la schermatura dei siti, l'accoppiamento sul mare e l'assorbimento dei gas. È solo un confronto: la perdita prevista resta quella del paragrafo 9.
+La riga Confronto P.452 applica il metodo ITU per condotti e riflessione su strati (P.452 § 4.5 [6]) con il ΔN mediano del GFS al posto di quello climatologico e p = 20% come costante di calibrazione, come nello studio CSIRO [10]. Comprende la perdita d'accoppiamento empirica Alf sotto 0,5 GHz (circa 28 dB a 144 MHz, 3,5 dB a 432 MHz), la schermatura dei siti, l'accoppiamento sul mare e l'assorbimento dei gas. È solo un confronto: la perdita prevista resta quella del paragrafo 9.
+
+**Dalla 1.4: P.452-18 completo e verificato.** Il confronto usa ora tutto il metodo di base della P.452-18 [29] (§ 4.1–4.6): spazio libero con gas e multipercorso, diffrazione con la terra sferica e il profilo di Bullington sulla superficie liscia corretta per gli ostacoli, troposcatter, condotti e riflessione su strati, e la loro combinazione. Il ΔN e l'N0 vengono dal GFS e dal luogo invece che dalle mappe ITU. Il codice è stato verificato con i casi di prova ufficiali del gruppo di studio 3 dell'ITU (raccolti nel progetto Py452 [29]): sui 194 casi fino a 2 GHz senza ingombri al suolo lo scarto medio sulla perdita totale è 0,06 dB, il massimo 0,54 dB; diffrazione 0,10 dB in media, troposcatter 0,002 dB. La verifica ha corretto due errori delle versioni precedenti: il termine di accoppiamento dei condotti usava la frequenza in MHz invece che in GHz (circa 60 dB di troppo, compensati altrove), e la diffrazione partiva da quote della superficie liscia già limitate, con errori fino a 15 dB su certi profili.
+
+Anche l'ITM (§ 10 quater) è stato confrontato con i casi di prova del codice NTIA [30] (punto-punto): le cinque tratte del file ufficiale danno gli stessi valori al centesimo di dB.
 
 ## 11 bis. Equazione parabolica (dalla 1.3.1)
 
@@ -454,6 +503,8 @@ Le richieste a Open-Meteo hanno limiti al minuto, all'ora e al giorno per ogni i
 
 La previsione va confrontata con i collegamenti reali. Il registro dei calcoli conserva ogni numero; l'archivio del programma conserva spot e decodifiche. Per 432 e 1296 MHz, dove gli spot sono pochi, servono rapporti dagli operatori: chi ha fatto il collegamento, a che ora, con che segnale. Confrontare per molte ore il guadagno previsto con il segnale misurato dice se le soglie vanno spostate.
 
+I programmi di prova usati per la P.452 e l'ITM sono nella cartella tools del codice sorgente; i casi di prova ITU vanno scaricati a parte, perché il programma non ridistribuisce dati dell'ITU.
+
 ## Fonti
 
 1. NOAA/NCEP, Global Forecast System (GFS), modello globale a 0,25°, quattro corse al giorno.
@@ -482,3 +533,8 @@ La previsione va confrontata con i collegamenti reali. Il registro dei calcoli c
 24. J. Taylor K1JT, B. Somerville G4WJS, S. Franke K9AN, N. Palermo IV3NWV, Quick-Start Guide to Q65, 3 aprile 2021 (wsjt.sourceforge.io).
 25. P. L. Rice, A. G. Longley, K. A. Norton, A. P. Barsis, Transmission Loss Predictions for Tropospheric Communication Circuits, NBS Technical Note 101, edizione rivista 1967: § 9 (troposcatter, funzione F(θd), H0), § 10 e allegato III (climi radio e variabilità nel tempo).
 26. Open-Meteo, Historical Weather API (rianalisi ECMWF ERA5, dal 1940; dati Copernicus Climate Change Service, licenza CC BY 4.0).
+27. I. Durre, X. Yin, R. S. Vose, S. Applequist, J. Arnfield, Integrated Global Radiosonde Archive (IGRA), versione 2, NOAA National Centers for Environmental Information, doi 10.7289/V5X63K0Q (dominio pubblico): formato dei dati igra2-data-format.txt ed elenco delle stazioni.
+28. FM-DX Webserver (NoobishSVK e collaboratori, licenza GPL-3.0) ed elenco pubblico dei server servers.fmdx.org.
+29. ITU-R P.452-18, Prediction procedure for the evaluation of interference between stations on the surface of the Earth at frequencies above about 0.1 GHz, 2023; casi di prova del gruppo di studio 3 (validation examples), come raccolti in I. Stevanovic, Py452 (GitHub).
+30. NTIA/ITS, Irregular Terrain Model (ITM) 1.2.2, codice di riferimento e casi di prova punto-punto (GitHub NTIA/itm).
+31. ITU-R M.1371, Technical characteristics for an automatic identification system using time division multiple access in the VHF maritime mobile frequency band.
