@@ -1,6 +1,6 @@
 # Voorspellingshandboek
 
-> Machinevertaling uit het Italiaans: bij twijfel geldt de Italiaanse handleiding.
+> Automatische vertaling door het Italiaans: bij twijfel is het de Italiaanse gids waard.
 
 Het tabblad Voorspelling berekent de tropoferische voortplanting zelf: een indexkaart op het zichtbare gebied en het signaal tussen uw station en een overeenkomstige. Deze handleiding beschrijft alle gegevens, hoe het berekend wordt en uit welke bron het komt. De getallen tussen vierkante haakjes verwijzen naar de bronnen onderaan; in het programma hebben elke gegevens van de resultaten een strip (simbolo i) met dezelfde bron en de verwijzing naar de alinea.
 
@@ -120,6 +120,26 @@ De minimumafstand blijft 300 km: het verhogen tot 500 km zou ook de echte kortea
 Tot 1.3.3 was het minimum geldig op alle rechthoeken van de gang en was alleen afhankelijk van de afstand (van 10 dB tot 300 km tot 16 dB tot 900 km): met veel lange gangen samen (bijvoorbeeld op 22/11/2026, twaalf gangen tot 2620 km) tilde bijna heel Europa op tot 16 dB.
 
 De versterkingscurves trekken niet langer Het schakelt uit met het "Voorzicht gemedieerd door de vlekken."
+
+## 4 ter. Live sensoren: FM-DX webserver en AIS ontvanger (vanaf 1.4)
+
+Twee andere bronnen van echte waarnemingen, die de gangen van de band van 2 m en het oordeel van betrouwbaarheid (§ 10 septies) betreden. Ze zetten aan en uit in de tab Details tab.
+
+Webserver FM-DX. Veel remote ontvangst liefhebbers in FM (88 De publieke lijst is servers.fmdx.org [28]. Elke server zegt, op de pagina /api, de afgestemde frequentie, het signaal in dBf en, als het decodeerde de RDS, de zender herkend door zijn database met afstand en azimut. Het programma:
+
+- de lijst elke 30 minuten downloaden en de 60 dichtstbijzijnde online servers binnen 1500 km van QTH houden;
+- ondervraagt ze één voor één, verdeeld over 3 minuten, met een maximale tijd van 8 seconden (geen server ontvangt meer dan één verzoek per 3 minuten);
+- houdt een ontvangst bij wanneer de zender 150 km of meer is en het signaal minstens 10 dBf is; de positie van de zender is afgeleid van die van de server, de azimut en de afstand.
+
+De FM-band is lager dan 2 m, en de kanalen die het dragen niet altijd brengen de 144 MHz; maar een FM ontvangst op 300 Op de kaart zijn de recepties paarse lijnen "FM n km"; in de staat bar de graaf, met de lijst in het stripboek.
+
+AIS van je ontvanger. Schepen zenden hun positie uit op 161,975 en 162,025 MHz (ITU-R M.1371 [31]), bijna dezelfde frequentie als 2 m. Een AIS ontvanger (AIS-catcher, rtl-ais, een speciale ontvanger) die de zinnen NMEA doorstuurt! AIVDM in UDP op poort 10110 transformeert elk schip weg in een geleidingssensor: het programma decodeert positieberichten (types 1, 2, 3, 4, 18, 19 en 21, zelfs op meerdere fragmenten) en vergelijkt de afstand met de normale radiohorizon
+
+```math
+d_h = 4{,}12\,(\sqrt{h_{nave}} + \sqrt{h_{rx}})\ \text{km}
+```
+
+met de hoogte van de antenne van het schip, berekend vanaf het type (20 m voor de vrachtschepen, 30 m voor de passagiers, 6 m voor visserij en plezier, 10 m voor de anderen) en die van de antenne van de ontvangerset (basis 10 m). Een schip dat meer dan 1,5 keer de horizon en meer dan 50 km is een ontvangst door leiding: het verschijnt op de kaart als een blauwe lijn van de QTH met een gebrul en n km. Het is hetzelfde idee als de CSIRO [10] -studie, die 162 MHz AIS-ontvangsten gebruikte om de voorspelling van GFS-pijpleidingen te verifiëren. Het is uitgeschakeld basis: het dient een goede ontvanger.
 
 ## 5. Optionele lijnen en vergelijking met druk en inversie
 
@@ -338,7 +358,7 @@ Het programma maakt gebruik van het radioklimaat van de gekozen route zoals in �
 Het tweede gebruik is het laatste stuk na een leiding die eindigt voor de overeenkomstige. Bij het uitgangspunt wordt een virtuele antenne halverwege de leiding geplaatst en het ITG berekent het traject naar de overeenkomstige antenne, als overmaat over de vrije ruimte bij 50% van de tijd. Totaal verlies is
 
 ```math
-L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,	heta_{condotto} + A_{ITM}(d_{uscita} 	o RX)
+L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,\theta_{condotto} + A_{ITM}(d_{uscita} \to RX)
 ```
 
 waarbij A_TX de koppeling is van de antenne (3 dB binnen, 1 dB buiten, 1 dB om de 10 m buiten) indien de leiding dichtbij begint, anders de diffractie van § 10 ter. Het is de limiet die de auteur zichzelf heeft gegeven: continuïteit van de laag plus, hoogstens, resterende demping. Als het lager is dan het verwachte verlies wordt het het mechanisme ("conduct (exit and final stretch ITG)").
@@ -389,9 +409,38 @@ Tests met gegevens ERA5 ››2025: Capri Ns 339 met excursie 45 (continentaal g
 
 De lijn "Radio klimaat ( TN101) " toont het klimaat, de reden, Ns met de helft van de excursie en Y: hoeveel dBs verdienen in 10% en 1% van de tijd en hoeveel verliezen in 90%. Het is lange termijn statistieken en blijft gescheiden van de prognose: het verwachte verlies volgt op de tijd van vandaag met de GFS profielen, en som de twee dingen zou twee keer dezelfde abnormale voortplanting tellen.
 
+## 10 septies. Betrouwbaarheid van voorspelling en verificatie met radiosons (vanaf 1.4)
+
+Radioson check. De GFS ziet de kanalen minder goed dan het lijkt: De verticale resolutie bij de grond is een paar tien meter, en de laag van een omgekeerde is vaak dunner. Om te weten hoeveel om het model te vertrouwen hier en deze dagen, het programma vergelijkt het met de echte radiogolven van het dichtstbijzijnde station, uit het archief IGRA v2 van NOAA [27] (publiek domein):
+
+- neemt van de lijst van stations de dichtstbijzijnde actieve binnen 600 km (voor Capri, Praktijk van Mare, ITM00016245);
+- download het huidige jaarbestand (om de paar dagen wordt het bijgewerkt) en houdt de lanceringen van 00 en 12 UTC de laatste 15 dagen;
+- voor elke lancering wordt het reactiviteit N-niveau afgeleid naar niveau (met het vocht of de depressie van het dauwpunt), de quota van de niveaus die deze niet hebben met de ipsometrische vergelijking die begint met de hoogte van het station, de helling van de eerste km en de sterkste leiding onder de 3000 m (M die valt met het quotum van ten minste 2 eenheden);
+- download van de service van historische voorspellingen van Open-Meteo [15] de GFS-profielen van hetzelfde punt op dezelfde uren en analyseer ze met dezelfde prognosecode;
+- telt de waargenomen kanalen die de GFS heeft gezien, de ontbrekende en valse alarmen, en de gemiddelde en vierkante teruggooi van de gradiënt.
+
+De verificatie loopt op de achtergrond van de eerste berekening van een traktatie, ten hoogste elke 12 uur; de bestanden blijven in Data/IGRA en de nummers in het rekenlog. Radiosonde berichten afkomstig van het wereldweernetwerk (TEMP) hebben alleen de standaard en significante niveaus: de zeer dunne leidingen ontsnappen er ook aan, en de vergelijking zegt vooral als de GFS is zeer verkeerd in de ene of andere zin.
+
+Betrouwbaarheid. De lijn "Affidability" geeft een hoog, gemiddeld of laag oordeel over de verwachte winst. Het is geen gekalibreerde waarschijnlijkheid, die jaren van vergelijking met echte links vereist (§ 14), maar een som van punten over hoe onafhankelijke aanwijzingen (author's code):
+
+| Adres | Punten |
+|---|---|
+| Overeenkomst tussen de modellen: gemiddelde afwijking tussen het verwachte verlies en P.452 met de leidingen, de parabolische vergelijking en tussen baseline en ITG | tot 3 dB +1; meer dan 8 dB −1 |
+| Voorjaarsprognoses | binnen 24 uur +1; meer dan 72 uur −1 |
+| Continuïteit van de basislaag op de behandeling | minimaal 70% +1; minder dan 30% −1 |
+| Persistentie van de laag in de naburige uren | ten minste 70% +1 |
+| Controle radiosonde | GFS slechts ten minste 3 keer van 4 +1; minder dan 1 op 2 −1; verkeerde gradiënt van meer dan 15 N/km −1 (maximaal −1 in totaal) |
+| Live bevestiging langs de route (cluster, PSKReporter, APRS, FM-DX), alleen voor de huidige tijd | 1 |
+
+Hoog van 3 punten, gemiddeld van 0 tot 2, laag onder nul. Een live bevestiging telt als een paar verschillende stations, in de richting binnen 20° van die van de route en met het gemiddelde punt binnen 150 km van de lijn, in het laatste anderhalf uur. In het geval van archieven (§ 3 ter) zijn er geen radiosons of live bevestigingen.
+
 ## 11. Vergelijking met ITU-R P.452
 
-De vergelijkingslijn P.452 past de ITU-methode voor kanalen en reflectie op lagen (P.452-16 § 4.5 [6]) toe met de ΔN mediaan van de GFS in plaats van de klimatologische en p = 20% als kalibratieconstante, zoals in het onderzoek CSIRO [10]. Het omvat het verlies van empirische koppeling Alf onder 0,5 GHz (ongeveer 28 dB tot 144 MHz) Het is slechts een vergelijking: het verwachte verlies blijft dat van paragraaf 9.
+De vergelijkingslijn P.452 past de ITU-methode voor kanalen en reflectie op lagen (P.452 § 4.5 [6]) toe met de ΔN mediaan van de GFS in plaats van de klimatologische en p = 20% als kalibratieconstante, zoals in het onderzoek CSIRO [10]. Het omvat het verlies van empirische koppeling Alf onder 0,5 GHz (ongeveer 28 dB tot 144 MHz, 3.5 Het is slechts een vergelijking: het verwachte verlies blijft dat van punt 9.
+
+Uit 1.4: P.452-18 compleet en geverifieerd. De vergelijking maakt nu gebruik van alle basismethodes van de P.452-18 [29] (§ 4.1 De ΔN en de N0 komen van de GFS en van de plaats in plaats van de ITU kaarten. De code is geverifieerd met de officiële testcases van de ITU-studiegroep 3 (in het project Py452 [29] verzameld): op de 194 gevallen tot 2 GHz zonder de grond te verzwelgen bedraagt de gemiddelde afwijking op het totale verlies 0,06 dB, de maximale 0,54 dB; diffractie 0,10 dB gemiddeld, troposcatter 0,002 dB. De verificatie heeft twee fouten van de vorige versies gecorrigeerd: de term van koppeling van de kanalen gebruikt de frequentie in MHz in plaats van in GHz (ongeveer 60 dB van te veel, elders gecompenseerd), en de diffractie afgeweken van quota van het reeds beperkte gladde oppervlak, met fouten tot 15 dB op bepaalde profielen.
+
+Het ITG (§ 10 quater) werd ook vergeleken met NTIA [30] (punt-punt): de vijf delen van het officiële dossier geven dezelfde waarden aan de dB cent.
 
 ## 11 bis. Parabolische vergelijking (vanaf 1.3.1)
 
@@ -456,6 +505,8 @@ Aanvragen bij Open-Meteo hebben limieten per minuut, per uur en per dag voor elk
 
 De prognose moet worden vergeleken met echte verbindingen. De berekening log houdt elk nummer; het programma archief houdt spot en decoderen. Voor 432 en 1296 MHz, waar de spots weinig zijn, hebben ze rapporten nodig van de operators: wie maakte de verbinding, hoe laat, met welk signaal. Vergelijk gedurende vele uren de verwachte winst met het gemeten signaal geeft aan of de drempels moeten worden verplaatst.
 
+Testprogramma's voor P.452 en ITG bevinden zich in de map broncodegereedschappen; ITU-testcases moeten afzonderlijk worden gedownload, omdat het programma geen ITU-gegevens herdistribueert.
+
 ## Bronnen
 
 1. NOAA/NCEP, Global Forecast System (GFS), wereldwijd model op 0,25°, vier vluchten per dag.
@@ -484,3 +535,8 @@ De prognose moet worden vergeleken met echte verbindingen. De berekening log hou
 24. J. Taylor K1JT, B. Somerville G4WJS, S. Franke K9AN, N. Palermo IV3NWV, Quick-Start Guide to Q65, 3 April 2021 (wsjt.sourceforge.io).
 25. P. L. Rice, A. G. Longley, K. A. Norton, A. P. Barsis, Transmission Loss Predictions for Troposferic Communication Circuits, NBS Technical Note 101, magazine 1967: § 9 (troposcatter, functie F(θd), H0), § 10 en bijlage III (radio klimaten en variabiliteit in de tijd).
 26. Open-Meteo, Historisch weer API (ECMWF ERA5 review sinds 1940; Copernicus Climate Change Service, CC BY 4.0 licentie).
+27. I. Durre, X. Yin, R. S. Vose, S. Applequist, J. Arnfield, Integrated Global Radiosonde Archive (IGRA), versie 2, NOAA National Centers for Environmental Information, doi 10.7289/ V5X63K0Q (public domain): igra2-data-format.txt data formaat en stationslijst.
+28. FM-DX Webserver (NoobishSVK en medewerkers, licentie GPL-3.0) en publieke lijst van serverservers.fmdx.org.
+29. ITU-R P.452-18, voorspellingsprocedures voor de evaluatie van interferentie tussen stations op het aardoppervlak bij frequenties hoger dan 0,1 GHz, 2023; testcases van studiegroep 3 (validatievoorbeelden), zoals verzameld in I. Stevanovic, Py452 (GitHub).
+30. NTIA/ITS, Onregelmatig Terrain Model (ITM) 1.2.2, referentiecode en punttestcases (GitHub NTIA/itm).
+31. ITU-R M.1371, Technische kenmerken voor een automatisch identificatiesysteem waarbij gebruik wordt gemaakt van tijdverdeling met meerdere toegangen in de VHF maritieme mobiele frequentieband.

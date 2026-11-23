@@ -1,6 +1,6 @@
 # Tahmin manuel
 
-> İtalyancadan makine çevirisi: şüphe durumunda İtalyanca kılavuz geçerlidir.
+> İtalyan tarafından otomatik çeviri: şüphesiz İtalyan kılavuzuna değer.
 
 Tahmin sekmesi, tropopheric propagasyonunu kendi başına hesaplar: istasyonunuz ve buna karşılık gelen bir işaret haritası. Bu manuel her verileri açıklar, nasıl hesaplanır ve hangi kaynaktan gelir. Kare braketlerdeki rakamlar, alttaki kaynaklara atıfta bulunur; programın her verilerinin aynı kaynağı ve paragrafa atıfta bulunan bir çizgi (simbolo i) vardır.
 
@@ -120,6 +120,26 @@ En az mesafe 300 km'dir: 500 km'ye yükseltmek, aynı zamanda gerçek kısa menz
 1.3.3'e kadar, koridorun tüm dikdörtgeninde geçerliydi ve sadece mesafeye bağlıydı (10 dB'den 300 km'ye kadar 16 dB'den 900 km): Birlikte birçok uzun koridorla birlikte (örneğin 22/11/2026'da, on iki koridor neredeyse tüm Avrupa'yı 16 dB'ye kadar sürdü.
 
 Gelir eğrileri artık «gocce» çizmiyor: Her iki yönde 220 km daha küçük adalar renkli kalır, ancak kapalı bir eğri olmadan, koridor onları doğrulamadığı sürece. Bu, "Ölümler tarafından tasarlanan" ile kapatıyor.
+
+## 4 ter. Canlı sensörler: FM-DX webserver ve AIS alıcı ( 1.4'ten)
+
+2 m bandının koridorlarına giren iki gerçek gözlem kaynağı ve güvenilirlik kararı (§ 10 septies). Döndüler ve sekme Detay kutusundan geçiyorlar.
+
+Webserver FM-DX. FM-DX Webserver ücretsiz programı (GPL-3.0); internet bağlantılı bir alıcı tutuyor (GPL-3.0); Halk listesi sunuculardır.fmdx.org [28]. Her sunucu, sayfada /api, melodi frekansı, dBf'deki sinyal ve RDS'yi kodladıysa, veritabanı tarafından uzaktan ve azimut ile tanınan verici. Program:
+
+- Listeyi her 30 dakikada indirin ve QTH 1500 km içinde 60 en yakın online sunucuyu tut;
+- Onları bir seferde sorgulayın, 3 dakikadan fazla yayın, en fazla 8 saniye (no sunucu her 3 dakikada bir istekten daha fazlasını alır);
+- verici 150 km veya daha fazla olduğunda bir resepsiyon tutar ve sinyal en az 10 dBf; vericinin pozisyonu sunucudan, azimuth ve mesafeden elde edilir.
+
+FM grubu 2 m'den daha düşük ve 100 MHz'in 900 km'nin ötesine ulaşmasını sağlayan kanalların her zaman 144 MHz'i getirmediğini; ancak ufuk dışındaki 300-600 km'lik bir FM Resepsiyon neredeyse her zaman tropo'dur (veya, yaz aylarında, E sporadic, bu da 100 MHz 900 km'nin ötesine geçiyor: koridorların kuralının iki farklı kaynaktan, § 4 bis). Haritada resepsiyonlar mor hatları "FM n km"; statüde sayı, çizgi romandaki liste ile.
+
+AIS alıcınızdan. Gemiler pozisyonlarını 161,975 ve 162,025 MHz (ITU-R M.1371 [31]), neredeyse aynı frekansı 2 m olarak taşırlar. AIS alıcı (AIS-catcher, rtl-ais, adanmış bir alıcı) bu cümleleri NMEA'yı ileriye götürecek! UDP'de 10110 numaralı limandaki AIVDM, her gemiyi bir konduit sensörüne dönüştürür: program kodlanmış pozisyon mesajları (tipler 1, 2, 3, 4, 18, 19 ve 21, hatta birden fazla parça) ve normal radyo ufku ile mesafeyi karşılaştırır.
+
+```math
+d_h = 4{,}12\,(\sqrt{h_{nave}} + \sqrt{h_{rx}})\ \text{km}
+```
+
+Geminin anteninin yüksekliği, kargo gemileri için 20 m, balıkçı ve zevk için 6 m ve alıcı setinin anteni (basic 10 m). Bir gemi ufuktan 1.5 kat daha fazla ve 50 km'den fazla bir resepsiyon konduit tarafından bir resepsiyondur: QTH'den bir «AIS n km» ile mavi bir çizgi gibi görünüyor. CSIRO [10] çalışması olarak aynı fikir, bu da 162 MHz AIS resepsiyonunu GFS boru hatlarının tahminini doğrulamak için kullandı. Temelden ayrılır: uygun bir alıcıya hizmet eder.
 
 ## 5. Seçmeli çizgiler ve baskı ve inversiyon ile karşılaştırma
 
@@ -338,7 +358,7 @@ Program, seçilen rotanın radyo iklimini § 10 sekste kullanır ( 1.3.4'e kadar
 İkinci kullanım, karşılık gelenden önce sona eren bir konduitten sonra son bir sorundur. Çıkış noktasında, bir sanal anten konduit üzerinden yarıya yerleştirilir ve ITM, zamanın% 50'sinde ücretsiz alana kadar yol hesaplar. Toplam kayıptır
 
 ```math
-L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,	heta_{condotto} + A_{ITM}(d_{uscita} 	o RX)
+L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,\theta_{condotto} + A_{ITM}(d_{uscita} \to RX)
 ```
 
 A_TX antenin darbesidir (3 dB içeride, 1 dB her 10 m dışarıda) eğer konduit yakınsa, aksi takdirde § 10 ter giriş. Yazarın kendisine verdiği sınırlamadır: katman artısının sürekliliği, çoğu, ikametsizlik. Beklenilen kayıptan daha düşükse, mekanizma (kondüktör ve son yol ITM) olur.
@@ -389,9 +409,38 @@ Verilerle Testler ERA5 2023-2025: Capri Ns 339 gezi 45 (kahkadarda, deniz üzeri
 
 "Radyo iklimi ( TN101)" hattı iklimi gösteriyor, neden Ns gezinin yarısı ve Y: zamanın% 10 ve% 1'inde kaç tane dB kazanıyor ve %90'da kaç kişi kaybediyor. Uzun vadeli istatistiklerdir ve tahminlerden ayrı kalır: beklenen kayıp bugün GFS profilleriyle takip eder ve iki şeyi aynı anormal yayılımı iki katına çıkaracaktır.
 
+## 10 septies. Radyosonları ile tahmin ve doğrulama kolaylığı (1.4'ten)
+
+Radioson kontrol. GFS, dükleri göründüğünden daha az görüyor: Zeminin yakınındaki dikey karar birkaç metre ve bir tersin tabakası genellikle ince. Burada ve bu günlerde modele ne kadar güveneceğinizi bilmek için, program en yakın istasyondaki gerçek radyo dalgalarına kıyasla, NOAA [27] 'nun (halk alanı):
+
+- İstasyonların listesinden 600 km ( Capri, Practice of Mare, ITM00016245 için) en yakın aktif olanı alır.
+- Mevcut yıl dosyasını indirin (her gün güncelleniyor) ve son 15 gün 00 ve 12 UTC'nin lansmanını tutar;
+- Her bir başlangıç için, ilk 3000 m (en az 2 ünitenin payına düşen) reaktivite N seviyesi elde eder, istasyondaki yükseklikten başlayarak, en güçlü konduitin 3000 m (M en az 2 ünitenin payına düşer);
+- Open-Meteo [15] 'nun tarihi tahminlerinin servisinden indirme aynı saatte aynı noktada GFS profillerini indirin ve aynı tahmin kodu ile analiz edin;
+- GFS'nin gördüğü gözlemleri sayar, eksik olanları ve yanlış alarmları ve gradient'in ortalama ve kare sapması.
+
+Doğrulama bir tedavinin ilk hesaplanmasında, her 12 saatte çalışır; dosyalar Data/IGRA'da kalır ve hesaplama kaydındaki sayılardır. Dünya hava ağı (TEMP)'den gelen radyoson mesajları sadece standart ve önemli seviyelere sahiptir: çok ince konduits de onlardan kaçır ve GFS'nin bir anlamda ya da başka bir şekilde yanlış olup olmadığının her şeyden önce karşılaştırmayı söyler.
+
+Güvenilirlik. "Affidability" hattı, beklenen kazanç konusunda yüksek, orta veya düşük bir karar verir. Gerçek bağlantılar (§ 14) ile karşılaştırmak için kalibre edilmiş bir olasılık değildir, ancak bağımsız ipuçlarının (ya da yazar kodu):
+
+| Adres | Puanlar |
+|---|---|
+| Modeller arasında anlaşma: beklenen kayıp ve P.452 arasında beklenen ortalama sapma, kanal denklemi ve taban ve ITM arasında | 3 dB +1'ye kadar; 8 dB'den fazla |
+| Gelişmiş tahmin tahmini | 24 saat içinde +1; 72 saatten fazla |
+| Kurucu tabakanın tedavi üzerindeki sürekliliği | En az% 70 +1;% 30 -1 |
+| Komşu saatlerdeki katmanın sürekliliği | En az% 70 +1 |
+| Radiosonde doğrulama | GFS sadece 4 +1'den en az 3 kez; ikisinden daha az; 15 N/km'den daha fazla gradient -1 (maximum -1 hepsi) |
+| Yol boyunca Canlı Onay (cluster, PSKReporter, APRS, FM-DX), sadece mevcut zaman için | 1-2 istasyonların çiftleri +1; 3 veya daha +2; beklenen 2 dB altında beklenen bir kazançla açılıyor |
+
+3 puandan yüksek, ortalama 0 ila 2, aşağıda sıfır. Canlı bir onay, rotadan 20° içinde ve hattından 150 km içinde ortalama bir noktada, son saat ve yarıda. Arşivler durumunda (§ 3 ter) radyosonlar veya canlı onaylar yoktur.
+
 ## 11. ITU-R P.452 ile Karşılaştırma
 
-P.452 hattı, CSIRO [10] çalışmasında olduğu gibi ITU metodunu geçerlidir. Bu sadece bir karşılaştırmadır: beklenen kayıp 9. paragrafın altında kalır. [6]
+P.452 hattı, CSIRO [10] çalışmasında olduğu gibi ITU metodunu geçerlidir. Ampirik darbe Alf'ın 0,5 GHz'in altında kaybını içerir (yaklaşık 28 dB'ye 144 MHz, 3.532 Bu sadece bir karşılaştırmadır: beklenen kayıp 9. paragrafın altında kalır. [6]
+
+1.4: P.452-18 tamamlandı ve doğrulandı. Karşılaştırma şimdi P.452-18 [29] 'nun tüm temel yöntemini kullanır (§ 4.1-4.6): Gaz ve multipath ile ücretsiz alan, Bullington'un profili ile, bloklar için doğru düzgün bir yüzeyde, kupalar ve yansımaları. {{N ve N0 GFS'den gelir ve ITU haritaları yerine yerden gelir. Kod, ITU çalışma grubu 3'ün resmi test vakaları ile doğrulandı (ortalama projedeki 2102 [29]): 194 vakada toplam kaybın ortalama sapması 0.06 dB, maksimum 0.54 dB; diffraction 0.10 dB. Doğrulama, önceki versiyonların iki hatasını düzeltti: İndüklerin dönem darbesi, GHz'de yerine, (yaklaşık 60 dB'de çok fazla, başka yerlerde telafi edildi), ve difraksiyon, bazı profillerde 15 dB'ye kadar hatalardan ayrıldı.
+
+ITM (§ 10 kuter) ayrıca NTIA [30] ile karşılaştırıldı ( nokta): resmi dosyanın beş bölümü aynı değerleri dB sente verir.
 
 ## 11 bis. Parabolik denklemi ( 1.3.1)
 
@@ -456,6 +505,8 @@ Open-Meteo'daki istekler, her internet adresi için saatte ve günde sınırlar�
 
 Tahmin gerçek bağlantılarla karşılaştırılmalıdır. Hesaplama girişi her sayıyı tutar; program arşivi reklamlar ve dekodings tutar. 432 ve 1296 MHz için, noktaların birkaçı nerede, operatörlerden raporlara ihtiyaç duyuyorlar: bağlantıyı kim yaptı, ne zaman sinyalle. Ölçümlenen sinyal ile beklenen birçok saat ile karşılaştırıldığında, eşlerin hareket etmesi gerektiğini söylüyor.
 
+P.452 için kullanılan test programları ve ITM kaynak kod araçları klasöründedir; ITU test vakaları ayrı olarak indirilmelidir, çünkü program ITU verilerini yeniden dağıtmaz.
+
 ## Kaynaklar
 
 1. NOAA/NCEP, Global Tahmin Sistemi (GFS), günde 4 yarış.
@@ -484,3 +535,8 @@ Tahmin gerçek bağlantılarla karşılaştırılmalıdır. Hesaplama girişi he
 24. J. Taylor K1JT, B. Somerville G4WJS, S. Franke K9AN, N. Palermo IV3NWV, Quick-Start Guide to Q65, 3 Nisan 2021 (wsjt.sourceforge.io).
 25. P. L. Rice, A. G. Longley, K. A. Norton, A. P. Barsis, Tropospheric İletişim Devreleri, NBS Technical Note 101, dergi 1967: § 9 (troposcatter, fonksiyon F (θd), H0), § 10 ve Ek III (zaman boyunca transistatif iklimler ve varyanabilite).
 26. Open-Meteo, Historical Air API (ECMWF ERA5 incelemesi 1940 yılından beri; Copernicus Climate Change Service, CC BY 4.0 lisansı).
+27. I. Durre, X. Yin, R. S. Vose, S. Applequist, J. Arnfield, Integrated Global Radiosonde Archive (IGRA), sürüm 2, NOAA National Centers for Environmental Information, doi 10.7289/ V5X63K0Q (public domain): igra2-data-format.txt data format ve istasyon listesi.
+28. FM-DX Webserver (NoobishSVK ve işbirlikçiler, GPL-3.0) ve sunucuların genel listesi.fmdx.org.
+29. ITU-R P.452-18, Prediction prosedürleri Dünya'nın yüzeyinde 0.1 GHz, 2023; çalışma grubunun 3 (validasyon örnekleri), I. Stevanovic'de toplandığı gibi.
+30. NTIA/ITS, Irregular Terrain Model (ITM) 1.2.2, referans kodu ve nokta testi vakaları (GitHub NTIA/itm).
+31. ITU-R M.1371, VHF deniz mobil frekans bandında zaman bölmesini kullanarak otomatik bir kimlik sistemi için teknik özellikler.
