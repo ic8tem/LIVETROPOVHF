@@ -30,12 +30,28 @@ public static class Program
             if (!chiuso) ErrorLog.Write(e.Exception, "attività in background");
         };
 
+        // 1.4 — una sola copia aperta: la seconda porta in primo piano la prima e si chiude
+        if (!SingleInstance.Acquire(Environment.GetCommandLineArgs())) return;
+
         Splash splash = null;
         try { splash = new Splash(); splash.Show(); Application.DoEvents(); } catch { splash = null; }
         var shownAt = DateTime.UtcNow;
         MainForm main;
         try { main = new MainForm(); }
         catch (Exception ex) { try { splash?.Close(); } catch { } Report(ex, true); return; }
+        SingleInstance.Activate += () =>
+        {
+            try
+            {
+                main.BeginInvoke(new Action(() =>
+                {
+                    if (!main.Visible) main.Show();
+                    if (main.WindowState == FormWindowState.Minimized) main.WindowState = FormWindowState.Normal;
+                    main.TopMost = true; main.Activate(); main.BringToFront(); main.TopMost = false;
+                }));
+            }
+            catch { }
+        };
         main.StartSplash = splash;
         main.SplashShownAt = shownAt;
         Application.Run(main);

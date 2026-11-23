@@ -37,6 +37,16 @@ public sealed class App : Application
             {
                 var w = new MainWindow();
                 desktop.MainWindow = w;
+                Core.SingleInstance.Activate += () => Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    try
+                    {
+                        if (!w.IsVisible) w.Show();
+                        if (w.WindowState == WindowState.Minimized) w.WindowState = WindowState.Normal;
+                        w.Topmost = true; w.Activate(); w.Topmost = false;
+                    }
+                    catch { }
+                });
                 desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
                 w.Show();
                 if (splash != null)
@@ -70,6 +80,8 @@ public static class Program
         if (pf >= 0) { Environment.ExitCode = Forecast.SourceTest.Run(pf + 1 < args.Length ? args[pf + 1] : "prova-fonti.txt"); return; }
         int pv = Array.IndexOf(args, "--valida");
         if (pv >= 0 && pv + 2 < args.Length) { Environment.ExitCode = Forecast.Validation.Run(args[pv + 1], args[pv + 2]); return; }
+        // 1.4 — una sola copia aperta: la seconda porta in primo piano la prima e si chiude
+        if (!Core.SingleInstance.Acquire(args)) return;
         try
         {
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);

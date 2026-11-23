@@ -39,7 +39,7 @@ public static class Updater
         {
             var exe = ExePath;
             if (exe == "" || !File.Exists(exe)) return false;
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe) { UseShellExecute = false, WorkingDirectory = Dir });
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe, SingleInstance.RestartArg) { UseShellExecute = false, WorkingDirectory = Dir });
             return true;
         }
         catch (Exception ex) { ErrorLog.Write(ex, "riavvio dopo l'aggiornamento"); return false; }
