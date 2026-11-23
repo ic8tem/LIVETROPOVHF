@@ -218,7 +218,9 @@ public sealed partial class MainWindow
         _fcGrx = TB("", 12, _th.Accent, true);
         rx.Children.Add(Row(L("Yagi DL6WU: boom, m", "DL6WU Yagi: boom, m"), Field("fc_rx_boom", "2"), _fcGrx));
         rx.Children.Add(Row(L("Perdita del cavo, dB", "Cable loss, dB"), Field("fc_rx_cable", "1")));
-        rx.Children.Add(Row(L("Cifra di rumore del ricevitore, dB", "Receiver noise figure, dB"), Field("fc_rx_nf", "2")));
+        if (!_st.S.GetBool("fc_nf_v135", false)) { if (_st.S.Get("fc_rx_nf", "6") == "2") _st.S.Set("fc_rx_nf", "6"); _st.S.SetBool("fc_nf_v135", true); _st.Dirty = true; }
+        rx.Children.Add(Row(L("Cifra di rumore della radio ricevente, dB", "Receiving radio noise figure, dB"), Field("fc_rx_nf", "6")));
+        rx.Children.Add(TB(L("Preamplificatore in antenna (fisso): NF 0,8 dB, guadagno 20 dB", "Mast-head preamplifier (fixed): NF 0.8 dB, gain 20 dB"), 11, _th.Muted));
         {
             var envs = new[] { ("quiet", L("rurale tranquillo", "quiet rural")), ("rural", L("rurale", "rural")), ("residential", L("residenziale", "residential")), ("city", L("città", "city")), ("manual", L("temperatura d'antenna a mano", "manual antenna temperature")) };
             var cb = new ComboBox { Width = 200, ItemsSource = envs.Select(e => e.Item2).ToList() };
@@ -310,7 +312,7 @@ public sealed partial class MainWindow
     {
         if (_fcNoise == null) return;
         var (tg, tm, ta) = LinkCalc.AntennaTemp(FcFreq, _st.S.Get("fc_rx_env", "quiet"), Num("fc_rx_ta", 300));
-        double tsys = LinkCalc.SystemTempK(ta, Num("fc_rx_cable", 1), Num("fc_rx_nf", 2));
+        double tsys = LinkCalc.SystemTempK(ta, Num("fc_rx_cable", 1), Num("fc_rx_nf", 6));
         _fcNoise.Text = (_st.S.Get("fc_rx_env", "quiet") == "manual" ? $"Ta {ta:0} K" : L("galattico", "galactic") + $" {tg:0} K + " + L("artificiale", "man-made") + $" {tm:0} K = Ta {ta:0} K") +
                         $" · Tsys {tsys:0} K · " + L("rumore SSB", "SSB noise") + $" {LinkCalc.NoiseDbm(tsys, Num("fc_bw_ssb", 2500)):0.0} dBm";
     }
@@ -604,7 +606,7 @@ public sealed partial class MainWindow
         if (!LocatorX.TryParse(tl, out var tp)) { err = L("Locatore della mia stazione non valido (4, 6, 8 o 10 caratteri).", "Invalid own locator (4, 6, 8 or 10 chars)."); return false; }
         if (!LocatorX.TryParse(rl, out var rp)) { err = L("Locatore del corrispondente non valido: scrivilo o fai clic sulla mappa.", "Invalid other locator: type it or click the map."); return false; }
         tx = new Station { Loc = tl, Pos = tp, Precise = tl.Length >= 8, AglM = Num("fc_tx_agl", 10), AslM = Num("fc_tx_asl", 0), BoomM = Num("fc_tx_boom", 2), CableDb = Num("fc_tx_cable", 1), PowerW = Num("fc_tx_w", 100) };
-        rx = new Station { Loc = rl, Pos = rp, Precise = rl.Length >= 8, AglM = Num("fc_rx_agl", 3), AslM = Num("fc_rx_asl", 0), BoomM = Num("fc_rx_boom", 2), CableDb = Num("fc_rx_cable", 1), NfDb = Num("fc_rx_nf", 2) };
+        rx = new Station { Loc = rl, Pos = rp, Precise = rl.Length >= 8, AglM = Num("fc_rx_agl", 3), AslM = Num("fc_rx_asl", 0), BoomM = Num("fc_rx_boom", 2), CableDb = Num("fc_rx_cable", 1), NfDb = Num("fc_rx_nf", 6) };
         // locatore a 4–6 caratteri senza quota sul mare: si stima con il suolo SRTM al centro del quadrato più l'altezza dal suolo
         return true;
     }
@@ -722,7 +724,7 @@ public sealed partial class MainWindow
         Refractivity.ViaIdeal = _st.S.GetBool("fc_via_ideal", false);
         Refractivity.UseSeaAir = _st.S.GetBool("fc_seaair", true);
         var box = new StackPanel { Spacing = 6 };
-        var src = new ComboBox { Width = 330, ItemsSource = WxSources.All.Select(WxSources.Name).ToList(), SelectedIndex = Array.IndexOf(WxSources.All, OwnForecast.Source) };
+        var src = new ComboBox { MinWidth = 0, FontSize = (10.5) * UiScale.F, MinHeight = 24, Padding = new Thickness(6, 1, 4, 1), HorizontalAlignment = HorizontalAlignment.Stretch, ItemsSource = WxSources.All.Select(WxSources.Name).ToList(), SelectedIndex = Array.IndexOf(WxSources.All, OwnForecast.Source) };
         src.SelectionChanged += (_, _) =>
         {
             if (src.SelectedIndex < 0) return;
@@ -732,14 +734,14 @@ public sealed partial class MainWindow
         };
         ToolTip.SetTip(src, L("Automatica (consigliata): GFS prima da NOMADS (NOAA, file GRIB2 della zona, nessun limite giornaliero), poi da Open-Meteo per i punti che mancano: è lo stesso modello e la stessa corsa. ICON-EU (solo Europa) ed ECMWF valgono per tutta la griglia: modelli diversi non si mescolano. Manuale delle previsioni, § 3 bis.",
                               "Automatic (recommended): GFS first from NOMADS (NOAA, GRIB2 files of the area, no daily limit), then from Open-Meteo for any missing points: same model and run. ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis."));
-        var sp1 = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-        sp1.Children.Add(new TextBlock { Text = L("Sorgente dei dati", "Data source"), Width = 120, FontSize = (12) * UiScale.F, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
-        sp1.Children.Add(src);
+        var sp1 = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*") };
+        sp1.Children.Add(new TextBlock { Text = L("Sorgente dei dati", "Data source"), Width = 108, FontSize = (11) * UiScale.F, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
+        Grid.SetColumn(src, 1); sp1.Children.Add(src);
         box.Children.Add(sp1);
 
         var cases = new List<string> { L("previsione attuale", "current forecast") };
         cases.AddRange(HistCase.Known.Select(h => h.Name));
-        var hc = new ComboBox { Width = 330, ItemsSource = cases, SelectedIndex = _own.Hist == null ? 0 : Array.IndexOf(HistCase.Known, _own.Hist) + 1 };
+        var hc = new ComboBox { MinWidth = 0, FontSize = (10.5) * UiScale.F, MinHeight = 24, Padding = new Thickness(6, 1, 4, 1), HorizontalAlignment = HorizontalAlignment.Stretch, ItemsSource = cases, SelectedIndex = _own.Hist == null ? 0 : Array.IndexOf(HistCase.Known, _own.Hist) + 1 };
         hc.SelectionChanged += (_, _) =>
         {
             if (hc.SelectedIndex < 0) return;
@@ -757,9 +759,9 @@ public sealed partial class MainWindow
         };
         ToolTip.SetTip(hc, L("Rivede un'apertura documentata (QST, «The World Above 50 MHz») con le previsioni GFS d'archivio di Open-Meteo, per confrontare il modello con quello che è successo. L'ora parte dal primo giorno del caso. Manuale delle previsioni, § 3 ter.",
                              "Replays a documented opening (QST, «The World Above 50 MHz») with Open-Meteo archived GFS forecasts, to compare the model with what happened. Time starts at the first day of the case. Forecast manual, § 3 ter."));
-        var sp2 = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-        sp2.Children.Add(new TextBlock { Text = L("Caso storico", "Historical case"), Width = 120, FontSize = (12) * UiScale.F, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
-        sp2.Children.Add(hc);
+        var sp2 = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*") };
+        sp2.Children.Add(new TextBlock { Text = L("Caso storico", "Historical case"), Width = 108, FontSize = (11) * UiScale.F, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
+        Grid.SetColumn(hc, 1); sp2.Children.Add(hc);
         box.Children.Add(sp2);
 
         return box;

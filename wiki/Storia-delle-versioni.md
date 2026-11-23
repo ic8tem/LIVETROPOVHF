@@ -4,6 +4,16 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
+## 1.3.5 — 23/11/2026
+- Previsioni: le caselle «Sorgente dei dati» e «Caso storico» hanno il testo più piccolo e occupano la larghezza del pannello, così la scelta si legge per intero.
+- Registro errori: non vengono più registrate come errori le ricezioni UDP/NTP interrotte alla chiusura del socket (errore 995).
+- Orologio: se i server NTP non rispondono il programma non si ferma; ogni server ha al massimo 4 secondi (anche per il DNS), «NTP:FAILED» lo segnala con il fumetto e una riga nel registro, e si prosegue con l'orologio del PC riprovando ogni 3 minuti.
+- Modi digitali: FT4 usa in troposcatter la soglia con evanescenza (−15,2 dB, QEX 2020); Q65 diviso nei sottomodi Q65-15C (−22,2 dB), Q65-30B (−24,8 dB) e Q65-60A (−27,6 dB) dalla guida rapida di K1JT; il fumetto indica il margine della decodifica AP (circa 2 dB per FT8, 1,5–2,6 dB per Q65), che non entra nella soglia.
+- Stazione ricevente: preamplificatore in antenna fisso (cifra di rumore 0,8 dB, guadagno 20 dB) davanti a cavo e radio; la cifra di rumore della radio ricevente parte da 6 dB (chi aveva ancora i 2 dB della versione precedente passa a 6); antenna ricevente di base a 3 m dal suolo. Il rumore di sistema segue la formula di Friis.
+- Troposcatter: nuovo terzo modello di confronto di NBS TN101 § 9 (funzione F(θd), guadagno in frequenza H0) con la rifrattività dei profili GFS e gli orizzonti del profilo reale; compare nella riga «Troposcatter, altri modelli» ed entra nell'incertezza (manuale § 8 bis).
+- Clima radio: l'ITM non usa più sempre il clima marittimo temperato. Il clima del TN101 (§ 10.2) si sceglie per ogni tratta dal punto medio con tre anni di dati ERA5 di Open-Meteo (rifrattività al suolo, escursione nell'anno, umidità, pioggia), anche fuori dall'Europa; i dati si scaricano una volta per cella di 0,5° in Dati/CLIMA, e senza rete vale una regola di riserva. Nuova riga «Clima radio (TN101)» con il clima, il motivo e la variabilità Y nel 10%, 1% e 90% del tempo; non cambia la perdita prevista (manuale § 10 sexies).
+- Corretta una parentesi in più nel fumetto «Modi digitali» che bloccava la compilazione.
+
 ## 1.3.4 — 22/11/2026
 - Previsioni: riquadro «Dettagli da mostrare» a destra della mappa con tre livelli (Essenziale, Normale, Completo); linguetta Previsioni tradotta in tutte le lingue; slovacco aggiunto.
 - Colori come YA-NEC: i 18 temi comuni ai programmi di IC8TEM (Chiaro, Notte, Nero, otto pastelli, Scia meteorica, i tre di IP-TRX-CTRL, Blu, Viola, Verde), con i nomi in tutte le lingue; il Chiaro con l'aspetto di YA-NEC (fondo #F0F0F0, riquadri bianchi bordati, fascione blu notte #1E293B, accento #1F6FD1). La scala della previsione non cambia con il tema.

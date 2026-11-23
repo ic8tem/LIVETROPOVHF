@@ -81,7 +81,7 @@ public static class Compat
 #if NETFRAMEWORK
         var t = u.ReceiveAsync();
         var done = await Task.WhenAny(t, Task.Delay(Timeout.Infinite, ct));
-        if (done != t) throw new OperationCanceledException(ct);
+        if (done != t) { _ = t.ContinueWith(x => _ = x.Exception, TaskContinuationOptions.OnlyOnFaulted); throw new OperationCanceledException(ct); }
         return await t;
 #else
         return await u.ReceiveAsync(ct);

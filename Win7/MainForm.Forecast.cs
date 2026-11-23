@@ -184,7 +184,9 @@ public sealed partial class MainForm
         _fcGrx = Lbl("", 9f, _th.Accent, true);
         Add(rx, FRow(L("Yagi DL6WU: boom, m", "DL6WU Yagi: boom, m"), Field("fc_rx_boom", "2"), _fcGrx));
         Add(rx, FRow(L("Perdita del cavo, dB", "Cable loss, dB"), Field("fc_rx_cable", "1")));
-        Add(rx, FRow(L("Cifra di rumore del ricevitore, dB", "Receiver noise figure, dB"), Field("fc_rx_nf", "2")));
+        if (!_st.S.GetBool("fc_nf_v135", false)) { if (_st.S.Get("fc_rx_nf", "6") == "2") _st.S.Set("fc_rx_nf", "6"); _st.S.SetBool("fc_nf_v135", true); _st.Dirty = true; }
+        Add(rx, FRow(L("Cifra di rumore della radio ricevente, dB", "Receiving radio noise figure, dB"), Field("fc_rx_nf", "6")));
+        Add(rx, Lbl(L("Preamplificatore in antenna (fisso): NF 0,8 dB, guadagno 20 dB", "Mast-head preamplifier (fixed): NF 0.8 dB, gain 20 dB"), 8.5f, _th.Muted));
         var envs = new[] { ("quiet", L("rurale tranquillo", "quiet rural")), ("rural", L("rurale", "rural")), ("residential", L("residenziale", "residential")), ("city", L("città", "city")), ("manual", L("temperatura d'antenna a mano", "manual antenna temperature")) };
         var cur = _st.S.Get("fc_rx_env", "quiet");
         var envBox = Combo(envs.Select(e => e.Item2), Math.Max(0, Array.FindIndex(envs, e => e.Item1 == cur)), 200, i => { _st.S.Set("fc_rx_env", envs[i].Item1); _st.Dirty = true; FcRefreshNoise(); });
@@ -407,7 +409,7 @@ public sealed partial class MainForm
     {
         if (_fcNoise == null) return;
         var (tg, tm, ta) = LinkCalc.AntennaTemp(FcFreq, _st.S.Get("fc_rx_env", "quiet"), Num("fc_rx_ta", 300));
-        double tsys = LinkCalc.SystemTempK(ta, Num("fc_rx_cable", 1), Num("fc_rx_nf", 2));
+        double tsys = LinkCalc.SystemTempK(ta, Num("fc_rx_cable", 1), Num("fc_rx_nf", 6));
         _fcNoise.Text = (_st.S.Get("fc_rx_env", "quiet") == "manual" ? $"Ta {ta:0} K" : L("galattico", "galactic") + $" {tg:0} K + " + L("artificiale", "man-made") + $" {tm:0} K = Ta {ta:0} K") +
                         $" · Tsys {tsys:0} K · " + L("rumore SSB", "SSB noise") + $" {LinkCalc.NoiseDbm(tsys, Num("fc_bw_ssb", 2500)):0.0} dBm";
     }
@@ -429,7 +431,7 @@ public sealed partial class MainForm
         Refractivity.ViaIdeal = _st.S.GetBool("fc_via_ideal", false);
         Refractivity.UseSeaAir = _st.S.GetBool("fc_seaair", true);
         var r1 = Row();
-        var l1 = Lbl(L("Sorgente dei dati", "Data source"), 8.5f, _th.Muted); l1.AutoSize = false; l1.Width = 120; l1.Height = 28; l1.TextAlign = ContentAlignment.MiddleLeft;
+        var l1 = Lbl(L("Sorgente dei dati", "Data source"), 8.5f, _th.Muted); l1.AutoSize = false; l1.Width = 108; l1.Height = 24; l1.TextAlign = ContentAlignment.MiddleLeft;
         var src = Combo(WxSources.All.Select(WxSources.Name), Math.Max(0, Array.IndexOf(WxSources.All, OwnForecast.Source)), 320, i =>
         {
             OwnForecast.Source = WxSources.All[i];
@@ -438,11 +440,12 @@ public sealed partial class MainForm
         });
         _fcTips.SetToolTip(src, L("Automatica (consigliata): GFS prima da NOMADS (NOAA, file GRIB2 della zona, nessun limite giornaliero), poi da Open-Meteo per i punti che mancano: è lo stesso modello e la stessa corsa. ICON-EU (solo Europa) ed ECMWF valgono per tutta la griglia: modelli diversi non si mescolano. Manuale delle previsioni, § 3 bis.",
                                   "Automatic (recommended): GFS first from NOMADS (NOAA, GRIB2 files of the area, no daily limit), then from Open-Meteo for any missing points: same model and run. ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis."));
+        src.Font = new Font(src.Font.FontFamily, 7.75f); src.Width = 300;
         r1.Controls.Add(l1); r1.Controls.Add(src);
         Add(col, r1);
 
         var r2 = Row();
-        var l2 = Lbl(L("Caso storico", "Historical case"), 8.5f, _th.Muted); l2.AutoSize = false; l2.Width = 120; l2.Height = 28; l2.TextAlign = ContentAlignment.MiddleLeft;
+        var l2 = Lbl(L("Caso storico", "Historical case"), 8.5f, _th.Muted); l2.AutoSize = false; l2.Width = 108; l2.Height = 24; l2.TextAlign = ContentAlignment.MiddleLeft;
         var cases = new List<string> { L("previsione attuale", "current forecast") };
         cases.AddRange(HistCase.Known.Select(h => h.Name));
         var hc = Combo(cases, _own.Hist == null ? 0 : Array.IndexOf(HistCase.Known, _own.Hist) + 1, 320, i =>
@@ -460,6 +463,7 @@ public sealed partial class MainForm
             FcTimeLabel(); _fcMap?.InvalidateVisual();
         });
         _fcTips.SetToolTip(hc, L("Rivede un'apertura documentata (QST) con le previsioni GFS d'archivio di Open-Meteo. Manuale delle previsioni, § 3 ter.", "Replays a documented opening (QST) with Open-Meteo archived GFS forecasts. Forecast manual, § 3 ter."));
+        hc.Font = new Font(hc.Font.FontFamily, 7.75f); hc.Width = 300;
         r2.Controls.Add(l2); r2.Controls.Add(hc);
         Add(col, r2);
 
@@ -522,7 +526,7 @@ public sealed partial class MainForm
         if (!LocatorX.TryParse(tl, out var tp)) { err = L("Locatore della mia stazione non valido (4, 6, 8 o 10 caratteri).", "Invalid own locator (4, 6, 8 or 10 chars)."); return false; }
         if (!LocatorX.TryParse(rl, out var rpos)) { err = L("Locatore del corrispondente non valido: scrivilo o fai clic sulla mappa.", "Invalid other locator: type it or click the map."); return false; }
         tx = new Station { Loc = tl, Pos = tp, Precise = tl.Length >= 8, AglM = Num("fc_tx_agl", 10), AslM = Num("fc_tx_asl", 0), BoomM = Num("fc_tx_boom", 2), CableDb = Num("fc_tx_cable", 1), PowerW = Num("fc_tx_w", 100) };
-        rx = new Station { Loc = rl, Pos = rpos, Precise = rl.Length >= 8, AglM = Num("fc_rx_agl", 3), AslM = Num("fc_rx_asl", 0), BoomM = Num("fc_rx_boom", 2), CableDb = Num("fc_rx_cable", 1), NfDb = Num("fc_rx_nf", 2) };
+        rx = new Station { Loc = rl, Pos = rpos, Precise = rl.Length >= 8, AglM = Num("fc_rx_agl", 3), AslM = Num("fc_rx_asl", 0), BoomM = Num("fc_rx_boom", 2), CableDb = Num("fc_rx_cable", 1), NfDb = Num("fc_rx_nf", 6) };
         // locatore a 4–6 caratteri senza quota sul mare: si stima con il suolo SRTM al centro del quadrato più l'altezza dal suolo
         return true;
     }

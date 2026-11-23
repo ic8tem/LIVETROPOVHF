@@ -38,6 +38,7 @@ public sealed class Srtm
     public Action<string> Progress;
 
     public Srtm(HttpClient http) { _http = http; }
+    public HttpClient Http => _http;
 
     public static string TileName(int lat, int lon) =>
         (lat >= 0 ? "N" : "S") + Math.Abs(lat).ToString("00") + (lon >= 0 ? "E" : "W") + Math.Abs(lon).ToString("000");
