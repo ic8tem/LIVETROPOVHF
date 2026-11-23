@@ -131,7 +131,7 @@ static class Prog
         var months = Directory.GetFiles(Path.Combine(dir, "wspr"), "*.spot.tsv.gz").Select(f => Path.GetFileName(f)[..7])
             .Where(m => string.CompareOrdinal(m, "2021-04") >= 0).OrderByDescending(m => m).ToList();   // l'archivio GFS di Open-Meteo parte dal 2021
         var vars = OwnForecast.HourlyVars();
-        double weight = Math.Ceiling(vars.Split(',').Length / 10.0) * Math.Ceiling(31 / 14.0);
+        double weight = Math.Max(1, vars.Split(',').Length / 10.0) * Math.Max(1, 31 / 14.0);   // regola di Open-Meteo: frazioni di chiamata
         var stateF = Path.Combine(dir, "gfs", "fatto.txt"); Directory.CreateDirectory(Path.GetDirectoryName(stateF));
         var done = File.Exists(stateF) ? new HashSet<string>(File.ReadAllLines(stateF)) : new HashSet<string>();
         double used = 0; int n = 0;
