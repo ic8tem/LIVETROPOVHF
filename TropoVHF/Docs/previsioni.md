@@ -402,7 +402,7 @@ Limiti: sopra la terra il profilo verticale resta quello dei livelli GFS, quindi
 - EIRP = potenza − cavo + guadagno TX.
 - Segnale ricevuto = EIRP − perdita prevista + guadagno RX − cavo RX. S-meter IARU: S9 = −93 dBm, 6 dB per unità.
 - Rumore esterno secondo ITU-R P.372 [13]: galattico (Fa = 52 − 23 log f) più artificiale secondo l'ambiente (città, residenziale, rurale, rurale tranquillo) oppure una temperatura d'antenna scritta a mano.
-- Tsys = Ta + 290(Lc − 1) + 290(F − 1)·Lc ai morsetti dell'antenna, con Lc la perdita del cavo e F la cifra di rumore.
+- Tsys = Ta + Tpre + [290(Lc − 1) + 290(Fr − 1)·Lc] / Gpre ai morsetti dell'antenna (formula di Friis). Dalla 1.3.5 la stazione ricevente ha sempre un preamplificatore in antenna, parametro fisso: cifra di rumore 0,8 dB (Tpre = 59 K) e guadagno 20 dB. Dietro ci sono il cavo (perdita Lc) e la radio, con cifra di rumore Fr di base 6 dB. Con 1 dB di cavo il contributo di cavo e radio scende da circa 1160 K a 12 K: il rumore lo decidono il cielo, l'ambiente e il preamplificatore. Il guadagno di 20 dB è un valore tipico scelto dal programma.
 - S/N in SSB, CW e FT8 nella banda di ciascun modo, confrontato con la soglia impostata.
 - Probabilità per periodo (dalla 1.3.2): l'evanescenza entro l'ora si tratta come una distribuzione normale dello S/N attorno al valore medio orario previsto. Bray (QST, novembre 1961, p. 39, sulle curve di Norton 1959) dà un'ampiezza di 13,5 dB oltre circa 100 miglia, cioè circa 7 dB sotto e 7 sopra la media, che cala quasi in linea retta sotto le 100 miglia (3,5 dB a 50 miglia); per un collegamento «solido» toglie 7 dB dal bilancio. Preso ±7 dB come ±2σ: σ = 3,4 dB oltre 160 km, proporzionale alla distanza sotto. La probabilità che un periodo superi la soglia del modo è
 

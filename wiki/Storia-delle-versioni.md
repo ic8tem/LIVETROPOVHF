@@ -9,6 +9,7 @@ Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 - Registro errori: non vengono più registrate come errori le ricezioni UDP/NTP interrotte alla chiusura del socket (errore 995).
 - Orologio: se i server NTP non rispondono il programma non si ferma; ogni server ha al massimo 4 secondi (anche per il DNS), «NTP:FAILED» lo segnala con il fumetto e una riga nel registro, e si prosegue con l'orologio del PC riprovando ogni 3 minuti.
 - Modi digitali: FT4 usa in troposcatter la soglia con evanescenza (−15,2 dB, QEX 2020); Q65 diviso nei sottomodi Q65-15C (−22,2 dB), Q65-30B (−24,8 dB) e Q65-60A (−27,6 dB) dalla guida rapida di K1JT; il fumetto indica il margine della decodifica AP (circa 2 dB per FT8, 1,5–2,6 dB per Q65), che non entra nella soglia.
+- Stazione ricevente: preamplificatore in antenna fisso (cifra di rumore 0,8 dB, guadagno 20 dB) davanti a cavo e radio; la cifra di rumore della radio ricevente parte da 6 dB (chi aveva ancora i 2 dB della versione precedente passa a 6); antenna ricevente di base a 3 m dal suolo. Il rumore di sistema segue la formula di Friis.
 
 ## 1.3.4 — 22/11/2026
 - Previsioni: riquadro «Dettagli da mostrare» a destra della mappa con tre livelli (Essenziale, Normale, Completo); linguetta Previsioni tradotta in tutte le lingue; slovacco aggiunto.

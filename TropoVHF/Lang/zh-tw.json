@@ -309,7 +309,6 @@
   "it:Locatore (o clic sulla mappa)": "網格（或點選地圖）",
   "it:Antenna dal suolo, m": "天線離地高度，m",
   "it:Antenna sul mare, m (locatore 4–6; 0 = suolo SRTM + altezza)": "天線海拔高度，m（4–6 位網格；0 = SRTM 地面 + 高度）",
-  "it:Cifra di rumore del ricevitore, dB": "接收機噪聲係數，dB",
   "it:rurale tranquillo": "安靜鄉村",
   "it:rurale": "鄉村",
   "it:residenziale": "住宅區",
@@ -505,7 +504,6 @@
   "it:Segnale ricevuto": "接收訊號",
   "it:EIRP − perdita prevista + guadagno RX − cavo RX, all'ingresso del ricevitore. S-meter IARU VHF/UHF: S9 = −93 dBm, 6 dB per unità (IARU R1, raccomandazione sugli S-meter). Manuale delle previsioni, § 12.": "EIRP − 預計損耗 + 接收增益 − 接收饋線，位於接收機輸入端。IARU VHF/UHF S 表：S9 = −93 dBm，每格 6 dB（IARU 第一區 S 表建議）。預報手冊第 12 節。",
   "it:Rumore (P.372)": "噪聲（P.372）",
-  "it:Rumore esterno ITU-R P.372: galattico Fa = 52 − 23 log f, artificiale Fa = c − d log f secondo l'ambiente; Tsys = Ta + 290(Lc−1) + 290(F−1)Lc ai morsetti d'antenna. Manuale delle previsioni, § 12.": "ITU-R P.372 外部噪聲：銀河 Fa = 52 − 23 log f，人為 Fa = c − d log f（按環境）；天線端 Tsys = Ta + 290(Lc−1) + 290(F−1)Lc。預報手冊第 12 節。",
   "it:Rumore in SSB": "SSB 噪聲",
   "it:k·Tsys·B nella banda SSB impostata (k = 1,38·10⁻²³ J/K). Manuale delle previsioni, § 12.": "所設 SSB 頻寬內的 k·Tsys·B（k = 1.38·10⁻²³ J/K）。預報手冊第 12 節。",
   "it:Rapporto segnale/rumore ai morsetti d'antenna nella banda di ogni modo, confrontato con la soglia impostata: verde sopra, rosso sotto. Soglie tipiche: SSB 6 dB, CW 0 dB in 500 Hz, FT8 −21 dB in 2500 Hz (WSJT-X). Manuale delle previsioni, § 12.": "天線端各模式頻寬內的訊雜比，與所設閾值比較：高於為綠，低於為紅。典型值：SSB 6 dB，CW 500 Hz 內 0 dB，FT8 2500 Hz 內 −21 dB（WSJT-X）。預報手冊第 12 節。",
@@ -665,5 +663,11 @@
   "it:Controllo dell'orario NTP in corso.": "正在檢查 NTP 時間。",
   "it:Orologio allineato con NTP, scarto ": "時鐘已與 NTP 對齊，偏差 ",
   "it:NTP non risponde: il programma continua con l'orologio del PC e riprova ogni 3 minuti.": "NTP 無響應：程式繼續使用電腦時鐘，每 3 分鐘重試一次。",
-  "it:S/N in 2500 Hz confrontato con le soglie misurate al 50% di decodifica, senza informazione a priori: FT8 −21 dB e FT4 −17,5 dB; in troposcatter, con l'evanescenza, FT8 −18,6 e FT4 −15,2 dB (Franke, Somerville e Taylor, QEX 2020). Q65-15C −22,2, Q65-30B −24,8, Q65-60A −27,6 dB (K1JT e altri, guida rapida di Q65, 2021): le lettere B e C hanno toni 2 e 4 volte più larghi, con la stessa soglia quando l'allargamento Doppler è piccolo; in aircraft scatter, dove il Doppler supera i toni di 60A (1,7 Hz), sono meglio 30B o 15C. JT65A −25 dB (W3SZ 2019). La decodifica AP (nominativo già noto o fine QSO) dà circa 2 dB in più per FT8 e da 1,5 a 2,6 dB per Q65: non è compresa nella soglia. ✓ sopra la soglia, ✗ sotto. Manuale delle previsioni, § 12.": "2500 Hz 頻寬內的訊雜比，與無先驗資訊、50% 解位元速率下的實測門限比較：FT8 −21 dB，FT4 −17.5 dB；對流層散射有衰落時，FT8 −18.6，FT4 −15.2 dB（Franke、Somerville 與 Taylor，QEX 2020）。Q65-15C −22.2、Q65-30B −24.8、Q65-60A −27.6 dB（K1JT 等，Q65 快速入門，2021）：字母 B、C 的音調間隔為 2 倍和 4 倍，多普勒擴充套件小時門限相同；飛機散射中多普勒超過 60A 的音調間隔（1.7 Hz）時，30B 或 15C 更好。JT65A −25 dB（W3SZ 2019）。AP 解碼（呼號已知或 QSO 結尾）對 FT8 約多 2 dB，對 Q65 多 1.5 至 2.6 dB：不計入門限。✓ 高於門限，✗ 低於。預報手冊，§ 12。"
+  "it:S/N in 2500 Hz confrontato con le soglie misurate al 50% di decodifica, senza informazione a priori: FT8 −21 dB e FT4 −17,5 dB; in troposcatter, con l'evanescenza, FT8 −18,6 e FT4 −15,2 dB (Franke, Somerville e Taylor, QEX 2020). Q65-15C −22,2, Q65-30B −24,8, Q65-60A −27,6 dB (K1JT e altri, guida rapida di Q65, 2021): le lettere B e C hanno toni 2 e 4 volte più larghi, con la stessa soglia quando l'allargamento Doppler è piccolo; in aircraft scatter, dove il Doppler supera i toni di 60A (1,7 Hz), sono meglio 30B o 15C. JT65A −25 dB (W3SZ 2019). La decodifica AP (nominativo già noto o fine QSO) dà circa 2 dB in più per FT8 e da 1,5 a 2,6 dB per Q65: non è compresa nella soglia. ✓ sopra la soglia, ✗ sotto. Manuale delle previsioni, § 12.": "2500 Hz 頻寬內的訊雜比，與無先驗資訊、50% 解位元速率下的實測門限比較：FT8 −21 dB，FT4 −17.5 dB；對流層散射有衰落時，FT8 −18.6，FT4 −15.2 dB（Franke、Somerville 與 Taylor，QEX 2020）。Q65-15C −22.2、Q65-30B −24.8、Q65-60A −27.6 dB（K1JT 等，Q65 快速入門，2021）：字母 B、C 的音調間隔為 2 倍和 4 倍，多普勒擴充套件小時門限相同；飛機散射中多普勒超過 60A 的音調間隔（1.7 Hz）時，30B 或 15C 更好。JT65A −25 dB（W3SZ 2019）。AP 解碼（呼號已知或 QSO 結尾）對 FT8 約多 2 dB，對 Q65 多 1.5 至 2.6 dB：不計入門限。✓ 高於門限，✗ 低於。預報手冊，§ 12。",
+  "it:Cifra di rumore della radio ricevente, dB": "接收電臺噪聲係數，dB",
+  "it:Preamplificatore in antenna (fisso): NF 0,8 dB, guadagno 20 dB": "天線前置放大器（固定）：NF 0.8 dB，增益 20 dB",
+  "it:Rumore esterno ITU-R P.372: galattico Fa = 52 − 23 log f, artificiale Fa = c − d log f secondo l'ambiente; Tsys = Ta + Tpre + [290(Lc−1) + 290(Fr−1)Lc]/Gpre ai morsetti d'antenna, con il preamplificatore in antenna fisso (NF 0,8 dB, guadagno 20 dB) davanti al cavo e alla radio (NF Fr, di base 6 dB). Manuale delle previsioni, § 12.": "外部噪聲 ITU-R P.372：銀河 Fa = 52 − 23 log f，人為 Fa = c − d log f（按環境）；Tsys = Ta + Tpre + [290(Lc−1) + 290(Fr−1)Lc]/Gpre 為天線埠處的值，固定的天線前置放大器（NF 0.8 dB，增益 20 dB）位於電纜和電臺之前（電臺 NF Fr，預設 6 dB）。預報手冊，§ 12。",
+  "it:ess.": "基本",
+  "it:norm.": "正常",
+  "it:compl.": "完整"
 }

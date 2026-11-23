@@ -80,7 +80,7 @@ public sealed class Station
     public double BoomM = 2;      // lunghezza del boom della yagi DL6WU (m)
     public double CableDb = 1;
     public double PowerW = 100;
-    public double NfDb = 2;
+    public double NfDb = 6;
     public double GroundM;        // suolo sotto l'antenna (dal profilo)
     public double AntennaAsl => Precise ? GroundM + AglM : (AslM > 0 ? AslM : GroundM + AglM);
 }
@@ -230,10 +230,17 @@ public static class LinkCalc
     /// Temperatura di sistema riportata ai morsetti d'antenna: antenna + cavo (perdita Lc a 290 K) + ricevitore (NF)
     /// visto attraverso il cavo: Tsys = Ta + 290·(Lc − 1) + 290·(F − 1)·Lc.
     /// </summary>
+    /// <summary>Preamplificatore in antenna, parametro fisso (IC8TEM, 23/11/2026): cifra di rumore 0,8 dB, guadagno 20 dB.</summary>
+    public const double PreNfDb = 0.8, PreGainDb = 20;
+    /// <summary>
+    /// Temperatura di sistema ai morsetti dell'antenna con il preamplificatore in antenna, poi il cavo e la radio (Friis):
+    /// Tsys = Ta + Tpre + [290(Lc−1) + 290(Fr−1)·Lc] / Gpre, con Tpre = 290(Fpre−1).
+    /// </summary>
     public static double SystemTempK(double ta, double cableDb, double nfDb)
     {
         double lc = Math.Pow(10, cableDb / 10), f = Math.Pow(10, nfDb / 10);
-        return ta + 290 * (lc - 1) + 290 * (f - 1) * lc;
+        double tpre = 290 * (Math.Pow(10, PreNfDb / 10) - 1), g = Math.Pow(10, PreGainDb / 10);
+        return ta + tpre + (290 * (lc - 1) + 290 * (f - 1) * lc) / g;
     }
 
     /// <summary>Potenza di rumore kTB in dBm.</summary>
@@ -819,7 +826,7 @@ public static class LinkCalc
         CalcLog.W(o.NoiseEnv == "manual"
             ? $"rumore: temperatura d'antenna impostata a mano {ta:0} K"
             : $"rumore esterno (ITU-R P.372, ambiente {o.NoiseEnv}): galattico {tg:0} K (Fa {10 * Math.Log10(tg / 290):0.0} dB) + artificiale {tm:0} K (Fa {10 * Math.Log10(Math.Max(1e-9, tm) / 290):0.0} dB) = Ta {ta:0} K" + (o.FreqMHz > 250 ? " (curve del rumore artificiale prolungate oltre 250 MHz)" : ""));
-        CalcLog.W($"Tsys = Ta + 290(Lc−1) + 290(F−1)Lc = {ta:0} + {290 * (Math.Pow(10, rx.CableDb / 10) - 1):0} + {290 * (Math.Pow(10, rx.NfDb / 10) - 1) * Math.Pow(10, rx.CableDb / 10):0} = {r.TsysK:0} K");
+        CalcLog.W($"Tsys = Ta + Tpre + [290(Lc−1) + 290(Fr−1)Lc]/Gpre = {ta:0} + {290 * (Math.Pow(10, PreNfDb / 10) - 1):0} (preamplificatore NF {PreNfDb:0.0} dB) + ({290 * (Math.Pow(10, rx.CableDb / 10) - 1):0} + {290 * (Math.Pow(10, rx.NfDb / 10) - 1) * Math.Pow(10, rx.CableDb / 10):0}) / {Math.Pow(10, PreGainDb / 10):0} (guadagno {PreGainDb:0} dB, radio NF {rx.NfDb:0.0} dB) = {r.TsysK:0} K");
         CalcLog.W($"rumore kTsysB: SSB {o.BwSsb:0} Hz {r.NoiseSsbDbm:0.00} dBm → S/N {r.SnrSsb:0.0} dB (soglia {o.ReqSsb:0}); CW {o.BwCw:0} Hz → S/N {r.SnrCw:0.0} dB (soglia {o.ReqCw:0}); FT8 {o.BwFt8:0} Hz → S/N {r.SnrFt8:0.0} dB (soglia {o.ReqFt8:0})");
         if (r.TilesMissing > 0) r.Notes.Add($"{r.TilesMissing} riquadri DEM 30 m non disponibili: lì il terreno vale 0 m");
         r.Times.Lap("bilancio e rumore");
