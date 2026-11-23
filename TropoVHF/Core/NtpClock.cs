@@ -102,7 +102,12 @@ public sealed class NtpChecker
             await udp.SendAsync(pkt, pkt.Length);
             var recvTask = udp.ReceiveAsync();
             var done = await Task.WhenAny(recvTask, Task.Delay(2500));
-            if (done != recvTask) { r.Error = "timeout"; return r; }
+            if (done != recvTask)
+            {
+                // la ricezione abbandonata fallisce (errore 995) quando il socket si chiude: la si osserva, così non finisce nel registro errori
+                _ = recvTask.ContinueWith(t => _ = t.Exception, TaskContinuationOptions.OnlyOnFaulted);
+                r.Error = "timeout"; return r;
+            }
             var t4 = DateTime.UtcNow;
             var data = recvTask.Result.Buffer;
             if (data.Length < 48) { r.Error = "risposta corta"; return r; }

@@ -429,7 +429,7 @@ public sealed partial class MainForm
         Refractivity.ViaIdeal = _st.S.GetBool("fc_via_ideal", false);
         Refractivity.UseSeaAir = _st.S.GetBool("fc_seaair", true);
         var r1 = Row();
-        var l1 = Lbl(L("Sorgente dei dati", "Data source"), 8.5f, _th.Muted); l1.AutoSize = false; l1.Width = 120; l1.Height = 28; l1.TextAlign = ContentAlignment.MiddleLeft;
+        var l1 = Lbl(L("Sorgente dei dati", "Data source"), 8.5f, _th.Muted); l1.AutoSize = false; l1.Width = 108; l1.Height = 24; l1.TextAlign = ContentAlignment.MiddleLeft;
         var src = Combo(WxSources.All.Select(WxSources.Name), Math.Max(0, Array.IndexOf(WxSources.All, OwnForecast.Source)), 320, i =>
         {
             OwnForecast.Source = WxSources.All[i];
@@ -438,11 +438,12 @@ public sealed partial class MainForm
         });
         _fcTips.SetToolTip(src, L("Automatica (consigliata): GFS prima da NOMADS (NOAA, file GRIB2 della zona, nessun limite giornaliero), poi da Open-Meteo per i punti che mancano: è lo stesso modello e la stessa corsa. ICON-EU (solo Europa) ed ECMWF valgono per tutta la griglia: modelli diversi non si mescolano. Manuale delle previsioni, § 3 bis.",
                                   "Automatic (recommended): GFS first from NOMADS (NOAA, GRIB2 files of the area, no daily limit), then from Open-Meteo for any missing points: same model and run. ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis."));
+        src.Font = new Font(src.Font.FontFamily, 7.75f); src.Width = 300;
         r1.Controls.Add(l1); r1.Controls.Add(src);
         Add(col, r1);
 
         var r2 = Row();
-        var l2 = Lbl(L("Caso storico", "Historical case"), 8.5f, _th.Muted); l2.AutoSize = false; l2.Width = 120; l2.Height = 28; l2.TextAlign = ContentAlignment.MiddleLeft;
+        var l2 = Lbl(L("Caso storico", "Historical case"), 8.5f, _th.Muted); l2.AutoSize = false; l2.Width = 108; l2.Height = 24; l2.TextAlign = ContentAlignment.MiddleLeft;
         var cases = new List<string> { L("previsione attuale", "current forecast") };
         cases.AddRange(HistCase.Known.Select(h => h.Name));
         var hc = Combo(cases, _own.Hist == null ? 0 : Array.IndexOf(HistCase.Known, _own.Hist) + 1, 320, i =>
@@ -460,6 +461,7 @@ public sealed partial class MainForm
             FcTimeLabel(); _fcMap?.InvalidateVisual();
         });
         _fcTips.SetToolTip(hc, L("Rivede un'apertura documentata (QST) con le previsioni GFS d'archivio di Open-Meteo. Manuale delle previsioni, § 3 ter.", "Replays a documented opening (QST) with Open-Meteo archived GFS forecasts. Forecast manual, § 3 ter."));
+        hc.Font = new Font(hc.Font.FontFamily, 7.75f); hc.Width = 300;
         r2.Controls.Add(l2); r2.Controls.Add(hc);
         Add(col, r2);
 

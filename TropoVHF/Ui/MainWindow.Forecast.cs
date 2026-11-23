@@ -722,7 +722,7 @@ public sealed partial class MainWindow
         Refractivity.ViaIdeal = _st.S.GetBool("fc_via_ideal", false);
         Refractivity.UseSeaAir = _st.S.GetBool("fc_seaair", true);
         var box = new StackPanel { Spacing = 6 };
-        var src = new ComboBox { Width = 330, ItemsSource = WxSources.All.Select(WxSources.Name).ToList(), SelectedIndex = Array.IndexOf(WxSources.All, OwnForecast.Source) };
+        var src = new ComboBox { MinWidth = 0, FontSize = (10.5) * UiScale.F, MinHeight = 24, Padding = new Thickness(6, 1, 4, 1), HorizontalAlignment = HorizontalAlignment.Stretch, ItemsSource = WxSources.All.Select(WxSources.Name).ToList(), SelectedIndex = Array.IndexOf(WxSources.All, OwnForecast.Source) };
         src.SelectionChanged += (_, _) =>
         {
             if (src.SelectedIndex < 0) return;
@@ -732,14 +732,14 @@ public sealed partial class MainWindow
         };
         ToolTip.SetTip(src, L("Automatica (consigliata): GFS prima da NOMADS (NOAA, file GRIB2 della zona, nessun limite giornaliero), poi da Open-Meteo per i punti che mancano: è lo stesso modello e la stessa corsa. ICON-EU (solo Europa) ed ECMWF valgono per tutta la griglia: modelli diversi non si mescolano. Manuale delle previsioni, § 3 bis.",
                               "Automatic (recommended): GFS first from NOMADS (NOAA, GRIB2 files of the area, no daily limit), then from Open-Meteo for any missing points: same model and run. ICON-EU (Europe only) and ECMWF apply to the whole grid: different models are not mixed. Forecast manual, § 3 bis."));
-        var sp1 = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-        sp1.Children.Add(new TextBlock { Text = L("Sorgente dei dati", "Data source"), Width = 120, FontSize = (12) * UiScale.F, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
-        sp1.Children.Add(src);
+        var sp1 = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*") };
+        sp1.Children.Add(new TextBlock { Text = L("Sorgente dei dati", "Data source"), Width = 108, FontSize = (11) * UiScale.F, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
+        Grid.SetColumn(src, 1); sp1.Children.Add(src);
         box.Children.Add(sp1);
 
         var cases = new List<string> { L("previsione attuale", "current forecast") };
         cases.AddRange(HistCase.Known.Select(h => h.Name));
-        var hc = new ComboBox { Width = 330, ItemsSource = cases, SelectedIndex = _own.Hist == null ? 0 : Array.IndexOf(HistCase.Known, _own.Hist) + 1 };
+        var hc = new ComboBox { MinWidth = 0, FontSize = (10.5) * UiScale.F, MinHeight = 24, Padding = new Thickness(6, 1, 4, 1), HorizontalAlignment = HorizontalAlignment.Stretch, ItemsSource = cases, SelectedIndex = _own.Hist == null ? 0 : Array.IndexOf(HistCase.Known, _own.Hist) + 1 };
         hc.SelectionChanged += (_, _) =>
         {
             if (hc.SelectedIndex < 0) return;
@@ -757,9 +757,9 @@ public sealed partial class MainWindow
         };
         ToolTip.SetTip(hc, L("Rivede un'apertura documentata (QST, «The World Above 50 MHz») con le previsioni GFS d'archivio di Open-Meteo, per confrontare il modello con quello che è successo. L'ora parte dal primo giorno del caso. Manuale delle previsioni, § 3 ter.",
                              "Replays a documented opening (QST, «The World Above 50 MHz») with Open-Meteo archived GFS forecasts, to compare the model with what happened. Time starts at the first day of the case. Forecast manual, § 3 ter."));
-        var sp2 = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-        sp2.Children.Add(new TextBlock { Text = L("Caso storico", "Historical case"), Width = 120, FontSize = (12) * UiScale.F, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
-        sp2.Children.Add(hc);
+        var sp2 = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*") };
+        sp2.Children.Add(new TextBlock { Text = L("Caso storico", "Historical case"), Width = 108, FontSize = (11) * UiScale.F, Foreground = B(_th.Muted), VerticalAlignment = VerticalAlignment.Center });
+        Grid.SetColumn(hc, 1); sp2.Children.Add(hc);
         box.Children.Add(sp2);
 
         return box;

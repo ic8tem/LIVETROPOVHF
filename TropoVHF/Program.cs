@@ -59,7 +59,13 @@ public static class Program
         // registro degli errori sempre attivo: errori non gestiti dell'interfaccia, dei calcoli e delle connessioni
         Core.ErrorLog.Context = () => Forecast.CalcLog.RecentLines(50);
         AppDomain.CurrentDomain.UnhandledException += (_, e) => Core.ErrorLog.Write(e.ExceptionObject as Exception, "AppDomain", e.IsTerminating);
-        TaskScheduler.UnobservedTaskException += (_, e) => { Core.ErrorLog.Write(e.Exception, "attività in background"); e.SetObserved(); };
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            e.SetObserved();
+            // socket chiuso mentre una ricezione era in attesa (NTP, UDP): normale, non è un errore
+            bool chiuso = System.Linq.Enumerable.All(e.Exception.InnerExceptions, x => x is ObjectDisposedException || x is OperationCanceledException || (x is System.Net.Sockets.SocketException se && (se.ErrorCode == 995 || se.SocketErrorCode == System.Net.Sockets.SocketError.OperationAborted || se.SocketErrorCode == System.Net.Sockets.SocketError.Interrupted)));
+            if (!chiuso) Core.ErrorLog.Write(e.Exception, "attività in background");
+        };
         int pf = Array.IndexOf(args, "--prova-fonti");
         if (pf >= 0) { Environment.ExitCode = Forecast.SourceTest.Run(pf + 1 < args.Length ? args[pf + 1] : "prova-fonti.txt"); return; }
         int pv = Array.IndexOf(args, "--valida");

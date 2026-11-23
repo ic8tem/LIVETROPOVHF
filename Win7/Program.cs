@@ -22,7 +22,13 @@ public static class Program
         ErrorLog.Context = () => TropoVHF.Forecast.CalcLog.RecentLines(50);
         Application.ThreadException += (_, e) => Report(e.Exception, false);
         AppDomain.CurrentDomain.UnhandledException += (_, e) => Report(e.ExceptionObject as Exception, true);
-        TaskScheduler.UnobservedTaskException += (_, e) => { ErrorLog.Write(e.Exception, "attività in background"); e.SetObserved(); };
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            e.SetObserved();
+            // socket chiuso mentre una ricezione era in attesa (NTP, UDP): normale, non è un errore
+            bool chiuso = System.Linq.Enumerable.All(e.Exception.InnerExceptions, x => x is ObjectDisposedException || x is OperationCanceledException || (x is System.Net.Sockets.SocketException se && (se.ErrorCode == 995 || se.SocketErrorCode == System.Net.Sockets.SocketError.OperationAborted || se.SocketErrorCode == System.Net.Sockets.SocketError.Interrupted)));
+            if (!chiuso) ErrorLog.Write(e.Exception, "attività in background");
+        };
 
         Splash splash = null;
         try { splash = new Splash(); splash.Show(); Application.DoEvents(); } catch { splash = null; }

@@ -4,6 +4,10 @@ Le versioni 0.x sono beta: compilate dall'autore per prova, non pubblicate come 
 Numerazione: la cifra centrale sale con le funzioni nuove, l'ultima con le sole correzioni.
 Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 
+## 1.3.5 — 23/11/2026
+- Previsioni: le caselle «Sorgente dei dati» e «Caso storico» hanno il testo più piccolo e occupano la larghezza del pannello, così la scelta si legge per intero.
+- Registro errori: non vengono più registrate come errori le ricezioni UDP/NTP interrotte alla chiusura del socket (errore 995).
+
 ## 1.3.4 — 22/11/2026
 - Previsioni: nuovo riquadro «Dettagli da mostrare» a destra della mappa, con tre livelli (Essenziale, Normale, Completo) e le caselle raccolte in tre gruppi (sulla mappa, nel calcolo del segnale, correzioni e dati in diretta); ogni casella resta modificabile a mano. Nuove caselle per la correlazione guadagno/pressione e la zona di vista diretta. Anche nella versione per Windows 7.
 - Traduzioni: la linguetta Previsioni è tradotta in tutte le lingue (prima solo italiano e inglese); aggiunto lo slovacco.
