@@ -1,6 +1,6 @@
 # Hulaan ang manwal
 
-> Awtomatikong salin mula sa Italyano: kung may duda, ang gabay sa Italyano ang susundin.
+> Awtomatikong salin ng Italyano: Kung pag - aalinlanganan ay sulit naman ang giyang Italyano.
 
 Kinakalkula ng task ng propesiya ang tropopheric propagation sa ganang sarili: isang indiseng mapa sa nakikitang lugar at ang hudyat na inilalaan sa pagitan ng iyong istasyon at ng isang katumbas na larawan. Inilalarawan ng manwal na ito ang bawat datos, kung paano ito kinakalkula at kung alin ang pinagmulan nito. Ang mga numero sa square brackets ay tumutukoy sa mga pinagkunan sa ilalim; sa programa ang bawat datos ng mga resulta ay may komiks (simbolo i) na may parehong pinagmulan at pagtukoy sa parapo.
 
@@ -120,6 +120,26 @@ Ang minimum na distansiya ay nananatiling 300 km: ang pag-angat nito sa 500 km a
 Hanggang 1.3.3 ang minimum ay tama sa lahat ng regulatory ng pasilyo at umaasa lamang sa layo (mula 10 dB hanggang 300 km hanggang 16 dB hanggang 900 km): na may maraming mahahabang pasilyo na magkakasama (halimbawa ay sa 22/11/2026, labindalawang koridor hanggang 2620 km) ang nag-angat sa halos lahat ng Europa hanggang 16 dB.
 
 Ang natamong mga kurba ay hindi na nagdurulot ng «gocceić: ang mas maliit na mga pulo ng 220 km sa parehong direksiyon ay nananatiling may kulay ngunit walang nakasarang kurba, maliban na lamang kung ang isang pasilyo ay nagpapatunay sa mga ito. Ito ay nagreresulta sa pamamagitan ng "Prevision interced by the spots".
+
+## 4 ter. Live sensor: FM-DX webserver at AIS receiver (mula 1.4)
+
+Dalawa pang pinagmumulan ng tunay na mga obserbasyon, na pumapasok sa mga pasilyo ng banda ng 2 m at ang paghatol ng pagkamaaasahan (§ 10 septies). Binubuksan nila at binubuksan ang kahon ng tab Details.
+
+Webserver FM-DX. Maraming remote reception extest sa FM (88–108 MHz) ay nag-iingat ng isang internet-nected receiver sa FM-DX Webserver free program (GPL-3.0); Ang talaang pampubliko ay mga server.fmdx.org [28]. Ang bawat server ay nagsasabi, sa pahina /api, ang naka-redirect na frequency, ang signal sa dBf at, kung ito ay nag-decode sa RDS, ang transmitter na kinikilala sa database nito na may layo at azimut. Ang programa:
+
+- download ang listahan tuwing 30 minuto at panatilihin ang 60 pinakamalapit online servers sa loob ng 1500 km ng QTH;
+- Isa - isang sinusuri ang mga ito, na kumakalat sa loob ng 3 minuto, na may sukdulang oras na 8 segundo (walang server na tumatanggap ng mahigit sa isang kahilingan sa bawat 3 minuto);
+- panatilihin ang pagtanggap kapag ang transmitter ay 150 km o higit pa at ang signal ay hindi bababa sa 10 dBf; ang posisyon ng transmitter ay hinango mula sa server, azimuth at ang distansiya.
+
+Ang banda ng FM ay mas mababa sa 2 m, at ang mga duct na nagdadala nito ay hindi palaging nagdadala ng 144 MHz; ngunit ang isang FM reception sa 300–600 km sa labas ng abot-tanaw ay halos palaging tropo (o, sa tag-init, Elast, na sa 100 MHz ay umaabot sa higit 900 km: dahil dito higit sa 1500 km ang pamamahala ng mga pasilyo ay nagtatanong ng dalawang magkaibang mapagkukunan, § 4 bis). Sa mapa ang mga reseptor ay mga linyang lila "FM n km"; sa status bar ay bar ang konde, na may listahan sa komiks.
+
+ISIS mula sa iyong receiver. Ang mga barko ay naghahatid ng kanilang posisyon sa 161,975 at 162,025 MHz (ITU-R M.1371 [31]), halos kapareho ng 2 m. Isang AIS receiver (A, rl-ais, isang dedikadong receiver) na pasulong sa mga pariralang NMEA! Binabago ng AIVDM sa UDP sa daungan 10110 ang bawat barko sa malayo tungo sa isang windping sensor: ang programang decodes position message (type 1, 2, 3, 4, 18, 19 at 21, kahit na sa maraming piraso) at inihahambing ang distansiya sa normal na abot - tanaw ng radyo
+
+```math
+d_h = 4{,}12\,(\sqrt{h_{nave}} + \sqrt{h_{rx}})\ \text{km}
+```
+
+na may taas ng antena ng barko na tinatayang mula sa tipo (20 m para sa mga barkong pangkargamento, 30 m para sa mga pasahero, 6 m para sa pangingisda at kasiyahan, 10 m para sa iba) at ng antena ng receiver set (basic 10 m). Ang isang barko na higit sa 1.5 beses sa abot-tanaw at higit sa 50 km ay isang respektibong sa pamamagitan ng padaluyan: ito ay lumilitaw sa mapa bilang isang asul na linya mula sa QTH na may isang ugong «AIS n km». Ito rin ang ideya ng pag-aaral ng CSIRO [10], na gumamit ng 162 MHz AIS receptions upang matiyak ang prediksiyon ng GFS pipelines. Ito'y pinapatay nang pangunahin: ito'y nagsisilbi sa isang wastong tagatanggap.
 
 ## 5. Mga mapagpipiliang linya at paghahambing sa presyon at pagbaligtad
 
@@ -338,7 +358,7 @@ Ang programa ay gumagamit ng radio climate ng napiling ruta gaya ng sa § 10 sex
 Ang ikalawang gamit ay ang pangwakas na banat pagkatapos ng isang padaluyan na nagtatapos bago ang katumbas na bahagi. Sa labasan, ang isang virtual na antena ay nakalagay sa kalagitnaan sa daluyan ng tubig at ang ITM ay tumatantiya sa tract hanggang sa katumbas na isa, bilang labis sa malayang espasyo sa 50% ng panahon. Ganap na kawalan
 
 ```math
-L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,	heta_{condotto} + A_{ITM}(d_{uscita} 	o RX)
+L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,\theta_{condotto} + A_{ITM}(d_{uscita} \to RX)
 ```
 
 Kung saan ang A_TX ay ang pagsasanib ng antena (3 dB sa loob, 1 dB sa bawat 10 m sa labas) kung ang daluyan ay nagsisimula malapit, kung hindi ang pagpasok ng § 10 ter. Ito ang limitasyon na ibinigay ng awtor sa kaniyang sarili: ang pagpapatuloy ng suson at, sa kalakhang bahagi, ang pananatili sa attenuation. Kung ito ay mas mababa kaysa sa inaasahang kawalan ito ay nagiging mekanismo ("conduct (exit at final tract ITM)").
@@ -389,9 +409,38 @@ Mga pagsubok na may datos ERA5 2023–2025: Capri Ns 339 na may ekstinksiyong 45
 
 Ang linyang "Radio climate ( TN101)" ay nagpapakita ng klima, ang dahilan, Ns na may kalahati ng ekstinksiyon at Y: gaano karaming dB ang kumikita sa 10% at 1% ng panahon at kung gaano karami ang nawawala sa 90%. Ito ay long-term statistics at nananatiling hiwalay sa propesiya: ang inaasahang pagkawala ay sumusunod sa panahon ngayon na may profile ng GFS, at ang kabuuan ng dalawang bagay ay bibilang ng dalawang beses sa parehong abnormal na propaksiyon.
 
+## 10 septies. Muling makikita ang prediksiyon at beripikasyon sa pamamagitan ng mga radioson (mula 1.4)
+
+Pagsusuri sa Radioson. Hindi gaanong nakikita ng GFS ang mga duct kaysa sa wari: Ang patayong resolusyon nito malapit sa lupa ay ilang sampung metro, at ang suson ng isang baligtad ay kadalasang mas manipis. Upang malaman kung gaano ang pagtitiwala sa modelo rito at sa mga panahong ito, inihahambing ito ng programa sa tunay na radio waves ng pinakamalapit na istasyon, mula sa arkibong IGRA v2 ng NOAA [27] (public domain):
+
+- mula sa talaan ng mga istasyon ang pinakamalapit na aktibo sa loob ng 600 km (para sa Capri, Gawain ng Mare, ITM00016245);
+- I-upload ang kasalukuyang talaksang taon (updates kada ilang araw) at panatilihin ang mga paglulunsad ng 00 at 12 UTC na tumatagal ng 15 araw;
+- para sa bawat paglunsad ay nakukuha ang reactivity N level sa pamamagitan ng antas (na may kaumiduhan o depresyon ng punto ng hamog), ang taas ng mga antas na walang mga ito na may impometric ekwasyon na nagsisimula sa taas ng istasyon, ang spiral ng unang km at ang pinakamalakas na padaluyan sa ilalim ng 3000 m (M na bumabagsak na may bahagi ng hindi bababa sa 2 yunit);
+- Mag-download mula sa serbisyo ng mga makasaysayang propesiya ng Open-Meteo [15] ang mga profile ng GFS ng parehong punto sa parehong oras at suriin ang mga ito ng parehong kodigo ng paghula;
+- ang naobserbahang mga duct na nakita ng GFS, ang nawawala at maling mga alarma, at ang katamtaman at parisukat na paglihis ng groove.
+
+Ang beripikasyon ay nasa likuran ng unang kalkulasyon ng isang gamot, sa karamihan ng 12 oras; ang mga file ay nananatili sa Data/IGRA at ang mga numero sa rehistro ng kalkulasyon. Ang mga mensaheng radiosonde na nagmumula sa pandaigdigang network ng lagay ng panahon (TEMP) ay mayroon lamang pamantayan at mahahalagang antas: ang napakanipis na mga padaluyan ay nakakatakas din sa mga ito, at ang paghahambing ay nagsasabi nang higit sa lahat kung ang GFS ay masyadong mali sa isang diwa o iba pa.
+
+Madaling tanggapin. Ang "Affibility" line ay nagbibigay ng mataas, katamtaman o mababang awdisyon sa inaasahang pakinabang. Hindi ito isang napakalaking probabilidad, na mangangailangan ng mga taon ng paghahambing sa tunay na mga kaugnayan (imperyo 14), kundi isang kabuuan ng mga punto sa kung paanong ang independiyenteng mga himaton (ang kodigo ng Maylikha):
+
+| Pangungusap | Mga Punto |
+|---|---|
+| Kasunduan sa pagitan ng mga modelo: katamtamang paglihis sa pagitan ng inaasahang pagkawala at P.452 na may mga duct, ang parabolikong ekwasyon, at sa pagitan ng baseline at ITM | hanggang 3 dB +1; mahigit 8 dB −1 |
+| Patiunang pagtaya | sa loob ng 24 oras +1; mahigit 72 oras −1 |
+| Patuloy na pagtatayo ng suson sa paggamot | Hindi bababa sa 70% +1; wala pang 30% −1 |
+| Pagpupumilit ng suson sa kalapit na mga oras | Hindi bababa sa 70% +1 |
+| Pag - unlad ng Radiosonde | Ang GFS ay hindi bababa sa 3 beses lamang sa 4 +1; mas mababa sa isa sa dalawa −1; maling frayf ng higit sa 15 N/km −1 (maximum −1 sa lahat) |
+| Mabuhay kumpil sa kahabaan ng ruta (cluster, PSKReporter, APRS, FM-DX), para lamang sa kasalukuyang panahon | 1–2 pares ng mga istasyon +1; 3 o higit pa +2; mga bukasan na may inaasahang pakinabang sa ilalim ng 2 dB −1 |
+
+Mataas mula sa 3 puntos, katamtaman mula 0 hanggang 2, mababa sa sero. Ang isang live na kumpanya ay tumataya bilang isang pares ng iba't ibang istasyon, sa direksiyon sa loob ng 20° mula sa ruta at may katamtamang punto sa loob ng 150 km mula sa linya nito, sa huling oras at kalahati. Sa kaso ng arkibo (§ 3 ter) ay walang mga radioson o live na kumpil.
+
 ## 11. Paghahambing sa ITU-R P.452
 
-Ang linya ng P.452 ay naglalapat ng paraan ng ITU para sa mga ducts at repleksiyon sa mga layer (P.452-16 § 4.5 [6]) kasama ang ΔN median ng GFS sa halip ng climatological one at p = 20% bilang isang calibration constant, tulad ng sa CSIRO [10] study. Isa lamang itong paghahambing: ang inaasahang kawalan ay nananatili sa parapo 9.
+Ang linya ng P.452 ay naglalapat ng paraan ng ITU para sa mga duct at repleksiyon sa mga layer (P.452 § 4.5 [6]) kasama ang ΔN median ng GFS sa halip ng climatological at p = 20% bilang isang calibration constant, tulad ng sa CSIRO [10] study. Kabilang dito ang pagkawala ng empirikal na pagsasanib na Alf sa ilalim ng 0.5 GHz (mga 28 dB hanggang 144 MHz, 3.532 Isa lamang itong paghahambing: ang inaasahang kawalan ay nananatili sa parapo 9.
+
+Mula 1.4: P.452-18 kumpleto at napatunayan. Ang paghahambing ngayon ay gumagamit ng lahat ng pangunahing pamamaraan ng P.452-18 [29] (§ 4.1–4.6): malayang espasyo na may gas at multipath, diffraction na may bilog na lupa at profile ni Bullington sa tamang makinis na ibabaw para sa mga balakid, troposcatter, ducts at repleksiyon sa mga layer, at ang kanilang kombinasyon. Ang ΔN at ang N0 ay nagmula sa GFS at mula sa lugar sa halip na sa mga mapa ng ITU. Ang code ay napatunayan sa pamamagitan ng opisyal na test cases ng grupong ITU pag-aaral 3 (iniipon sa proyektong Py452 [29]): sa 194 kaso hanggang 2 GHz nang hindi nilalamon ang lupa ang average na paglihis sa kabuuang kawalan ay 0.06 dB, ang sukdulang 0.54 dB; diffraction 0.10 dB sa katamtaman, troposcatter 0.002 dB. Ang beripikasyon ay nagtuwid ng dalawang pagkakamali ng mga naunang bersyon: ang katagang pag-iisa ng mga duct ay gumamit ng dalas sa MHz sa halip na sa GHz (mga 60 dB ng labis, na nagreresulta sa ibang lugar), at ang diffraction ay humiwalay mula sa mga limitado nang makinis na mga stack sa ibabaw, na may mga pagkakamali hanggang 15 dB sa ilang profile.
+
+Inihambing din ang ITM (§ 10 quater) sa NTIA [30] (point-point): ang limang bahagi ng opisyal na talaksan ay nagbibigay ng parehong mga halaga sa dB cent.
 
 ## 11 bis. Parabolikong ekwasyon (mula 1.3.1)
 
@@ -456,6 +505,8 @@ Ang mga kahilingan sa Open-Meteo ay may hangganan sa bawat minuto, bawat oras at
 
 Ang paghula ay dapat ihambing sa tunay na mga koneksiyon. Pinananatili ng talaan ng kalkulasyon ang bawat numero; iniingatan ng arkibo ng programa ang mga anunsiyo at mga decoding. Para sa 432 at 1296 MHz, kung saan kakaunti ang mga batik, kailangan nila ng mga ulat mula sa mga operator: sino ang gumawa ng koneksyon, sa anong oras, sa anong hudyat. Ihambing sa loob ng maraming oras ang inaasahang pakinabang sa panukat na hudyat ay nagsasabi kung ang mga pasukan ay ililipat.
 
+Ang mga test program na ginagamit para sa P.452 at ITM ay nasa source code tools folder; ITU test cases ay dapat i-download ng hiwalay, dahil ang programa ay hindi redistribote ITU data.
+
 ## Pinagmumulan
 
 1. NOAA/NCEP, Global Eventation System (GFS), global model sa 0.25°, apat na karera kada araw.
@@ -484,3 +535,8 @@ Ang paghula ay dapat ihambing sa tunay na mga koneksiyon. Pinananatili ng talaan
 24. J. Taylor K1JT, B. Somerville G4WJS, S. Franke K9AN, N. Palermo IV3NWV, Quick-Start Guide to Q65, 3 Abril 2021 (wsjt.sourceforge.io).
 25. P. L. Rice, A. G. Longley, K. A. Norton, A. P. Barsis, Transmission Loss For Tropospheric Communication Circuits, NBS Technical Note 101, magasin 1967: § 9 (troposcatter, function F(θ), H0), § 10 at Annex III (radio klima at variable sa paglipas ng panahon).
 26. Open-Meteo, Historical Weather API (ECMWF ERA5 review mula 1940; Copernicus Climate Change Service, CC BY 4.0 lisensiya).
+27. I. Durre, X. Yin, R. S. Vose, S. Applequist, J. Arnfield, Integrated Global Radiosonde Archive (IGRA), bersyon 2, NOAA National Centers for Environmental Information, doi 10.7289/ V5X63K0Q (public domain): igra2-data-format.txt data format at station list.
+28. FM-DX Webserver (NobishSVK at cooperators, lisensiya GPL-3.0) at talaang pampubliko ng mga server.fmdx.org.
+29. ITU-R P.452-18, ang mga pamamaraan ng paghula para sa pagtatasa ng interbensiyon sa pagitan ng mga istasyon sa ibabaw ng Lupa sa mga frequency sa itaas ng mga 0.1 GHz, 2023; mga test case ng grupong pag-aaral 3 (validation cavies), gaya ng nakolekta sa I. Stevanovic, Py452 (GitHub).
+30. NTIA/ITS, Irreguular Terrain Model (ITM) 1.2.2, reference code at point-point test cases (GitHub NTIA/itm).
+31. ITU-R M.1371, Technical characters para sa isang automatic identification system gamit ang time division multiple access sa VHF maritime mobile frequency band.

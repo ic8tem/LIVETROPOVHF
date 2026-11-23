@@ -1,6 +1,6 @@
 # Prognozes rokasgrāmata
 
-> Mašīntulkojums no itāļu valodas: šaubu gadījumā noteicošā ir itāļu rokasgrāmata.
+> Automātiskā tulkošana itāļu: šaubu gadījumā ir vērts Itālijas ceļvedis.
 
 Prognozes tab aprēķina tropoferisko pavairošanu pati par sevi: indeksa karti redzamajā zonā un signālu, kas tiek sniegts starp jūsu staciju un attiecīgo. Šajā rokasgrāmatā ir aprakstīti visi dati, kā tie tiek aprēķināti un no kāda avota tie ir iegūti. Skaitļi kvadrātiekavās attiecas uz avotiem apakšā; programmā katru datu rezultātu ir komikss (simbolo i) ar to pašu avotu un atsauci uz punktu.
 
@@ -120,6 +120,26 @@ Minimālais attālums paliek 300 km: paceļot to līdz 500 km, tiktu likvidētas
 Līdz 1.3.3. gadam minimums bija spēkā visos koridora taisnstūros un bija atkarīgs tikai no attāluma (no 10 dB līdz 300 km līdz 16 dB līdz 900 km): kopā ar daudziem gariem koridoriem (piemēram, 22/11/2026, divpadsmit koridori līdz 2620 km) gandrīz visā Eiropā tika pacelti līdz 16 dB.
 
 Ieguvuma līknes vairs neizvelk «gocce»: mazākās 220 km salas abos virzienos paliek krāsainas, bet bez slēgta līkuma, ja vien koridors tās neapstiprina. Tā izslēdzas ar "Revīziju mediētu plankumiem".
+
+## 4 ter. Dzīvie sensori: FM-DX tīmekļa serveris un AIS uztvērējs (no 1.4.)
+
+Vēl divi reālu novērojumu avoti, kas ieiet 2 m joslas koridoros un pieņem ticamības spriedumu (§ 10 septiji). Viņi ieslēdz un izslēdz cilnes detaļas cilni.
+
+Webserver FM-DX. Daudzi attālinātas uzņemšanas entuziasti FM (88–108 MHz) uztur internetam pieslēgtu uztvērēju FM-DX Webserver bezmaksas programmā (GPL-3.0); Publiskais saraksts ir serveri.fmdx.org [28]. Katrs serveris saka, lapā /api, uzskaņotā frekvence, signāls dBf un, ja tas atšifrēja RDS, raidītājs, ko tās datu bāzē atpazīst ar attālumu un azimutu. Programma:
+
+- lejupielādē sarakstu ik pēc 30 minūtēm un uztur 60 tuvākos tiešsaistes serverus 1500 km attālumā no QTH;
+- Nopratina tos pa vienam, sadalot pa 3 minūtēm, ar maksimālo laiku 8 sekundes (neviens serveris nesaņem vairāk kā vienu pieprasījumu ik pēc 3 minūtēm);
+- tur uztveršanu, ja raidītājs ir 150 km vai vairāk un signāls ir vismaz 10 dBf; raidītāja atrašanās vieta ir atvasināta no servera atrašanās vietas, azimuta un attāluma.
+
+FM josla ir zemāka par 2 m, un cauruļvadi, kas to pārvadā, ne vienmēr nes 144 MHz; bet FM uztveršana 300–600 km attālumā ārpus apvāršņa gandrīz vienmēr ir tropo (vai vasarā E sporadic, ka pie 100 MHz sasniedz vairāk nekā 900 km: šim pāri 1500 km koridoru noteikums prasa divus dažādus avotus, § 4 bis). Kartē uzņemšanas ir violetas līnijas "FM n km"; valsts joslā skaits, ar sarakstu komiksu grāmatā.
+
+AIS no saņēmēja. Kuģi pārraida savu atrašanās vietu 161,975 un 162,025 MHz (ITU-R M.1371 [31]), gandrīz tādu pašu frekvenci kā 2 m. AIS uztvērējs (AIS-catcher, rtl-ais, specializēts uztvērējs), kas pārraida frāzes NMEA! AIVDM UDP ostā 10110 pārveido katru kuģi prom par vada sensoru: programma atšifrē pozīcijas ziņojumus (1., 2., 3., 4., 18., 19. un 21. tips, pat uz vairākiem fragmentiem) un salīdzina attālumu ar parasto radio horizontu
+
+```math
+d_h = 4{,}12\,(\sqrt{h_{nave}} + \sqrt{h_{rx}})\ \text{km}
+```
+
+ar kuģa antenas augstumu, kas aprēķināts no tipa (20 m kravas kuģiem, 30 m pasažieriem, 6 m zvejai un atpūtai, 10 m pārējiem kuģiem) un uztvērēju kopuma antenas augstumu (10 m pamattīkls). Kuģis, kas vairāk nekā 1,5 reizes pārsniedz apvārsni un vairāk nekā 50 km ir uztveršana pa cauruļvadu: tas kartē redzams kā zila līnija no QTH ar rēcienu «AIS n km». Tā ir tāda pati ideja kā CSIRO [10] pētījums, kas izmantoja 162 MHz AIS uzņemšanas, lai pārbaudītu GFS cauruļvadu prognozēšanu. Tas ir izslēgts pamata: tas kalpo pareizu uztvērēju.
 
 ## 5. Izvēles līnijas un salīdzinājums ar spiedienu un inversiju
 
@@ -338,7 +358,7 @@ Programma izmanto radio klimatu izvēlētā maršruta kā § 10 seksi (līdz 13.
 Otrā izmantošana ir pēdējais posms pēc kanāla, kas beidzas pirms atbilstošā. Izejas punktā pusceļā caur vadu tiek novietota virtuāla antena, un ITM aprēķina trasi līdz atbilstošajai, jo 50 % laika pārsniedz brīvo telpu. Kopējie zaudējumi ir
 
 ```math
-L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,	heta_{condotto} + A_{ITM}(d_{uscita} 	o RX)
+L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,\theta_{condotto} + A_{ITM}(d_{uscita} \to RX)
 ```
 
 kur A_TX ir antenas savienojums (3 dB iekšpusē, 1 dB ik pēc 10 m ārpuses), ja caurule sākas tuvumā, pretējā gadījumā 10.ter punktā noteiktā ieejas difrakcija. Tā ir robeža, ko autors sev devis: slāņa nepārtrauktība plus, lielākais, atlikuma pavājināšanās. Ja tas ir mazāks par sagaidāmo zaudējumu, tas kļūst par mehānismu ("izslēgšana un galīgā stiepes ITM)").
@@ -389,9 +409,38 @@ Testi ar datiem ERA5 2023–2025: Capri Ns 339 ar ekskursiju 45 (kontinentāla n
 
 Līnija "Radio klimats ( TN101)" parāda klimatu, iemesls, Ns ar pusi no ekskursijas un Y: cik dB nopelnīt 10% un 1% no laika un cik zaudēt 90%. Tas ir ilgtermiņa statistika un paliek nošķirti no prognozes: gaidāmie zaudējumi seko laiku šodien ar VFS profiliem, un summa abas lietas būtu skaitās divreiz pašu patoloģisku pavairošanu.
 
+## 10 sek. Prognozes un pārbaudes ticamība ar radiosoniem (no 1.4.)
+
+Radiosakaru pārbaude. VFS uzskata, ka cauruļvadi ir sliktāki, nekā šķiet: Tā vertikālā izšķirtspēja pie zemes ir daži desmit metri, un reversa slānis bieži vien ir plānāks. Lai zinātu, cik daudz uzticēties modelim šeit un šajās dienās, programma salīdzina to ar reālo radio viļņu tuvāko staciju, no arhīva IGRA v2 of NOAA [27] (publiskais domēns):
+
+- no staciju saraksta ņem tuvāko aktīvo 600 km attālumā (attiecībā uz Capri, Practice of Mare, ITM00016245);
+- lejupielādēt kārtējā gada datni (atjauninājumi ik pēc dažām dienām) un saglabāt palaišanu 00 un 12 UTC pēdējās 15 dienas;
+- attiecībā uz katru palaišanu iegūst reaktivitātes N līmeni katram līmenim (ar rasas punkta mitrumu vai pazeminājumu), tādu līmeņu kvotas, kuru nav, ar ipsometrisko vienādojumu, sākot no stacijas daļas, pirmā km gradienta un spēcīgākā vada zem 3000 m (M, kas atbilst vismaz 2 vienību īpatsvaram);
+- no Open-Meteo [15] vēsturisko prognožu pakalpojuma lejupielādē tā paša punkta VFS profilus vienā un tajā pašā stundā un analizē tos ar to pašu prognozes kodu;
+- saskaita VFS novērotos cauruļvadus, trūkstošos cauruļvadus un viltus trauksmi, kā arī gradienta vidējo un kvadrātisko novirzi.
+
+Verificēšana notiek kopsakarā ar pirmo apstrādes aprēķinu, ne vairāk kā ik pēc 12 stundām; faili paliek datu/IGRA un skaitļu aprēķinu žurnālā. Radiozondes ziņojumiem, kas nāk no pasaules laikapstākļu tīkla (TEMP) ir tikai standarta un nozīmīgi līmeņi: ļoti plānas kanāli arī izvairīties uz tiem, un salīdzinājums saka, pirmkārt, ja VFS ir ļoti nepareizi vienā vai otrā nozīmē.
+
+Uzticamība. Līnija "Efektivitāte" sniedz augstu, vidēju vai zemu vērtējumu par gaidāmo ieguvumu. Tā nav kalibrēta varbūtība, kas prasītu gadiem ilgu salīdzinājumu ar reālām saitēm (14. punkts), bet gan punktu summa par to, cik neatkarīgas clues (autora kods):
+
+| Adrese | Punkti |
+|---|---|
+| Modeļu vienošanās: vidējā novirze starp paredzamajiem zudumiem un P.452 ar kanāliem, paraboliskais vienādojums un starp bāzes līniju un ITM | līdz 3 dB +1; virs 8 dB −1 |
+| Iepriekšēja prognoze | 24 stundu laikā +1; vairāk nekā 72 stundu laikā |
+| Nepārtrauktība dibināšanas slāņa par ārstēšanu | vismaz 70% +1; mazāk par 30% −1 |
+| Slāņa noturība blakus stundās | vismaz 70% +1 |
+| Radiosonda pārbaude | VFS tikai vismaz 3 reizes no 4 +1; mazāk nekā viens no diviem −1; nepareizs gradients vairāk nekā 15 N/km −1 (maksimāli –1 visos) |
+| Dzīvi apstiprinājumi maršrutā (kopa, PSKReporter, APRS, FM-DX), tikai pašreiz | 1–2 staciju pāri +1; 3 vai vairāk +2; atveres ar paredzamo pieaugumu zem 2 dB −1 |
+
+Augsts no 3 punktiem, vidēji no 0 līdz 2, zems zem nulles. Dzīvs apstiprinājums skaitās kā pāris dažādu staciju, virzienā 20° robežās no maršruta un ar vidējo punktu 150 km attālumā no tā līnijas, pēdējā stundā ar pusi. Arhīvu gadījumā (§ 3 ter) nav ne radiosonu, ne dzīvu apstiprinājumu.
+
 ## 11. Salīdzinājums ar ITU-R P.452
 
-P.452 līnija izmanto ITU metodi attiecībā uz kanāliem un atstarošanos uz slāņiem (P.452-16 § 4,5 [6]) ar GFS ΔN mediānu, nevis uz Klimatoloģisko vienu un p = 20% kā kalibrēšanas konstanti, kā CSIRO [10] pētījumā. Tas ir tikai salīdzinājums: paredzamie zaudējumi paliek 9. punktā minētie zaudējumi.
+P.452 līnija izmanto ITU metodi kanāliem un atstarošanai uz slāņiem (P.452 § 4.5 [6]) ar ΔN vidējo GFS, nevis klimatoloģisko vienu, un p = 20% kā kalibrēšanas konstanti, kā CSIRO [10] pētījumā. Tas ietver empīriska savienojuma zudumu Alf zem 0,5 GHz (aptuveni 28 dB līdz 144 MHz, 3.5 Tas ir tikai salīdzinājums: paredzamie zudumi paliek 9. punktā).
+
+No 1.4.: P.452-18 pabeigta un pārbaudīta. Salīdzinājumā tagad izmantota visa P.452-18 [29] (§ 4.1–4.6) pamatmetode: brīva telpa ar gāzi un daudzkanālu, difrakcija ar sfērisko zemi un Bullingtona profils uz pareizās gludās virsmas šķēršļiem, troposcatter, kanāliem un atstarošanos uz slāņiem, un to kombinācija. ΔN un N0 ir no VFS un vietas, nevis ITU kartēs. Kodu pārbaudīja ar oficiāliem testa gadījumiem ITU izpētes grupā 3 (kas apkopoti projektā Py452 [29]): 194 gadījumos līdz 2 GHz, neiejaucoties zemē, kopējā zuduma vidējā novirze ir 0,06 dB, maksimālā 0,54 dB; difrakcija vidēji 0,10 dB, troposcatter 0,002 dB. Verifikācijā ir izlabotas divas iepriekšējo versiju kļūdas: kanalizācijas savienošanas termins, ko izmanto frekvencei MHz, nevis GHz (aptuveni 60 dB no pārāk liela apjoma, kompensēts citur), un difrakcija novirzījās no jau ierobežotās gludās virsmas kvotām ar kļūdām līdz 15 dB konkrētos profilos.
+
+ITM (§ 10 quater) arī ir salīdzināts ar NTIA [30] (punktpunkts): oficiālās datnes piecās daļās ir tādas pašas vērtības kā dB centā.
 
 ## 11 bis. Paraboliskais vienādojums (no 1.3.1.)
 
@@ -456,6 +505,8 @@ Pieteikumos Open-Meteo ir ierobežojumi minūtē, stundā un dienā katrai inter
 
 Prognoze jāsalīdzina ar reāliem savienojumiem. Aprēķinu žurnāls glabā katru skaitli; programmu arhīvs tur reklāmas un dekodēšanas. 432 un 1296 MHz, kur vietu ir maz, tiem ir vajadzīgi ziņojumi no operatoriem: kurš veica savienojumu, ar kādu laiku, ar kādu signālu. Salīdzinot daudzas stundas gaidāmais ieguvums ar izmērīto signālu saka, ja robežvērtības ir jāpārvieto.
 
+Testa programmas, ko izmanto P.452 un ITM ir pirmkoda rīku mapē; ITU testa gadījumi ir jāielādē atsevišķi, jo programma nav pārdalīt ITU datus.
+
 ## Avoti
 
 1. NOAA/NCEP, Globālā prognožu sistēma (GFS), globālais modelis 0,25°, četras rases dienā.
@@ -484,3 +535,8 @@ Prognoze jāsalīdzina ar reāliem savienojumiem. Aprēķinu žurnāls glabā ka
 24. J. Taylor K1JT, B. Somerville G4WJS, S. Franke K9AN, N. Palermo IV3NWV, Quick-Start Guide to Q65, 2021. gada 3. aprīlis (wsjt.sourceforge.io).
 25. P. L. Rice, A. G. Longley, K. A. Norton, A. P. Barsis. H0
 26. Open-Meteo, Historical Weather API (ECMWF ERA5 pārskats kopš 1940. gada; Copernicus Klimata pārmaiņu pakalpojums, CC BY 4.0 licence).
+27. I. Durre, X. Yin, R. S. Vose, S. Applequist, J. Arnfield, Integrated Global Radiosonde Archive (IGRA), versija 2, NOAA National Centres for Environmental Information, doi 10.7289/ V5X63K0Q (publiskais domēns): igra2-data-format.txt datu formāts un staciju saraksts.
+28. FM-DX Webserver (NoobishSVK un līdzstrādnieki, licence GPL-3.0) un publisko sarakstu serveri.fmdx.org.
+29. ITU-R P.452-18, Noteikšanas procedūras traucējumu novērtēšanai starp stacijām uz Zemes virsmas frekvencēs virs 0,1 GHz, 2023; 3. pētījuma grupas testa gadījumi (validācijas piemēri), kas apkopoti I. Stevanovic, Py452 (GitHub).
+30. NTIA/ITS, neregulāras teritorijas modelis (ITM) 1.2.2., atsauces kods un punktu testa gadījumi (GitHub NTIA/itm).
+31. SJO MSC.1/Cirk.

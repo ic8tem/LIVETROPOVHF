@@ -1,6 +1,6 @@
 # دليل التنبؤ
 
-> ترجمة آلية من الإيطالية: عند الشك يُعتمد الدليل الإيطالي.
+> الترجمة الفورية من جانب الإيطاليين: في حالة الشك يستحق الدليل الإيطالي.
 
 The Forecast tab calculates the tropopheric propagation by itself: an index map on the visible area and the signal provided between your station and a corresponding one. ويصف هذا الدليل كل البيانات، وكيف يتم حسابها، ومصدرها. وتشير الأرقام الواردة بين قوسين معقوفين إلى المصادر الموجودة في القاع؛ وفي البرنامج، تكون لكل بيانات عن النتائج مصورة (سيمبولو) بنفس المصدر والإشارة إلى الفقرة.
 
@@ -120,6 +120,26 @@ The minimum distance remains 300 km: raising it to 500 km would have also remove
 وحتى 1-3-3 كان الحد الأدنى صالحاً على جميع مسارات الممر، ولم يعتمد إلا على المسافة (من 10 كيلومترات إلى 300 كيلومتراً إلى 16 كيلومتراً مربعاً إلى 900 كيلومتراً): مع وجود العديد من الممرات الطويلة معاً (على سبيل المثال في 22/11/2026، رُفعت 12 ممراً حتى 2620 كيلومتراً) إلى جميع أوروبا تقريباً إلى 16 د.
 
 ولم تعد مكافآت الكسب ترسم &quot; الأرض &quot;: فالجزر الصغيرة التي تبلغ طولها ٢٢٠ كيلومترا في كلا الاتجاهين لا تزال ملونة ولكن بدون منحنى مغلق، ما لم يؤكد الممر لها. يتحول مع "المراجعة توسطت من قبل البقع".
+
+## 4 مكرراً ثانياً أجهزة الاستشعار الحية: جهاز الاستقبال من طراز FM-DX وجهاز استقبال AIS (من 1.4)
+
+Two more sources of real observations, which enter the corridors of the band of 2 m and the judgment of reliable (§ 10 septies). يشعلون ويغلقون في صندوق التفاصيل
+
+(ويفير))٨٨٨-١٠٨ ميغاهرتز( يحتفظ العديد من محاور الاستقبال عن بُعد في FM-DX بجهاز استقبال متصل بالشبكة على شبكة الانترنت في برنامج &quot; FM-DX &quot; (GPL-3.0)؛ القائمة العامة هي الخواديم كل خادم يقول، في الصفحة/النسخة، التردد الملوّن، الإشارة في الـ (دي بي إف) و، إذا فكّرت الـ (آر دي إس)، جهاز الإرسال الذي تعرفت عليه قاعدة بياناته بالمسافة والزيموت. البرنامج: [28]
+
+- تحميل القائمة كل 30 دقيقة والاحتفاظ بأقرب 60 خادوما على شبكة الإنترنت في غضون 1500 كيلومتر من QTH؛
+- (أ) أن يستجوبهم مرة واحدة في كل مرة، وأن ينتشروا على مدى 3 دقائق، مع مرور 8 ثوان كحد أقصى (لا يتلقى أي خادم أكثر من طلب واحد كل 3 دقائق)؛
+- ويحتفظ باستقبال عندما يكون جهاز الإرسال 150 كيلومترا أو أكثر، وتكون الإشارة على الأقل 10 رف؛ ويستمد موقع جهاز الإرسال من مركز الخادم والززموث والمسافة.
+
+The FM band is lower than 2 m, and the ducts that carry it do not always bring the 144 MHz; but an FM reception at 300-600 km outside the horizon is almost always tropo (or, in summer, E sporadic, that at 100 MHz reaches beyond 900 km: for this beyond 1500 km the rule of corridors asks two different sources, § 4 bis). على الخريطة، حفلات الإستقبال هي خطوط أرجوانية "إف إم ن كلم" في حانة المركز، مع القائمة في الكتاب المصورة.
+
+أي إس من جهاز استقبالك. وتحيل السفن موقعها إلى 975 161 و025 162 ميغاهيرتز (ITU-R M.1371 [31])، وهو نفس التردد تقريباً البالغ 2 متراً. جهاز استقبال (AIS-catcher, rtl-ais, a dedicated receiver) الذي يُرسلُ الكلماتَ NMEA! AIVDM in UDP on port 10110 transforms each ship away into a conduit sensor: the program decodes position messages (types 1, 2, 3, 4, 18, 19 and 21, even on multiple fragments) and comparisons the distance with the normal radio horizon
+
+```math
+d_h = 4{,}12\,(\sqrt{h_{nave}} + \sqrt{h_{rx}})\ \text{km}
+```
+
+مع ارتفاع هوائي السفينة المقدَّر من النوع (20 متراً لسفن الشحن، و30 متراً للركاب، و6 أمتار للصيد والمتعة، و10 أمتار للآخرين) وهائي جهاز الاستلام (الخط الأساس 10 أمتار). فالسفينة التي تبعد أكثر من ١,٥ مرة في الأفق وأكثر من ٥٠ كيلومترا هي استقبال عن طريق الاتصال: فهي تبدو على الخريطة على أنها خط أزرق من القبطان مع &quot; خط مسدود &quot;. It is the same idea as the CSIRO [10] study, which used 162 MHz AIS receptions to verify the prediction of GFS pipelines. ويُستعاض عنها بالأساس: فهي تخدم جهاز استقبال مناسب.
 
 ## 5. الخطوط الاختيارية والمقارنة مع الضغط والتحويل
 
@@ -338,7 +358,7 @@ The program uses the radio climate of the chosen route as in § 10 sexies (until
 أما الاستخدام الثاني فهو التمدد النهائي بعد أن تنتهي القناة قبل المقابلة. وعند نقطة الخروج، توضع الهوائي الافتراضي في منتصف الطريق من خلال القناة، ويحسب جهاز الصراف الآلي للقطعة حتى الرقم المقابل، كزيادة على المساحة الحرة بنسبة 50 في المائة من الوقت. مجموع الخسارة
 
 ```math
-L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,	heta_{condotto} + A_{ITM}(d_{uscita} 	o RX)
+L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,\theta_{condotto} + A_{ITM}(d_{uscita} \to RX)
 ```
 
 حيث يكون الـ (اي تي إكس) قسيمة الهوائي (3 دي بي في الداخل، 1 دي بي كل 10 أمتار في الخارج) إذا بدأت القناة بالقرب، خلافاً لذلك نشر المادة 10 ثالثاً. وهو الحد الذي أعطاه صاحب البلاغ لنفسه: استمرارية الطبقة بالإضافة، في معظم الأحيان، إلى التخفيف المتبقي. If it is lower than the expected loss it becomes the mechanism ( &quot;conduct (exit and final tract ITM)).
@@ -389,9 +409,38 @@ N0 for ITM is the average reduced to sea level, N0 = Ns·e (h/9460). بدون ش
 
 خط "مناخ (راديو)" يُظهر المناخ، السبب، نِس بنصف الغزو و Y: كَمْ يَكْسبُ دي بي إس في 10٪ و 1٪ من الوقتِ وكم عدد الخاسرين في 90٪. وهي إحصاءات طويلة الأجل ولا تزال مفصولة عن التوقعات: فالخسارة المتوقعة تتبع وقت اليوم مع موجزات بيانات نظام الأفضليات المعمم، وموجز الشيئين سيحسبان ضعفي نفس النشر الشاذ. TN101
 
+## عشرة اعواد موثوقية التنبؤ بالأجهزة اللاسلكية والتحقق منها (من 1-4)
+
+شيك راديوسون The GFS sees the ducts less well than it seems: وحلها الرأسي بالقرب من الأرض هو بضعة عشر أمتار، وطبقة العكس هي في كثير من الأحيان أضعف. لمعرفة مدى ثقته بالنموذج هنا وهذه الأيام، يقارنه البرنامج بالموجات الإذاعية الحقيقية لأقرب محطة، من المحفوظات IGRA v2 من NAA [27] (المجال العام):
+
+- (أ) تأخذ من قائمة المحطات أقرب محطة نشطة في حدود 600 كيلومتر (للمديرية، ممارسة مور، ITM00016245)؛
+- (أ) تحميل ملف السنة الحالية (المستكملات كل بضعة أيام) وإبقاء عمليات إطلاق الـ 00 و 12 من طراز UTC في 15 يوماً؛
+- لكل عملية إطلاق تنبع من ردة الفعل على المستوى الوطني (مع الرطوبة أو الاكتئاب في نقطة السحب)، وارتفاعات المستويات التي لا توجد بها معادلة قياسية بدءاً من ارتفاع المحطة، ودرجة الكيلومترات الأولى، وأقوى قناة تحت الـ 3000 متر (التي تقع بحصة وحدتين على الأقل)؛
+- (أ) تحميل من خدمة التنبؤات التاريخية للبرمجيات المفتوحة-Meteo [15] موجزات نظام الأفضليات المعمم للنقطة ذاتها في الساعات نفسها، وتحليلها بنفس مدونة التوقعات؛
+- ويحتسب النوافذ الملاحظة التي رأتها قوات الأمن العام، والمفقودون، وأجهزة الإنذار الكاذبة، والانحراف المتوسط والمربع للدرج.
+
+ويسير التحقق في خلفية الحساب الأول للمعاملة، في معظم الأحيان كل 12 ساعة؛ وتظل الملفات في البيانات/الوكالة الدولية لمراجعة الحسابات وأرقام سجل الحسابات. والرسائل اللاسلكية الواردة من شبكة الطقس العالمية ليس لها سوى مستويات قياسية وكبيرة: فالقنوات الرقيقة جداً تفلت منها أيضاً، والمقارنة تقول في المقام الأول إن النظام العالمي لمراقبة المناخ خاطئ جداً بمعنى أو آخر.
+
+الموثوقية خط "القابلية" يعطي حكماً عالياً أو متوسطاً أو منخفضاً على المكسب المتوقع إنها ليست إحتمالية معايرة، مما يتطلب سنوات من المقارنة مع الروابط الحقيقية (الباب 14)، بل مجموعة من النقاط حول مدى استقلالية الأدلة (رمز (الكاتب):
+
+| العنوان | النقاط |
+|---|---|
+| الاتفاق بين النماذج: الانحراف المتوسط بين الخسارة المتوقعة والنقطة P.452 بالنقاش، والمعادلة الشاذة، وبين خط الأساس ومقياس الصرف الدولي | حتى 3 دي بي + 1؛ أكثر من 8 دي بي - 1 |
+| التوقعات المسبقة | في غضون 24 ساعة +1؛ أكثر من 72 ساعة - 1 |
+| مواصلة الطبقة التأسيسية على العلاج | 70 في المائة على الأقل +1؛ أقل من 30 في المائة - 1 |
+| استمرار الطبقة في ساعات الجيران | على الأقل 70 في المائة +1 |
+| التحقق من المواقع اللاسلكية | GFS just 3 times out of 4 +1; less than one in two −1; wrong gradient of more than 15 N/km −1 (maximum −1 in all) |
+| اثبات حي على طول الطريق (المجموعة، المُبلّغ بـ (PSKReporter, APRS, FM-DX | 1 إلى 2 زوجاً من المحطات +1؛ 3 أو أكثر +2؛ فتحات ذات ربح متوقع تحت بندي دنيا - 1 |
+
+عالية من 3 نقاط، متوسط من صفر إلى 2، منخفض دون الصفر. ويحتسب التأكيد الحي كزوجين من المحطات المختلفة، في الاتجاه في غضون 20 درجة من خط الطريق، وبمتوسط نقطة على بعد 150 كيلومترا من خطه، في الساعة الأخيرة ونصف. وفي حالة المحفوظات (المادة 3 ثالثاً) لا توجد أجهزة لاسلكية ولا تأكيدات حية.
+
 ## 11. Comparison with ITU-R P.452
 
-The P.452 line applies the ITU method for ducts and reflection on layers (P.452-16 § X 4.50Q) with the DIN median of the GFS instead of the climatological one and p = 20% as a calibration constant, as in the CSIRO [10] study. وهي مقارنة فقط: فالخسارة المتوقعة لا تزال هي الخسارة المتوقعة في الفقرة 9. [6]
+The P.452 line applies the ITU method for ducts and reflection on layers (P.452 § 4.5 [6]) with the hin median of the GFS instead of the climatological one and p = 20% as a calibration constant, as in the CSIRO [10] study. It includes the loss of empirical coupling Alf under 0.5 GHz (about 28 dB to 144 MHz, 3.532 وهي مقارنة فقط: فالخسارة المتوقعة لا تزال هي الخسارة المتوقعة في الفقرة 9.
+
+From 1.4: P.452-18 complete and verified. وتستعمل المقارنة الآن جميع الطرق الأساسية لـ P.452-18 [29] (الباب 4-1-4-6): الحيز الحر بالغاز والتعددية، والنشر بالأراضي المتقطعة وموجز بولينغتون على السطح السلس الصحيح للعقبات، والتروسكات، والخناق، والتفكير في الطبقات، وتركيبها. The IDEN and the N0 come from the GFS and from the place instead of the ITU maps. وقد تم التحقق من هذه المدونة مع حالات الاختبار الرسمية للمجموعة الدراسية 3 التابعة للاتحاد الدولي للاتصالات (المدرجة في مشروع Py452 [29]): في الحالات الـ 194 حتى 2 GHz دون الإضرار بالأرض، يبلغ متوسط الانحراف عن مجموع الخسارة 0.06 دي بي، وهو الحد الأقصى البالغ 0.54 د.ب؛ والنشر 0.10 د.ب في المتوسط، التروسكات 0.002 دي. The verification has corrected two errors of the previous versions: the term coupling of the ducts used the frequency in MHz instead of in GHz (about 60 dB of too much, compensated elsewhere), and the diffraction departed from already limited surface quotas, with errors up to 15 dB on certain profiles.
+
+كما تم مقارنة جهاز الصراف الآلي (الباب 10 مكرراً ثالثاً) برقم [30] (نقطة تحديد): تعطي الأقسام الخمسة من الملف الرسمي نفس القيم للنسبة المئوية.
 
 ## 11 مكررا. المعادلة الشاذة (من 1.3.1)
 
@@ -456,6 +505,8 @@ P = \Phi\left(\frac{S/N - S/N_{soglia}}{\sigma}\right)
 
 وينبغي مقارنة التوقعات بالوصلات الحقيقية. سجل الحسابات يحتفظ بكل رقم محفوظات البرنامج يحتفظ بالإعلانات والزينات For 432 and 1296 MHz, where the spots are few, they need reports from the operators: who made the connection, to what time, with what signal. مقارنة لساعات عديدة المكسب المتوقع مع الإشارة المقاسة يقول إن كان يجب نقل العتبات.
 
+أما برامج الاختبار المستخدمة في P.452 و ITM فهي في ملف أدوات شفرة المصدر؛ ويجب تحميل حالات اختبار الاتحاد الدولي للاتصالات بصورة منفصلة، لأن البرنامج لا يعيد توزيع بيانات الاتحاد.
+
 ## المصادر
 
 1. NOAA/NCEP, Global Forecast System (GFS), global model at 0.25°, four races per day.
@@ -484,3 +535,8 @@ P = \Phi\left(\frac{S/N - S/N_{soglia}}{\sigma}\right)
 24. J. Taylor K1JT, B. Somerville G4WJS, S. Franke K9AN, N. Palermo IV3NWV, Quick-Start Guide to Q65, 3 April 2021 (wsjt.sourceforge.io).
 25. P. L. Rice, A. G. Longley, K. A. Norton, A. P. Barsis, Transmission Loss Predictions for Tropospheric Communication Circuits, NBS Technical Note 101, magazine 1967: § 9 (trocatter, function F(posd), H0), § 10 and Annex III (radio climates and variability over time).
 26. Open-Meteo, Historical Weather API (ECMWF ERA5 review since 1940; Copernicus Climate Change Service, CC by 4.0 license).
+27. I. Durre, X. Yin, R. S. Vose, S. Applequist, J. Arnfield, Integrated Global Radiosonde Archive (IGRA), version 2, NOA National Centers for Environmental Information, doi 10.7289/ V5X63K0Q (public domain): igra2-data-format.txt data format and station list.
+28. FM-DX Webserver (NoobishSVK and collaborators, license GPL-3.0) and public list of servers.fmdx.org.
+29. ITU-R P.452-18, Prediction procedures for the evaluation of interference between stations on the surface of the Earth at frequencies above about 0.1 GHz, 2023; test cases of the study group 3 (validation examples), as collected in I. Stevanovic, Py452 (GitHub).
+30. NTIA/ITS, Irregular Terrain Model (ITM) 1.2.2, reference code and point-point test cases (GitHub NTIA/itm).
+31. ITU-R M.1371, Technical characteristics for an automatic identification system using time division multiple access in the VHF maritime mobile frequency band band.

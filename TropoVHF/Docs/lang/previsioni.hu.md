@@ -1,6 +1,6 @@
 # Előrejelző kézikönyv
 
-> Gépi fordítás olaszból: kétség esetén az olasz útmutató az irányadó.
+> Automatikus fordítás olaszul: kétség esetén érdemes az olasz útmutató.
 
 Az előrejelzési lap magától számítja ki a tropoferikus terjedést: egy indextérképet a látható területen, valamint a jel, amit az állomás és a megfelelő. Ez a kézikönyv leírja az összes adatot, hogyan számítják ki, és melyik forrásból származik. A négyszögletes zárójelben lévő számok az alján lévő forrásokra vonatkoznak; a programban az eredmények minden adatában van egy komikus (szimbolo i) ugyanazzal a forrással és a bekezdésre való hivatkozással.
 
@@ -120,6 +120,26 @@ A minimális távolság 300 km marad: 500 km-re emelve az igazi rövidtávú ny�
 A minimum 1.3.3-ig a folyosó összes téglalapján érvényes volt, és csak a távolságtól (10 dB-től 300-tól 16 dB-ig és 900 km-ig) függött: sok hosszú folyosóval együtt (például 2026-ban 22 / 11-ig 12 folyosó 2620 km-ig) majdnem egész Európát 16 dB-re emelte.
 
 A nyereség görbék már nem rajzolnak "gocce": a 220 km-es kisebb szigetek mindkét irányban színesek maradnak, de zárt görbe nélkül, hacsak egy folyosó nem erősíti meg őket. Kikapcsol a "Prevision mediálta foltok" -al.
+
+## 4 ter. Élő érzékelők: FM- DX webszerver és AIS vevőkészülék (1.4-től)
+
+Két további valós megfigyelésforrás, amely a 2 m-es sáv folyosóin és a megbízhatóság megítélésén alapul (10 szepszis). Bekapcsolják és kikapcsolják a lap Részletek mezőben.
+
+Webszerver FM- DX. Az FM-en (88- 108 MHz) sok távoli recepció rajongó tart internetkapcsolattal rendelkező vevőkészüléket az FM- DX webszerveren (GPL- 3.0); A nyilvános lista a servers.fmdx.org [28]. Minden szerver azt mondja, az oldalon / api, a hangfrekvenciát, a jelet dBf és, ha dekódolta az RDS, az adó által elismert adatbázis távolság és azimut. A program:
+
+- Töltse le a listát 30 percenként, és tartsa a 60 legközelebbi online szervereket a QTH 1500 km-én belül;
+- Egyszerre egyenként vallatja őket, 3 perc alatt, legfeljebb 8 másodperces időtartammal (3 percenként egy szerver sem kap egynél több kérést);
+- megtartja a vételt, ha az adó 150 km vagy annál nagyobb, és a jel legalább 10 dBf; az adó pozíciója a szerver, az azimut és a távolság.
+
+Az FM-sáv 2 méternél alacsonyabb, és az azt szállító csatornák nem mindig hozzák el a 144 MHz-et; de a 300- 600 km-es távolságon a horizonton kívül szinte mindig tropo (vagy nyáron az E sporadic, hogy 100 MHz meghaladja a 900 km-t: ez meghaladja az 1500 km-t, a folyosók szabálya két különböző forrást, 4 bis). A térképen a fogadások lila vonalak "FM n km"; az állapotsorban a gróf, a lista a képregény.
+
+AIS a vevőtől. A hajók helyzetüket 161,975 MHz-re és 162,025 MHz-re (ITU- R M.1371 [31]) továbbítják, majdnem ugyanolyan frekvencián, mint 2 m. Egy AIS vevő (AIS- catcher, rtl- ais, egy dedikált vevő), amely továbbítja a mondatokat NMEA! AIVDM az UDP porton 10110 átalakít minden hajót egy vezeték érzékelő: a program dekódolja pozícióüzenetek (típusok 1, 2, 3, 4, 18, 19 és 21, még több töredék) és összehasonlítja a távolságot a normál rádióhorizonton
+
+```math
+d_h = 4{,}12\,(\sqrt{h_{nave}} + \sqrt{h_{rx}})\ \text{km}
+```
+
+a hajó antennájának magassága a típusból (20 m a teherhajók esetében, 30 m az utasok esetében, 6 m a halászat és a szórakozás esetében, 10 m a többiek esetében), valamint a vevőkészülék antennájának (alap 10 m) alapján becsülve. A látóhatár több mint 1,5-szeresének és több mint 50 km-nek megfelelő hajó vezetékes vétel: a térképen kék vonalként jelenik meg a QTH-tól az "AIS n km" üvöltéssel. Ez ugyanaz az elképzelés, mint a CSIRO [10] tanulmány, amely 162 MHz-es AIS fogadásokat használt a GFS csővezetékek előrejelzésének ellenőrzésére. Kikapcsolt alap: egy megfelelő vevő.
 
 ## 5. Választható vonalak és összehasonlítás a nyomással és inverzióval
 
@@ -338,7 +358,7 @@ A program a kiválasztott útvonal rádiós éghajlatát használja, mint a 10. 
 A második használat az utolsó szakasz után egy vezeték, hogy vége előtt a megfelelő. A kilépési ponton egy virtuális antennát helyeznek el a vezeték felénél, és az ITM kiszámítja a traktust egészen a megfelelő szintig, mint a szabad tér fölötti többletet az idő 50% -ánál. Teljes veszteség
 
 ```math
-L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,	heta_{condotto} + A_{ITM}(d_{uscita} 	o RX)
+L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,\theta_{condotto} + A_{ITM}(d_{uscita} \to RX)
 ```
 
 ahol A _ TX az antenna csatlakoztatása (3 dB belül, 1 dB 10 méterenként kívül), ha a csatorna a közelben kezdődik, ellenkező esetben a 10. Ez az a határ, amit a szerző megadott magának: a réteg folytonossága és legfeljebb a maradék csillapítás. Ha alacsonyabb, mint a várt veszteség, akkor válik a mechanizmus ("magatartás (kilépési és végső trash ITM)").
@@ -389,9 +409,38 @@ ERA5 2023- 2025 adatokkal végzett vizsgálatok: Capri Ns 339 a 45-ös kirándul
 
 A "Radio Climate ( TN101)" vonal az éghajlatot, az okot, az N-eket a kirándulás felével, az Y-t: hány dB-t keres az idő 10% -ában és 1% -ában, és hány veszít 90% -ban. Hosszú távú statisztikákról van szó, és az előrejelzéstől elkülönítve marad: a várható veszteség a GFS-profilokkal együtt következik be, és a két dolgot kétszer ugyanannak a kóros terjedésnek számítanák.
 
+## 10 szepszis. Az előrejelzés és az ellenőrzés megbízhatósága rádiózonokkal (1.4-től)
+
+Radioszon ellenőrzés. A GFS kevésbé látja a csatornákat, mint amilyennek látszik: A függőleges felbontás közelében a talaj néhány tíz méter, és a réteg egy fordított gyakran vékonyabb. Hogy tudjuk, mennyire bízhatunk a modellben itt és manapság, a program összehasonlítja a legközelebbi állomás valódi rádióhullámaival, a NOAA [27] IGRA v2 archívumából (nyilvános domain):
+
+- 600 km-en belül (Capri esetében Mare, ITM00016245 gyakorlat) a legközelebbi aktív állomások listájáról veszi át;
+- Töltse le az aktuális évi fájlt (néhány naponta frissíti), és tartsa a kilövések a 00 és 12 UTC tart 15 napig;
+- minden egyes kilövésnél az N reaktivitási szintet (a harmatpont páratartalmával vagy depressziójával), azon szintek magasságát, amelyek nem rendelkeznek velük, az állomás magasságától kezdve az ipszometrikus egyenlet, az első km gradiensét és a 3000 m alatti legerősebb vezetéket (M, amely legalább 2 egység részarányával csökken);
+- letölteni az Open- Meteo [15] történelmi előrejelzéseinek szolgáltatásából ugyanazon pont GFS profilját ugyanazon órában, és elemezni azokat azonos előrejelzési kóddal;
+- Számolja a megfigyelt csatornákat, hogy a GFS már látott, a hiányzó és hamis riasztók, és az átlagos és négyzet eltérés a gradiens.
+
+Az ellenőrzés a kezelés első számításának hátterében zajlik, legfeljebb 12 óránként; az akták az Adatban / IGRA-ban és a számozási nyilvántartásban maradnak. A világidőjárási hálózatból (TEMP) érkező rádiózonde üzenetek csak a szabványos és jelentős szintekkel rendelkeznek: a nagyon vékony vezetékek is elszöknek előlük, és az összehasonlítás mindenekelőtt azt mondja, hogy ha a GFS valamilyen értelemben nagyon rossz.
+
+Megbízhatóság. A "Kapcsolhatóság" vonal magas, közepes vagy alacsony megítélést ad a várható nyereség. Ez nem egy kalibrált valószínűség, amely megkövetelné éves összehasonlítás valós linkek (§ 14), hanem egy pont, hogyan független nyomokat (szerző kódja):
+
+| Cím | Pontok |
+|---|---|
+| Megállapodás a modellek között: átlagos eltérés a várható veszteség és a P452 a csatornák, a parabolikus egyenlet, és a kiindulási és ITM | legfeljebb 3 dB + 1; 8 dB felett − 1 |
+| Előzetes előrejelzés | 24 órán belül + 1; több mint 72 órán belül − 1 |
+| A kezelés alaprétegének folytonossága | legalább 70% + 1; 30% alatt − 1 |
+| A réteg tartóssága a szomszédos órákban | legalább 70% + 1 |
+| Radiosonde hitelesítése | GFS legalább 3 alkalommal a 4 + 1-ből; kettő közül kevesebb mint egy − 1; 15 N / km-nél nagyobb rossz gradiens − 1 (legfeljebb -1 összesen) |
+| Élő megerősítés az útvonal mentén (klaszter, PSKReporter, APRS, FM- DX), csak a jelenlegi időben | 1102 pár állomás + 1; 3 vagy több + 2; nyílások 2 dB -1 alatti várható növekedéssel |
+
+Magas 3 ponttól, átlagos 0 és 2 között, alacsony nulla alatt. Az élő megerősítés két különböző állomásnak számít, az útvonal irányától 20 ° -on belül, a vonalától számított 150 km-en belül, az elmúlt másfél órában. Az archívumok esetében (3 ter. §) nincs rádiókép vagy élő megerősítés.
+
 ## 11. Összehasonlítás ITU- R P.452-vel
 
-A P452-es vonal az ITU módszert alkalmazza a rétegeken lévő csatornákra és tükörképekre (P.452- 16 § 4.5 [6]), a GFS ΔN mediánjával a klimatológiai egy helyett, és p = 20% kalibrációs állandóként, mint a CSIRO [10] vizsgálatban. Ez csak egy összehasonlítás: a várható veszteség a (9) bekezdésben foglaltak szerint marad.
+A P452-es vonal az ITU-módszert alkalmazza a rétegeken lévő csatornákra és tükörképekre (P.452 § 4.5 [6]) a GFS ΔN mediánjával a klimatológiai egy helyett, és p = 20% kalibrációs állandóként, mint a CSIRO [10] vizsgálatban. Magában foglalja a 0,5 GHz alatti (körülbelül 28 dB-144 MHz, 3.532 Ez csak egy összehasonlítás: a várható veszteség a (9) bekezdésben foglaltak szerint marad.
+
+1.4: P.452- 18 teljes és ellenőrzött. Az összehasonlítás most a P.452-18 [29] (4.11-4.6.) valamennyi alapmódszerét alkalmazza: szabad tér gázzal és multipath-tal, diffrakció a gömb alakú földdel, és Bullington profilja a megfelelő sima felületen az akadályok, troposzcatter, csatornák és visszaverődés rétegeken, és ezek kombinációja. A ΔN és az N0 a GFS-ből és az ITU térképek helyett a helyről származik. A kódot a 3. ITU-vizsgálati csoport (a Py452 [29] projektben gyűjtött) hivatalos vizsgálati eseteivel ellenőrizték: a 194 esetben legfeljebb 2 GHz-es mélységben, a teljes veszteség átlagos eltérése 0,06 dB, a maximum 0,54 dB; a diffrakció 0,10 dB átlagban, a troposzcatter 0,002 dB. Az ellenőrzés az előző verziók két hibáját javította ki: a csövek összekapcsolása a frekvenciát a MHz-ben, nem pedig a GHz-ben (körülbelül 60 dB túl sok, máshol kompenzált) használta, és a diffrakció a már amúgy is korlátozott, sima felületi kvótáktól tért el, egyes profilokon legfeljebb 15 dB hibával.
+
+Az ITM-et (10% -os kveter) is összehasonlították NTIA [30] -val (pont-pont): a hivatalos fájl öt szakasza azonos értékeket ad a dB-centhez.
 
 ## 11 bis. Parabolikus egyenlet (1.3.1-től)
 
@@ -456,6 +505,8 @@ Kérések Open- Meteo van limit per perc, óra és nap minden internetes cím. A
 
 Az előrejelzést össze kell hasonlítani a valós kapcsolatokkal. A számolónapló minden számot megtart; a program archívuma hirdetéseket és dekódolást tart. A 432-es és az 1296-os MHz-es frekvenciára, ahol kevés a hely, az üzemeltetőktől kell jelentést kérniük: akik kapcsolatba léptek, mikor, milyen jellel. Hasonlítsa össze sok órán át a várt nyereség a mért jel azt mondja, ha a küszöbértékeket kell mozgatni.
 
+A P.452 és ITM tesztprogramok a forráskód-eszközök mappájában vannak; az ITU teszteseteket külön kell letölteni, mert a program nem osztja újra az ITU-adatokat.
+
 ## Forrás
 
 1. NOAA / NCEP, globális előrejelzési rendszer (GFS), globális modell 0,25 °, napi négy futam.
@@ -484,3 +535,8 @@ Az előrejelzést össze kell hasonlítani a valós kapcsolatokkal. A számolón
 24. J. Taylor K1JT, B. Somerville G4WJS, S. Franke K9AN, N. Palermo IV3NWV, Quick- Start Guide to Q65, 3 April 2021 (wsjt.sourceforge.io).
 25. P. L. Rice, A. G. Longley, K. A. Norton, A. P. Barsis, Transmission Loss Predictions for Tropospheric Communication Circuits, NBS Technical Note 101, magazine 1967: § 9 (troposcatter, function F (θd), H0), § 10 and Annex III (radio climates and variability időrend).
 26. Open- Meteo, Történelmi Időjárás API (ECMWF ERA5 felülvizsgálat óta 1940; Copernicus Climate Change Service, CC BY 4.0 licence).
+27. I. Durre, X. Yin, R. S. Vose, S. Applequist, J. Arnfield, Integrated Global Radiosonde Archive (IGRA), version 2, NOAA National Centers for Environmental Information, doi 10.7289 / V5X63K0Q (public domain): igra2- data- format.txt adat formátum és állomás lista.
+28. FM- DX Webserver (NoobishSVK és munkatársak, licence GPL- 3.0) és nyilvános listája szervers.fmdx.org..
+29. ITU- R P.452- 18, Prodication procedures for the assessment of interferencia between the stations on the surface of the Earth at condition about 0.1 GHz, 2023; test cases of the study group (validation examps), as collected in I. Stevanovic, Py452 (GitHub).
+30. NTIA / ITS, szabálytalan terep modell (ITM) 1.2.2, referenciakód és pontpont vizsgálati esetek (GitHub NTIA / itm).
+31. ITU- R M.1371, a VHF tengeri mobil frekvenciasávjában időosztásos többszörös hozzáférést alkalmazó automatikus azonosító rendszer műszaki jellemzői.

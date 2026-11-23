@@ -1,6 +1,6 @@
 # Manual forecast
 
-> Terjemahan mesin dari bahasa Italia: jika ragu, panduan berbahasa Italia yang berlaku.
+> Terjemahan otomatis oleh Italia: dalam kasus keraguan layak panduan Italia.
 
 Tab Forecast menghitung penyebaran tropopsic dengan sendirinya: peta indeks pada area yang terlihat dan sinyal yang disediakan antara stasiun Anda dan yang sesuai. Manual ini menjelaskan setiap data, bagaimana dihitung dan darimana asalnya. Angka-angka dalam kurung persegi mengacu ke sumber di bagian bawah; dalam program setiap data hasil memiliki komik (simbollo i) dengan sumber yang sama dan referensi ke paragraf.
 
@@ -120,6 +120,26 @@ Jarak minimum tetap 300 km: menaikkan ke 500 km akan juga dihapus nyata terbuka 
 Sampai 1,3.3 minimal berlaku pada semua persegi panjang koridor dan hanya bergantung pada jarak (dari 10 dB sampai 300 km sampai 16 km): dengan koridor panjang yang banyak bersama-sama (misalnya pada 22 / 11 / 2026, 12 koridor hingga 2620 km) mengangkat hampir semua Eropa ke 16 dB.
 
 Kurva tidak lagi menggambar "gocce": pulau-pulau kecil dengan 220 km di kedua arah tetap berwarna tapi tanpa kurva tertutup, kecuali koridor menegaskan mereka. Ini switch off dengan "Prevision mediated by the spot".
+
+## 4 meter. Sensor langsung: FM-DX webserver dan penerima AIS (dari 1.4)
+
+Dua sumber lebih dari pengamatan nyata, yang memasuki koridor dari band 2 m dan penghakiman dari keandalan (fix 10 septies). Mereka menyalakan dan mematikan dalam kotak tab Detail.
+
+Webserver FM- DX. Banyak penggemar penerima sinyal jarak jauh di FM (88-108 MHz) menyimpan sebuah internet- penerima yang terhubung pada FM- DX Webserver gratis program (GPL-3.0); Daftar publik adalah servers.fmdx.org [28]. Setiap server mengatakan, pada halaman / api, frekuensi yang disetel, sinyal dalam dBF dan, jika diterjemahkan RDS, pemancar diakui oleh database dengan jarak dan azmut. Program:
+
+- download daftar setiap 30 menit dan menjaga 60 terdekat server online dalam jarak 1500 km dari QTH;
+- menginterogasi mereka satu per satu, menyebar lebih dari 3 menit, dengan waktu maksimum dari 8 detik (tidak ada server menerima lebih dari satu permintaan setiap 3 menit);
+- membuat penerimaan ketika pemancar adalah 150 km atau lebih dan sinyal setidaknya 10 dBf; posisi pemancar berasal dari server, azimoth dan jarak.
+
+Band FM lebih rendah dari 2 m, dan saluran yang membawanya tidak selalu membawa 144 MHz, tetapi sebuah FM penerimaan di 300- 600 km di luar cakrawala hampir selalu tropo (atau, di musim panas, E sporadic, bahwa pada 100 MHz mencapai luar 900 km: karena ini di luar 1500 km aturan koridor meminta dua sumber yang berbeda, SHE 4 bis). Pada peta resepsinya adalah garis ungu "FM n km"; dalam baris status hitungan, dengan daftar dalam buku komik.
+
+AIS dari penerima Anda. Kapal mengirimkan posisi mereka ke 161.975 dan 162,025 MHz (ITU- R M.1371 [31]), frekuensi hampir sama dengan 2 m. Sebuah penerima AIS (AIS - catcher, rtly-ais, penerima yang berdedikasi) yang meneruskan frase NMEA! AIVDM di UDP di pelabuhan 10110 mengubah setiap kapal ke sensor saluran: program memecahkan kode pesan (tipe 1, 2, 3, 4, 18, 19 dan 21, bahkan pada beberapa fragmen) dan membandingkan jarak dengan cakrawala radio normal
+
+```math
+d_h = 4{,}12\,(\sqrt{h_{nave}} + \sqrt{h_{rx}})\ \text{km}
+```
+
+dengan tinggi antena dari kapal diperkirakan dari tipe (20 m untuk kapal kargo, 30 m untuk penumpang, 6 m untuk memancing dan kesenangan, 10 m untuk yang lain) dan dari antena penerima ditetapkan (dasar 10 m). Sebuah kapal lebih dari 1,5 kali cakrawala dan lebih dari 50 km adalah penerimaan oleh saluran: muncul di peta sebagai garis biru dari QTH dengan gemuruh "AIS n km". Ini adalah ide yang sama sebagai penelitian CSIRO [10], yang menggunakan 162 MHz AIS penerimaan untuk memverifikasi prediksi dari pipa GFS. Hal ini mematikan dasar: melayani penerima yang tepat.
 
 ## 5. Baris opsional dan perbandingan dengan tekanan dan inversi
 
@@ -338,7 +358,7 @@ Program ini menggunakan iklim radio dari rute yang dipilih sebagai dalam sexies 
 Penggunaan kedua adalah peregangan akhir setelah saluran yang berakhir sebelum yang sesuai. Pada titik keluar, antena maya ditempatkan setengah jalan melalui saluran dan ITM menghitung saluran hingga yang sesuai, sebagai kelebihan atas ruang bebas di 50% dari waktu. Kehilangan total adalah
 
 ```math
-L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,	heta_{condotto} + A_{ITM}(d_{uscita} 	o RX)
+L_{uscita} = L_{fs}(d) + A_{TX} + \gamma_d\,\theta_{condotto} + A_{ITM}(d_{uscita} \to RX)
 ```
 
 dimana A _ TX adalah kopling dari antena (3 dB di dalam, 1 dB setiap 10 m di luar) jika saluran dimulai dekat, atau difraksi entry dari # 10 meter. Ini adalah batas yang penulis telah berikan sendiri: kelanjutan lapisan ditambah, paling banyak, residual attenuation. Jika lebih rendah dari kerugian yang diharapkan itu menjadi mekanisme ("conduct (concect ITM)").
@@ -389,9 +409,38 @@ Tes dengan data ERA5 2023- 2025: Capri Ns 339 dengan excursion 45 (continental t
 
 Garis "iklim radio ( TN101)" menunjukkan iklim, alasannya, Ns dengan setengah dari ekskursi dan Y: berapa banyak dB mendapatkan 10% dan 1% dari waktu dan berapa banyak kerugian dalam 90%. Ini adalah statistik jangka panjang dan tetap terpisah dari perkiraan: kerugian yang diharapkan mengikuti waktu hari ini dengan profil GFS, dan jumlah dua hal akan dihitung dua kali lipat dari penyebaran abnormal yang sama.
 
+## 10 septies. Ketergantungan dari prediksi dan verifikasi dengan radioson (dari 1.4)
+
+Cek radio. GFS melihat saluran kurang baik dari kelihatannya: Resolusi vertikal di dekat tanah adalah beberapa sepuluh meter, dan lapisan terbalik sering lebih tipis. Untuk mengetahui bagaimana mempercayai model di sini dan hari ini, program membandingkannya dengan gelombang radio nyata dari stasiun terdekat, dari arsip IGRA v2 dari NOAA [27] (domain publik):
+
+- mengambil dari daftar stasiun yang aktif terdekat dalam 600 km (untuk Capri, Praktek Mare, ITM00016245);
+- mengunduh berkas tahun ini (update setiap beberapa hari) dan menyimpan peluncuran dari 00 dan 12 UTC 15 hari terakhir;
+- untuk setiap peluncuran menghasilkan tingkat reaktivitas N tingkat (dengan kelembaban atau depresi dari titik embun), ketinggian dari tingkat yang tidak memiliki mereka dengan persamaan ipsometric mulai dari ketinggian stasiun, gradien dari km pertama dan konduksi terkuat di bawah 3000 m (M yang jatuh dengan saham setidaknya 2 unit);
+- unduh dari layanan prakiraan sejarah Open- Meteo [15] profil GFS dari titik yang sama pada jam yang sama dan menganalisis mereka dengan kode yang sama prakiraan;
+- jumlah saluran diamati bahwa GFS telah melihat, yang hilang dan alarm palsu, dan rata-rata dan persegi deviasi gradien.
+
+Verifikasi berjalan di latar belakang untuk perhitungan pertama dari memperlakukan, paling setiap 12 jam; file tetap dalam Data / IGRA dan angka-angka dalam daftar perhitungan. Pesan-pesan Radiosonde yang datang dari jaringan cuaca dunia (TEMP) hanya memiliki standar dan tingkat yang signifikan: saluran yang sangat tipis juga melarikan diri kepada mereka, dan perbandingan mengatakan di atas semua jika GFS sangat salah dalam satu pengertian atau lainnya.
+
+Kebajikan. Baris "Affidability" memberikan penilaian tinggi, sedang atau rendah atas keuntungan yang diharapkan. Ini bukan probabilitas yang dikalibrasi, yang akan membutuhkan bertahun-tahun perbandingan dengan link nyata (* 14), tetapi jumlah poin tentang bagaimana petunjuk independen (kode penulis):
+
+| Alamat | Titik |
+|---|---|
+| Persetujuan antara model: rata-rata penyimpangan antara kehilangan yang diharapkan dan P.452 dengan saluran, persamaan parabola, dan antara baseline dan ITM | naik ke 3 dB + 1; lebih dari 8 dB per 1 |
+| Prakiraan kedepan | dalam waktu 24 jam + 1; lebih dari 72 jam per jam |
+| Kelangsungan lapisan pendiri pada pengobatan | paling tidak 70% + 1; dibawah 30% 1f |
+| Kegigihan lapisan di jam tetangga | paling tidak 70% + 1 |
+| Verifikasi radiosonde | GFS setidaknya 3 kali dari 4 + 1; kurang dari satu dari dua per satu; gradien salah dari lebih dari 15 N / km ember1 (maksimum 1x1 dalam semua) |
+| Konfirmasi langsung sepanjang rute (cluster, PSKReporter, APRS, FM-DX), hanya untuk saat ini | 1-2 pasang stasiun + 1; 3 atau lebih + 2; pembukaan dengan hasil yang diharapkan di bawah 2 dB = 1 |
+
+Tinggi dari 3 poin, rata-rata dari 0 ke 2, rendah di bawah nol. Konfirmasi langsung dianggap sebagai sepasang stasiun yang berbeda, dalam arah 20 ° dari rute dan dengan rata-rata titik dalam 150 km dari garisnya, dalam satu setengah jam terakhir. Dalam kasus arsip tidak ada radioson atau konfirmasi langsung.
+
 ## 11. Perbandingan dengan ITUR P.452
 
-Baris P.452 berlaku metode ITU untuk saluran dan refleksi pada lapisan (P.452- 16 = 4.5 [6]) dengan Median dari GFS bukan satu iklim dan p = 20% sebagai konstanta kalibrasi, seperti dalam CSIRO [10] studi. Ini hanya perbandingan: kerugian yang diharapkan tetap bahwa paragraf 9.
+Baris P.452 berlaku metode ITU untuk saluran dan refleksi pada lapisan (P.452 [6]) dengan Median SIRN dari GFS bukan satu iklim dan P = 20% sebagai konstanta kalibrasi, seperti dalam penelitian CSIRO [10]. Ini termasuk hilangnya gabungan empiris Alf di bawah 0,5 GHz (sekitar 28 dB sampai 144 MHz, 3.532 Ini hanya perbandingan: kerugian yang diharapkan tetap bahwa paragraf 9.
+
+Dari 1.4: P.452- 18 selesai dan diverifikasi. Perbandingan sekarang menggunakan semua metode dasar dari P.452- 18 [29] (= 4.1-4.6): ruang bebas dengan gas dan multipath, diffraction dengan tanah bola dan profil Bullington pada permukaan halus yang benar untuk hambatan, troposcatter, saluran dan refleksi pada lapisan, dan kombinasi mereka. The NY dan N0 berasal dari GFS dan dari tempat bukan peta ITU. Kode tersebut telah diverifikasi dengan kasus uji resmi dari kelompok studi ITU 3 (dikumpulkan dalam proyek Py452 [29]): pada 194 kasus hingga 2 GHz tanpa menelan tanah rata-rata deviasi atas kerugian total adalah 0.06 dB, 0.54 dB maksimum; diffration 0.10 dB rata-rata, troposcatter 0.002 dB. Verifikasi telah dikoreksi dua kesalahan dari versi sebelumnya: penyambungan istilah dari saluran yang digunakan frekuensi di MHz bukan di GHz (sekitar 60 dB dari terlalu banyak, kompensasi di tempat lain), dan diffraction berangkat dari sudah terbatas Kuota permukaan halus, dengan kesalahan hingga 15 dB pada profil tertentu.
+
+ITM (quater 10) juga telah dibandingkan dengan NTIA [30] (titik): lima bagian dari berkas resmi memberikan nilai yang sama ke sen dB.
 
 ## 11 bis. Persamaan parabola (dari 1.3.1)
 
@@ -456,6 +505,8 @@ Permintaan di Open- Meteo memiliki batas per menit, per jam dan per hari untuk s
 
 Perkiraan harus dibandingkan dengan koneksi nyata. Catatan perhitungan menyimpan setiap nomor; arsip program menyimpan iklan dan decoding. Untuk 432 dan 1296 MHz, di mana bintik-bintik adalah sedikit, mereka membutuhkan laporan dari operator: yang membuat koneksi, untuk apa waktu, dengan sinyal apa. Bandingkan selama berjam-jam keuntungan yang diharapkan dengan sinyal diukur mengatakan jika ambang batas harus dipindahkan.
 
+Program tes yang digunakan untuk P.452 dan ITM berada dalam folder perangkat kode sumber; kasus tes ITU harus diunduh secara terpisah, karena program tidak mendistribusikan ulang data ITU.
+
 ## Sumber
 
 1. NOAA / NCEP, Global Forecast System (GFS), model global pada 0,25 °, empat balapan per hari.
@@ -484,3 +535,8 @@ Perkiraan harus dibandingkan dengan koneksi nyata. Catatan perhitungan menyimpan
 24. J. Taylor K1JT, B. Somerville G4WJS, S. Franke K9AN, N. Palermo IV3NWV, Quick- Mulai Panduan ke Q65, 3 April 2021 (wsjt.sourceforge.io).
 25. P. L. Rice, A. G. Longley, K. A. Norton, A. P. Barsis, Transmission Loss Predictions for Troposfiric Communication Circuits, NBS Technical Note 101, magazine 1967: H0
 26. Open-Meteo, API Cuaca Historical (ECMWF ERA5 ulasan sejak 1940; Layanan Perubahan Iklim Copernicus, CC BY 4.0).
+27. I Durre, X. Yin, R. S. Vose, S. Applequist, J. Arnfield, Integrated Global Radiosonde Archive (IGRA), versi 2, NOAA National Centers for Environmental Information, doi 10.7289 / V5X63K0Q (public domain): igra2- format.txt data format dan daftar stasiun.
+28. FM-DX Webserver (NoobishSVK dan kolaborator, lisensi GPL-3.0) dan daftar publik server.fmdx.org..
+29. ITUR P.452- 18, Prosedur Prediksi untuk evaluasi interferensi antara stasiun-stasiun di permukaan Bumi pada frekuensi di atas sekitar 0.1 GHz, 2023; uji kasus dari kelompok belajar 3 (validasi contoh), seperti dikumpulkan dalam I. Stesanovic, Py452 (GitHub).
+30. NTIA / ITS, Model Terrain Irregular (ITM) 1.2.2, kode referensi dan titik-titik tes kasus (GitHub NTIA / itm).
+31. ITU- R M.1371, karakteristik teknis untuk sistem identifikasi otomatis menggunakan pembagian waktu banyak akses dalam VHF maritim frekuensi mobile band.
