@@ -1,0 +1,3 @@
+  Determining projects to restore...
+  Restored D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\TropoVHF.csproj (in 16.7 sec).
+D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\Ui\MainWindow.cs(38,38): error CS0246: The type or namespace name 'PointerWheelEventArgs' could not be found (are you missing a using directive or an assembly reference?) [D:\a\LIVETROPOVHF\LIVETROPOVHF\TropoVHF\TropoVHF.csproj]
