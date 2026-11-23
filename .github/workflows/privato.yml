@@ -66,15 +66,6 @@ jobs:
           if (Test-Path "$d\fonti.txt") { Copy-Item "$d\fonti.txt" dist\fonti.txt }
           "codice di uscita: $($p.ExitCode)" | Add-Content dist\fonti.txt
           Get-Content dist\fonti.txt
-      - name: Validazione su collegamenti reali (29/12/2021 – 2/1/2022)
-        shell: pwsh
-        continue-on-error: true
-        run: |
-          $d = "$env:RUNNER_TEMP\prova"
-          $p = Start-Process "$d\LIVETROPOVHF.exe" -ArgumentList "--valida","$d\Tarature\validazione-2021-12-29.txt","$d\validazione.txt" -PassThru
-          if (-not $p.WaitForExit(2400000)) { Stop-Process -Id $p.Id -Force; "tempo scaduto" | Set-Content dist\validazione.txt }
-          if (Test-Path "$d\validazione.txt") { Copy-Item "$d\validazione.txt" dist\validazione.txt }
-          Get-Content dist\validazione.txt
       - name: Validazione sulle decodifiche FT8 di IC8TEM (aprile 2022)
         shell: pwsh
         continue-on-error: true
@@ -84,6 +75,15 @@ jobs:
           if (-not $p.WaitForExit(2400000)) { Stop-Process -Id $p.Id -Force; "tempo scaduto" | Set-Content dist\validazione-2022-04.txt }
           if (Test-Path "$d\validazione-2022-04.txt") { Copy-Item "$d\validazione-2022-04.txt" dist\validazione-2022-04.txt }
           Get-Content dist\validazione-2022-04.txt
+      - name: Validazione su collegamenti reali (29/12/2021 – 2/1/2022)
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $d = "$env:RUNNER_TEMP\prova"
+          $p = Start-Process "$d\LIVETROPOVHF.exe" -ArgumentList "--valida","$d\Tarature\validazione-2021-12-29.txt","$d\validazione.txt" -PassThru
+          if (-not $p.WaitForExit(2400000)) { Stop-Process -Id $p.Id -Force; "tempo scaduto" | Set-Content dist\validazione.txt }
+          if (Test-Path "$d\validazione.txt") { Copy-Item "$d\validazione.txt" dist\validazione.txt }
+          Get-Content dist\validazione.txt
       - name: Prova delle fonti dati (Open-Meteo GFS e SRTM1)
         shell: bash
         continue-on-error: true
