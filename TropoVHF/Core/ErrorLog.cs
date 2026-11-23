@@ -42,9 +42,20 @@ public static class ErrorLog
     }
 
     /// <summary>Annota un errore. fatal = il programma sta per chiudersi.</summary>
+    static string _lastSig = ""; static DateTime _lastAt; static int _repeats;
+
     public static void Write(Exception ex, string where, bool fatal = false)
     {
         if (ex == null) return;
+        // 1.4 — lo stesso errore ripetuto a raffica (es. più attività chiuse insieme) si annota una volta sola per minuto
+        string sig = where + "|" + ex.GetType().FullName + "|" + ex.Message + "|" + (ex.InnerException?.Message ?? "");
+        lock (Lock)
+        {
+            if (!fatal && sig == _lastSig && (DateTime.UtcNow - _lastAt).TotalSeconds < 60) { _repeats++; return; }
+            if (_repeats > 0)
+                try { Directory.CreateDirectory(Settings.DataDir); File.AppendAllText(FilePath, $"(l'errore precedente si è ripetuto altre {_repeats} volte)\n\n", Encoding.UTF8); } catch { }
+            _lastSig = sig; _lastAt = DateTime.UtcNow; _repeats = 0;
+        }
         try
         {
             var sb = new StringBuilder();
