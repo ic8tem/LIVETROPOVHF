@@ -12,7 +12,7 @@ namespace TropoVHF.Forecast;
 /// </summary>
 public static class Validation
 {
-    sealed class Qso { public DateTime Utc; public LatLon A, B; public string LA = "", LB = "", Cat = ""; public double Km, Freq; }
+    sealed class Qso { public DateTime Utc; public LatLon A, B; public string LA = "", LB = "", Cat = ""; public double Km, Freq, Snr = double.NaN; }
     sealed class Res { public double Mean = double.NaN, Frac10 = double.NaN, Max = double.NaN, Stab = double.NaN; public int Subs, Sci, N; }
 
     public static int Run(string inFile, string outFile)
@@ -28,7 +28,7 @@ public static class Validation
             if (p.Length < 5) continue;
             if (!DateTime.TryParse(p[0], ci, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var t)) continue;
             if (!LocatorX.TryParse(p[1], out var a) || !LocatorX.TryParse(p[2], out var b)) continue;
-            qs.Add(new Qso { Utc = DateTime.SpecifyKind(t, DateTimeKind.Utc), A = a, B = b, LA = p[1], LB = p[2], Freq = double.Parse(p[3], ci), Cat = p[4].Trim(), Km = Geo.DistKm(a, b) });
+            qs.Add(new Qso { Utc = DateTime.SpecifyKind(t, DateTimeKind.Utc), A = a, B = b, LA = p[1], LB = p[2], Freq = double.Parse(p[3], ci), Cat = p[4].Trim(), Km = Geo.DistKm(a, b), Snr = p.Length > 5 && double.TryParse(p[5], NumberStyles.Float, ci, out var sn) ? sn : double.NaN });
         }
         W($"VALIDAZIONE su {qs.Count} collegamenti da {inFile}");
         if (qs.Count == 0) { File.WriteAllText(outFile, sb.ToString()); return 1; }
@@ -145,6 +145,34 @@ public static class Validation
                 W("   tratte con il guadagno previsto più basso (collegamenti che il modello non vede):");
                 foreach (var x in e.OrderBy(x => x.r.Mean).Take(12))
                     W(string.Format(ci, "      {0:dd/MM HH:mm} {1}–{2} {3:0} km: medio {4:0.0} dB, massimo {5:0.0} dB", x.q.Utc, x.q.LA, x.q.LB, x.q.Km, x.r.Mean, x.r.Max));
+            }
+            // 1.4 — ricezioni contro assenze nello stesso periodo (stesse stazioni lontane, ore d'ascolto senza la loro decodifica)
+            if (qs.Any(q => q.Cat == "assente") && qs.Any(q => q.Cat == "tropo"))
+            {
+                var pr = qs.Where(q => q.Cat == "tropo").Select(q => Path(gEv, q, q.Utc).Mean).Where(v => !double.IsNaN(v)).ToList();
+                var ab = qs.Where(q => q.Cat == "assente").Select(q => Path(gEv, q, q.Utc).Mean).Where(v => !double.IsNaN(v)).ToList();
+                if (pr.Count > 0 && ab.Count > 0)
+                {
+                    double wins = 0; foreach (var x in pr) foreach (var y in ab) wins += x > y ? 1 : x == y ? 0.5 : 0;
+                    W(string.Format(ci, "--- ricevute contro assenti nello stesso periodo: {0} / {1} tratte, mediana del guadagno medio {2:0.0} / {3:0.0} dB, separazione (AUC) {4:0.00}",
+                        pr.Count, ab.Count, pr.OrderBy(v => v).ElementAt(pr.Count / 2), ab.OrderBy(v => v).ElementAt(ab.Count / 2), wins / ((double)pr.Count * ab.Count)));
+                }
+            }
+            // 1.4 — SNR misurato contro guadagno previsto, per la stessa stazione in ore diverse (si tolgono la potenza e l'antenna)
+            var withSnr = qs.Where(q => q.Cat == "tropo" && !double.IsNaN(q.Snr)).Select(q => (q, g: Path(gEv, q, q.Utc).Mean)).Where(x => !double.IsNaN(x.g)).ToList();
+            var an = new List<(double dg, double ds)>();
+            foreach (var grp in withSnr.GroupBy(x => x.q.LB).Where(gr => gr.Count() >= 3))
+            {
+                double mg = grp.Average(x => x.g), ms = grp.Average(x => x.q.Snr);
+                foreach (var x in grp) an.Add((x.g - mg, x.q.Snr - ms));
+            }
+            if (an.Count >= 8)
+            {
+                double mx = an.Average(a => a.dg), my = an.Average(a => a.ds);
+                double sxy = an.Sum(a => (a.dg - mx) * (a.ds - my)), sxx = an.Sum(a => (a.dg - mx) * (a.dg - mx)), syy = an.Sum(a => (a.ds - my) * (a.ds - my));
+                double r = sxx > 0 && syy > 0 ? sxy / Math.Sqrt(sxx * syy) : double.NaN;
+                W(string.Format(ci, "--- SNR contro guadagno previsto, stessa stazione (scarti dalla media della stazione): {0} ricezioni, correlazione {1:+0.00;-0.00}, pendenza {2:0.00} dB di SNR per dB previsto",
+                    an.Count, r, sxx > 0 ? sxy / sxx : double.NaN));
             }
         }
         Refractivity.UseCorrections = true; Refractivity.UseSoftDuct = true; Refractivity.UsePersistence = true;
