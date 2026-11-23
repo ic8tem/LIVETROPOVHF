@@ -8,6 +8,7 @@ Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 - Previsioni: le caselle «Sorgente dei dati» e «Caso storico» hanno il testo più piccolo e occupano la larghezza del pannello, così la scelta si legge per intero.
 - Registro errori: non vengono più registrate come errori le ricezioni UDP/NTP interrotte alla chiusura del socket (errore 995).
 - Orologio: se i server NTP non rispondono il programma non si ferma; ogni server ha al massimo 4 secondi (anche per il DNS), «NTP:FAILED» lo segnala con il fumetto e una riga nel registro, e si prosegue con l'orologio del PC riprovando ogni 3 minuti.
+- Modi digitali: FT4 usa in troposcatter la soglia con evanescenza (−15,2 dB, QEX 2020); Q65 diviso nei sottomodi Q65-15C (−22,2 dB), Q65-30B (−24,8 dB) e Q65-60A (−27,6 dB) dalla guida rapida di K1JT; il fumetto indica il margine della decodifica AP (circa 2 dB per FT8, 1,5–2,6 dB per Q65), che non entra nella soglia.
 
 ## 1.3.4 — 22/11/2026
 - Previsioni: riquadro «Dettagli da mostrare» a destra della mappa con tre livelli (Essenziale, Normale, Completo); linguetta Previsioni tradotta in tutte le lingue; slovacco aggiunto.

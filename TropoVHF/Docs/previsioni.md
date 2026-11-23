@@ -411,7 +411,7 @@ P = \Phi\left(\frac{S/N - S/N_{soglia}}{\sigma}\right)
 ```
 
   con Φ la funzione di ripartizione normale: margine 0 dB = 50%, +3,4 dB = 84%, +7 dB (il margine «solido» di Bray) = 98%. Non comprende l'incertezza del modello, che è più grande.
-- Modi digitali: lo S/N in 2500 Hz confrontato con le soglie misurate di FT4 (−17,5 dB) e FT8 (−21 dB, ma −18,6 dB con l'evanescenza tipica del troposcatter) [21], Q65-30A (−24 dB) e JT65A (−25 dB) [22]. Quando il meccanismo è troposcatter la soglia FT8 usata è −18,6 dB.
+- Modi digitali: lo S/N in 2500 Hz confrontato con le soglie misurate al 50% di decodifica, senza informazione a priori (AP). FT8 −21 dB e FT4 −17,5 dB sul rumore bianco; quando il meccanismo è troposcatter si usano le soglie con evanescenza «media latitudine disturbato», FT8 −18,6 dB e FT4 −15,2 dB [21]. Q65-15C −22,2 dB, Q65-30B −24,8 dB, Q65-60A −27,6 dB [24]: le soglie sono misurate per il sottomodo A; B e C hanno toni 2 e 4 volte più larghi e, con l'allargamento Doppler piccolo della troposfera a 144 MHz, la stessa soglia. In aircraft scatter il Doppler può superare i toni di Q65-60A (1,7 Hz): lì sono meglio 30B o 15C. JT65A −25 dB [22]. La decodifica AP (nominativo del corrispondente già noto o fine del QSO) dà circa 2 dB in più per FT8 e da 1,5 a 2,6 dB per Q65; non entra nella soglia perché non vale per tutto il QSO. I valori «−24 dB» che si leggono spesso per FT8 sono il limite dei rapporti di WSJT-X o la decodifica AP, non la soglia al 50%.
 
 ## 13. Tempi di risposta e dati
 
@@ -450,3 +450,4 @@ La previsione va confrontata con i collegamenti reali. Il registro dei calcoli c
 21. S. Franke, B. Somerville, J. Taylor, The FT4 and FT8 Communication Protocols, QEX luglio/agosto 2020.
 22. W3SZ, soglie dei modi digitali lenti (JT65, JT9, QRA64) e scelta del modo secondo la propagazione, 2019.
 23. QST, «The World Above 50 MHz», novembre 2022: apertura del 14–15 agosto 2022 fra Manitoba e Kansas/Missouri.
+24. J. Taylor K1JT, B. Somerville G4WJS, S. Franke K9AN, N. Palermo IV3NWV, Quick-Start Guide to Q65, 3 aprile 2021 (wsjt.sourceforge.io).
