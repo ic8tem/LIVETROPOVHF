@@ -149,6 +149,11 @@ public sealed class LinkResult
     public bool P452Ok;
     // 1.3.0: troposcatter con tre modelli affiancati (come TropoLink) e loro dispersione come incertezza
     public double P617Db = double.NaN, P617F, P617N0, P617DeltaN, RsgbDb = double.NaN, ScatSpreadDb;
+    // 1.3.5: troposcatter di NBS TN101 § 9 come terzo modello di confronto e clima radio del TN101 § 10 (da ERA5)
+    public double Tn101Db = double.NaN, Tn101H0 = double.NaN, Tn101Ns = double.NaN;
+    public bool HznOverSea;
+    public RadioClimateInfo RadioClim;
+    public double Y10Db = double.NaN, Y1Db = double.NaN, Y90Db = double.NaN;
     // situazione meteo lungo la tratta (frazione dei profili)
     public double SubsFrac, AscentFrac, SciroccoFrac, StabDbMean, SeaAirDbMean;
     public int SoftN; public double SoftMax;          // punti con condotto morbido e fattore massimo
@@ -438,6 +443,7 @@ public static class LinkCalc
             }
         }
         r.ThetaTx = thT; r.ThetaRx = thR;
+        r.HznOverSea = !r.Los && n >= 3 ? h[iht] < 1 && h[ihr] < 1 : r.SeaFrac >= 0.5;    // TN101 § 10.2: entrambi gli orizzonti sul mare
         r.ThetaMrad = 1000 * d / ae + thT + thR;
         r.GtxDbi = Dl6wu.GainDbi(tx.BoomM, o.FreqMHz); r.GrxDbi = Dl6wu.GainDbi(rx.BoomM, o.FreqMHz);
         double n0 = good.Count > 0 ? good.Average(p => p.Ns) : 320;
@@ -448,6 +454,24 @@ public static class LinkCalc
         r.LscatDb = 190.0 + lf + 20 * Math.Log10(d) + 0.573 * Math.Max(0, r.ThetaMrad) - 0.15 * n0 + lc + agS;
         CalcLog.W($"angoli d'orizzonte: TX {thT:0.00} mrad, RX {thR:0.00} mrad; θ = 1000 d/ae + θt + θr = {r.ThetaMrad:0.00} mrad");
         CalcLog.W($"troposcatter P.452-18 eq. 45 (p = 50%): 190 + Lf {lf:0.00} + 20 log d − 0,15·N0 ({n0:0.0}) + 0,573·θ + Lc = 0,051·e^(0,055(Gt+Gr)) {lc:0.00} + gas {agS:0.00} → Lbs = {r.LscatDb:0.00} dB (Gt {r.GtxDbi:0.0} dBi, Gr {r.GrxDbi:0.0} dBi, DL6WU)");
+        // 1.3.5: troposcatter di NBS TN101 § 9 (terzo modello di confronto), con Ns dei profili GFS e orizzonti dal profilo reale
+        if (!r.Los && n >= 3)
+        {
+            try
+            {
+                double nsT = good.Count > 0 ? good.Average(p => p.Ns) : 315;
+                var pflT = ItmProfile(h, 0, n - 1, d);
+                double lb = Itm.Tn101Scatter(Math.Max(0.5, Math.Min(3000, hts - h[0])), Math.Max(0.5, Math.Min(3000, hrs - h[n - 1])), pflT, Math.Max(250, Math.Min(400, nsT)), o.FreqMHz, out double h0t, out _);
+                if (!double.IsNaN(lb))
+                {
+                    double lgp = 0.07 * Math.Exp(0.055 * (r.GtxDbi + r.GrxDbi));
+                    r.Tn101Db = lb + lgp; r.Tn101H0 = h0t; r.Tn101Ns = nsT;
+                    CalcLog.W($"troposcatter NBS TN101 § 9: Ns {nsT:0} {(good.Count > 0 ? "(GFS)" : "(tipico)")}, H0 {h0t:0.0} dB, perdita mediana {lb:0.0} dB + accoppiamento {lgp:0.00} dB → {r.Tn101Db:0.0} dB");
+                }
+                else CalcLog.W("troposcatter NBS TN101 § 9: fuori dal campo del metodo (antenne troppo basse o tratta in vista)");
+            }
+            catch (Exception ex) { CalcLog.W("troposcatter NBS TN101: calcolo non riuscito: " + ex.Message); }
+        }
         Scatter3(r, h, good, o.FreqMHz);
         CommonVolume(r, pts, prof, hts, hrs, ae);
         MixScatter(r, h, prof);
@@ -461,9 +485,13 @@ public static class LinkCalc
         {
             try
             {
+                // 1.3.5: clima radio del TN101 § 10.2 dal punto medio della tratta (ERA5 via Open-Meteo, una volta per cella di 0,5°)
+                var mid = pts[pts.Count / 2];
+                var rc = await RadioClimate.Get(srtm.Http, mid.Lat, mid.Lon, r.SeaFrac, r.HznOverSea, ct);
+                r.RadioClim = rc;
                 bool seaPath = r.SeaFrac >= 0.5;
-                var clim = seaPath ? Itm.Climate.MaritimeTemperateSea : Itm.Climate.MaritimeTemperateLand;
-                double itmN0 = seaPath ? 350 : 320;                       // NTIA 82-100: marittimo temperato su mare / su terra
+                var clim = rc.Climate;
+                double itmN0 = rc.N0;
                 double eps = seaPath ? 81 : 15, sig = seaPath ? 5 : 0.005;
                 var pfl = ItmProfile(h, 0, n - 1, d);
                 double hT = Math.Max(0.5, Math.Min(3000, hts - h[0])), hR = Math.Max(0.5, Math.Min(3000, hrs - h[n - 1]));
@@ -472,8 +500,12 @@ public static class LinkCalc
                 {
                     var i10 = Itm.P2P(hT, hR, pfl, clim, itmN0, o.FreqMHz, false, eps, sig, 13, 10, 50, 50);
                     var i01 = Itm.P2P(hT, hR, pfl, clim, itmN0, o.FreqMHz, false, eps, sig, 13, 1, 50, 50);
+                    var i90 = Itm.P2P(hT, hR, pfl, clim, itmN0, o.FreqMHz, false, eps, sig, 13, 90, 50, 50);
                     r.ItmDb = i50.AdB; r.Itm10Db = i10.AdB; r.Itm1Db = i01.AdB; r.ItmMode = i50.ModeName; r.ItmDeltaH = i50.DeltaH; r.ItmN0 = itmN0;
-                    r.ItmClimate = seaPath ? "marittimo temperato sul mare" : "marittimo temperato sulla terra";
+                    r.Y10Db = i50.AdB - i10.AdB; r.Y1Db = i50.AdB - i01.AdB; r.Y90Db = i90.AdB - i50.AdB;
+                    r.ItmClimate = RadioClimate.Name(clim);
+                    CalcLog.W($"clima radio (TN101 § 10.2): {r.ItmClimate} ({rc.Why})" + (rc.FromEra5 ? $"; ERA5 nella cella {rc.Lat:0.0}, {rc.Lon:0.0}: Ns media {rc.NsMean:0} N, escursione mensile {rc.NsRange:0} N, umidità {rc.RhMean:0}%, pioggia {rc.RainMm:0} mm/anno, quota {rc.ElevM:0} m" : "") +
+                              $"; N0 {itmN0:0}; Y(q) rispetto alla mediana: {r.Y10Db:+0.0;-0.0} dB nel 10% del tempo, {r.Y1Db:+0.0;-0.0} dB nell'1%, −{r.Y90Db:0.0} dB nel 90%");
                     CalcLog.W($"ITM (Longley-Rice, NTIA): clima {r.ItmClimate}, N0 {itmN0:0}, suolo εr {eps:0} σ {sig:0.###} S/m, polarizzazione orizzontale, Δh {i50.DeltaH:0} m, " +
                               $"antenne efficaci {i50.He[0]:0} / {i50.He[1]:0} m, meccanismo {i50.ModeName}: perdita {i50.AdB:0.0} dB al 50% del tempo, {i10.AdB:0.0} dB al 10%, {i01.AdB:0.0} dB all'1% " +
                               $"(P.452 qui {r.LbaseDb:0.0} dB, differenza {r.LbaseDb - i50.AdB:+0.0;-0.0} dB)");
@@ -862,10 +894,10 @@ public static class LinkCalc
             double lc = 0.07 * Math.Exp(0.055 * (r.GtxDbi + r.GrxDbi));
             r.P617Db = r.P617F + 22 * Math.Log10(fMHz) + 35 * Math.Log10(r.ThetaMrad) + 17 * Math.Log10(d) + lc;
         }
-        var all = new[] { r.LscatDb, r.P617Db, r.RsgbDb }.Where(x => !double.IsNaN(x)).ToList();
+        var all = new[] { r.LscatDb, r.P617Db, r.RsgbDb, r.Tn101Db }.Where(x => !double.IsNaN(x)).ToList();
         r.ScatSpreadDb = all.Count > 1 ? all.Max() - all.Min() : 0;
         CalcLog.W($"troposcatter, altri modelli: P.617-5 F = 0,18·Ns {(good.Count > 0 ? "(GFS)" : "(tipico)")} − 0,23·ΔN = {r.P617F:0.0} (Ns→N0 {r.P617N0:0}, ΔN {r.P617DeltaN:0} N/km) → {(double.IsNaN(r.P617Db) ? "—" : r.P617Db.ToString("0.0"))} dB; " +
-                  $"RSGB (DL2FZN) {r.RsgbDb:0.0} dB; P.452 {r.LscatDb:0.0} dB → dispersione fra i modelli {r.ScatSpreadDb:0.0} dB");
+                  $"RSGB (DL2FZN) {r.RsgbDb:0.0} dB; TN101 {(double.IsNaN(r.Tn101Db) ? "—" : r.Tn101Db.ToString("0.0"))} dB; P.452 {r.LscatDb:0.0} dB → dispersione fra i modelli {r.ScatSpreadDb:0.0} dB");
         if (good.Count > 0)
         {
             r.SubsFrac = good.Count(p => p.Subsidence) / (double)good.Count;

@@ -160,9 +160,11 @@ Il profilo della tratta si campiona su Copernicus GLO-30 ogni 30 m (più largo o
 - Troposcatter: ITU-R P.452-16 eq. 45 al 50% del tempo [6], con la distanza angolare dagli orizzonti e N0 dai profili.
 - Senza tropo: somma delle potenze di diffrazione e troposcatter, mai sotto lo spazio libero.
 
-## 8 bis. Troposcatter: tre modelli e incertezza
+## 8 bis. Troposcatter: quattro modelli e incertezza
 
-Accanto a P.452 il programma calcola il troposcatter con altri due modelli, come fa il programma TropoLink [16], e mostra la loro differenza come incertezza:
+Accanto a P.452 il programma calcola il troposcatter con altri tre modelli, come fa il programma TropoLink [16], e mostra la loro differenza come incertezza:
+
+- NBS TN101 § 9 [25] (dalla 1.3.5), mediana: L = 30 log f − 20 log d + F(θd) − F0 + H0 + Lgp. F(θd) è la funzione d'attenuazione dell'allegato III nelle sue forme analitiche (Ns 301) con la correzione per Ns, H0 la funzione di guadagno in frequenza del § 9.2: a 144 MHz, con antenne basse in lunghezze d'onda, la riflessione dal suolo cancella in parte il campo nella parte bassa del volume comune e la perdita sale di 3–10 dB. Ns è quello dei profili GFS dell'ora, gli orizzonti e le altezze efficaci vengono dal profilo Copernicus, Lgp = 0,07·e^(0,055(Gt+Gr)) è la perdita d'accoppiamento d'apertura. È la stessa forma che l'ITM usa al proprio interno, ma con la rifrattività di oggi invece di quella del clima. Prove su tratte piatte a 144 MHz con antenne a 20 m: entro 2–4 dB dall'ITM fra 150 e 900 km e circa 2 dB sotto la forma semplificata 9.2b del TN101, che non ha H0.
 
 - ITU-R P.617-5 [17], mediana: L = F + 22 log f + 35 log θ + 17 log d + Lc, con f in MHz, θ in mrad, d in km, F = 0,18·N0·e^(−hs/7,35) − 0,23·ΔN e Lc = 0,07·e^(0,055(Gt+Gr)). Di solito N0 e ΔN si prendono dalle mappe climatologiche dell'ITU; qui si usano ogni ora i profili GFS (N0·e^(−hs/7,35) è la rifrattività al suolo, ΔN il calo nel primo km), così anche il troposcatter segue il tempo.
 - Formula del VHF/UHF Handbook della RSGB, ripresa da DL2FZN [18]: L = Lfs + 24,44 + 4,283 ln f + 0,06656 d. La pendenza con la distanza è quasi uguale a quella di PROPBER (0,067 dB/km).
@@ -329,7 +331,7 @@ L'ITM calcola la perdita in atmosfera normale sul profilo reale Copernicus GLO-3
 ight)\ \mathrm{m}^{-1}
 ```
 
-Il programma usa il clima marittimo temperato, con N0 320 sulla terra e 350 sul mare (suolo εr 15, σ 0,005 S/m; mare εr 81, σ 5 S/m), la polarizzazione orizzontale e la variabilità nel tempo senza quella di luogo (il profilo è noto). Mostra la perdita superata nel 50% del tempo e quella che si ha nel 10% e nell'1% del tempo migliore. L'ITM non modella i condotti: la sua variabilità nel tempo è statistica, per clima. Serve come secondo calcolo della linea di base accanto a P.452; la differenza fra i due dà un'idea dell'incertezza.
+Il programma usa il clima radio della tratta scelto come al § 10 sexies (fino alla 1.3.4 sempre il marittimo temperato, con N0 320 sulla terra e 350 sul mare), con N0 dalla rifrattività media del luogo (suolo εr 15, σ 0,005 S/m; mare εr 81, σ 5 S/m), la polarizzazione orizzontale e la variabilità nel tempo senza quella di luogo (il profilo è noto). Mostra la perdita superata nel 50% del tempo e quella che si ha nel 10% e nell'1% del tempo migliore. L'ITM non modella i condotti: la sua variabilità nel tempo è statistica, per clima. Serve come secondo calcolo della linea di base accanto a P.452; la differenza fra i due dà un'idea dell'incertezza.
 
 Il secondo uso è il tratto finale dopo un condotto che finisce prima del corrispondente. Nel punto d'uscita si mette un'antenna virtuale a metà del condotto e l'ITM calcola il tratto fino al corrispondente, come eccesso sopra lo spazio libero al 50% del tempo. La perdita totale è
 
@@ -357,6 +359,33 @@ Per Barcellona basta puntare a 282° invece di 279° perché l'asse passi dalle 
 **Discontinuità terra-mare.** Contano. Un condotto formato sul Tirreno si interrompe sulla costa sarda: il segnale esce dal condotto (il tratto dopo l'uscita, § 10 quater) e deve rientrare in un altro condotto sul mare delle Baleari, pagando di nuovo l'accoppiamento. I condotti in quota, sopra i 1500 m, passano sopra la Gallura senza accorgersene; per la Corsica centrale non vale.
 
 In pratica: se il percorso attraversa un'isola montuosa, prova qualche grado di correzione verso il tratto di mare libero, ma non contare sul varco con vento forte nello stretto.
+
+## 10 sexies. Clima radio del TN101 e variabilità nel tempo (dalla 1.3.5)
+
+Il TN101 § 10 [25] descrive come la perdita di una tratta oltre l'orizzonte varia nel lungo periodo attorno alla mediana, con curve diverse per clima: la funzione Y(q) dice di quanti dB la perdita scende nel q% del tempo migliore. L'ITM contiene quelle curve per sette climi. Il clima conta molto: sul mare in clima marittimo temperato, a 144 MHz, nel 10% del tempo si guadagnano molti più dB che sulla terra in clima continentale, perché i condotti sono più frequenti.
+
+Il programma non fissa più il clima: lo sceglie per ogni tratta dal punto medio, così funziona in tutto il mondo e non solo in Europa. Scarica da Open-Meteo [26] tre anni di valori giornalieri della rianalisi ERA5 (temperatura, umidità e pressione al suolo, pioggia) per la cella di 0,5° del punto medio, una volta sola; i valori restano in Dati/CLIMA. Ne ricava la rifrattività al suolo
+
+```math
+N_s = \frac{77{,}6}{T}\left(P + 4810\,\frac{e}{T}\right)
+```
+
+giorno per giorno, poi la media annua e l'escursione fra le medie mensili, l'umidità media e la pioggia annua. Le regole seguono le descrizioni dei climi del TN101 § 10.2; i confini fra un clima e l'altro sono un criterio dell'autore:
+
+- oltre 60° di latitudine: continentale temperato (il TN101 non ha curve per il clima polare);
+- meno di 250 mm di pioggia all'anno e umidità media sotto il 50%: desertico (Ns tipica 280);
+- entro 20° dall'equatore, Ns di almeno 350 ed escursione fino a 30: equatoriale (Ns tipica 360);
+- entro 32° ed escursione di almeno 60: continentale subtropicale, cioè monsoni (escursione tipica 60–100);
+- fra 10° e 32° con Ns di almeno 340: marittimo subtropicale (Ns tipica 370);
+- entrambi gli orizzonti sul mare, oltre 20°: marittimo temperato sul mare (è la definizione del TN101);
+- escursione fino a 30 vicino al mare (mare sulla tratta o umidità media di almeno il 75%): marittimo temperato sulla terra;
+- altrimenti continentale temperato (escursione tipica 20–40).
+
+N0 per l'ITM è la Ns media ridotta al livello del mare, N0 = Ns·e^(h/9460). Senza rete si usa una regola di riserva con la sola latitudine e la frazione di mare, e la riga lo dice.
+
+Prove con i dati ERA5 2023–2025: Capri Ns 339 con escursione 45 (continentale temperato sulla terra, marittimo temperato sul mare quando entrambi gli orizzonti sono sul mare); Londra 327 e 16 (marittimo temperato); Vienna 319 e 24 (continentale temperato); Abidjan 381 e 11 (equatoriale); Miami 365 e 36 (marittimo subtropicale); Delhi 337 e 82 (continentale subtropicale); Riad 278 e 37, 90 mm di pioggia (desertico). In Cile: Antofagasta 341 e 19 (marittimo subtropicale: la costa dell'Atacama, con l'inversione bassa quasi fissa del Pacifico), Calama 232 al suolo, 2257 m, 14 mm di pioggia (desertico), Valparaíso 331 e 11 (marittimo temperato), Punta Arenas 313 e 5 (marittimo temperato).
+
+La riga «Clima radio (TN101)» mostra il clima, il motivo, Ns con metà dell'escursione e Y: quanti dB si guadagnano nel 10% e nell'1% del tempo e quanti se ne perdono nel 90%. È statistica di lungo periodo e resta separata dalla previsione: la perdita prevista segue il tempo di oggi con i profili GFS, e sommare le due cose conterebbe due volte la stessa propagazione anomala.
 
 ## 11. Confronto con ITU-R P.452
 
@@ -451,3 +480,5 @@ La previsione va confrontata con i collegamenti reali. Il registro dei calcoli c
 22. W3SZ, soglie dei modi digitali lenti (JT65, JT9, QRA64) e scelta del modo secondo la propagazione, 2019.
 23. QST, «The World Above 50 MHz», novembre 2022: apertura del 14–15 agosto 2022 fra Manitoba e Kansas/Missouri.
 24. J. Taylor K1JT, B. Somerville G4WJS, S. Franke K9AN, N. Palermo IV3NWV, Quick-Start Guide to Q65, 3 aprile 2021 (wsjt.sourceforge.io).
+25. P. L. Rice, A. G. Longley, K. A. Norton, A. P. Barsis, Transmission Loss Predictions for Tropospheric Communication Circuits, NBS Technical Note 101, edizione rivista 1967: § 9 (troposcatter, funzione F(θd), H0), § 10 e allegato III (climi radio e variabilità nel tempo).
+26. Open-Meteo, Historical Weather API (rianalisi ECMWF ERA5, dal 1940; dati Copernicus Climate Change Service, licenza CC BY 4.0).

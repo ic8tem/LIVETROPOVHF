@@ -67,6 +67,31 @@ public static class Itm
         return r;
     }
 
+    /// <summary>
+    /// Troposcatter di NBS TN101 § 9 (Rice, Longley, Norton e Barsis, 1967), perdita di base mediana:
+    /// L = 30 log f − 20 log d + F(θd) − F0 + H0, con F(θd) dalle funzioni analitiche dell'allegato III (Ns 301) corrette per Ns,
+    /// la funzione di guadagno in frequenza H0 (§ 9.2) e l'efficienza di diffusione; è la stessa forma che l'ITM usa al proprio interno.
+    /// Qui Ns è quello dei profili GFS e gli orizzonti vengono dal profilo reale. Restituisce NaN se fuori dal campo del metodo.
+    /// </summary>
+    public static double Tn101Scatter(double hTx, double hRx, double[] pfl, double ns, double fMHz, out double h0Db, out double fThetaD)
+    {
+        h0Db = double.NaN; fThetaD = double.NaN;
+        if (ns < 250 || ns > 400 || fMHz < 20 || fMHz > 20000) return double.NaN;
+        double gammaE = 157e-9 * (1.0 - 0.04665 * Math.Exp(ns / 179.3));
+        var h = new[] { Math.Max(0.5, hTx), Math.Max(0.5, hRx) };
+        var th = new double[2]; var dh = new double[2]; var he = new double[2];
+        QuickPfl(pfl, gammaE, h, th, dh, he, out _, out double d);
+        double ae = 1 / gammaE;
+        double dML = dh[0] + dh[1];
+        if (d <= dML) return double.NaN;                     // in vista: il troposcatter non conta
+        double thetaLos = -Math.Max(th[0] + th[1], -dML / ae);
+        double h0 = -1;
+        double a = TroposcatterLoss(d, th, dh, he, ae, ns, fMHz, thetaLos, ref h0);
+        if (a >= 1000 || double.IsNaN(a)) return double.NaN;
+        h0Db = h0; fThetaD = FFunction((d / ae - thetaLos) * d);
+        return FreeSpaceLoss(d, fMHz) + Math.Max(0, a);
+    }
+
     public static double FreeSpaceLoss(double d, double f) => 32.45 + 20.0 * Math.Log10(f) + 20.0 * Math.Log10(d / 1000.0);
 
     static void QuickPfl(double[] pfl, double gammaE, double[] h, double[] thetaHzn, double[] dHzn, double[] he, out double deltaH, out double d)
