@@ -2,3 +2,5 @@
 budget esaurito: 750 celle-mese scaricate, 9000 chiamate pesate
 == gfs archivio 9000 (2026-11-24)
 limite di Open-Meteo raggiunto, riprendo al prossimo giro
+== gfs archivio 9000 (2026-11-25)
+limite di Open-Meteo raggiunto, riprendo al prossimo giro
