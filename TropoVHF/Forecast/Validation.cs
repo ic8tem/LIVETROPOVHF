@@ -92,6 +92,10 @@ public static class Validation
             ("1.3.2 stima aggressiva: soglia classica di super-rifrazione 79 N/km, k ≈ 2 (senza CRPL)", true, true, true, false, 4, true),
             ("1.3.2 prudente (configurazione predefinita)", true, true, true, true, 5, true),
         };
+        // solo la configurazione predefinita (LIVETROPOVHF_VALIDA_SOLO_PREDEFINITA=1): due griglie riscaricate invece di dieci,
+        // così una validazione resta entro il limite orario di Open-Meteo
+        if (Environment.GetEnvironmentVariable("LIVETROPOVHF_VALIDA_SOLO_PREDEFINITA") == "1")
+            configs = configs.Where(c => c.name.Contains("predefinita")).ToArray();
         foreach (var cf in configs)
         {
             Refractivity.UseSoftDuct = cf.soft; Refractivity.UseCorrections = cf.corr; Refractivity.UsePersistence = cf.pers;
