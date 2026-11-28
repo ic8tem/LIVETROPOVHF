@@ -178,6 +178,8 @@ public sealed class TropoIndex
     }
 
     public bool HasData { get { lock (_lock) return _rasters.Count > 0; } }
+    /// <summary>Cresce a ogni cambio delle mappe lette: chi disegna tiene una copia finché non cambia (1.4.0).</summary>
+    public int Version { get; private set; }
 
     /// <summary>La regione con gli estremi salvati (OCR o a mano) se ci sono, altrimenti quelli di fabbrica.</summary>
     public TropoRegion Effective(TropoRegion r)
@@ -282,7 +284,7 @@ public sealed class TropoIndex
                 }
                 fresh.AddRange(mine);
                 // ogni regione appena letta va subito sulla mappa, senza aspettare le altre
-                lock (_lock) { _rasters = _rasters.Where(x => x.Region != reg0.Key).Concat(mine).ToList(); _cand.Clear(); }
+                lock (_lock) { _rasters = _rasters.Where(x => x.Region != reg0.Key).Concat(mine).ToList(); _cand.Clear(); Version++; }
                 var run = mine.Count > 0 ? $" · corsa {mine[0].RunUtc:dd/MM HH}Z" : "";
                 RegionStatus[reg0.Key] = $"{axes}{Describe(reg)} · {ok}/{refs.Count} mappe{run}";
                 Log?.Invoke($"{DateTime.UtcNow:HH:mm:ss}  {(fonte == "hepburn" ? "Hepburn" : "F5LEN")} {reg.Nome}: {ok}/{refs.Count} mappe lette");
@@ -294,7 +296,7 @@ public sealed class TropoIndex
         {
             var enabled = TropoSources.Regions.Where(r => RegionEnabled(r)).Select(r => r.Key).ToHashSet();
             _rasters = _rasters.Where(r => enabled.Contains(r.Region)).ToList();   // regioni spente: fuori dalla mappa
-            _cand.Clear();
+            _cand.Clear(); Version++;
         }
         LastUpdateUtc = DateTime.UtcNow;
         Status = fresh.Count > 0

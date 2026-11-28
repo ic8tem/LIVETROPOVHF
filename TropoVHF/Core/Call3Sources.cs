@@ -65,7 +65,7 @@ public static class Call3Sources
     /// precedenti che le fonti non hanno e i locatori a 6 caratteri precedenti dove una fonte ne ha solo 4 dello stesso
     /// quadrato. Voci a mano e correzioni dal cluster le tiene CallDb, in cima al file.
     /// </summary>
-    public static async Task<(List<string> header, Dictionary<string, string> body, string summary)> BuildAsync(HttpClient http, Dictionary<string, string> previous, Action<string> status)
+    public static async Task<(List<string> header, Dictionary<string, string> body, string summary)> BuildAsync(HttpClient http, Action<Action<string, string>> previous, Action<string> status)
     {
         var merged = new Dictionary<string, string>(1_100_000, StringComparer.Ordinal);
         var parts = new List<string>();
@@ -85,11 +85,11 @@ public static class Call3Sources
         }
         if (merged.Count < 50_000) throw new InvalidDataException("fonti non raggiungibili o troppo piccole: " + string.Join("; ", parts));
         int kept = 0, six = 0;
-        foreach (var kv in previous ?? new Dictionary<string, string>())
+        previous?.Invoke((call, loc) =>
         {
-            if (!merged.TryGetValue(kv.Key, out var g)) { merged[kv.Key] = kv.Value; kept++; }
-            else if (g.Length == 4 && kv.Value.Length == 6 && kv.Value.StartsWith(g)) { merged[kv.Key] = kv.Value; six++; }
-        }
+            if (!merged.TryGetValue(call, out var g)) { merged[call] = loc; kept++; }
+            else if (g.Length == 4 && loc.Length == 6 && loc.StartsWith(g)) { merged[call] = loc; six++; }
+        });
         parts.Add($"dal CALL3.TXT precedente: {kept:N0} (+{six:N0} a 6 caratteri)");
         var header = new List<string>
         {

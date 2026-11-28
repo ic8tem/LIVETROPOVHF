@@ -2236,8 +2236,11 @@ public sealed partial class MainWindow : Window
             void Set(string id, string text, Color col, string tip = null)
             {
                 if (!_statusSegs.TryGetValue(id, out var t)) return;
-                t.Text = text; t.Foreground = B(col); t.IsVisible = text != "";
-                if (tip != null) ToolTip.SetTip(t, tip);
+                // 1.4.0: si tocca la barra solo se qualcosa è cambiato (prima testo, colore e suggerimento ogni secondo)
+                if (t.Text != text) t.Text = text;
+                if (!(t.Foreground is ISolidColorBrush sb && sb.Color == col)) t.Foreground = B(col);
+                t.IsVisible = text != "";
+                if (tip != null && !Equals(ToolTip.GetTip(t), tip)) ToolTip.SetTip(t, tip);
             }
             string Why(string err)
             {

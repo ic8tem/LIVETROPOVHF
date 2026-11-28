@@ -1038,7 +1038,7 @@ public sealed class OwnForecast
             lock (_lock)
             {
                 LatMin = latMin; LonMin = lonMin; LatMax = latMin + (rows - 1) * step; LonMax = lonMin + (cols - 1) * step;
-                Step = step; Rows = rows; Cols = cols; Times = times; Grid = grid; _persist.Clear();
+                Step = step; Rows = rows; Cols = cols; Times = times; Grid = grid; _persist.Clear(); _cellIdx.Clear();
             }
             UpdatedUtc = DateTime.UtcNow;
             {
@@ -1098,6 +1098,30 @@ public sealed class OwnForecast
         }
     }
 
+    // 1.4.0: indice di ogni cella per ora, banda e interruttori del calcolo, calcolato una volta sola. Prima la mappa
+    // ricalcolava GainDb e la persistenza di quattro celle per ogni quadretto a ogni ridisegno (cursore delle ore,
+    // zoom). I valori sono gli stessi: cambia solo che non si rifanno.
+    readonly Dictionary<(int t, double f, bool corr, bool soft, bool pers, bool hp, bool sea), double[,]> _cellIdx = new();
+
+    double[,] CellIndex(int t, double f)
+    {
+        var key = (t, f, Refractivity.UseCorrections, Refractivity.UseSoftDuct, Refractivity.UsePersistence, Refractivity.UseHighPressure, Refractivity.UseSeaAir);
+        if (_cellIdx.TryGetValue(key, out var a)) return a;
+        a = new double[Rows, Cols];
+        for (int r = 0; r < Rows; r++)
+            for (int c = 0; c < Cols; c++)
+            {
+                var p = Grid[t][r, c];
+                if (p == null) { a[r, c] = double.NaN; continue; }
+                double g = p.GainDb(f);
+                double pb = PersistBonus(t, r, c, f, g, p);
+                a[r, c] = Math.Max(0, Math.Min(10, (g + pb) / 2.5));
+            }
+        if (_cellIdx.Count > 400) _cellIdx.Clear();
+        _cellIdx[key] = a;
+        return a;
+    }
+
     /// <summary>Indice 0–10 interpolato fra le quattro celle vicine; NaN dove non ci sono dati.</summary>
     public double Index(double lat, double lon, DateTime utc, double freqMHz)
     {
@@ -1109,13 +1133,12 @@ public sealed class OwnForecast
             if (fr < 0 || fc < 0 || fr > Rows - 1 || fc > Cols - 1) return double.NaN;
             int r0 = Math.Min(Rows - 2, (int)fr), c0 = Math.Min(Cols - 2, (int)fc);
             double tr = fr - r0, tc = fc - c0, sum = 0, wsum = 0;
+            var cell = CellIndex(t, freqMHz);
             void Add(int r, int c, double w)
             {
-                var p = Grid[t][r, c];
-                if (p == null || w <= 0) return;
-                double g = p.GainDb(freqMHz);
-                double pb = PersistBonus(t, r, c, freqMHz, g, p);
-                sum += w * Math.Max(0, Math.Min(10, (g + pb) / 2.5)); wsum += w;
+                double v = cell[r, c];
+                if (double.IsNaN(v) || w <= 0) return;
+                sum += w * v; wsum += w;
             }
             Add(r0, c0, (1 - tr) * (1 - tc)); Add(r0, c0 + 1, (1 - tr) * tc); Add(r0 + 1, c0, tr * (1 - tc)); Add(r0 + 1, c0 + 1, tr * tc);
             if (wsum < 0.25) return double.NaN;

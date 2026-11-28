@@ -23,7 +23,7 @@ public sealed class CallDb
 
     readonly object _lock = new();
     readonly object _saveLock = new();
-    Dictionary<string, string> _map = new(StringComparer.Ordinal);                                   // fonti
+    CallMap _map = new();                                                                             // fonti (1.4.0: compatte, ~13 MB invece di ~110)
     readonly Dictionary<string, string> _manual = new(StringComparer.Ordinal);                       // voci a mano
     readonly Dictionary<string, (string loc, DateTime when)> _cluster = new(StringComparer.Ordinal); // dal cluster
     List<string> _header = new();
@@ -70,7 +70,7 @@ public sealed class CallDb
 
     public void Load(string path)
     {
-        var map = new Dictionary<string, string>(1_100_000, StringComparer.Ordinal);
+        var map = new List<KeyValuePair<string, string>>(1_100_000);   // in ordine di lettura: l'ultima voce vince
         var man = new Dictionary<string, string>(StringComparer.Ordinal);
         var clu = new Dictionary<string, (string, DateTime)>(StringComparer.Ordinal);
         var header = new List<string>();
@@ -105,11 +105,11 @@ public sealed class CallDb
                     {
                         var when = ParseDate(p.Length > 2 ? p[2] : "");
                         // non confermato da 2 anni: resta come voce normale, senza precedenza
-                        if (DateTime.UtcNow - when > TimeSpan.FromDays(730)) { map[call] = loc; expired = true; }
+                        if (DateTime.UtcNow - when > TimeSpan.FromDays(730)) { map.Add(new(call, loc)); expired = true; }
                         else clu[call] = (loc, when);
                         continue;
                     }
-                    if (!clu.ContainsKey(call)) map[call] = loc;
+                    if (!clu.ContainsKey(call)) map.Add(new(call, loc));
                 }
                 Error = "";
                 ok = true;
@@ -117,9 +117,11 @@ public sealed class CallDb
         }
         catch (Exception ex) { Error = "CALL3.TXT: " + ex.Message; }
         if (!ok) { _writable = false; Ready = true; return; }    // il database in memoria resta quello di prima
+        var compact = CallMap.From(map);
+        map = null;
         lock (_lock)
         {
-            _map = map;
+            _map = compact;
             _manual.Clear(); foreach (var kv in man) _manual[kv.Key] = kv.Value;
             _cluster.Clear(); foreach (var kv in clu) _cluster[kv.Key] = kv.Value;
             _header = header;
@@ -261,16 +263,21 @@ public sealed class CallDb
 
     // ------------------------------------------------ aggiornamento dalle fonti
 
-    /// <summary>Copia delle voci delle fonti (senza voci a mano né correzioni), per l'aggiornamento.</summary>
-    public Dictionary<string, string> BodySnapshot() { lock (_lock) return new Dictionary<string, string>(_map, StringComparer.Ordinal); }
+    /// <summary>
+    /// Passa le voci delle fonti (senza voci a mano né correzioni) all'aggiornamento, sotto il lucchetto. 1.4.0: niente
+    /// più copia completa del database (era un picco di ~110 MB a ogni aggiornamento di CALL3.TXT).
+    /// </summary>
+    public void ForEachBody(Action<string, string> visit) { lock (_lock) foreach (var kv in _map.Ordered()) visit(kv.Key, kv.Value); }
 
     /// <summary>Sostituisce le voci delle fonti e l'intestazione; voci a mano e correzioni dal cluster restano.</summary>
     public void ReplaceBody(List<string> header, Dictionary<string, string> body)
     {
+        lock (_lock) foreach (var c in _manual.Keys.Concat(_cluster.Keys).ToList()) body.Remove(c);
+        var compact = CallMap.From(body);
+        body.Clear();
         lock (_lock)
         {
-            foreach (var c in _manual.Keys.Concat(_cluster.Keys).ToList()) body.Remove(c);
-            _map = body;
+            _map = compact;
             _header = header;
             _dirty = 1;
         }
@@ -301,7 +308,7 @@ public sealed class CallDb
                 sb.Append(MarkCluster).Append(" locatore a 6 caratteri dichiarato dalla stazione negli spot automatici (DM4X, RBN), data dell'ultima conferma / locator declared by the station itself\n");
                 foreach (var kv in _cluster.OrderBy(k => k.Key, StringComparer.Ordinal)) sb.Append(kv.Key).Append(',').Append(kv.Value.loc).Append(',').Append(kv.Value.when.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)).Append(",,\n");
                 sb.Append(MarkBody).Append(" tutte le altre voci / all other entries\n");
-                foreach (var kv in _map.OrderBy(k => k.Key, StringComparer.Ordinal)) sb.Append(kv.Key).Append(',').Append(kv.Value).Append(",,,\n");
+                foreach (var kv in _map.Ordered()) sb.Append(kv.Key).Append(',').Append(kv.Value).Append(",,,\n");
                 _dirty = 0;
             }
             var dest = TargetPath;

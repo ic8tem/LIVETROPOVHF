@@ -21,6 +21,7 @@ static class Prova
         
         double fmax = double.Parse(Environment.GetEnvironmentVariable("FMAX") ?? "2", ci);
         var cols = new[] { "omega","b0","hstd","hsrd","theta","hte","hre","dlt","dlr","Lbfsg","Lb0p","Lb0b","Ldsph","Ld50","Ldp","Lbs","Lba","Lb" };
+        var csvPath = Environment.GetEnvironmentVariable("CSV"); using var csv = csvPath != null ? new StreamWriter(csvPath) : null;
         var worst = cols.ToDictionary(c => c, c => (0.0, "")); var sum = cols.ToDictionary(c => c, c => 0.0); int rows = 0;
         foreach (var pf in Directory.GetFiles(dir + "profiles").OrderBy(x => x))
         {
@@ -43,6 +44,7 @@ static class Prova
                 var mine = new Dictionary<string, double> { ["omega"] = o.Omega, ["b0"] = o.Beta0, ["hstd"] = o.Hstd, ["hsrd"] = o.Hsrd, ["theta"] = o.Theta, ["hte"] = o.Hte, ["hre"] = o.Hre, ["dlt"] = o.Dlt, ["dlr"] = o.Dlr,
                     ["Lbfsg"] = o.Lbfsg, ["Lb0p"] = o.Lb0p, ["Lb0b"] = o.Lb0b, ["Ldsph"] = o.Ldsph, ["Ld50"] = o.Ld50, ["Ldp"] = o.Ldp, ["Lbs"] = o.Lbs, ["Lba"] = o.Lba, ["Lb"] = o.Lb };
                 rows++;
+                if (csv != null) csv.WriteLine(string.Format(ci, "{0},{1},{2},{3:0.###},{4:0.###}", name, f, G("p (%)"), G("Lb"), o.Lb));
                 foreach (var (k, m) in mine) { double diff = m - G(k); sum[k] += Math.Abs(diff); if (Math.Abs(diff) > Math.Abs(worst[k].Item1)) worst[k] = (diff, $"{name.Replace("test_profile_", "")} f {f} p {G("p (%)")}: noi {m:0.###} rif {G(k):0.###}"); }
             }
         }

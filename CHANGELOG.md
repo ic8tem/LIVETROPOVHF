@@ -17,6 +17,7 @@ Fino alla 0.3.0 il programma si chiamava "Previsione Tropo VHF" (TropoVHF).
 - Rapporto d'errore: il rapporto completo va negli appunti e l'indirizzo GitHub resta sotto i 6000 caratteri; nel titolo la versione che ha prodotto l'errore.
 - Guide nella lingua scelta: tradotte automaticamente dall'italiano in 34 lingue (Argos Translate); poi inglese, poi italiano.
 - Licenza GNU GPL v3.0 e crediti dei dati nel README.
+- Memoria e processore, a parità di risultati: il database dei nominativi (CALL3.TXT, oltre un milione di voci) occupa circa 13 MB invece di circa 110, e l'aggiornamento di CALL3.TXT non ne fa più una copia completa; i riquadri del terreno Copernicus si tengono già decodificati su disco (.q16, al posto del GeoTIFF) e si leggono con un file mappato, così in memoria resta solo la parte usata (prima fino a 8 riquadri da circa 26 MB); la mappa rifà coste, confini e lo strato Hepburn/F5LEN solo quando cambia la vista o arrivano mappe nuove (prima a ogni ridisegno, anche due volte al secondo con la linea lampeggiante di chi ti chiama); la mappa delle previsioni calcola il guadagno di ogni cella una volta per ora e banda invece che a ogni ridisegno. Quote, guadagni e perdite sono identici a prima (verifica con le prove di validazione).
 - Windows 7: corretto un nome che bloccava la compilazione.
 
 ## 1.3.5 — 23/11/2026

@@ -296,6 +296,9 @@ public sealed class MapView : Control
 
     static IBrush Br(Color c, double a = 1) => new SolidColorBrush(Color.FromArgb((byte)Math.Clamp(a * c.A, 0, 255), c.R, c.G, c.B));
 
+    string _baseKey = "";
+    StreamGeometry _baseLand, _baseBorders, _baseCoast;
+
     LineCache EnsureCache(bool detail)
     {
         var c = detail ? _c10 : _c50;
@@ -419,15 +422,27 @@ public sealed class MapView : Control
         {
             bool detail = UseDetail;
             var lc = EnsureCache(detail);
-            var box = VisibleBox();
-            ctx.DrawGeometry(Br(th.MapLand), null, LinesGeometry(lc.Land, true, true, box));
+            // 1.4.0: le geometrie di terre, confini e coste si rifanno solo se cambia la vista (zoom, spostamento,
+            // dimensione, proiezione, dettaglio); prima si ricostruivano a ogni ridisegno, anche due volte al secondo
+            // con la linea lampeggiante di chi ti chiama
+            var bkey = lc.Key + "|" + detail + "|" + W.ToString("R", CultureInfo.InvariantCulture) + "x" + H.ToString("R", CultureInfo.InvariantCulture)
+                       + "|" + _cx.ToString("R", CultureInfo.InvariantCulture) + "|" + _cy.ToString("R", CultureInfo.InvariantCulture) + "|" + _scale.ToString("R", CultureInfo.InvariantCulture);
+            if (bkey != _baseKey)
+            {
+                var box = VisibleBox();
+                _baseLand = LinesGeometry(lc.Land, true, true, box);
+                _baseBorders = LinesGeometry(lc.Borders, false, false, box);
+                _baseCoast = LinesGeometry(lc.Coast, false, false, box);
+                _baseKey = bkey;
+            }
+            ctx.DrawGeometry(Br(th.MapLand), null, _baseLand);
             {
                 // confini nazionali: spessore doppio e colore spinto verso quello delle coste, per staccarli dalla griglia
                 static byte M(byte a, byte b) => (byte)(a + (b - a) * 0.6);
                 var bc = Color.FromRgb(M(th.MapBorder.R, th.MapCoast.R), M(th.MapBorder.G, th.MapCoast.G), M(th.MapBorder.B, th.MapCoast.B));
-                ctx.DrawGeometry(null, new Pen(Br(bc), detail ? 2.0 : 1.6, lineJoin: PenLineJoin.Round), LinesGeometry(lc.Borders, false, false, box));
+                ctx.DrawGeometry(null, new Pen(Br(bc), detail ? 2.0 : 1.6, lineJoin: PenLineJoin.Round), _baseBorders);
             }
-            ctx.DrawGeometry(null, new Pen(Br(th.MapCoast), detail ? 1.1 : 1.0, lineJoin: PenLineJoin.Round), LinesGeometry(lc.Coast, false, false, box));
+            ctx.DrawGeometry(null, new Pen(Br(th.MapCoast), detail ? 1.1 : 1.0, lineJoin: PenLineJoin.Round), _baseCoast);
         }
 
         if (PreviewSource == "own")
@@ -601,13 +616,28 @@ public sealed class MapView : Control
         return (Math.Max(-90, la1 - 2), Math.Min(90, la2 + 2), Math.Max(-180, lo1 - 4), Math.Min(180, lo2 + 4));
     }
 
+    // 1.4.0: strato Hepburn/F5LEN già pronto, un'area per colore, rifatto solo se cambiano vista, fonte, minuto,
+    // opacità o mappe lette. Prima ogni ridisegno rifaceva fino a ~6000 quadretti, ognuno col suo pennello.
+    string _tropoKey = "";
+    List<(IBrush brush, StreamGeometry geo)> _tropoGeo = new();
+
     void DrawTropo(DrawingContext ctx, string src, DateTime t, double opacity)
     {
-        // griglia mondiale: si campiona solo la zona visibile, con un passo che dà circa 100 celle sul lato lungo
         var (la1, la2, lo1, lo2) = VisibleBox();
+        var ci = CultureInfo.InvariantCulture;
+        var key = string.Join("|", src, t.Ticks / TimeSpan.TicksPerMinute, opacity.ToString("R", ci), PreviewSource != null, _st.Tropo.Version, Proj.Key,
+            Bounds.Width.ToString("R", ci), Bounds.Height.ToString("R", ci), _cx.ToString("R", ci), _cy.ToString("R", ci), _scale.ToString("R", ci));
+        if (key != _tropoKey) { _tropoGeo = BuildTropo(src, t, opacity, la1, la2, lo1, lo2); _tropoKey = key; }
+        foreach (var (brush, geo) in _tropoGeo) ctx.DrawGeometry(brush, null, geo);
+    }
+
+    List<(IBrush, StreamGeometry)> BuildTropo(string src, DateTime t, double opacity, double la1, double la2, double lo1, double lo2)
+    {
+        // griglia mondiale: si campiona solo la zona visibile, con un passo che dà circa 100 celle sul lato lungo
         double span = Math.Max(la2 - la1, lo2 - lo1);
         double step = Math.Clamp(Math.Round(span / 100 * 20) / 20, 0.1, 2.0);
-        var noData = Br(Color.FromRgb(128, 128, 128), (PreviewSource != null ? 0.30 : 0.13) * opacity);
+        var noData = Color.FromArgb((byte)Math.Clamp((PreviewSource != null ? 0.30 : 0.13) * opacity * 255, 0, 255), 128, 128, 128);
+        var groups = new Dictionary<uint, List<(Point, Point, Point, Point)>>();
         double lat0 = Math.Floor(la1 / step) * step, lon0 = Math.Floor(lo1 / step) * step;
         for (double lat = lat0; lat < la2; lat += step)
         {
@@ -619,15 +649,30 @@ public sealed class MapView : Control
                 if (Math.Max(Math.Max(p1.X, p2.X), Math.Max(p3.X, p4.X)) < 0 || Math.Min(Math.Min(p1.X, p2.X), Math.Min(p3.X, p4.X)) > Bounds.Width) continue;
                 if (Math.Max(Math.Max(p1.Y, p2.Y), Math.Max(p3.Y, p4.Y)) < 0 || Math.Min(Math.Min(p1.Y, p2.Y), Math.Min(p3.Y, p4.Y)) > Bounds.Height) continue;
                 double v = _st.Tropo.Value(src, lat + step / 2, lon + step / 2, t);
-                IBrush brush;
-                if (double.IsNaN(v)) brush = noData;                       // nessuna fonte copre questo punto
+                Color col;
+                if (double.IsNaN(v)) col = noData;                         // nessuna fonte copre questo punto
                 else if (v < 0.5) continue;                                // atmosfera normale: trasparente
-                else brush = Br(Palette.IndexColor(v), opacity * Math.Min(1, 0.35 + v * 0.065));
-                var g = new StreamGeometry();
-                using (var c = g.Open()) { c.BeginFigure(p1, true); c.LineTo(p2); c.LineTo(p3); c.LineTo(p4); c.EndFigure(true); }
-                ctx.DrawGeometry(brush, null, g);
+                else
+                {
+                    // stesso colore e stessa trasparenza di Br(colore, a)
+                    var c = Palette.IndexColor(v); double a = opacity * Math.Min(1, 0.35 + v * 0.065);
+                    col = Color.FromArgb((byte)Math.Clamp(a * c.A, 0, 255), c.R, c.G, c.B);
+                }
+                uint k = ((uint)col.A << 24) | ((uint)col.R << 16) | ((uint)col.G << 8) | col.B;
+                if (!groups.TryGetValue(k, out var list)) groups[k] = list = new();
+                list.Add((p1, p2, p3, p4));
             }
         }
+        var res = new List<(IBrush, StreamGeometry)>(groups.Count);
+        foreach (var kv in groups)
+        {
+            var g = new StreamGeometry();
+            using (var c = g.Open())
+                foreach (var (p1, p2, p3, p4) in kv.Value) { c.BeginFigure(p1, true); c.LineTo(p2); c.LineTo(p3); c.LineTo(p4); c.EndFigure(true); }
+            var col = Color.FromArgb((byte)(kv.Key >> 24), (byte)(kv.Key >> 16), (byte)(kv.Key >> 8), (byte)kv.Key);
+            res.Add((new SolidColorBrush(col), g));
+        }
+        return res;
     }
 
     /// <summary>Riquadri delle regioni lette di una fonte, con nome e ora valida dell'immagine usata.</summary>

@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.IO.MemoryMappedFiles;
 using TropoVHF.Core;
 
 namespace TropoVHF.Forecast;
@@ -21,18 +22,63 @@ public sealed class Srtm
     public const string SourceName = "Copernicus GLO-30";
 
     /// <summary>Riquadro in memoria: quote in metri (interi), griglia e posizione dei centri dei pixel.</summary>
-    sealed class Grid
+    sealed class Grid : IDisposable
     {
         public short[] D; public int W, H;
         public double Lon0, Lat0, Dx, Dy;   // centro del pixel (0,0) e passo in gradi
         public string From = "";
+        // 1.4.0: riquadro già decodificato su disco (.q16), letto con un file mappato: in memoria restano solo le pagine
+        // toccate dal percorso, che il sistema può liberare. Prima ogni riquadro occupava ~26 MB per tutto il tempo.
+        public MemoryMappedFile Mmf; public MemoryMappedViewAccessor View;
+        public short Get(int i) => D != null ? D[i] : View.ReadInt16(Q16Header + 2L * i);
+        public void Dispose() { View?.Dispose(); Mmf?.Dispose(); View = null; Mmf = null; }
+    }
+
+    // ------------------------------------------------ riquadri già decodificati (.q16)
+
+    const int Q16Header = 64;
+    const uint Q16Magic = 0x36315154;   // "TQ16"
+
+    static string Q16Path(string name) => Path.Combine(Folder, name + ".q16");
+
+    /// <summary>Scrive il riquadro decodificato: intestazione (64 byte) + quote a 16 bit, identiche a quelle lette dal GeoTIFF.</summary>
+    static void WriteQ16(string path, Grid g)
+    {
+        var tmp = path + ".part";
+        using (var fs = new FileStream(tmp, FileMode.Create, FileAccess.Write, FileShare.None, 1 << 20))
+        using (var bw = new BinaryWriter(fs))
+        {
+            bw.Write(Q16Magic); bw.Write(g.W); bw.Write(g.H); bw.Write(0);
+            bw.Write(g.Lon0); bw.Write(g.Lat0); bw.Write(g.Dx); bw.Write(g.Dy);
+            while (fs.Position < Q16Header) bw.Write((byte)0);
+            var buf = new byte[g.D.Length * 2];
+            Buffer.BlockCopy(g.D, 0, buf, 0, buf.Length);
+            if (!BitConverter.IsLittleEndian) for (int i = 0; i < buf.Length; i += 2) { (buf[i], buf[i + 1]) = (buf[i + 1], buf[i]); }
+            bw.Write(buf);
+        }
+        Compat.MoveOver(tmp, path);
+    }
+
+    static Grid OpenQ16(string path)
+    {
+        var len = new FileInfo(path).Length;
+        var mmf = MemoryMappedFile.CreateFromFile(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), null, 0, MemoryMappedFileAccess.Read, HandleInheritability.None, false);
+        try
+        {
+            var v = mmf.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
+            if (v.ReadUInt32(0) != Q16Magic) { v.Dispose(); throw new InvalidDataException("intestazione .q16 non valida"); }
+            var g = new Grid { W = v.ReadInt32(4), H = v.ReadInt32(8), Lon0 = v.ReadDouble(16), Lat0 = v.ReadDouble(24), Dx = v.ReadDouble(32), Dy = v.ReadDouble(40), Mmf = mmf, View = v, From = SourceName };
+            if (g.W < 2 || g.H < 2 || len < Q16Header + 2L * g.W * g.H) { g.Dispose(); throw new InvalidDataException(".q16 troncato"); }
+            return g;
+        }
+        catch { mmf.Dispose(); throw; }
     }
 
     readonly HttpClient _http;
     readonly Dictionary<string, Grid> _tiles = new();
     readonly LinkedList<string> _lru = new();
     readonly HashSet<string> _missing = new();
-    const int MaxTiles = 8;
+    const int MaxTiles = 16;   // 1.4.0: con i file mappati un riquadro aperto costa poco (prima 8 da ~26 MB)
 
     public int Downloaded, Missing;
     public Action<string> Progress;
@@ -57,6 +103,13 @@ public sealed class Srtm
         var sea = Path.Combine(Folder, name + ".mare");
         if (File.Exists(sea)) { _missing.Add(name); return null; }
         bool copDown = false;
+        var q16 = Q16Path(name);
+        if (File.Exists(q16))
+        {
+            try { g = OpenQ16(q16); }
+            catch (Exception ex) { CalcLog.W($"terreno: {name}.q16 illeggibile ({ex.Message}), lo rifaccio"); try { File.Delete(q16); } catch { } g = null; }
+            if (g != null) return Keep(name, g);
+        }
         if (!File.Exists(file))
         {
             Progress?.Invoke($"terreno: scarico {name} da Copernicus (15–30 MB, la prima volta)…");
@@ -90,16 +143,35 @@ public sealed class Srtm
         }
         if (File.Exists(file))
         {
-            try { g = await Task.Run(() => ReadGeoTiff(File.ReadAllBytes(file)), ct); g.From = SourceName; }
+            try
+            {
+                g = await Task.Run(() => ReadGeoTiff(File.ReadAllBytes(file)), ct); g.From = SourceName;
+                // si tiene la versione decodificata (stesse quote) e si toglie il GeoTIFF: il disco resta circa uguale
+                try
+                {
+                    var dec = g;
+                    await Task.Run(() => WriteQ16(q16, dec), ct);
+                    var mm = OpenQ16(q16);
+                    g = mm;
+                    try { File.Delete(file); } catch { }
+                }
+                catch (OperationCanceledException) { throw; }
+                catch (Exception ex) { CalcLog.W($"terreno: {name}.q16 non scritto ({ex.Message}), resta in memoria"); try { File.Delete(q16); } catch { } }
+            }
             catch (OperationCanceledException) { throw; }
             catch (Exception ex) { CalcLog.W($"terreno: {name} illeggibile ({ex.Message}), lo riscarico la prossima volta"); try { File.Delete(file); } catch { } g = null; copDown = true; }
         }
         // 2) riserva: Terrain Tiles «skadi»
         if (g == null && copDown) g = await Skadi(name, ct);
         if (g == null) { _missing.Add(name); Missing++; return null; }
+        CalcLog.W($"terreno: letto {name} ({g.From}), {g.W}×{g.H} punti" + (g.View != null ? ", su file mappato" : ""));
+        return Keep(name, g);
+    }
+
+    Grid Keep(string name, Grid g)
+    {
         _tiles[name] = g; _lru.AddFirst(name);
-        CalcLog.W($"terreno: letto {name} ({g.From}), {g.W}×{g.H} punti");
-        while (_lru.Count > MaxTiles) { var old = _lru.Last.Value; _lru.RemoveLast(); _tiles.Remove(old); }
+        while (_lru.Count > MaxTiles) { var old = _lru.Last.Value; _lru.RemoveLast(); if (_tiles.TryGetValue(old, out var og)) og.Dispose(); _tiles.Remove(old); }
         return g;
     }
 
@@ -279,7 +351,7 @@ public sealed class Srtm
         double tx = fx - x0, ty = fy - y0, s = 0, w = 0;
         void Add(int y, int x, double ww)
         {
-            short v = g.D[y * g.W + x];
+            short v = g.Get(y * g.W + x);
             if (v == short.MinValue || ww <= 0) return;
             s += ww * Math.Max(0, (int)v); w += ww;
         }
@@ -326,6 +398,20 @@ public sealed class Srtm
         var sb = new System.Text.StringBuilder();
         sb.AppendLine($"GeoTIFF {g.W}×{g.H}, centro del primo pixel {g.Lat0:0.000000} N {g.Lon0:0.000000} E, passo {g.Dx * 3600:0.###}\"×{g.Dy * 3600:0.###}\"");
         foreach (var p in pts) sb.AppendLine($"  {p.name}: {Sample(g, p.lat, p.lon):0.0} m");
+        // 1.4.0: il riquadro scritto in .q16 e riletto dal file mappato deve dare le stesse quote, punto per punto
+        var tmp = Path.Combine(Path.GetTempPath(), "livetropovhf-prova-" + Guid.NewGuid().ToString("N") + ".q16");
+        try
+        {
+            WriteQ16(tmp, g);
+            using var m = OpenQ16(tmp);
+            long diff = 0;
+            for (int i = 0; i < g.D.Length; i++) if (m.Get(i) != g.D[i]) diff++;
+            bool same = diff == 0 && m.W == g.W && m.H == g.H && m.Lon0 == g.Lon0 && m.Lat0 == g.Lat0 && m.Dx == g.Dx && m.Dy == g.Dy;
+            foreach (var p in pts) if (Sample(m, p.lat, p.lon) != Sample(g, p.lat, p.lon)) same = false;
+            sb.AppendLine($"  file mappato .q16: {(same ? "quote identiche" : $"DIVERSO ({diff} punti)")} su {g.D.Length} punti");
+        }
+        catch (Exception ex) { sb.AppendLine("  file mappato .q16: prova non riuscita: " + ex.Message); }
+        finally { try { File.Delete(tmp); } catch { } }
         return sb.ToString();
     }
 }

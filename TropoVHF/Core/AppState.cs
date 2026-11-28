@@ -581,7 +581,7 @@ public sealed class AppState
         {
             using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
             http.DefaultRequestHeaders.UserAgent.ParseAdd("LIVETROPOVHF/" + (typeof(AppState).Assembly.GetName().Version?.ToString(3) ?? "0") + " (+https://github.com/ic8tem/LIVETROPOVHF)");
-            var (header, body, summary) = await Call3Sources.BuildAsync(http, CallDb.BodySnapshot(), St);
+            var (header, body, summary) = await Call3Sources.BuildAsync(http, CallDb.ForEachBody, St);
             var dest = CallDb.TargetPath;
             if (File.Exists(dest))
             {
