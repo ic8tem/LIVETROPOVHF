@@ -1,0 +1,125 @@
+ITM (NTIA) contro il codice originale: uguale
+  ITM caso 1: 163.657 dB (diffrazione, Δh 251 m), NTIA 163.657 dB → ok
+  ITM caso 2: 183.080 dB (troposcatter, Δh 652 m), NTIA 183.080 dB → ok
+  ITM caso 3: 174.448 dB (troposcatter, Δh 230 m), NTIA 174.448 dB → ok
+  ITM caso 4: 216.627 dB (troposcatter, Δh 229 m), NTIA 216.627 dB → ok
+  ITM caso 5: 163.941 dB (diffrazione, Δh 650 m), NTIA 163.941 dB → ok
+Copernicus GLO-30 N40E014: 15124 kB
+GeoTIFF 3600×3600, centro del primo pixel 41.000000 N 14.000000 E, passo 1"×1"
+  JN70CN83CL (circa 60 m): 57.7 m
+  mare a NO di Marina Grande (0): 0.0 m
+  mare a N della stazione (0): 0.0 m
+  Monte Solaro (589 m): 356.0 m
+  Vesuvio (circa 1280 m): 1032.3 m
+  file mappato .q16: quote identiche su 12960000 punti
+tratta JN70CN83CL → JN45ls27tg (Lombardia 722 km): suolo TX 58 m, orizzonti TX 1.4 / RX 3.8 mrad, θ 90.2 mrad, P.452 senza tropo 227.2 dB, ITM 50% 221.9 dB
+  az 325.3°, meccanismo troposcatter, Lpred 227.2 dB, ostacolo TX a 0.0 km, via monte 0
+  distanza 722 km, Lfs 132.8, diffrazione 384.9, scatter 227.2, base 227.2, Prx -140.1 dBm, S/N SSB -2.4 CW 4.6 FT8 -2.4, quota RX 424 m
+tratta JN70CN83CL → JN33qs43wc (Nizza 677 km): suolo TX 58 m, orizzonti TX 17.6 / RX -0.2 mrad, θ 96.1 mrad, P.452 senza tropo 229.9 dB, ITM 50% 292.1 dB
+  az 304.5°, meccanismo troposcatter, Lpred 229.9 dB, ostacolo TX a 0.0 km, via monte 0
+  distanza 668 km, Lfs 132.1, diffrazione 386.0, scatter 229.9, base 229.9, Prx -142.8 dBm, S/N SSB -5.1 CW 1.9 FT8 -5.1, quota RX 484 m
+tratta JN70CN83CL → IM98re20no (Alicante 1300 km): suolo TX 58 m, orizzonti TX 6.5 / RX -1.5 mrad, θ 157.8 mrad, P.452 senza tropo 271.2 dB, ITM 50% 388.1 dB
+  az 263.0°, meccanismo troposcatter, Lpred 271.2 dB, ostacolo TX a 0.7 km, via monte 0
+  distanza 1298 km, Lfs 137.9, diffrazione 695.0, scatter 271.2, base 271.2, Prx -184.2 dBm, S/N SSB -46.4 CW -39.4 FT8 -46.4, quota RX 0 m
+tratta JN70CN83CL → JN11CK (Barcellona JN11CK): suolo TX 58 m, orizzonti TX 6.5 / RX 8.1 mrad, θ 134.0 mrad, P.452 senza tropo 255.3 dB, ITM 50% 405.2 dB
+  az 279.5°, meccanismo troposcatter, Lpred 255.3 dB, ostacolo TX a 0.7 km, via monte 4
+  distanza 1013 km, Lfs 135.7, diffrazione 593.7, scatter 255.3, base 255.3, Prx -168.3 dBm, S/N SSB -30.5 CW -23.5 FT8 -30.5, quota RX 13 m
+    via az 70° 9.0 km quota 437 m JN70EO00CC: tratta1 94.7 conv -61.7 tratta2 246.3 (troposcatter) totale 279.3 dB
+    via az 85° 2.4 km quota 319 m JN70DN13MW: tratta1 83.2 conv -50.2 tratta2 246.7 (troposcatter) totale 279.8 dB
+    via az 55° 23.1 km quota 734 m JN70FQ52AA: tratta1 102.9 conv -62.7 tratta2 245.7 (troposcatter) totale 285.9 dB
+    via az 300° 33.9 km quota 260 m JN60WQ69HW: tratta1 106.2 conv -62.7 tratta2 244.6 (troposcatter) totale 288.2 dB
+tratta JN70CN83CL → JN11JQ36MM (EA3BAX JN11JQ36): suolo TX 58 m, orizzonti TX 6.5 / RX 6.7 mrad, θ 127.1 mrad, P.452 senza tropo 251.0 dB, ITM 50% 515.2 dB
+  az 281.3°, meccanismo troposcatter, Lpred 251.0 dB, ostacolo TX a 0.7 km, via monte 4
+  distanza 967 km, Lfs 135.3, diffrazione 572.5, scatter 251.0, base 251.0, Prx -163.9 dBm, S/N SSB -26.2 CW -19.2 FT8 -26.2, quota RX 50 m
+    via az 70° 9.0 km quota 437 m JN70EO00CC: tratta1 94.7 conv -61.7 tratta2 241.9 (troposcatter) totale 275.0 dB
+    via az 85° 2.4 km quota 319 m JN70DN13MW: tratta1 83.2 conv -50.2 tratta2 242.4 (troposcatter) totale 275.4 dB
+    via az 55° 23.1 km quota 734 m JN70FQ52AA: tratta1 102.9 conv -62.7 tratta2 240.9 (troposcatter) totale 281.1 dB
+    via az 105° 1.2 km quota 260 m JN70CN92ST: tratta1 77.2 conv -44.2 tratta2 248.8 (troposcatter) totale 281.8 dB
+tratta JN70CN83CL → JN01WK55AA (EA3EDU JN01WK centro): suolo TX 58 m, orizzonti TX 6.5 / RX 16.9 mrad, θ 146.0 mrad, P.452 senza tropo 262.5 dB, ITM 50% 398.9 dB
+  az 279.4°, meccanismo troposcatter, Lpred 262.5 dB, ostacolo TX a 0.7 km, via monte 0
+  distanza 1041 km, Lfs 136.0, diffrazione 593.5, scatter 262.5, base 262.5, Prx -175.4 dBm, S/N SSB -37.7 CW -30.7 FT8 -37.7, quota RX 258 m
+tratta JN70CN83CL → JN64CK40lh (Ravenna): suolo TX 58 m, orizzonti TX 4.0 / RX 3.6 mrad, θ 61.8 mrad, P.452 senza tropo 206.9 dB, ITM 50% 200.9 dB
+  az 339.5°, meccanismo troposcatter, Lpred 206.9 dB, ostacolo TX a 0.0 km, via monte 0
+  distanza 461 km, Lfs 128.9, diffrazione 274.9, scatter 206.9, base 206.9, Prx -119.9 dBm, S/N SSB 17.9 CW 24.9 FT8 17.9, quota RX 9 m
+VESUVIO: azimut 28.7°, 33.6 km; suolo QTH 58 m; angolo cima 26.99 mrad, massimo ostacolo prima 24.67 mrad → cima VISIBILE
+  punto illuminato più alto sulla linea: 33.9 km, 1236 m, JN70FT17HO
+  orizzonte dal Vesuvio (gradi): 0°:-0.3 10°:-0.6 20°:+0.0 30°:-0.9 40°:-0.4 50°:+0.5 60°:+0.4 70°:-0.6 80°:-0.5 90°:-+0.0 100°:+0.2 110°:-0.8 120°:-0.9 130°:-1.0 140°:-0.6 150°:+1.3 160°:+0.0 170°:-1.3 180°:-1.4 190°:-1.4 200°:-1.4 210°:-1.4 220°:-1.4 230°:-1.4 240°:-1.4 250°:-1.4 260°:-1.4 270°:-1.4 280°:-1.4 290°:-1.4 300°:-1.4 310°:-1.0 320°:-1.2 330°:-1.1 340°:-0.6 350°:-1.0
+  VES Firenze: 434 km az dal Vesuvio 322°, orizz. Vesuvio -3.7 mrad, tratta2 217.8 (troposcatter) → via Vesuvio 261.4 dB [solo tratta2 217.8]; diretto az 326° 222.6 dB (troposcatter), orizz. QTH 5.3 mrad → differenza -38.8 dB
+  VES Milano: 682 km az dal Vesuvio 322°, orizz. Vesuvio -3.6 mrad, tratta2 216.5 (troposcatter) → via Vesuvio 260.1 dB [solo tratta2 216.5]; diretto az 325° 221.3 dB (troposcatter), orizz. QTH 0.6 mrad → differenza -38.7 dB
+  VES Venezia: 565 km az dal Vesuvio 342°, orizz. Vesuvio 0.3 mrad, tratta2 208.3 (troposcatter) → via Vesuvio 251.9 dB [solo tratta2 208.3]; diretto az 345° 212.7 dB (troposcatter), orizz. QTH 4.5 mrad → differenza -39.2 dB
+  VES Lubiana: 611 km az dal Vesuvio 1°, orizz. Vesuvio 2.0 mrad, tratta2 230.8 (troposcatter) → via Vesuvio 274.4 dB [solo tratta2 230.8]; diretto az 2° 237.0 dB (troposcatter), orizz. QTH 7.3 mrad → differenza -37.4 dB
+  VES Zagabria: 601 km az dal Vesuvio 12°, orizz. Vesuvio -0.1 mrad, tratta2 214.4 (troposcatter) → via Vesuvio 258.0 dB [solo tratta2 214.4]; diretto az 13° 223.0 dB (troposcatter), orizz. QTH 10.7 mrad → differenza -35.0 dB
+  VES Spalato: 376 km az dal Vesuvio 28°, orizz. Vesuvio -8.5 mrad, tratta2 191.8 (troposcatter) → via Vesuvio 235.4 dB [solo tratta2 191.8]; diretto az 28° 218.1 dB (troposcatter), orizz. QTH 31.8 mrad → differenza -17.4 dB
+  VES Budapest: 862 km az dal Vesuvio 25°, orizz. Vesuvio -3.0 mrad, tratta2 236.8 (troposcatter) → via Vesuvio 280.4 dB [solo tratta2 236.8]; diretto az 25° 251.3 dB (troposcatter), orizz. QTH 17.6 mrad → differenza -29.1 dB
+  VES Belgrado: 692 km az dal Vesuvio 46°, orizz. Vesuvio 4.1 mrad, tratta2 229.2 (troposcatter) → via Vesuvio 272.8 dB [solo tratta2 229.2]; diretto az 45° 238.0 dB (troposcatter), orizz. QTH 14.8 mrad → differenza -34.7 dB
+  VES Tirana: 477 km az dal Vesuvio 81°, orizz. Vesuvio -6.4 mrad, tratta2 202.5 (troposcatter) → via Vesuvio 246.1 dB [solo tratta2 202.5]; diretto az 78° 215.2 dB (troposcatter), orizz. QTH 10.1 mrad → differenza -30.9 dB
+  VES Salonicco: 735 km az dal Vesuvio 89°, orizz. Vesuvio 7.5 mrad, tratta2 233.5 (troposcatter) → via Vesuvio 277.1 dB [solo tratta2 233.5]; diretto az 86° 240.0 dB (troposcatter), orizz. QTH 10.9 mrad → differenza -37.1 dB
+  VES Corfù: 495 km az dal Vesuvio 104°, orizz. Vesuvio 3.6 mrad, tratta2 214.5 (troposcatter) → via Vesuvio 258.1 dB [solo tratta2 214.5]; diretto az 100° 220.5 dB (troposcatter), orizz. QTH 17.9 mrad → differenza -37.6 dB
+  VES Palermo: 281 km az dal Vesuvio 197°, orizz. Vesuvio -17.1 mrad, tratta2 177.9 (troposcatter) → via Vesuvio 221.5 dB [solo tratta2 177.9]; diretto az 196° 190.3 dB (troposcatter), orizz. QTH 6.5 mrad → differenza -31.2 dB
+  VES Malta: 518 km az dal Vesuvio 179°, orizz. Vesuvio -17.1 mrad, tratta2 202.4 (troposcatter) → via Vesuvio 245.9 dB [solo tratta2 202.4]; diretto az 177° 215.1 dB (troposcatter), orizz. QTH 6.5 mrad → differenza -30.9 dB
+  VES Tunisi: 545 km az dal Vesuvio 221°, orizz. Vesuvio -17.1 mrad, tratta2 201.7 (troposcatter) → via Vesuvio 245.3 dB [solo tratta2 201.7]; diretto az 221° 212.5 dB (troposcatter), orizz. QTH 6.5 mrad → differenza -32.8 dB
+  VES Cagliari: 461 km az dal Vesuvio 250°, orizz. Vesuvio -17.1 mrad, tratta2 204.9 (troposcatter) → via Vesuvio 248.5 dB [solo tratta2 204.9]; diretto az 253° 221.6 dB (troposcatter), orizz. QTH 6.5 mrad → differenza -26.9 dB
+  VES Bastia: 464 km az dal Vesuvio 298°, orizz. Vesuvio -14.2 mrad, tratta2 193.0 (troposcatter) → via Vesuvio 236.6 dB [solo tratta2 193.0]; diretto az 303° 212.6 dB (troposcatter), orizz. QTH 15.9 mrad → differenza -24.0 dB
+  VES Marsiglia: 794 km az dal Vesuvio 293°, orizz. Vesuvio -17.0 mrad, tratta2 237.5 (troposcatter) → via Vesuvio 281.1 dB [solo tratta2 237.5]; diretto az 296° 244.0 dB (troposcatter), orizz. QTH -1.8 mrad → differenza -37.1 dB
+  VES Barcellona: 1016 km az dal Vesuvio 278°, orizz. Vesuvio -17.1 mrad, tratta2 236.4 (troposcatter) → via Vesuvio 279.9 dB [solo tratta2 236.4]; diretto az 279° 249.0 dB (troposcatter), orizz. QTH 6.5 mrad → differenza -30.9 dB
+NOMADS: corsa 28/11 00 UTC, 9 file GRIB2, 387 kB, punti 4/4
+NOMADS: 4 serie
+  41,14 quota 21 m, ore 3 (28/11 07), profili validi 3 [NOMADS]
+    prima ora: Ns 321.9 ΔN -41.1 w850 0.003 m/s w700 0.011 vento850 3.3 m/s da 24 T850 3.3 ΔW 116 Misme +4.2 K 319 calo K 12 subs False salita False scirocco False strati 2 guadagno144 4.2
+  41,14.5 quota 236 m, ore 3 (28/11 07), profili validi 3 [NOMADS]
+    prima ora: Ns 314.5 ΔN -39.8 w850 -0.056 m/s w700 -0.006 vento850 4.2 m/s da 64 T850 3.3 ΔW 99 Misme +3.0 K 317 calo K 9 subs False salita False scirocco False strati 2 guadagno144 3.0
+  45.5,9 quota 145 m, ore 3 (28/11 07), profili validi 3 [NOMADS]
+    prima ora: Ns 300.2 ΔN -24.9 w850 -0.014 m/s w700 -0.039 vento850 1.9 m/s da 304 T850 -1.2 ΔW 121 Misme +4.6 K 299 calo K 15 subs True salita False scirocco False strati 3 guadagno144 8.4
+  40,-5 quota 404 m, ore 3 (28/11 07), profili validi 3 [NOMADS]
+    prima ora: Ns 314.7 ΔN -39.5 w850 -0.014 m/s w700 -0.019 vento850 3.1 m/s da 225 T850 7.0 ΔW 206 Misme +6.0 K 320 calo K 15 subs True salita False scirocco False strati 2 guadagno144 7.5
+  JSON del primo punto (inizio): {"latitude":41,"longitude":14,"elevation":20.5,"source":"nomads","hourly":{"time":["2026-11-28T07:00","2026-11-28T08:00","2026-11-28T09:00"],"surface_pressure":[1013.377,1013.641,1013.824],"temperature_2m":[11.264,12.226,13.62],"relative_humidity_2m":[73.4,70.1,64.8],"wind_speed_10m":[3.284,3.56,4.001],"boundary_layer_height":[143.911,198.457,360.763],"cape":[0,0,0],"temperature_1000hPa":[10.976,11.267,12.145],"relative_humidity_1000hPa":[69.7,68.8,66.5],"temperature_975hPa":[11.186,11.228,10.80
+  (NOMADS: 9.1 s)
+NOMADS H050: corsa 28/11 00 UTC, 9 file, 127 kB, punti 4/4
+NOMADS H050: 4 serie
+  41,14 quota 21 m, ore 3 (28/11 06), profili validi 3 [NOMADS H050]
+    prima ora: Ns 321.8 ΔN -42.1 w850 -0.007 m/s w700 -0.012 vento850 3.0 m/s da 24 T850 3.5 ΔW 129 Misme +5.1 K 319 calo K 11 subs False salita False scirocco False strati 2 guadagno144 5.1
+  41,14.5 quota 236 m, ore 3 (28/11 06), profili validi 3 [NOMADS H050]
+    prima ora: Ns 314.6 ΔN -41.3 w850 -0.037 m/s w700 0.002 vento850 3.0 m/s da 61 T850 3.7 ΔW 121 Misme +4.5 K 317 calo K 10 subs False salita False scirocco False strati 3 guadagno144 4.5
+  45.5,9 quota 145 m, ore 3 (28/11 06), profili validi 3 [NOMADS H050]
+    prima ora: Ns 300.2 ΔN -25.3 w850 -0.000 m/s w700 -0.041 vento850 1.5 m/s da 304 T850 -1.3 ΔW 122 Misme +4.6 K 299 calo K 14 subs False salita False scirocco False strati 3 guadagno144 7.6
+  40,-5 quota 404 m, ore 3 (28/11 06), profili validi 3 [NOMADS H050]
+    prima ora: Ns 314.7 ΔN -39.6 w850 0.012 m/s w700 -0.009 vento850 2.4 m/s da 223 T850 7.0 ΔW 206 Misme +6.0 K 320 calo K 16 subs False salita False scirocco False strati 2 guadagno144 6.0
+  (NOMADS H050: 6.3 s)
+NOMADS D100: corsa 28/11 00 UTC, 9 file, 53 kB, punti 4/4
+NOMADS D100: 4 serie
+  41,14 quota 21 m, ore 3 (28/11 06), profili validi 3 [NOMADS D100]
+    prima ora: Ns 321.8 ΔN -42.1 w850 -0.007 m/s w700 -0.012 vento850 3.0 m/s da 24 T850 3.5 ΔW 129 Misme +5.1 K 319 calo K 11 subs False salita False scirocco False strati 2 guadagno144 5.1
+  41,14.5 quota 21 m, ore 3 (28/11 06), profili validi 3 [NOMADS D100]
+    prima ora: Ns 321.8 ΔN -42.1 w850 -0.007 m/s w700 -0.012 vento850 3.0 m/s da 24 T850 3.5 ΔW 129 Misme +5.1 K 319 calo K 11 subs False salita False scirocco False strati 2 guadagno144 5.1
+  45.5,9 quota 130 m, ore 3 (28/11 06), profili validi 3 [NOMADS D100]
+    prima ora: Ns 317.3 ΔN -36.3 w850 0.009 m/s w700 -0.039 vento850 4.2 m/s da 34 T850 -1.4 ΔW 150 Misme +6.0 K 316 calo K 20 subs False salita False scirocco False strati 2 guadagno144 8.1
+  40,-5 quota 404 m, ore 3 (28/11 06), profili validi 3 [NOMADS D100]
+    prima ora: Ns 314.7 ΔN -39.6 w850 0.012 m/s w700 -0.009 vento850 2.4 m/s da 223 T850 7.0 ΔW 206 Misme +6.0 K 320 calo K 16 subs False salita False scirocco False strati 2 guadagno144 6.0
+  (NOMADS D100: 5.7 s)
+OpenMeteo: 2 serie
+  41,14 quota 0 m, ore 78 (28/11 07), profili validi 78 [Open-Meteo]
+    prima ora: Ns 322.0 ΔN -40.7 w850 0.010 m/s w700 0.000 vento850 3.5 m/s da 44 T850 3.5 ΔW 92 Misme +2.5 K 319 calo K 10 subs False salita False scirocco False strati 4 guadagno144 2.5
+  41,14.5 quota 269 m, ore 78 (28/11 07), profili validi 78 [Open-Meteo]
+    prima ora: Ns 313.1 ΔN -39.9 w850 -0.050 m/s w700 -0.010 vento850 4.3 m/s da 63 T850 3.3 ΔW 89 Misme +2.3 K 317 calo K 9 subs False salita False scirocco False strati 2 guadagno144 2.3
+  (OpenMeteo: 0.3 s)
+IconEu: 2 serie
+  41,14 quota 0 m, ore 78 (28/11 07), profili validi 78 [Open-Meteo]
+    prima ora: Ns 328.6 ΔN -43.4 w850 NaN m/s w700 NaN vento850 4.0 m/s da 24 T850 3.1 ΔW 175 Misme +6.0 K 325 calo K 15 subs False salita False scirocco False strati 1 guadagno144 16.0
+  41,14.5 quota 269 m, ore 78 (28/11 07), profili validi 78 [Open-Meteo]
+    prima ora: Ns 312.8 ΔN -40.7 w850 NaN m/s w700 NaN vento850 4.1 m/s da 34 T850 3.3 ΔW 107 Misme +3.6 K 316 calo K 16 subs False salita False scirocco False strati 1 guadagno144 3.6
+  (IconEu: 0.5 s)
+Ecmwf: 2 serie
+  41,14 quota 0 m, ore 78 (28/11 07), profili validi 78 [Open-Meteo]
+    prima ora: Ns 321.9 ΔN -35.1 w850 -0.020 m/s w700 -0.020 vento850 0.9 m/s da 45 T850 2.5 ΔW 152 Misme +6.0 K 318 calo K 21 subs True salita False scirocco False strati 0 guadagno144 6.0
+  41,14.5 quota 269 m, ore 78 (28/11 07), profili validi 78 [Open-Meteo]
+    prima ora: Ns 317.9 ΔN -43.1 w850 0.000 m/s w700 0.020 vento850 2.9 m/s da 38 T850 3.3 ΔW 125 Misme +4.9 K 321 calo K 15 subs False salita False scirocco False strati 1 guadagno144 4.9
+  (Ecmwf: 0.4 s)
+IconItalia: 2 serie
+  41,14 quota 0 m, ore 78 (28/11 07), profili validi 66 [Open-Meteo]
+    prima ora: Ns 326.8 ΔN -45.4 w850 -0.010 m/s w700 0.080 vento850 3.2 m/s da 46 T850 2.9 ΔW 152 Misme +6.0 K 323 calo K 22 subs False salita True scirocco False strati 2 guadagno144 11.5
+  41,14.5 quota 269 m, ore 78 (28/11 07), profili validi 66 [Open-Meteo]
+    prima ora: Ns 312.4 ΔN -41.6 w850 0.150 m/s w700 -0.010 vento850 1.5 m/s da 46 T850 3.4 ΔW 74 Misme +1.3 K 316 calo K 23 subs False salita True scirocco False strati 1 guadagno144 -0.7
+  (IconItalia: 3.5 s)
+archivio storico: ERRORE HttpRequestException: The SSL connection could not be established, see inner exception.
+ESITO: 1 prove non riuscite
+codice di uscita: 1

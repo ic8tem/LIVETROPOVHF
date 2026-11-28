@@ -1,0 +1,285 @@
+VALIDAZIONE su 228 collegamenti da D:\a\_temp\prova\Tarature\validazione-2022-04.txt
+riquadro 38.0–47.0 N, 6.5–21.5 E; evento 15 giorni dal 02/04/2022; confronto stesse tratte e ore 14 giorni dopo
+griglia «evento 02/04/2022–16/04/2022»: ok — Caso storico evento 02/04/2022–16/04/2022: GFS dall'archivio di Open-Meteo, 170 punti, passo 1° (Open-Meteo 170) · pronta in 1 min 3 s: rete 21.7 s (3 richieste, 9570 kB), analisi dei profili 1.2 s, attese obbligate 40.0 s (63 s)
+griglia «confronto +14 giorni»: ok — Caso storico confronto +14 giorni: GFS dall'archivio di Open-Meteo, 170 punti, passo 1° (Open-Meteo 170) · pronta in 59.9 s: rete 19.1 s (3 richieste, 9596 kB), analisi dei profili 690 ms, attese obbligate 40.0 s (60 s)
+
+===== modello 1.2 (niente condotto morbido, niente correzioni) =====
+--- categoria «tropo»: 103 collegamenti, con griglia sul percorso 103 (evento) / 103 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 3.4, 10° 1.5, 90° 9.1; confronto mediana 3.2, 10° 1.8, 90° 6.2
+   guadagno massimo lungo la tratta (dB): evento mediana 9.3, 10° 4.7, 90° 13.6; confronto mediana 7.8, 10° 6.2, 90° 14.3
+   tratte con guadagno medio ≥ 7 dB: evento 23% (presi), confronto 6% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 2% (presi), confronto 2% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 12%, confronto 8%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.54
+   termine di Misme medio sulle tratte: evento +0.6 dB, confronto +1.2 dB; punti con subsidenza: evento 133, confronto 224; con scirocco: evento 0, confronto 0
+--- categoria «assente»: 125 collegamenti, con griglia sul percorso 125 (evento) / 125 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 5.6, 10° 2.2, 90° 9.2; confronto mediana 5.1, 10° 1.9, 90° 8.2
+   guadagno massimo lungo la tratta (dB): evento mediana 10.9, 10° 6.0, 90° 14.7; confronto mediana 11.3, 10° 6.4, 90° 14.8
+   tratte con guadagno medio ≥ 7 dB: evento 30% (presi), confronto 19% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 5% (presi), confronto 1% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 16%, confronto 13%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.55
+   termine di Misme medio sulle tratte: evento -0.6 dB, confronto -0.4 dB; punti con subsidenza: evento 124, confronto 247; con scirocco: evento 0, confronto 0
+--- ricevute contro assenti nello stesso periodo: 103 / 125 tratte, mediana del guadagno medio 3.4 / 5.6 dB, separazione (AUC) 0.38
+--- SNR contro guadagno previsto, stessa stazione (scarti dalla media della stazione): 94 ricezioni, correlazione -0.10, pendenza -0.22 dB di SNR per dB previsto
+
+===== + condotto morbido =====
+--- categoria «tropo»: 103 collegamenti, con griglia sul percorso 103 (evento) / 103 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 3.4, 10° 1.5, 90° 9.1; confronto mediana 3.2, 10° 1.8, 90° 6.2
+   guadagno massimo lungo la tratta (dB): evento mediana 9.3, 10° 4.7, 90° 13.8; confronto mediana 7.8, 10° 6.2, 90° 14.3
+   tratte con guadagno medio ≥ 7 dB: evento 23% (presi), confronto 6% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 4% (presi), confronto 2% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 12%, confronto 8%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.54
+   termine di Misme medio sulle tratte: evento +0.6 dB, confronto +1.2 dB; punti con subsidenza: evento 133, confronto 224; con scirocco: evento 0, confronto 0
+--- categoria «assente»: 125 collegamenti, con griglia sul percorso 125 (evento) / 125 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 5.6, 10° 2.2, 90° 9.5; confronto mediana 5.1, 10° 1.9, 90° 8.2
+   guadagno massimo lungo la tratta (dB): evento mediana 10.9, 10° 6.0, 90° 14.8; confronto mediana 11.3, 10° 6.5, 90° 14.8
+   tratte con guadagno medio ≥ 7 dB: evento 30% (presi), confronto 19% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 6% (presi), confronto 1% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 16%, confronto 13%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.55
+   termine di Misme medio sulle tratte: evento -0.6 dB, confronto -0.4 dB; punti con subsidenza: evento 124, confronto 247; con scirocco: evento 0, confronto 0
+--- ricevute contro assenti nello stesso periodo: 103 / 125 tratte, mediana del guadagno medio 3.4 / 5.6 dB, separazione (AUC) 0.38
+--- SNR contro guadagno previsto, stessa stazione (scarti dalla media della stazione): 94 ricezioni, correlazione -0.10, pendenza -0.22 dB di SNR per dB previsto
+
+===== + condotto morbido + Misme e subsidenza =====
+--- categoria «tropo»: 103 collegamenti, con griglia sul percorso 103 (evento) / 103 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 3.9, 10° 2.2, 90° 10.1; confronto mediana 5.3, 10° 3.2, 90° 8.1
+   guadagno massimo lungo la tratta (dB): evento mediana 10.0, 10° 4.9, 90° 14.5; confronto mediana 10.3, 10° 8.3, 90° 15.4
+   tratte con guadagno medio ≥ 7 dB: evento 24% (presi), confronto 18% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 12% (presi), confronto 3% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 0% (presi), confronto 1% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 15%, confronto 11%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.40
+   termine di Misme medio sulle tratte: evento +0.6 dB, confronto +1.2 dB; punti con subsidenza: evento 133, confronto 224; con scirocco: evento 0, confronto 0
+--- categoria «assente»: 125 collegamenti, con griglia sul percorso 125 (evento) / 125 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 4.5, 10° 2.1, 90° 10.5; confronto mediana 4.9, 10° 2.6, 90° 9.0
+   guadagno massimo lungo la tratta (dB): evento mediana 10.7, 10° 5.1, 90° 15.7; confronto mediana 11.8, 10° 7.9, 90° 13.8
+   tratte con guadagno medio ≥ 7 dB: evento 25% (presi), confronto 26% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 12% (presi), confronto 4% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 17%, confronto 16%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.45
+   termine di Misme medio sulle tratte: evento -0.6 dB, confronto -0.4 dB; punti con subsidenza: evento 124, confronto 247; con scirocco: evento 0, confronto 0
+--- ricevute contro assenti nello stesso periodo: 103 / 125 tratte, mediana del guadagno medio 3.9 / 4.5 dB, separazione (AUC) 0.49
+--- SNR contro guadagno previsto, stessa stazione (scarti dalla media della stazione): 94 ricezioni, correlazione -0.06, pendenza -0.15 dB di SNR per dB previsto
+
+===== 1.3.1 completo: + persistenza =====
+--- categoria «tropo»: 103 collegamenti, con griglia sul percorso 103 (evento) / 103 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 3.9, 10° 2.2, 90° 10.2; confronto mediana 5.4, 10° 3.2, 90° 8.1
+   guadagno massimo lungo la tratta (dB): evento mediana 10.0, 10° 4.9, 90° 14.6; confronto mediana 10.3, 10° 8.3, 90° 15.4
+   tratte con guadagno medio ≥ 7 dB: evento 24% (presi), confronto 21% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 12% (presi), confronto 4% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 0% (presi), confronto 1% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 16%, confronto 12%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.40
+   termine di Misme medio sulle tratte: evento +0.6 dB, confronto +1.2 dB; punti con subsidenza: evento 133, confronto 224; con scirocco: evento 0, confronto 0
+   per giorno (mediana del guadagno medio, evento / confronto):
+      02/04: 2 QSO, 1.7 / 4.4 dB
+      06/04: 59 QSO, 3.4 / 5.5 dB
+      07/04: 4 QSO, 8.3 / 5.2 dB
+      09/04: 6 QSO, 6.7 / 7.9 dB
+      15/04: 18 QSO, 10.7 / 5.7 dB
+      16/04: 14 QSO, 3.9 / 3.3 dB
+   per distanza (mediana del guadagno medio, evento / confronto):
+      0–500 km: 49 QSO, 3.9 / 5.6 dB
+      500–900 km: 54 QSO, 3.9 / 5.2 dB
+   tratte con il guadagno previsto più basso (collegamenti che il modello non vede):
+      02/04 16:47 JN70CN–JN63 342 km: medio 1.3 dB, massimo 3.6 dB
+      06/04 20:52 JN70CN–JN65 558 km: medio 1.7 dB, massimo 3.0 dB
+      06/04 20:54 JN70CN–JN65 558 km: medio 1.7 dB, massimo 3.0 dB
+      06/04 20:55 JN70CN–JN65 558 km: medio 1.7 dB, massimo 3.0 dB
+      06/04 21:02 JN70CN–JN65 558 km: medio 1.7 dB, massimo 3.0 dB
+      02/04 15:25 JN70CN–JN45 693 km: medio 1.7 dB, massimo 4.7 dB
+      16/04 12:56 JN70CN–JN63 342 km: medio 1.8 dB, massimo 8.3 dB
+      16/04 13:01 JN70CN–JN63 342 km: medio 1.8 dB, massimo 8.3 dB
+      06/04 18:28 JN70CN–JN45 693 km: medio 2.1 dB, massimo 5.3 dB
+      06/04 18:28 JN70CN–JN54 511 km: medio 2.2 dB, massimo 7.6 dB
+      16/04 13:05 JN70CN–JN54 511 km: medio 2.2 dB, massimo 8.3 dB
+      15/04 11:57 JN70CN–JN54 511 km: medio 2.3 dB, massimo 7.0 dB
+--- categoria «assente»: 125 collegamenti, con griglia sul percorso 125 (evento) / 125 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 4.6, 10° 2.1, 90° 10.6; confronto mediana 5.0, 10° 2.7, 90° 9.1
+   guadagno massimo lungo la tratta (dB): evento mediana 10.8, 10° 5.3, 90° 16.0; confronto mediana 11.8, 10° 7.9, 90° 13.9
+   tratte con guadagno medio ≥ 7 dB: evento 26% (presi), confronto 26% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 12% (presi), confronto 4% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 1% (presi), confronto 0% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 18%, confronto 16%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.46
+   termine di Misme medio sulle tratte: evento -0.6 dB, confronto -0.4 dB; punti con subsidenza: evento 124, confronto 247; con scirocco: evento 0, confronto 0
+--- ricevute contro assenti nello stesso periodo: 103 / 125 tratte, mediana del guadagno medio 3.9 / 4.6 dB, separazione (AUC) 0.49
+--- SNR contro guadagno previsto, stessa stazione (scarti dalla media della stazione): 94 ricezioni, correlazione -0.07, pendenza -0.15 dB di SNR per dB previsto
+
+===== 1.3.2: + alta pressione estesa e vento debole =====
+--- categoria «tropo»: 103 collegamenti, con griglia sul percorso 103 (evento) / 103 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 3.9, 10° 2.2, 90° 10.0; confronto mediana 5.4, 10° 2.8, 90° 8.0
+   guadagno massimo lungo la tratta (dB): evento mediana 9.7, 10° 5.1, 90° 14.9; confronto mediana 10.6, 10° 8.3, 90° 15.4
+   tratte con guadagno medio ≥ 7 dB: evento 25% (presi), confronto 20% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 10% (presi), confronto 4% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 0% (presi), confronto 1% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 15%, confronto 12%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.40
+   termine di Misme medio sulle tratte: evento +0.6 dB, confronto +1.2 dB; punti con subsidenza: evento 133, confronto 224; con scirocco: evento 0, confronto 0
+--- categoria «assente»: 125 collegamenti, con griglia sul percorso 125 (evento) / 125 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 4.3, 10° 2.0, 90° 10.3; confronto mediana 5.0, 10° 2.5, 90° 9.0
+   guadagno massimo lungo la tratta (dB): evento mediana 10.0, 10° 5.0, 90° 15.3; confronto mediana 10.8, 10° 7.9, 90° 13.9
+   tratte con guadagno medio ≥ 7 dB: evento 23% (presi), confronto 25% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 11% (presi), confronto 4% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 2% (presi), confronto 0% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 16%, confronto 15%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.45
+   termine di Misme medio sulle tratte: evento -0.6 dB, confronto -0.4 dB; punti con subsidenza: evento 124, confronto 247; con scirocco: evento 0, confronto 0
+--- ricevute contro assenti nello stesso periodo: 103 / 125 tratte, mediana del guadagno medio 3.9 / 4.3 dB, separazione (AUC) 0.49
+--- SNR contro guadagno previsto, stessa stazione (scarti dalla media della stazione): 94 ricezioni, correlazione -0.05, pendenza -0.12 dB di SNR per dB previsto
+griglia «evento 02/04/2022–16/04/2022»: ok — Caso storico evento 02/04/2022–16/04/2022: GFS dall'archivio di Open-Meteo, 170 punti, passo 1° (Open-Meteo 170) · pronta in 55.8 s: rete 15.2 s (3 richieste, 9570 kB), analisi dei profili 533 ms, attese obbligate 40.0 s (56 s)
+griglia «confronto +14 giorni»: ok — Caso storico confronto +14 giorni: GFS dall'archivio di Open-Meteo, 170 punti, passo 1° (Open-Meteo 170) · pronta in 1 min 12 s: rete 30.8 s (3 richieste, 9596 kB), analisi dei profili 773 ms, attese obbligate 40.0 s (72 s)
+
+===== 1.3.2: + condotti cercati solo sotto 2500 m =====
+--- categoria «tropo»: 103 collegamenti, con griglia sul percorso 103 (evento) / 103 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 4.0, 10° 2.2, 90° 10.0; confronto mediana 5.4, 10° 2.8, 90° 7.9
+   guadagno massimo lungo la tratta (dB): evento mediana 9.7, 10° 5.1, 90° 14.9; confronto mediana 10.6, 10° 8.3, 90° 15.4
+   tratte con guadagno medio ≥ 7 dB: evento 25% (presi), confronto 20% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 10% (presi), confronto 4% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 0% (presi), confronto 1% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 15%, confronto 12%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.40
+   termine di Misme medio sulle tratte: evento +0.6 dB, confronto +1.2 dB; punti con subsidenza: evento 133, confronto 224; con scirocco: evento 0, confronto 0
+--- categoria «assente»: 125 collegamenti, con griglia sul percorso 125 (evento) / 125 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 4.3, 10° 2.0, 90° 10.3; confronto mediana 5.0, 10° 2.5, 90° 9.0
+   guadagno massimo lungo la tratta (dB): evento mediana 10.0, 10° 5.0, 90° 15.3; confronto mediana 10.8, 10° 7.9, 90° 13.9
+   tratte con guadagno medio ≥ 7 dB: evento 23% (presi), confronto 25% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 11% (presi), confronto 4% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 2% (presi), confronto 0% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 16%, confronto 15%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.45
+   termine di Misme medio sulle tratte: evento -0.6 dB, confronto -0.4 dB; punti con subsidenza: evento 124, confronto 247; con scirocco: evento 0, confronto 0
+--- ricevute contro assenti nello stesso periodo: 103 / 125 tratte, mediana del guadagno medio 4.0 / 4.3 dB, separazione (AUC) 0.49
+--- SNR contro guadagno previsto, stessa stazione (scarti dalla media della stazione): 94 ricezioni, correlazione -0.05, pendenza -0.12 dB di SNR per dB previsto
+griglia «evento 02/04/2022–16/04/2022»: ok — Caso storico evento 02/04/2022–16/04/2022: GFS dall'archivio di Open-Meteo, 170 punti, passo 1° (Open-Meteo 170) · pronta in 1 min 1 s: rete 20.5 s (3 richieste, 9570 kB), analisi dei profili 635 ms, attese obbligate 40.0 s (61 s)
+griglia «confronto +14 giorni»: ok — Caso storico confronto +14 giorni: GFS dall'archivio di Open-Meteo, 170 punti, passo 1° (Open-Meteo 170) · pronta in 1 min 13 s: rete 31.8 s (3 richieste, 9596 kB), analisi dei profili 737 ms, attese obbligate 40.0 s (73 s)
+
+===== 1.3.2 alternativa: + profilo normale CRPL con Ns locale =====
+--- categoria «tropo»: 103 collegamenti, con griglia sul percorso 103 (evento) / 103 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 3.7, 10° 2.0, 90° 10.5; confronto mediana 5.1, 10° 3.0, 90° 8.1
+   guadagno massimo lungo la tratta (dB): evento mediana 9.5, 10° 5.0, 90° 15.5; confronto mediana 10.4, 10° 8.2, 90° 15.4
+   tratte con guadagno medio ≥ 7 dB: evento 25% (presi), confronto 17% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 14% (presi), confronto 4% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 0% (presi), confronto 1% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 16%, confronto 12%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.39
+   termine di Misme medio sulle tratte: evento +0.6 dB, confronto +1.2 dB; punti con subsidenza: evento 133, confronto 224; con scirocco: evento 0, confronto 0
+--- categoria «assente»: 125 collegamenti, con griglia sul percorso 125 (evento) / 125 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 4.1, 10° 1.9, 90° 10.3; confronto mediana 5.1, 10° 2.6, 90° 8.6
+   guadagno massimo lungo la tratta (dB): evento mediana 9.7, 10° 4.6, 90° 15.3; confronto mediana 10.8, 10° 7.8, 90° 14.4
+   tratte con guadagno medio ≥ 7 dB: evento 26% (presi), confronto 24% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 12% (presi), confronto 3% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 2% (presi), confronto 0% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 16%, confronto 15%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.44
+   termine di Misme medio sulle tratte: evento -0.6 dB, confronto -0.4 dB; punti con subsidenza: evento 124, confronto 247; con scirocco: evento 0, confronto 0
+--- ricevute contro assenti nello stesso periodo: 103 / 125 tratte, mediana del guadagno medio 3.7 / 4.1 dB, separazione (AUC) 0.48
+--- SNR contro guadagno previsto, stessa stazione (scarti dalla media della stazione): 94 ricezioni, correlazione -0.06, pendenza -0.12 dB di SNR per dB previsto
+griglia «evento 02/04/2022–16/04/2022»: ok — Caso storico evento 02/04/2022–16/04/2022: GFS dall'archivio di Open-Meteo, 170 punti, passo 1° (Open-Meteo 170) · pronta in 1 min 0 s: rete 19.4 s (3 richieste, 9570 kB), analisi dei profili 644 ms, attese obbligate 40.0 s (60 s)
+griglia «confronto +14 giorni»: NON riuscita — Previsione propria: limite orario di Open-Meteo raggiunto: riprova dopo le 08:00 (la griglia già scaricata resta salvata) (0 s)
+
+===== 1.3.2 stima aggressiva: soglia classica di super-rifrazione 79 N/km, k ≈ 2 (senza CRPL) =====
+--- categoria «tropo»: 103 collegamenti, con griglia sul percorso 103 (evento) / 103 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 5.0, 10° 2.7, 90° 12.0; confronto mediana 5.1, 10° 3.0, 90° 8.1
+   guadagno massimo lungo la tratta (dB): evento mediana 10.5, 10° 6.3, 90° 16.0; confronto mediana 10.4, 10° 8.2, 90° 15.4
+   tratte con guadagno medio ≥ 7 dB: evento 34% (presi), confronto 17% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 17% (presi), confronto 4% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 3% (presi), confronto 1% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 23%, confronto 12%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.53
+   termine di Misme medio sulle tratte: evento +0.6 dB, confronto +1.2 dB; punti con subsidenza: evento 133, confronto 224; con scirocco: evento 0, confronto 0
+--- categoria «assente»: 125 collegamenti, con griglia sul percorso 125 (evento) / 125 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 5.1, 10° 2.6, 90° 11.6; confronto mediana 5.1, 10° 2.6, 90° 8.6
+   guadagno massimo lungo la tratta (dB): evento mediana 11.1, 10° 5.8, 90° 16.0; confronto mediana 10.8, 10° 7.8, 90° 14.4
+   tratte con guadagno medio ≥ 7 dB: evento 27% (presi), confronto 24% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 16% (presi), confronto 3% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 3% (presi), confronto 0% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 23%, confronto 15%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.54
+   termine di Misme medio sulle tratte: evento -0.6 dB, confronto -0.4 dB; punti con subsidenza: evento 124, confronto 247; con scirocco: evento 0, confronto 0
+--- ricevute contro assenti nello stesso periodo: 103 / 125 tratte, mediana del guadagno medio 5.0 / 5.1 dB, separazione (AUC) 0.51
+--- SNR contro guadagno previsto, stessa stazione (scarti dalla media della stazione): 94 ricezioni, correlazione -0.07, pendenza -0.15 dB di SNR per dB previsto
+griglia «evento 02/04/2022–16/04/2022»: NON riuscita — Previsione propria: limite orario di Open-Meteo raggiunto: riprova dopo le 08:00 (la griglia già scaricata resta salvata) (0 s)
+griglia «confronto +14 giorni»: NON riuscita — Previsione propria: limite orario di Open-Meteo raggiunto: riprova dopo le 08:00 (la griglia già scaricata resta salvata) (0 s)
+
+===== 1.3.2 prudente (configurazione predefinita) =====
+--- categoria «tropo»: 103 collegamenti, con griglia sul percorso 103 (evento) / 103 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 5.0, 10° 2.7, 90° 12.0; confronto mediana 5.1, 10° 3.0, 90° 8.1
+   guadagno massimo lungo la tratta (dB): evento mediana 10.5, 10° 6.3, 90° 16.0; confronto mediana 10.4, 10° 8.2, 90° 15.4
+   tratte con guadagno medio ≥ 7 dB: evento 34% (presi), confronto 17% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 17% (presi), confronto 4% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 3% (presi), confronto 1% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 23%, confronto 12%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.53
+   termine di Misme medio sulle tratte: evento +0.6 dB, confronto +1.2 dB; punti con subsidenza: evento 133, confronto 224; con scirocco: evento 0, confronto 0
+   per giorno (mediana del guadagno medio, evento / confronto):
+      02/04: 2 QSO, 2.1 / 3.9 dB
+      06/04: 59 QSO, 4.4 / 5.3 dB
+      07/04: 4 QSO, 9.4 / 5.0 dB
+      09/04: 6 QSO, 7.4 / 6.4 dB
+      15/04: 18 QSO, 12.2 / 5.7 dB
+      16/04: 14 QSO, 4.8 / 3.0 dB
+   per distanza (mediana del guadagno medio, evento / confronto):
+      0–500 km: 49 QSO, 4.7 / 5.3 dB
+      500–900 km: 54 QSO, 5.1 / 5.1 dB
+   tratte con il guadagno previsto più basso (collegamenti che il modello non vede):
+      02/04 16:47 JN70CN–JN63 342 km: medio 1.4 dB, massimo 3.8 dB
+      02/04 15:25 JN70CN–JN45 693 km: medio 2.1 dB, massimo 6.3 dB
+      16/04 12:56 JN70CN–JN63 342 km: medio 2.2 dB, massimo 9.0 dB
+      16/04 13:01 JN70CN–JN63 342 km: medio 2.2 dB, massimo 9.0 dB
+      06/04 20:52 JN70CN–JN65 558 km: medio 2.2 dB, massimo 4.1 dB
+      06/04 20:54 JN70CN–JN65 558 km: medio 2.2 dB, massimo 4.1 dB
+      06/04 20:55 JN70CN–JN65 558 km: medio 2.2 dB, massimo 4.1 dB
+      06/04 21:02 JN70CN–JN65 558 km: medio 2.2 dB, massimo 4.1 dB
+      15/04 12:26 JN70CN–JN63 342 km: medio 2.3 dB, massimo 8.6 dB
+      06/04 18:28 JN70CN–JN54 511 km: medio 2.6 dB, massimo 8.4 dB
+      06/04 19:45 JN70CN–JN64 449 km: medio 2.7 dB, massimo 6.9 dB
+      06/04 18:14 JN70CN–JN53 421 km: medio 2.7 dB, massimo 6.3 dB
+--- categoria «assente»: 125 collegamenti, con griglia sul percorso 125 (evento) / 125 (confronto)
+   guadagno medio lungo la tratta (dB): evento mediana 5.1, 10° 2.6, 90° 11.6; confronto mediana 5.1, 10° 2.6, 90° 8.6
+   guadagno massimo lungo la tratta (dB): evento mediana 11.1, 10° 5.8, 90° 16.0; confronto mediana 10.8, 10° 7.8, 90° 14.4
+   tratte con guadagno medio ≥ 7 dB: evento 27% (presi), confronto 24% (falsi allarmi)
+   tratte con guadagno medio ≥ 10 dB: evento 16% (presi), confronto 3% (falsi allarmi)
+   tratte con guadagno medio ≥ 13 dB: evento 3% (presi), confronto 0% (falsi allarmi)
+   tratte con guadagno medio ≥ 16 dB: evento 0% (presi), confronto 0% (falsi allarmi)
+   frazione media della tratta sopra 10 dB: evento 23%, confronto 15%
+   separazione evento/confronto (AUC, 0,5 = nessuna, 1 = perfetta): 0.54
+   termine di Misme medio sulle tratte: evento -0.6 dB, confronto -0.4 dB; punti con subsidenza: evento 124, confronto 247; con scirocco: evento 0, confronto 0
+--- ricevute contro assenti nello stesso periodo: 103 / 125 tratte, mediana del guadagno medio 5.0 / 5.1 dB, separazione (AUC) 0.51
+--- SNR contro guadagno previsto, stessa stazione (scarti dalla media della stazione): 94 ricezioni, correlazione -0.07, pendenza -0.15 dB di SNR per dB previsto
+
+===== ITM (Longley-Rice, NTIA) sulle tratte reali: campione di 103 QSO tropo, terreno Open-Meteo 90 m (100 punti), antenne a 10 m, 144 MHz =====
+   bilancio di riferimento SSB (100 W, 2×14 dBi, cavi 2+2 dB, NF 2 dB, S/N 3 dB in 2,4 kHz): perdita massima 209 dB
+   tratte calcolate 8, senza terreno o fuori dai limiti 1 (1 s) — interrotto dal limite orario di Open-Meteo
+   perdita ITM al 50% del tempo (dB): mediana 211.7, 10° 204.9, 90° 221.9; al 10%: mediana 200.7, 10° 193.4, 90° 211.1; all'1%: mediana 187.2, 10° 179.2, 90° 197.7
+   meccanismo ITM «troposcatter»: 8 tratte
+   QSO spiegati da una giornata normale (perdita ≤ 209 dB): al 50% del tempo 25%, nel 10% migliore 75%, nell'1% migliore 100%
+   dB mancanti rispetto all'ITM al 50% (solo i 6 QSO che non bastano): mediana 5.7, 10° 1.0, 90° 12.7
+   il guadagno medio previsto lungo la tratta copre i dB mancanti: evento 50% (6 QSO), stesse tratte 14 giorni dopo 50% (6) — falsi allarmi
+      0–500 km: 2 QSO, ITM 50% mediana 205, spiegati al 50% 100%, all'1% 100%
+      500–900 km: 6 QSO, ITM 50% mediana 215, spiegati al 50% 0%, all'1% 100%

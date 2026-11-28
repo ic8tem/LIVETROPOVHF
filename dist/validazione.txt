@@ -1,0 +1,4 @@
+VALIDAZIONE su 593 collegamenti da D:\a\_temp\prova\Tarature\validazione-2021-12-29.txt
+riquadro 36.0–51.4 N, -11.6–21.3 E; evento 5 giorni dal 29/12/2021; confronto stesse tratte e ore 14 giorni dopo
+griglia «evento 29/12/2021–02/01/2022»: NON riuscita — Previsione propria: limite orario di Open-Meteo raggiunto: riprova dopo le 08:00 (la griglia già scaricata resta salvata) (1 s)
+griglia «confronto +14 giorni»: NON riuscita — Previsione propria: limite orario di Open-Meteo raggiunto: riprova dopo le 08:00 (la griglia già scaricata resta salvata) (0 s)

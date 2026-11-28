@@ -1,0 +1,32 @@
+in esecuzione dopo 20 s: True
+Open-Meteo HTTP 429
+{"error":true,"reason":"Minutely API request limit exceeded. Please try again in one minute."}
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+KeyError: 'hourly'
+json non leggibile
+SST GFS HTTP 429 {"error":true,"reason":"Minutely API request limit exceeded. Please try again in one minute."}
+SST marina HTTP 200 {"latitude":40.541664,"longitude":13.4583435,"generationtime_ms":0.13756752014160156,"utc_offset_seconds":0,"timezone":"GMT","timezone_abbreviation":"GMT","elevation":0.0,"hourly_units":{"time":"iso8601","sea_surface_temperature":"°C"},"hourly":{"time":["2026-11-28T07:00","2026-11-28T08:00","2026-11-28T09:00","2026-11-28T10:00","2026-11-28T11:00","2026-11-28T12:00"],"sea_surface_temperature":[18.4,18.4,18.4,18.4,18.4,18.4]}}
+SST archivio 2022 HTTP 429 {"error":true,"reason":"Hourly API request limit exceeded. Please try again in the next hour."}
+SRTM1 HTTP 200 gz 6622170 hgt 25934402
+meta GFS HTTP 200 {"chunk_time_length":481,"crs_wkt":"GEOGCRS[\"WGS 84\",\n    DATUM[\"World Geodetic System 1984\",\n        ELLIPSOID[\"WGS 84\",6378137,298.257223563]],\n    CS[ellipsoidal,2],\n        AXIS[\"latitude\",north],\n        AXIS[\"longitude\",east],\n        ANGLEUNIT[\"degree\",0.0174532925199433]\n 
+ITU P.453 HTTP 200 8494499 byte
+E_BASE.PNG 458115
+E_base.TXT 233409
+E_MAX_m.PNG 457349
+E_MAX_m.TXT 233409
+E_OCCURRENCE.PNG 383450
+E_OCCURRENCE.TXT 204248
+E_STRENGTH.PNG 416996
+E_STRENGTH.TXT 204248
+E_THICKNESS.PNG 375989
+E_THICKNESS.TXT 204248
+LATITUDES.TXT 233409
+LONGITUDES.TXT 233409
+Readme_Duct_Parameters.docx 5965303
+S_OCCURRENCE.PNG 427123
+S_OCCURRENCE.TXT 204248
+S_STRENGTH.PNG 339623
+S_STRENGTH.TXT 204248
+S_THICKNESS.PNG 409802
+S_THICKNESS.TXT 204248
